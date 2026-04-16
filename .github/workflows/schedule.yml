@@ -25,4 +25,5 @@ jobs:
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          HAS_POSITION: ${{ vars.HAS_POSITION }}  #
         run: python main.py
