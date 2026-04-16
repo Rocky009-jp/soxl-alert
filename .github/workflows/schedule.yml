@@ -6,6 +6,9 @@ on:
     - cron: '30 21 * * 1-5'
   workflow_dispatch: # 手動でテスト実行できるようにするボタン
 
+env:  # ←★この2行を追加します
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -25,5 +28,5 @@ jobs:
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          HAS_POSITION: ${{ vars.HAS_POSITION }}  #
+          HAS_POSITION: ${{ vars.HAS_POSITION }}
         run: python main.py
