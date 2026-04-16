@@ -1,0 +1,28 @@
+name: SOXL Alert Bot
+
+on:
+  schedule:
+    # 日本時間の 火曜〜土曜の 朝6:30 に実行（米国市場引け後）
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch: # 手動でテスト実行できるようにするボタン
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas requests
+
+      - name: Run script
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python main.py
