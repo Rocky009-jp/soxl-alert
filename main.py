@@ -78,6 +78,10 @@ def check_conditions_and_notify():
         print("Discordへ通知を送信しました。")
     else:
         print("本日はサイン点灯なし。")
+                # ↓↓↓ ★ここからテスト用に追加↓↓↓
+        test_message = f"🔧 **【連携テスト成功】** 🔧\nGitHubとDiscordの連携は完璧です！\n(本日の相場 -> SHD: {shd:.2f}%, RSI: {latest_rsi:.2f})"
+        requests.post(DISCORD_WEBHOOK_URL, json={"content": test_message})
+        # ↑↑↑ ★ここまで↑↑↑
 
 if __name__ == "__main__":
     check_conditions_and_notify()
