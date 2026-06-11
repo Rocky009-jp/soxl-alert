@@ -2,77 +2,96 @@ import yfinance as yf
 import pandas as pd
 import requests
 import os
+import json
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
+# 環境変数（GitHub Secrets）から情報を取得
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
-HAS_POSITION = str(os.environ.get("HAS_POSITION", "false")).strip().lower() == "true"
+SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
+GCP_CREDENTIALS_JSON = os.environ.get("GCP_CREDENTIALS")
 
-def check_conditions_and_notify():
-    # データを少し多めに取得して欠損を防ぐ
-    tickers =['SOXX', 'SPY', 'IEF']
-    data = yf.download(tickers, period="2y")['Close']
+def main():
+    print("データ取得を開始します...")
     
-    # 欠損値を前の日のデータで埋める
-    data = data.ffill()
-    
-    # 指標の計算
-    soxx_200sma = data['SOXX'].rolling(window=200).mean().iloc[-1]
-    soxx_latest = data['SOXX'].iloc[-1]
-    is_uptrend = soxx_latest > soxx_200sma
+    # --- 1. データの取得と計算 ---
+    # 200日線を計算するため1年前から取得
+    tickers = ['SOXX', 'SOXL', 'SPY', 'IEF']
+    data = yf.download(tickers, period="1y")
 
-    # SHDの計算（最新がNaNなら一つ前を採用）
-    spy_ret_series = data['SPY'].pct_change(periods=20)
-    ief_ret_series = data['IEF'].pct_change(periods=20)
-    shd_series = (spy_ret_series - ief_ret_series) * 100
-    shd = shd_series.dropna().iloc[-1]
-    
-    delta = data['SOXX'].diff()
+    # データ構造の平坦化処理（yfinanceの仕様変更対応）
+    close_data = data['Close']
+    open_data = data['Open']
+    close_data.index = close_data.index.tz_localize(None)
+    open_data.index = open_data.index.tz_localize(None)
+
+    # 各種指標の計算
+    soxx_200sma = close_data['SOXX'].rolling(window=200).mean().iloc[-1]
+    soxx_latest = close_data['SOXX'].iloc[-1]
+    soxx_kairi = ((soxx_latest - soxx_200sma) / soxx_200sma) * 100
+
+    spy_ret = close_data['SPY'].pct_change(periods=20).iloc[-1]
+    ief_ret = close_data['IEF'].pct_change(periods=20).iloc[-1]
+    shd = (spy_ret - ief_ret) * 100
+
+    delta = close_data['SOXX'].diff()
     up = delta.clip(lower=0)
     down = -1 * delta.clip(upper=0)
     rma_up = up.ewm(alpha=1/14, adjust=False).mean()
     rma_down = down.ewm(alpha=1/14, adjust=False).mean()
     rs = rma_up / rma_down
-    rsi_series = 100 - (100 / (1 + rs))
-    latest_rsi = rsi_series.dropna().iloc[-1]
+    soxx_rsi = 100 - (100 / (1 + rs))
+    latest_rsi = soxx_rsi.iloc[-1]
 
-    print(f"状態: {'[保有中]' if HAS_POSITION else '[待機中]'} -> SHD: {shd:.2f}%, RSI: {latest_rsi:.2f}")
+    soxl_latest = close_data['SOXL'].iloc[-1]
+    # 翌日の始値は「今日」の時点ではまだ不明なので、今日の始値を参考値として取得
+    soxl_today_open = open_data['SOXL'].iloc[-1] 
+    
+    today_str = close_data.index[-1].strftime('%Y/%m/%d')
+    print(f"計算完了: 日付 {today_str}, SOXX {soxx_latest:.2f}, 乖離率 {soxx_kairi:.2f}%, RSI {latest_rsi:.2f}, SHD {shd:.2f}%")
 
-    message = None
+    # --- 2. Googleスプレッドシートへの書き込み ---
+    if GCP_CREDENTIALS_JSON and SPREADSHEET_ID:
+        try:
+            # 認証情報の読み込み
+            creds_dict = json.loads(GCP_CREDENTIALS_JSON)
+            scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+            client = gspread.authorize(creds)
+            
+            # シートを開いてデータを追加
+            sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Data")
+            row_data = [
+                today_str,
+                round(soxx_latest, 2),
+                round(soxx_200sma, 2),
+                round(soxx_kairi, 2),
+                round(latest_rsi, 2),
+                round(shd, 2),
+                round(soxl_latest, 2),
+                round(soxl_today_open, 2)
+            ]
+            sheet.append_row(row_data)
+            print("スプレッドシートへの書き込みが完了しました。")
+        except Exception as e:
+            print(f"スプレッドシート書き込みエラー: {e}")
 
-    # 【待機中】買いサイン
-    if not HAS_POSITION:
-        if is_uptrend and shd < 0 and latest_rsi <= 55:
+    # --- 3. 買いシグナル判定とDiscord通知 ---
+    # 条件: 200日線上 ＆ 乖離率20%未満 ＆ SHD<0 ＆ RSI<=55
+    if soxx_latest > soxx_200sma and soxx_kairi < 20 and shd < 0 and latest_rsi <= 55:
+        if DISCORD_WEBHOOK_URL:
             message = (
-                "@everyone\n"  # ← ここで通知を鳴らします
-                "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n"
-                "指標の条件が揃いました！\n\n"
-                f"📈 **SOXXトレンド**: OK (現在値 {soxx_latest:.2f} > 200SMA {soxx_200sma:.2f})\n"
-                f"🛡️ **Safe Haven Demand**: OK ({shd:.2f}%)\n"
-                f"📉 **SOXX RSI(14)**: OK ({latest_rsi:.2f})\n\n"
-                "✅ **【最終手動確認】**\n"
-                "F&G Indexが **30以下** か確認してください！\n"
-                "https://edition.cnn.com/markets/fear-and-greed"
+                "🚨 **【SOXL 買いシグナル 予備点灯】** 🚨\n"
+                f"日付: {today_str}\n"
+                f"・乖離率: {soxx_kairi:.2f}% (安全圏)\n"
+                f"・RSI: {latest_rsi:.2f}\n"
+                f"・SHD: {shd:.2f}%\n\n"
+                "✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！"
             )
-
-    # 【保有中】売りサイン
+            requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
+            print("Discordへ通知を送信しました。")
     else:
-        if shd >= 3.0 or latest_rsi >= 70:
-            reason = "🚨 **強制脱出（市場過熱）**" if shd >= 3.0 else "💰 **通常利確（買われすぎ）**"
-            message = (
-                "@everyone\n"  # ← ここで通知を鳴らします
-                f"🔴 **【SOXL 売りシグナル 点灯】** 🔴\n"
-                f"利確・撤退のタイミングです！\n\n"
-                f"**【理由】** {reason}\n"
-                f"🛡️ **Safe Haven Demand**: {shd:.2f}%\n"
-                f"📈 **SOXX RSI(14)**: {latest_rsi:.2f}\n"
-                "\n✅ 売却したら「HAS_POSITION」を false に戻してください。"
-            )
-
-    if message:
-        payload = {"content": message}
-        requests.post(DISCORD_WEBHOOK_URL, json=payload)
-    else:
-        # テスト時以外は、条件に合わない時は何も送らない（通知を汚さないため）
-        print("本日はサインなし。")
+        print("買い条件未達のため、通知は送信しません。")
 
 if __name__ == "__main__":
-    check_conditions_and_notify()
+    main()
