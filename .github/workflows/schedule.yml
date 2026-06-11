@@ -1,32 +1,30 @@
-name: SOXL Alert Bot
+name: SOXL Daily Update
 
 on:
   schedule:
-    # 日本時間の 火曜〜土曜の 朝6:30 に実行（米国市場引け後）
+    # 毎日 日本時間の朝6:30（米国引け後）に実行
     - cron: '30 21 * * 1-5'
-  workflow_dispatch: # 手動でテスト実行できるようにするボタン
-
-env:  # ←★この2行を追加します
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4 # v3からv4へ最新化
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5 # v4からv5へ最新化
         with:
           python-version: '3.10'
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas requests
+          pip install yfinance pandas requests gspread oauth2client
 
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          HAS_POSITION: ${{ vars.HAS_POSITION }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         run: python main.py
