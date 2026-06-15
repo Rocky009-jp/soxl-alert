@@ -11,15 +11,22 @@ DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 GCP_CREDENTIALS_JSON = os.environ.get("GCP_CREDENTIALS")
 
+def send_discord_message(content):
+    """Discordへメッセージを送信する関数"""
+    if DISCORD_WEBHOOK_URL:
+        payload = {"content": content}
+        requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        print("Discordへ通知を送信しました。")
+    else:
+        print("Discord URLが設定されていないため、通知をスキップしました。")
+
 def main():
     print("データ取得を開始します...")
     
     # --- 1. データの取得と計算 ---
-    # 200日線を計算するため1年前から取得
     tickers = ['SOXX', 'SOXL', 'SPY', 'IEF']
     data = yf.download(tickers, period="1y")
 
-    # データ構造の平坦化処理（yfinanceの仕様変更対応）
     close_data = data['Close']
     open_data = data['Open']
     close_data.index = close_data.index.tz_localize(None)
@@ -44,7 +51,6 @@ def main():
     latest_rsi = soxx_rsi.iloc[-1]
 
     soxl_latest = close_data['SOXL'].iloc[-1]
-    # 翌日の始値は「今日」の時点ではまだ不明なので、今日の始値を参考値として取得
     soxl_today_open = open_data['SOXL'].iloc[-1] 
     
     today_str = close_data.index[-1].strftime('%Y/%m/%d')
@@ -53,13 +59,11 @@ def main():
     # --- 2. Googleスプレッドシートへの書き込み ---
     if GCP_CREDENTIALS_JSON and SPREADSHEET_ID:
         try:
-            # 認証情報の読み込み
             creds_dict = json.loads(GCP_CREDENTIALS_JSON)
             scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
             creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
             client = gspread.authorize(creds)
             
-            # シートを開いてデータを追加
             sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Data")
             row_data = [
                 today_str,
@@ -76,22 +80,37 @@ def main():
         except Exception as e:
             print(f"スプレッドシート書き込みエラー: {e}")
 
-    # --- 3. 買いシグナル判定とDiscord通知 ---
-    # 条件: 200日線上 ＆ 乖離率20%未満 ＆ SHD<0 ＆ RSI<=55
-    if soxx_latest > soxx_200sma and soxx_kairi < 20 and shd < 0 and latest_rsi <= 55:
-        if DISCORD_WEBHOOK_URL:
-            message = (
-                "🚨 **【SOXL 買いシグナル 予備点灯】** 🚨\n"
-                f"日付: {today_str}\n"
-                f"・乖離率: {soxx_kairi:.2f}% (安全圏)\n"
-                f"・RSI: {latest_rsi:.2f}\n"
-                f"・SHD: {shd:.2f}%\n\n"
-                "✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！"
-            )
-            requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
-            print("Discordへ通知を送信しました。")
+    # --- 3. シグナル判定とDiscord通知 ---
+    
+    # 【A】買いシグナル判定（乖離率の制限を削除）
+    # 条件: 200日線上 ＆ SHD<0 ＆ RSI<=55
+    if soxx_latest > soxx_200sma and shd < 0 and latest_rsi <= 55:
+        msg = (
+            "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n"
+            f"日付: {today_str}\n"
+            f"・SOXXトレンド: OK (現在値 > 200SMA)\n"
+            f"・RSI: {latest_rsi:.2f}\n"
+            f"・SHD: {shd:.2f}%\n\n"
+            "✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！"
+        )
+        send_discord_message(msg)
+
+    # 【B】売りシグナル判定①：過熱による利益確定（または緊急脱出）
+    # 条件: RSI>=70 または SHD>=3.0
+    elif latest_rsi >= 70 or shd >= 3.0:
+        msg = (
+            "🔴 **【SOXL 売りシグナル 点灯】** 🔴\n"
+            "相場が過熱領域に達しました。利益確定（または緊急脱出）を検討してください。\n"
+            f"日付: {today_str}\n"
+            f"・RSI: {latest_rsi:.2f} (基準: 70以上)\n"
+            f"・SHD: {shd:.2f}% (基準: 3.0以上)\n"
+            "※SOXLを保有している場合は、全額売却してMMFに資金を戻すタイミングです。"
+        )
+        send_discord_message(msg)
+        
+    # 【C】通知なし（待機）
     else:
-        print("買い条件未達のため、通知は送信しません。")
+        print("本日は買い・売り共に条件未達のため、通知は送信しません。")
 
 if __name__ == "__main__":
     main()
