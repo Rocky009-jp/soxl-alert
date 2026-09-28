@@ -66,7 +66,7 @@ def main():
             client = gspread.authorize(creds)
             
             sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Data")
-            row_data = [
+                        row_data = [
                 today_str,
                 round(soxx_latest, 2),
                 round(soxx_200sma, 2),
@@ -76,8 +76,35 @@ def main():
                 round(soxl_latest, 2),
                 round(soxl_today_open, 2)
             ]
-　　　   sheet.append_row(row_data)
-　　　　 print("スプレッドシートへの書き込みが完了しました。")
+
+            named_values = {
+                "SOXX終値": row_data[1],
+                "SOXX_200日移動平均": row_data[2],
+                "乖離率": row_data[3],
+                "RSI": row_data[4],
+                "SHD": row_data[5],
+                "SOXL終値": row_data[6],
+                "SOXL始値": row_data[7],
+            }
+
+            invalid_values = []
+            for name, value in named_values.items():
+                try:
+                    finite = math.isfinite(float(value))
+                except (TypeError, ValueError, OverflowError):
+                    finite = False
+
+                if not finite:
+                    invalid_values.append(f"{name}={value!r}")
+
+            if invalid_values:
+                print(
+                    "スプレッドシートへの書き込みをスキップ。"
+                    "有限でない値: " + ", ".join(invalid_values)
+                )
+            else:
+                sheet.append_row(row_data)
+                print("スプレッドシートへの書き込みが完了しました。")
         except Exception as e:
             print(f"スプレッドシート書き込みエラー: {e}")
 
