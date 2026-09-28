@@ -7,6 +7,7 @@ import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+
 # 環境変数（GitHub Secrets）から情報を取得
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
@@ -40,10 +41,34 @@ def main():
     soxx_latest = close_data["SOXX"].iloc[-1]
     soxx_kairi = ((soxx_latest - soxx_200sma) / soxx_200sma) * 100
 
-    spy_ret = close_data["SPY"].pct_change(periods=20).iloc[-1]
-    ief_ret = close_data["IEF"].pct_change(periods=20).iloc[-1]
-    shd = (spy_ret - ief_ret) * 100
+    # SPYとIEFの両方に価格データがある日だけを使ってSHDを計算
+    shd_prices = close_data[["SPY", "IEF"]].dropna()
 
+    if len(shd_prices) >= 21:
+        spy_ret = (
+            shd_prices["SPY"].iloc[-1] / shd_prices["SPY"].iloc[-21]
+        ) - 1
+        ief_ret = (
+            shd_prices["IEF"].iloc[-1] / shd_prices["IEF"].iloc[-21]
+        ) - 1
+        shd = (spy_ret - ief_ret) * 100
+        shd_date = shd_prices.index[-1].strftime("%Y/%m/%d")
+        print(
+            f"SHD内訳: 日付={shd_date}, "
+            f"SPY20日騰落率={spy_ret!r}, "
+            f"IEF20日騰落率={ief_ret!r}, "
+            f"SHD={shd!r}"
+        )
+    else:
+        spy_ret = float("nan")
+        ief_ret = float("nan")
+        shd = float("nan")
+        print(
+            "SHDを計算できません。"
+            f"SPYとIEFの有効な共通データは{len(shd_prices)}日分です。"
+        )
+
+    # SOXXのRSIを計算
     delta = close_data["SOXX"].diff()
     up = delta.clip(lower=0)
     down = -1 * delta.clip(upper=0)
@@ -58,8 +83,11 @@ def main():
 
     today_str = close_data.index[-1].strftime("%Y/%m/%d")
     print(
-        f"計算完了: 日付 {today_str}, SOXX {soxx_latest:.2f}, "
-        f"乖離率 {soxx_kairi:.2f}%, RSI {latest_rsi:.2f}, SHD {shd:.2f}%"
+        f"計算完了: 日付 {today_str}, "
+        f"SOXX {soxx_latest:.2f}, "
+        f"乖離率 {soxx_kairi:.2f}%, "
+        f"RSI {latest_rsi:.2f}, "
+        f"SHD {shd:.2f}%"
     )
 
     # --- 2. Googleスプレッドシートへの書き込み ---
@@ -137,7 +165,8 @@ def main():
             "・SOXXトレンド: OK (現在値 > 200SMA)\n"
             f"・RSI: {latest_rsi:.2f}\n"
             f"・SHD: {shd:.2f}%\n\n"
-            "✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！"
+            "✅ CNN Fear & Greed Indexを確認し、"
+            "**【30以下】**なら買いタイミングです！"
         )
         send_discord_message(msg)
 
@@ -146,11 +175,13 @@ def main():
     elif latest_rsi >= 70 or shd >= 3.0:
         msg = (
             "🔴 **【SOXL 売りシグナル 点灯】** 🔴\n"
-            "相場が過熱領域に達しました。利益確定（または緊急脱出）を検討してください。\n"
+            "相場が過熱領域に達しました。"
+            "利益確定（または緊急脱出）を検討してください。\n"
             f"日付: {today_str}\n"
             f"・RSI: {latest_rsi:.2f} (基準: 70以上)\n"
             f"・SHD: {shd:.2f}% (基準: 3.0以上)\n"
-            "※SOXLを保有している場合は、全額売却してMMFに資金を戻すタイミングです。"
+            "※SOXLを保有している場合は、"
+            "全額売却してMMFに資金を戻すタイミングです。"
         )
         send_discord_message(msg)
 
