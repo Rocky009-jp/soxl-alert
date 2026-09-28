@@ -1,3 +1,4 @@
+import math
 import yfinance as yf
 import pandas as pd
 import requests
@@ -75,8 +76,8 @@ def main():
                 round(soxl_latest, 2),
                 round(soxl_today_open, 2)
             ]
-            sheet.append_row(row_data)
-            print("スプレッドシートへの書き込みが完了しました。")
+　　　   sheet.append_row(row_data)
+　　　　 print("スプレッドシートへの書き込みが完了しました。")
         except Exception as e:
             print(f"スプレッドシート書き込みエラー: {e}")
 
