@@ -40,3 +40,8 @@ node research/SOXL_exit_study_20261023/run_exit_study.mjs
 ## 工程0：現行ツールの初期診断
 
 [診断書](research/phase0_20261023/PHASE0_DIAGNOSIS.md)と[最小修正案](research/phase0_20261023/MINIMAL_FIX_PROPOSAL.md)、[14項目の再現結果](research/phase0_20261023/reproduction_results.json)を追加しました。実ログと合成入力の再現を区別しています。修正は未適用。[Claude Sonnet 5.5向け依頼文](docs/reviews/PHASE0_SONNET55_REQUEST.md)と[モデル分担](docs/MODEL_POLICY.md)も参照してください。
+
+
+## Claudeへの引き継ぎ
+
+共通前提はルートの[CLAUDE.md](CLAUDE.md)。新しい会話へは[入口プロンプト](docs/CLAUDE_START_PROMPT.md)を貼り付けてください。以後の依頼は[個別依頼テンプレート](docs/CLAUDE_TASK_TEMPLATE.md)で対象版・指定モデル・許可範囲・完了条件を固定します。
