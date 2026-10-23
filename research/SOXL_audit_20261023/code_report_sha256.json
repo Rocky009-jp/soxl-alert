@@ -1,0 +1,30 @@
+[
+  {
+    "file": "audit.mjs",
+    "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+  },
+  {
+    "file": "causal_execution.mjs",
+    "sha256": "96d16c380e327b2f5007e2f6c08cd4f73de6350c1a970b4c0dbee9f2c72f5287"
+  },
+  {
+    "file": "test_audit.mjs",
+    "sha256": "160d62b399e722647a847811399c71ed27f2decdf56d6f7bc638311622e462a0"
+  },
+  {
+    "file": "build_audit.mjs",
+    "sha256": "ebc69be860cff70d07df16785a12ebe66b62e10ec732e2c350faa336237f821b"
+  },
+  {
+    "file": "run_audit.mjs",
+    "sha256": "8902f64ab889be395c759d25d06f5d5886ad493bacd310e853ac163663f64860"
+  },
+  {
+    "file": "dividends_verified.json",
+    "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+  },
+  {
+    "file": "SOXL_Audit_Report_2026-10-23.md",
+    "sha256": "5ca2e669c73d5ea532c61c280533ed2c5b37f5094146b60d40a31c9e2f87b2c8"
+  }
+]

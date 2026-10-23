@@ -1,0 +1,38 @@
+[
+  {
+    "ratio": 0.1,
+    "sale_signal_date": "2026-03-11",
+    "sale_date": "2026-03-12",
+    "shares": 414,
+    "sale_price": 53.53,
+    "net_pretax_gain": 2803.420000000002,
+    "basis": 19336
+  },
+  {
+    "ratio": 0.25,
+    "sale_signal_date": "2026-04-08",
+    "sale_date": "2026-04-09",
+    "shares": 398,
+    "sale_price": 68.12,
+    "net_pretax_gain": 7773.820000000003,
+    "basis": 19315.379999999997
+  },
+  {
+    "ratio": 0.5,
+    "sale_signal_date": "2026-04-08",
+    "sale_date": "2026-04-09",
+    "shares": 373,
+    "sale_price": 68.12,
+    "net_pretax_gain": 6050.200000000004,
+    "basis": 19336.03
+  },
+  {
+    "ratio": 1,
+    "sale_signal_date": "2026-04-10",
+    "sale_date": "2026-04-13",
+    "shares": 322,
+    "sale_price": 75.59,
+    "net_pretax_gain": 4992.939999999999,
+    "basis": 19324.530000000002
+  }
+]

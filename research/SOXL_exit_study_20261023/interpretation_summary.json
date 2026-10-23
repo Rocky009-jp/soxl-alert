@@ -1,0 +1,432 @@
+{
+  "per_start": [
+    {
+      "start": "2024-10-01",
+      "bestSell": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 44682.38522296779,
+        "liq": 44682.38522296779
+      },
+      "baseline25": 44682.38522296779,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2024-10-01",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 47063.089999255135,
+        "final_total_jpy150": 7059463.49988827,
+        "net_profit": 37063.089999255135,
+        "liquidation": 39535.273470755135,
+        "final_shares": 362,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 1,
+        "buy_count": 4,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 3.0881789259529957,
+        "final_market_value": 47060,
+        "final_basis": 10094.639999999998,
+        "final_unrealized": 36965.36,
+        "liquidation_jpy150": 5930291.02061327,
+        "pure_profit_jpy150": 5559463.49988827,
+        "mmf_net_total": 40.913290608535924,
+        "dividend_net_total": 56.8167086466,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 34.61,
+        "initial_trend_count": 1,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 0,
+        "total": 50703.100289853355,
+        "liq": 42439.09176785335
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85"
+      ]
+    },
+    {
+      "start": "2025-01-02",
+      "bestSell": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 42339.1533605725,
+        "liq": 42339.1533605725
+      },
+      "baseline25": 42339.1533605725,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2025-01-02",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 45896.92441879124,
+        "final_total_jpy150": 6884538.662818686,
+        "net_profit": 35896.92441879124,
+        "liquidation": 38593.769128791246,
+        "final_shares": 353,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 0,
+        "buy_count": 2,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 6.920339592327414,
+        "final_market_value": 45890,
+        "final_basis": 10030.449999999999,
+        "final_unrealized": 35859.55,
+        "liquidation_jpy150": 5789065.369318686,
+        "pure_profit_jpy150": 5384538.662818686,
+        "mmf_net_total": 1.315592084039492,
+        "dividend_net_total": 36.0588267072,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 22.2,
+        "initial_trend_count": 0,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 0,
+        "total": 45896.92441879124,
+        "liq": 38593.769128791246
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85"
+      ]
+    },
+    {
+      "start": "2025-04-01",
+      "bestSell": {
+        "exit": "P20_OR_R80",
+        "ratio": 0.25,
+        "total": 31399.429900840627,
+        "liq": 31399.429900840627
+      },
+      "baseline25": 31225.812202874007,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2025-04-01",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 36169.16531693474,
+        "final_total_jpy150": 5425374.797540211,
+        "net_profit": 26169.16531693474,
+        "liquidation": 30859.467039434745,
+        "final_shares": 278,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 1,
+        "buy_count": 2,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 29.148135546279924,
+        "final_market_value": 36140,
+        "final_basis": 10092.4,
+        "final_unrealized": 26047.6,
+        "liquidation_jpy150": 4628920.055915211,
+        "pure_profit_jpy150": 3925374.797540211,
+        "mmf_net_total": 120.93639191634134,
+        "dividend_net_total": 0.6289250184,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 34.34,
+        "initial_trend_count": 1,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 1,
+        "total": 45642.732999934444,
+        "liq": 38402.09493343444
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85",
+        "P60_OR_R75"
+      ]
+    },
+    {
+      "start": "2025-07-01",
+      "bestSell": {
+        "exit": "P20_OR_R80",
+        "ratio": 0.25,
+        "total": 31177.046018253808,
+        "liq": 31177.046018253808
+      },
+      "baseline25": 31114.70432013377,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2025-07-01",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 36018.23047251751,
+        "final_total_jpy150": 5402734.570877627,
+        "net_profit": 26018.230472517513,
+        "liquidation": 30726.894923517513,
+        "final_shares": 277,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 1,
+        "buy_count": 2,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 8.225623917862036,
+        "final_market_value": 36010,
+        "final_basis": 10052.789999999999,
+        "final_unrealized": 25957.21,
+        "liquidation_jpy150": 4609034.238527627,
+        "pure_profit_jpy150": 3902734.570877627,
+        "mmf_net_total": 60.39154749911383,
+        "dividend_net_total": 0.6289250184,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 34.34,
+        "initial_trend_count": 1,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 1,
+        "total": 45279.39887283058,
+        "liq": 38100.52856383057
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85",
+        "P60_OR_R75"
+      ]
+    },
+    {
+      "start": "2025-10-01",
+      "bestSell": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 29918.2538303415,
+        "liq": 29918.2538303415
+      },
+      "baseline25": 29918.2538303415,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2025-10-01",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 32763.04134047857,
+        "final_total_jpy150": 4914456.201071785,
+        "net_profit": 22763.04134047857,
+        "liquidation": 28122.806533478568,
+        "final_shares": 252,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 0,
+        "buy_count": 2,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 3.039548814438744,
+        "final_market_value": 32760,
+        "final_basis": 10007.54,
+        "final_unrealized": 22752.46,
+        "liquidation_jpy150": 4218420.980021785,
+        "pure_profit_jpy150": 3414456.2010717853,
+        "mmf_net_total": 10.581340478569883,
+        "dividend_net_total": 0,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 22.21,
+        "initial_trend_count": 0,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 0,
+        "total": 32763.04134047857,
+        "liq": 28122.806533478568
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85"
+      ]
+    },
+    {
+      "start": "2026-01-02",
+      "bestSell": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 22430.62475465224,
+        "liq": 22430.62475465224
+      },
+      "baseline25": 22430.62475465224,
+      "hold25": {
+        "scenario": "BASE",
+        "exit_id": "NO_SELL",
+        "exit_mode": "NONE",
+        "profit_target": null,
+        "exit_RSI": null,
+        "start": "2026-01-02",
+        "reentry": 0.25,
+        "mmfRate": 0.03,
+        "delay": 0,
+        "buffer": 0,
+        "slippage": 0,
+        "final_total": 27842.751554272767,
+        "final_total_jpy150": 4176412.733140915,
+        "net_profit": 17842.751554272767,
+        "liquidation": 24206.760787772768,
+        "final_shares": 214,
+        "allow_initial_reentry": true,
+        "close_target_net": false,
+        "reentry_count": 1,
+        "buy_count": 2,
+        "sell_count": 0,
+        "blocked_sales": 0,
+        "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+        "initial_trend_allowed": true,
+        "initial_trend_fraction": 0.25,
+        "final_cash": 22.738151253936753,
+        "final_market_value": 27820,
+        "final_basis": 10010.51,
+        "final_unrealized": 17809.489999999998,
+        "liquidation_jpy150": 3631014.1181659154,
+        "pure_profit_jpy150": 2676412.733140915,
+        "mmf_net_total": 33.26155427276823,
+        "dividend_net_total": 0,
+        "realized_stock_gain": 0,
+        "realized_stock_tax": 0,
+        "total_order_fees": 34.21,
+        "initial_trend_count": 1,
+        "after_sale_reentry_count": 0
+      },
+      "holdBest": {
+        "ratio": 0,
+        "total": 28609.16633126833,
+        "liq": 24819.52321976833
+      },
+      "q25winsOR": [
+        "P20_OR_R75",
+        "P20_OR_R80",
+        "P20_OR_R85"
+      ]
+    }
+  ],
+  "sensitivity": [
+    {
+      "start": "2024-10-01",
+      "scenario": "FG_ONE_DAY_DELAY_STRESS",
+      "best": {
+        "exit": "NO_SELL",
+        "ratio": 0,
+        "total": 46816.41757890169,
+        "liq": 39337.60692490169
+      },
+      "bestSelling": {
+        "exit": "P20_OR_R85",
+        "ratio": 0.75,
+        "total": 25876.28402731476
+      },
+      "reference": 20322.391396291678
+    },
+    {
+      "start": "2024-10-01",
+      "scenario": "SLIP0.25PCT_ASSUMPTION",
+      "best": {
+        "exit": "NO_SELL",
+        "ratio": 0,
+        "total": 50576.4112040181,
+        "liq": 42338.13989264434
+      },
+      "bestSelling": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 43232.02863840545
+      },
+      "reference": 43232.02863840545
+    },
+    {
+      "start": "2025-01-02",
+      "scenario": "FG_ONE_DAY_DELAY_STRESS",
+      "best": {
+        "exit": "NO_SELL",
+        "ratio": 0,
+        "total": 40835.85526863159,
+        "liq": 34560.60489963159
+      },
+      "bestSelling": {
+        "exit": "P20_OR_R80",
+        "ratio": 1,
+        "total": 26931.334410201373
+      },
+      "reference": 19061.32675072115
+    },
+    {
+      "start": "2025-01-02",
+      "scenario": "SLIP0.25PCT_ASSUMPTION",
+      "best": {
+        "exit": "NO_SELL",
+        "ratio": 0,
+        "total": 45770.322347042056,
+        "liq": 38492.89190599081
+      },
+      "bestSelling": {
+        "exit": "P20_OR_R75",
+        "ratio": 0.25,
+        "total": 40973.29887002497
+      },
+      "reference": 40973.29887002497
+    }
+  ]
+}

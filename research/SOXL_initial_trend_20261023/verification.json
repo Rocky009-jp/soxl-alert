@@ -1,0 +1,19 @@
+{
+  "main_scenarios": 72,
+  "sensitivity_scenarios": 144,
+  "passed": [
+    "72 main scenarios: cash/shares nonnegative, shares integer, zero-share basis zero, every sale net gain >=2%, asset accounting identity",
+    "Identical account-independent signal tape across all 12 conditions, for each start date",
+    "0%: initial yes/no produce identical ledgers for all six starts",
+    "Initial-trend order occurs at most once and never when disabled",
+    "All 18 overlapping prior issuer-dividend diagnostic cells reproduced exactly"
+  ],
+  "signal_tape_hashes": {
+    "2024-10-01": "fd4447751aa672b07c5eea6d9a011fc69103f2d7211d7c9aa958523685053ae2",
+    "2025-01-02": "28bdd1ff1cbd2e720b7c0757f22a74b1a83d7488edf4c9036f8dae56c0adc077",
+    "2025-04-01": "fa413ec96d77e0c2ebd4d44312bf314da2560ec68cb994c01e92dea59667851b",
+    "2025-07-01": "85ba12ebe6f2556b76e78e08bf1a1bd5aeb784e61c3a8199c02ea66fe675e5e8",
+    "2025-10-01": "da55f8dc3c9741698f326fb6359ae56fef0c9a48dcca4347764da4f884e330b3",
+    "2026-01-02": "0829e0e5b8a7a4f04fb7930b26f9a947caf40dc4faae953aed6111eaef0b942a"
+  }
+}

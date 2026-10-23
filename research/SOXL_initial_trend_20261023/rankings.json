@@ -1,0 +1,82 @@
+[
+  {
+    "start": "2024-10-01",
+    "best_total": 44682.38522296779,
+    "best_policies": [
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 44107.16965694802,
+    "baseline25_yes": 44682.38522296779
+  },
+  {
+    "start": "2025-01-02",
+    "best_total": 42339.1533605725,
+    "best_policies": [
+      {
+        "initial": false,
+        "reentry": 0.25
+      },
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 42339.1533605725,
+    "baseline25_yes": 42339.1533605725
+  },
+  {
+    "start": "2025-04-01",
+    "best_total": 31225.812202874007,
+    "best_policies": [
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 30236.569043077197,
+    "baseline25_yes": 31225.812202874007
+  },
+  {
+    "start": "2025-07-01",
+    "best_total": 31114.70432013377,
+    "best_policies": [
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 30103.429841724097,
+    "baseline25_yes": 31114.70432013377
+  },
+  {
+    "start": "2025-10-01",
+    "best_total": 29918.2538303415,
+    "best_policies": [
+      {
+        "initial": false,
+        "reentry": 0.25
+      },
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 29918.2538303415,
+    "baseline25_yes": 29918.2538303415
+  },
+  {
+    "start": "2026-01-02",
+    "best_total": 22430.62475465224,
+    "best_policies": [
+      {
+        "initial": true,
+        "reentry": 0.25
+      }
+    ],
+    "baseline25_no": 18860.607002514582,
+    "baseline25_yes": 22430.62475465224
+  }
+]

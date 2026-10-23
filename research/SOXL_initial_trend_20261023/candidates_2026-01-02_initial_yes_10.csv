@@ -1,0 +1,14 @@
+date,ex,normal,reCandidate,reEligible,sellCandidate,flat,cooldown,last_sale_index,pending,profit
+"2026-01-02",false,false,true,true,false,true,true,,"REENTRY",
+"2026-01-16",false,false,false,false,true,false,true,,"SELL",0.19466605643911428
+"2026-02-06",false,false,true,true,false,true,true,4008,"REENTRY",
+"2026-03-06",false,true,false,false,false,false,true,4008,"NORMAL",-0.20956053867446267
+"2026-03-09",true,false,false,false,false,false,true,4008,"EXFEAR",0.13941789685179007
+"2026-03-11",false,false,false,false,true,false,true,4008,"SELL",0.19872449965753392
+"2026-06-08",false,false,true,true,false,true,true,4044,"REENTRY",
+"2026-06-10",false,true,false,false,false,false,true,4044,"NORMAL",-0.2122619804106317
+"2026-06-12",false,false,false,false,true,false,true,4044,"SELL",0.20056736761569538
+"2026-06-26",true,false,false,false,false,true,true,4109,"EXFEAR",
+"2026-06-30",false,false,false,false,true,false,true,4109,"SELL",0.229305171744
+"2026-07-29",false,true,false,false,false,true,true,4120,"NORMAL",
+"2026-08-04",false,false,false,false,true,false,true,4120,"SELL",0.2995952732192404

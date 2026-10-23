@@ -1,0 +1,12 @@
+[
+  {
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/SOXL?period1=1727740800&period2=1727913600&interval=1m",
+    "status": 422,
+    "body": "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\",\"description\":\"1m data not available for startTime=1727740800 and endTime=1727913600. The requested range must be within the last 30 days.\"}}}"
+  },
+  {
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/SOXL?period1=1786320000&period2=1786492800&interval=1m",
+    "status": 422,
+    "body": "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\",\"description\":\"1m data not available for startTime=1786320000 and endTime=1786492800. The requested range must be within the last 30 days.\"}}}"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "main_scenarios": 720,
+  "sensitivity_scenarios": 480,
+  "passed": [
+    "36 base-case scenarios reproduce prior engine totals and complete ledgers exactly",
+    "720 scenarios: integer/nonnegative balances, zero-share zero basis, minimum net pre-tax gain2%, wealth accounting identities",
+    "36 NO_SELL scenarios: zero actual sells; unsold positions marked to market, no forced liquidation",
+    "Every submitted diagnostic sell matches its specific profit/RSI trigger on prior signal day",
+    "Synthetic threshold checks: profit20/30, RSI75/85 and OR independence produce expected different triggers",
+    "480 one-at-a-time sensitivity scenarios preserve the same accounting/no-loss model checks"
+  ]
+}

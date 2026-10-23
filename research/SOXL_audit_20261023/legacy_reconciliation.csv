@@ -1,0 +1,4 @@
+reentry,reported_total,reproduced_total,reproduced_pure_profit,published_rounding_difference,note
+0,41135,41135.31150462391,31135.31150462391,0,"Recovered numerical reproduction, not proof original code is identical"
+0.25,44683,44682.544360473155,34682.544360473155,0,"Recovered numerical reproduction, not proof original code is identical"
+1,26327,26327.186313554997,16327.186313554997,0,"Recovered numerical reproduction, not proof original code is identical"

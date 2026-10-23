@@ -1,0 +1,22 @@
+[
+  {
+    "file": "audit.mjs",
+    "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+  },
+  {
+    "file": "compare_initial_trend.mjs",
+    "sha256": "03433e994a56bc28e27b5feb842e1b939796a67c60cb63a1fda920665f00c562"
+  },
+  {
+    "file": "run_comparison.mjs",
+    "sha256": "3ddb7abe63808f4e76470d62b25ebd730456212dd8865f38d8a9a31a8655ab86"
+  },
+  {
+    "file": "dividends_verified.json",
+    "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+  },
+  {
+    "file": "SOXL_Initial_Trend_Comparison_2026-10-23.md",
+    "sha256": "2396b0c2e029836d3f6f2143f970e5ac2f26517be5a0c49afb632dc08770fbd5"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "ticker": "SOXL",
+    "status": 200,
+    "rows": 654,
+    "error": null
+  },
+  {
+    "ticker": "SOXX",
+    "status": 200,
+    "rows": 654,
+    "error": null
+  },
+  {
+    "ticker": "SPY",
+    "status": 200,
+    "rows": 654,
+    "error": null
+  },
+  {
+    "ticker": "IEF",
+    "status": 200,
+    "rows": 654,
+    "error": null
+  }
+]

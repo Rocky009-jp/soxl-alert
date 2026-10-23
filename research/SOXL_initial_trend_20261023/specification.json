@@ -1,0 +1,37 @@
+{
+  "ratios": [
+    0,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    1
+  ],
+  "starts": [
+    "2024-10-01",
+    "2025-01-02",
+    "2025-04-01",
+    "2025-07-01",
+    "2025-10-01",
+    "2026-01-02"
+  ],
+  "end": "2026-08-10",
+  "initial_USD": 10000,
+  "USDJPY": 150,
+  "tax": 0.20315,
+  "initial_trend_definition": "Before first actual purchase, permit RSI55 upward-cross entry under F&G>=30 and SOXX>SMA200; allocation equals reentry ratio, so ratio0 disables both",
+  "after_sale_reentry": "Flat; >=3 trading days since actual full sale at signal decision; same F&G/trend/RSI conditions; next-session execution",
+  "default_entry_priority": "SELL candidate > EXFEAR/NORMAL > INITIAL_TREND/REENTRY",
+  "normal_and_exfear_allocation": 1,
+  "close_target_profit": 0.2,
+  "RSI_sell": 75,
+  "minimum_net_pre_tax_gain": 0.02,
+  "execution": "DIAGNOSTIC ideal next-day daily open; retrospective sale gate and fill-dependent sizing; not a tradable market execution simulation",
+  "mmf": "3% scenario; day accrual /365 and monthly tax-net reinvestment, instant sweep/access approximation",
+  "dividends": "Issuer schedule exact amounts, ex-date entitlement, payment-date cash proxy, US10% then JP20.315%",
+  "FG": "historical_proxy, as-of unverified, missing date blocks dependent signal and resets rearm streak",
+  "initial_account": "Zero shares, no sale history; indicator/episode warmup only; no carried prior orders",
+  "objective": "Final total wealth including cash/MMF, net accrued income and unsold SOXL market value; no max-drawdown penalty",
+  "not_OOS": true,
+  "sensitivity": "One-at-a-time assumptions; fixed slippage and FG delay are not observed actual costs/timestamps"
+}

@@ -1,0 +1,161 @@
+{
+  "starts": [
+    "2024-10-01",
+    "2025-01-02",
+    "2025-04-01",
+    "2025-07-01",
+    "2025-10-01",
+    "2026-01-02"
+  ],
+  "ratios": [
+    0,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    1
+  ],
+  "exits": [
+    {
+      "id": "P20_OR_R75",
+      "exitMode": "OR",
+      "profitTarget": 0.2,
+      "exitRsi": 75
+    },
+    {
+      "id": "P20_OR_R80",
+      "exitMode": "OR",
+      "profitTarget": 0.2,
+      "exitRsi": 80
+    },
+    {
+      "id": "P20_OR_R85",
+      "exitMode": "OR",
+      "profitTarget": 0.2,
+      "exitRsi": 85
+    },
+    {
+      "id": "P30_OR_R75",
+      "exitMode": "OR",
+      "profitTarget": 0.3,
+      "exitRsi": 75
+    },
+    {
+      "id": "P30_OR_R80",
+      "exitMode": "OR",
+      "profitTarget": 0.3,
+      "exitRsi": 80
+    },
+    {
+      "id": "P30_OR_R85",
+      "exitMode": "OR",
+      "profitTarget": 0.3,
+      "exitRsi": 85
+    },
+    {
+      "id": "P40_OR_R75",
+      "exitMode": "OR",
+      "profitTarget": 0.4,
+      "exitRsi": 75
+    },
+    {
+      "id": "P40_OR_R80",
+      "exitMode": "OR",
+      "profitTarget": 0.4,
+      "exitRsi": 80
+    },
+    {
+      "id": "P40_OR_R85",
+      "exitMode": "OR",
+      "profitTarget": 0.4,
+      "exitRsi": 85
+    },
+    {
+      "id": "P60_OR_R75",
+      "exitMode": "OR",
+      "profitTarget": 0.6,
+      "exitRsi": 75
+    },
+    {
+      "id": "P60_OR_R80",
+      "exitMode": "OR",
+      "profitTarget": 0.6,
+      "exitRsi": 80
+    },
+    {
+      "id": "P60_OR_R85",
+      "exitMode": "OR",
+      "profitTarget": 0.6,
+      "exitRsi": 85
+    },
+    {
+      "id": "P20_ONLY",
+      "exitMode": "PROFIT_ONLY",
+      "profitTarget": 0.2,
+      "exitRsi": 75
+    },
+    {
+      "id": "P30_ONLY",
+      "exitMode": "PROFIT_ONLY",
+      "profitTarget": 0.3,
+      "exitRsi": 75
+    },
+    {
+      "id": "P40_ONLY",
+      "exitMode": "PROFIT_ONLY",
+      "profitTarget": 0.4,
+      "exitRsi": 75
+    },
+    {
+      "id": "P60_ONLY",
+      "exitMode": "PROFIT_ONLY",
+      "profitTarget": 0.6,
+      "exitRsi": 75
+    },
+    {
+      "id": "R75_ONLY",
+      "exitMode": "RSI_ONLY",
+      "profitTarget": 0.2,
+      "exitRsi": 75
+    },
+    {
+      "id": "R80_ONLY",
+      "exitMode": "RSI_ONLY",
+      "profitTarget": 0.2,
+      "exitRsi": 80
+    },
+    {
+      "id": "R85_ONLY",
+      "exitMode": "RSI_ONLY",
+      "profitTarget": 0.2,
+      "exitRsi": 85
+    },
+    {
+      "id": "NO_SELL",
+      "exitMode": "NONE",
+      "profitTarget": 0.2,
+      "exitRsi": 75
+    }
+  ],
+  "common_options": {
+    "end": "2026-08-10",
+    "initial": 10000,
+    "allowInitialReentry": true,
+    "dividendSchedule": "dividends_verified.json",
+    "dividendMode": "issuer_exact_pay_date_proxy",
+    "mmfRate": 0.03,
+    "closeTargetNet": false,
+    "buffer": 0,
+    "slippage": 0,
+    "delay": 0
+  },
+  "objective": "Maximize final wealth. No drawdown penalty. Separately value hypothetical final liquidation.",
+  "initial_allocation": "Initial trend allocation is coupled to reentry ratio, same as prior study; ratio0 disables initial trend participation",
+  "fixed_vs_state_dependent": "Market indicator tape fixed. Eligibility and sell dates depend on each account position/basis.",
+  "limitations": [
+    "Daily ideal-open retrospective-gate diagnostic only, not real market execution",
+    "Historical FG as-of unverified; not original observed data",
+    "MMF3% and immediate sweep/access approximate",
+    "No untouched OOS; overlapping starts and coarse parameter exploration; no statistical optimality claims"
+  ]
+}

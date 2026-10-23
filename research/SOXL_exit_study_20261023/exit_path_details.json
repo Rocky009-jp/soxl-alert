@@ -1,0 +1,564 @@
+[
+  {
+    "exit": "P20_OR_R75",
+    "summary": {
+      "start": "2025-01-02",
+      "reentry": 0.25,
+      "mmfRate": 0.03,
+      "delay": 0,
+      "buffer": 0,
+      "slippage": 0,
+      "final_total": 42339.1533605725,
+      "final_total_jpy150": 6350873.004085875,
+      "net_profit": 32339.153360572498,
+      "liquidation": 42339.1533605725,
+      "final_shares": 0,
+      "allow_initial_reentry": true,
+      "close_target_net": false,
+      "reentry_count": 2,
+      "buy_count": 10,
+      "sell_count": 8,
+      "blocked_sales": 0,
+      "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+    },
+    "last": {
+      "date": "2026-08-10",
+      "cash": 42325.254286987736,
+      "shares": 0,
+      "basis": 0,
+      "avg_cost": 0,
+      "close": 130,
+      "market_value": 0,
+      "unrealized": 0,
+      "mmf_accrued_gross": 17.44252191097723,
+      "dividend_receivable_net": 0,
+      "total": 42339.1533605725,
+      "liquidation": 42339.1533605725,
+      "note": "MMF scenario; dividend ex-date proxy; liquidation is valuation only, never a forced sale"
+    },
+    "transactions": [
+      {
+        "date": "2025-01-03",
+        "type": "EXFEAR",
+        "shares": 352,
+        "price": 28.32
+      },
+      {
+        "date": "2025-01-23",
+        "type": "SELL",
+        "shares": 352,
+        "price": 33.44,
+        "gain": 1757.9099999999999,
+        "basis": 9990.64
+      },
+      {
+        "date": "2025-02-26",
+        "type": "EXFEAR",
+        "shares": 438,
+        "price": 25.99
+      },
+      {
+        "date": "2025-09-19",
+        "type": "SELL",
+        "shares": 438,
+        "price": 33.56,
+        "gain": 3271.6600000000017,
+        "basis": 11405.619999999999
+      },
+      {
+        "date": "2025-10-17",
+        "type": "EXFEAR",
+        "shares": 355,
+        "price": 39.61
+      },
+      {
+        "date": "2025-10-30",
+        "type": "SELL",
+        "shares": 355,
+        "price": 48.5,
+        "gain": 3111.9500000000007,
+        "basis": 14083.55
+      },
+      {
+        "date": "2025-11-05",
+        "type": "EXFEAR",
+        "shares": 383,
+        "price": 43.22
+      },
+      {
+        "date": "2026-01-07",
+        "type": "SELL",
+        "shares": 383,
+        "price": 52.2,
+        "gain": 3395.340000000004,
+        "basis": 16575.26
+      },
+      {
+        "date": "2026-02-09",
+        "type": "REENTRY",
+        "shares": 80,
+        "price": 59.99
+      },
+      {
+        "date": "2026-03-09",
+        "type": "NORMAL",
+        "shares": 318,
+        "price": 45.51
+      },
+      {
+        "date": "2026-04-09",
+        "type": "SELL",
+        "shares": 398,
+        "price": 68.12,
+        "gain": 7773.820000000003,
+        "basis": 19315.379999999997
+      },
+      {
+        "date": "2026-06-09",
+        "type": "REENTRY",
+        "shares": 28,
+        "price": 227.06
+      },
+      {
+        "date": "2026-06-11",
+        "type": "NORMAL",
+        "shares": 100,
+        "price": 192.3
+      },
+      {
+        "date": "2026-06-16",
+        "type": "SELL",
+        "shares": 128,
+        "price": 267.13,
+        "gain": 8538.25,
+        "basis": 25631.68
+      },
+      {
+        "date": "2026-06-29",
+        "type": "EXFEAR",
+        "shares": 149,
+        "price": 216.36
+      },
+      {
+        "date": "2026-07-01",
+        "type": "SELL",
+        "shares": 149,
+        "price": 237.79,
+        "gain": 3148.339999999993,
+        "basis": 32259.640000000003
+      },
+      {
+        "date": "2026-07-30",
+        "type": "NORMAL",
+        "shares": 325,
+        "price": 107.38
+      },
+      {
+        "date": "2026-08-05",
+        "type": "SELL",
+        "shares": 325,
+        "price": 135.54,
+        "gain": 9107.089999999997,
+        "basis": 34920.5
+      }
+    ]
+  },
+  {
+    "exit": "P30_OR_R75",
+    "summary": {
+      "start": "2025-01-02",
+      "reentry": 0.25,
+      "mmfRate": 0.03,
+      "delay": 0,
+      "buffer": 0,
+      "slippage": 0,
+      "final_total": 14579.169252148135,
+      "final_total_jpy150": 2186875.38782222,
+      "net_profit": 4579.169252148135,
+      "liquidation": 14556.869252148135,
+      "final_shares": 112,
+      "allow_initial_reentry": true,
+      "close_target_net": false,
+      "reentry_count": 2,
+      "buy_count": 8,
+      "sell_count": 4,
+      "blocked_sales": 0,
+      "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+    },
+    "last": {
+      "date": "2026-08-10",
+      "cash": 19.1579594758002,
+      "shares": 112,
+      "basis": 24145.870000000003,
+      "avg_cost": 215.58812500000002,
+      "close": 130,
+      "market_value": 14560,
+      "unrealized": -9585.870000000003,
+      "mmf_accrued_gross": 0.01417164125607138,
+      "dividend_receivable_net": 0,
+      "total": 14579.169252148135,
+      "liquidation": 14556.869252148135,
+      "note": "MMF scenario; dividend ex-date proxy; liquidation is valuation only, never a forced sale"
+    },
+    "transactions": [
+      {
+        "date": "2025-01-03",
+        "type": "EXFEAR",
+        "shares": 352,
+        "price": 28.32
+      },
+      {
+        "date": "2025-09-19",
+        "type": "SELL",
+        "shares": 352,
+        "price": 33.56,
+        "gain": 1800.4800000000014,
+        "basis": 9990.64
+      },
+      {
+        "date": "2025-10-17",
+        "type": "EXFEAR",
+        "shares": 289,
+        "price": 39.61
+      },
+      {
+        "date": "2026-01-07",
+        "type": "SELL",
+        "shares": 289,
+        "price": 52.2,
+        "gain": 3594.510000000002,
+        "basis": 11469.289999999999
+      },
+      {
+        "date": "2026-02-09",
+        "type": "REENTRY",
+        "shares": 59,
+        "price": 59.99
+      },
+      {
+        "date": "2026-03-09",
+        "type": "NORMAL",
+        "shares": 237,
+        "price": 45.51
+      },
+      {
+        "date": "2026-04-09",
+        "type": "SELL",
+        "shares": 296,
+        "price": 68.12,
+        "gain": 5776.300000000003,
+        "basis": 14364.8
+      },
+      {
+        "date": "2026-06-09",
+        "type": "REENTRY",
+        "shares": 20,
+        "price": 227.06
+      },
+      {
+        "date": "2026-06-11",
+        "type": "NORMAL",
+        "shares": 75,
+        "price": 192.3
+      },
+      {
+        "date": "2026-06-16",
+        "type": "SELL",
+        "shares": 95,
+        "price": 267.13,
+        "gain": 6347.119999999999,
+        "basis": 19007.7
+      },
+      {
+        "date": "2026-06-29",
+        "type": "EXFEAR",
+        "shares": 111,
+        "price": 216.36
+      },
+      {
+        "date": "2026-07-30",
+        "type": "NORMAL",
+        "shares": 1,
+        "price": 107.38
+      }
+    ]
+  },
+  {
+    "exit": "P40_OR_R75",
+    "summary": {
+      "start": "2025-01-02",
+      "reentry": 0.25,
+      "mmfRate": 0.03,
+      "delay": 0,
+      "buffer": 0,
+      "slippage": 0,
+      "final_total": 14768.938723963003,
+      "final_total_jpy150": 2215340.8085944504,
+      "net_profit": 4768.938723963003,
+      "liquidation": 14746.628723963004,
+      "final_shares": 113,
+      "allow_initial_reentry": true,
+      "close_target_net": false,
+      "reentry_count": 2,
+      "buy_count": 8,
+      "sell_count": 4,
+      "blocked_sales": 0,
+      "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+    },
+    "last": {
+      "date": "2026-08-10",
+      "cash": 78.89222088936295,
+      "shares": 113,
+      "basis": 24362.23,
+      "avg_cost": 215.5949557522124,
+      "close": 130,
+      "market_value": 14690,
+      "unrealized": -9672.23,
+      "mmf_accrued_gross": 0.0583586291510356,
+      "dividend_receivable_net": 0,
+      "total": 14768.938723963003,
+      "liquidation": 14746.628723963004,
+      "note": "MMF scenario; dividend ex-date proxy; liquidation is valuation only, never a forced sale"
+    },
+    "transactions": [
+      {
+        "date": "2025-01-03",
+        "type": "EXFEAR",
+        "shares": 352,
+        "price": 28.32
+      },
+      {
+        "date": "2025-09-19",
+        "type": "SELL",
+        "shares": 352,
+        "price": 33.56,
+        "gain": 1800.4800000000014,
+        "basis": 9990.64
+      },
+      {
+        "date": "2025-10-17",
+        "type": "EXFEAR",
+        "shares": 289,
+        "price": 39.61
+      },
+      {
+        "date": "2026-01-14",
+        "type": "SELL",
+        "shares": 289,
+        "price": 54.89,
+        "gain": 4371.920000000002,
+        "basis": 11469.289999999999
+      },
+      {
+        "date": "2026-02-09",
+        "type": "REENTRY",
+        "shares": 62,
+        "price": 59.99
+      },
+      {
+        "date": "2026-03-09",
+        "type": "NORMAL",
+        "shares": 247,
+        "price": 45.51
+      },
+      {
+        "date": "2026-04-10",
+        "type": "SELL",
+        "shares": 309,
+        "price": 74.3,
+        "gain": 7935.460000000003,
+        "basis": 15000.759999999998
+      },
+      {
+        "date": "2026-06-09",
+        "type": "REENTRY",
+        "shares": 23,
+        "price": 227.06
+      },
+      {
+        "date": "2026-06-11",
+        "type": "NORMAL",
+        "shares": 83,
+        "price": 192.3
+      },
+      {
+        "date": "2026-06-23",
+        "type": "SELL",
+        "shares": 106,
+        "price": 236,
+        "gain": 3766.199999999997,
+        "basis": 21227.280000000002
+      },
+      {
+        "date": "2026-06-29",
+        "type": "EXFEAR",
+        "shares": 112,
+        "price": 216.36
+      },
+      {
+        "date": "2026-07-30",
+        "type": "NORMAL",
+        "shares": 1,
+        "price": 107.38
+      }
+    ]
+  },
+  {
+    "exit": "P60_OR_R75",
+    "summary": {
+      "start": "2025-01-02",
+      "reentry": 0.25,
+      "mmfRate": 0.03,
+      "delay": 0,
+      "buffer": 0,
+      "slippage": 0,
+      "final_total": 17239.913352430147,
+      "final_total_jpy150": 2585987.002864522,
+      "net_profit": 7239.913352430147,
+      "liquidation": 17217.553352430146,
+      "final_shares": 132,
+      "allow_initial_reentry": true,
+      "close_target_net": false,
+      "reentry_count": 2,
+      "buy_count": 7,
+      "sell_count": 3,
+      "blocked_sales": 0,
+      "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+    },
+    "last": {
+      "date": "2026-08-10",
+      "cash": 79.86627519952786,
+      "shares": 132,
+      "basis": 26316.49,
+      "avg_cost": 199.3673484848485,
+      "close": 130,
+      "market_value": 17160,
+      "unrealized": -9156.490000000002,
+      "mmf_accrued_gross": 0.05907916247636305,
+      "dividend_receivable_net": 0,
+      "total": 17239.913352430147,
+      "liquidation": 17217.553352430146,
+      "note": "MMF scenario; dividend ex-date proxy; liquidation is valuation only, never a forced sale"
+    },
+    "transactions": [
+      {
+        "date": "2025-01-03",
+        "type": "EXFEAR",
+        "shares": 352,
+        "price": 28.32
+      },
+      {
+        "date": "2025-09-19",
+        "type": "SELL",
+        "shares": 352,
+        "price": 33.56,
+        "gain": 1800.4800000000014,
+        "basis": 9990.64
+      },
+      {
+        "date": "2025-10-17",
+        "type": "EXFEAR",
+        "shares": 289,
+        "price": 39.61
+      },
+      {
+        "date": "2026-01-23",
+        "type": "SELL",
+        "shares": 289,
+        "price": 62.48,
+        "gain": 6565.4299999999985,
+        "basis": 11469.289999999999
+      },
+      {
+        "date": "2026-02-09",
+        "type": "REENTRY",
+        "shares": 69,
+        "price": 59.99
+      },
+      {
+        "date": "2026-03-09",
+        "type": "NORMAL",
+        "shares": 276,
+        "price": 45.51
+      },
+      {
+        "date": "2026-04-14",
+        "type": "SELL",
+        "shares": 345,
+        "price": 83.27,
+        "gain": 11962.989999999998,
+        "basis": 16742.56
+      },
+      {
+        "date": "2026-06-09",
+        "type": "REENTRY",
+        "shares": 28,
+        "price": 227.06
+      },
+      {
+        "date": "2026-06-11",
+        "type": "NORMAL",
+        "shares": 103,
+        "price": 192.3
+      },
+      {
+        "date": "2026-07-30",
+        "type": "NORMAL",
+        "shares": 1,
+        "price": 107.38
+      }
+    ]
+  },
+  {
+    "exit": "NO_SELL",
+    "summary": {
+      "start": "2025-01-02",
+      "reentry": 0.25,
+      "mmfRate": 0.03,
+      "delay": 0,
+      "buffer": 0,
+      "slippage": 0,
+      "final_total": 45896.92441879124,
+      "final_total_jpy150": 6884538.662818686,
+      "net_profit": 35896.92441879124,
+      "liquidation": 38593.769128791246,
+      "final_shares": 353,
+      "allow_initial_reentry": true,
+      "close_target_net": false,
+      "reentry_count": 0,
+      "buy_count": 2,
+      "sell_count": 0,
+      "blocked_sales": 0,
+      "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+    },
+    "last": {
+      "date": "2026-08-10",
+      "cash": 6.920339592327414,
+      "shares": 353,
+      "basis": 10030.449999999999,
+      "avg_cost": 28.414872521246455,
+      "close": 130,
+      "market_value": 45890,
+      "unrealized": 35859.55,
+      "mmf_accrued_gross": 0.005119155314872334,
+      "dividend_receivable_net": 0,
+      "total": 45896.92441879124,
+      "liquidation": 38593.769128791246,
+      "note": "MMF scenario; dividend ex-date proxy; liquidation is valuation only, never a forced sale"
+    },
+    "transactions": [
+      {
+        "date": "2025-01-03",
+        "type": "EXFEAR",
+        "shares": 352,
+        "price": 28.32
+      },
+      {
+        "date": "2025-10-17",
+        "type": "EXFEAR",
+        "shares": 1,
+        "price": 39.61
+      }
+    ]
+  }
+]

@@ -1,0 +1,133 @@
+[
+  {
+    "expected_date": "2024-10-07",
+    "trades": [],
+    "previous_candidates": [
+      {
+        "date": "2024-10-04",
+        "ex": false,
+        "normal": false,
+        "reCandidate": true,
+        "reEligible": false,
+        "sellCandidate": false,
+        "flat": true,
+        "cooldown": false,
+        "last_sale_index": null,
+        "pending": "",
+        "profit": null
+      }
+    ]
+  },
+  {
+    "expected_date": "2026-02-09",
+    "trades": [
+      {
+        "date": "2026-02-09",
+        "signal_date": "2026-02-06",
+        "event_id": "2026-02-06:RE_CANDIDATE",
+        "type": "REENTRY",
+        "order_submitted_timestamp": null,
+        "execution_timestamp": null,
+        "execution_phase": "daily_open_proxy",
+        "mode": "legacy_oracle_open_DIAGNOSTIC",
+        "observation_timestamp": null,
+        "fg_quality": "historical_proxy",
+        "cash_before": 20107.791276517455,
+        "shares_before": 0,
+        "basis_before": 0,
+        "status": "FILLED_DIAGNOSTIC",
+        "shares": 83,
+        "price": 59.99,
+        "fee": 22,
+        "cost": 5001.17,
+        "tax": 0,
+        "cash_after": 15106.621276517455,
+        "shares_after": 83
+      }
+    ],
+    "previous_candidates": [
+      {
+        "date": "2026-01-06",
+        "ex": false,
+        "normal": false,
+        "reCandidate": false,
+        "reEligible": false,
+        "sellCandidate": true,
+        "flat": false,
+        "cooldown": true,
+        "last_sale_index": 3954,
+        "pending": "SELL",
+        "profit": 0.24677941145732918
+      },
+      {
+        "date": "2026-02-06",
+        "ex": false,
+        "normal": false,
+        "reCandidate": true,
+        "reEligible": true,
+        "sellCandidate": false,
+        "flat": true,
+        "cooldown": true,
+        "last_sale_index": 4000,
+        "pending": "REENTRY",
+        "profit": null
+      }
+    ]
+  },
+  {
+    "expected_date": "2026-06-09",
+    "trades": [
+      {
+        "date": "2026-06-09",
+        "signal_date": "2026-06-08",
+        "event_id": "2026-06-08:RE_CANDIDATE",
+        "type": "REENTRY",
+        "order_submitted_timestamp": null,
+        "execution_timestamp": null,
+        "execution_phase": "daily_open_proxy",
+        "mode": "legacy_oracle_open_DIAGNOSTIC",
+        "observation_timestamp": null,
+        "fg_quality": "historical_proxy",
+        "cash_before": 26704.730835291,
+        "shares_before": 0,
+        "basis_before": 0,
+        "status": "FILLED_DIAGNOSTIC",
+        "shares": 29,
+        "price": 227.06,
+        "fee": 22,
+        "cost": 6606.74,
+        "tax": 0,
+        "cash_after": 20097.990835291,
+        "shares_after": 29
+      }
+    ],
+    "previous_candidates": [
+      {
+        "date": "2026-04-08",
+        "ex": false,
+        "normal": false,
+        "reCandidate": false,
+        "reEligible": false,
+        "sellCandidate": true,
+        "flat": false,
+        "cooldown": true,
+        "last_sale_index": 4000,
+        "pending": "SELL",
+        "profit": 0.3902860500613685
+      },
+      {
+        "date": "2026-06-08",
+        "ex": false,
+        "normal": false,
+        "reCandidate": true,
+        "reEligible": true,
+        "sellCandidate": false,
+        "flat": true,
+        "cooldown": true,
+        "last_sale_index": 4063,
+        "pending": "REENTRY",
+        "profit": null
+      }
+    ]
+  }
+]

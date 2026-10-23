@@ -1,0 +1,46 @@
+{
+  "audit_date_JST": "2026-10-23",
+  "raw_sources": [
+    {
+      "file": "daily.json",
+      "repo": "holochart/holochart",
+      "path": "examples/demos/tqqq-soxl/data/daily.json",
+      "git_blob_sha1": "93f221eaba0b0b98044f13d0e8443d3c631650e0"
+    },
+    {
+      "file": "daily_adjclose.csv",
+      "repo": "manisahni/marketdata",
+      "path": "daily_adjclose.csv",
+      "git_blob_sha1": "29175a3fd8700cab31762bd72ced772ea5d1c807"
+    },
+    {
+      "file": "fear-greed.csv",
+      "repo": "whit3rabbit/fear-greed-data",
+      "path": "fear-greed.csv",
+      "git_blob_sha1": "cea860f848268aee30e7e6a4613efe1e8cf81bfa"
+    }
+  ],
+  "runtime": "Node.js ESM; standard library only; tested in provided node_repl",
+  "assumptions": {
+    "USDJPY": 150,
+    "tax": 0.20315,
+    "initial_USD": 10000,
+    "mmf_rates": [
+      0,
+      0.02,
+      0.03,
+      0.04
+    ],
+    "fee_rounding": "USD cents nearest, provisional",
+    "SEC": "USD cents ceiling",
+    "dividend_taxes": "US10% then JP20.315%, no foreign tax credit",
+    "cash_credit": "issuer payment-date proxy, broker credit time not verified"
+  },
+  "limitations": [
+    "NO MINUTE/NBBO PERFORMANCE DATA",
+    "Legacy engine uses ideal daily opening fill and retrospective 2% gate for diagnostic reproduction only",
+    "No live orders or GitHub/Discord writes",
+    "Unverified historical FG availability",
+    "MMF operational settlement calendar unresolved"
+  ]
+}

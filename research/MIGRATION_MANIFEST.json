@@ -1,0 +1,2346 @@
+{
+  "created": "2026-10-23",
+  "repository": "Rocky009-jp/soxl-alert",
+  "branch": "docs/v2-roadmap-20261023",
+  "base_commit": "7731ef0c4e02a3a26ae80dcb7ed79f2842c0c2cb",
+  "source_files": 467,
+  "source_bytes": 22980187,
+  "files": [
+    {
+      "path": "research/SOXL_audit_20261023/audit.mjs",
+      "size": 15599,
+      "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/buffer_scenarios_NOT_attribution.csv",
+      "size": 704,
+      "sha256": "61d4608b4e0ddf7a483af9e8c2cad797b64c171de6a312d060802d4047da6eb0"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/build_audit.mjs",
+      "size": 4467,
+      "sha256": "ebc69be860cff70d07df16785a12ebe66b62e10ec732e2c350faa336237f821b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2024-10-01_0.csv",
+      "size": 2296,
+      "sha256": "99188e4e25d12e009c4b106f03fbf0ca229a14bddf6294509985803b4b0429c1"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2024-10-01_100.csv",
+      "size": 2375,
+      "sha256": "ef00ce0acebe4a476e73e5375743b3741363f692854f04b6d48f79b766ffee1b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2024-10-01_25.csv",
+      "size": 2379,
+      "sha256": "6199ea0ac49b77938a117f574ae5d5be6189eec10179c6d07a4972743ef79f1c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-01-02_0.csv",
+      "size": 2074,
+      "sha256": "0fc275bea1fc8d2e8ecd6711c15e0283159bb6287da18cce0e1ba3ddb4a3e9ce"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-01-02_100.csv",
+      "size": 2125,
+      "sha256": "f887a7654356942a0c93773f9e77eaf619ebf05c62b4132f1517cdf21ce3276e"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-01-02_25.csv",
+      "size": 2126,
+      "sha256": "eb8bcb6806ca44c5635d7071f0aeab49698201e815e3f3a2ee07dc8d77c998f5"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-04-01_0.csv",
+      "size": 1542,
+      "sha256": "180cbc797219f1d7a045b117e0f360a11f776625c2b303c0ed0ed43eb5052e3c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-04-01_100.csv",
+      "size": 1599,
+      "sha256": "ec10cc17da290c7a2c76272ab82262d5fad5365631c4ec1c4e78578f6b5883d8"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-04-01_25.csv",
+      "size": 1596,
+      "sha256": "5e26622c9daecf8e51f216ba5c5335e204a29d2b0c4139bc2dc66bb8cea3fcc0"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-07-01_0.csv",
+      "size": 1547,
+      "sha256": "dacb1a0da51552c3befe2306b23f55913874c4c62a8836d8a71320e9fc7cf27d"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-07-01_100.csv",
+      "size": 1602,
+      "sha256": "ced410cbd41c16c2e35a6ffc3e057ca54a3510aff32f3e68e725c2714b3109ed"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-07-01_25.csv",
+      "size": 1600,
+      "sha256": "6fec0ee2985bfb6d04bec4250cf39253c1596b44773cccf7973dac799a50e4c4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-10-01_0.csv",
+      "size": 1373,
+      "sha256": "387b9eb1dbb769d85712579d56ddd8eff6fb2e856eabef4bbdb7a68deb173554"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-10-01_100.csv",
+      "size": 1426,
+      "sha256": "1a4ff812d717ff46dc1b1a54dd59f7e6f9c920b6b23829e2af24549e5c98b50e"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2025-10-01_25.csv",
+      "size": 1428,
+      "sha256": "2b2c36a6aaf9bb30ec64593642a267b9db0d0b88edd919a47b3afb54ed03f2df"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2026-01-02_0.csv",
+      "size": 959,
+      "sha256": "3de59ec1457d4bd81fe0d2fe6715a18f60ef9e5fd965f6d009010cc2980a43c9"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2026-01-02_100.csv",
+      "size": 987,
+      "sha256": "6ca8d4c92fdf2c84ff1d3b2399217e98ea7ee37bbec753f86e3229997c25061c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/candidates_2026-01-02_25.csv",
+      "size": 985,
+      "sha256": "8291fa770840a197bbd7159bab682de7154c167bd2177458acff33de88bdb8e1"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/causal_execution.mjs",
+      "size": 2575,
+      "sha256": "96d16c380e327b2f5007e2f6c08cd4f73de6350c1a970b4c0dbee9f2c72f5287"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/code_report_sha256.json",
+      "size": 869,
+      "sha256": "2ca70c3aed5985be2068c6ae4f8b110bf5b5802be6512ac5a9df7c668497bd90"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2024-10-01_0.csv",
+      "size": 101671,
+      "sha256": "cb4df62bcb8ebd51d48252dd87e4a656e90a3a024a1fd68e52904e3124740d08"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2024-10-01_100.csv",
+      "size": 107461,
+      "sha256": "e950e798b5e8204818a15173375b4c390687f35f08e7f323ea5722909b1bbd09"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2024-10-01_25.csv",
+      "size": 106480,
+      "sha256": "a5a7f5f13b979a4850248675e13d9f8f1b5c8730cd5048f500c4a54c0a1913f9"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-01-02_0.csv",
+      "size": 91408,
+      "sha256": "954adc0032a817b838e59907dc3556d1e8c3c6c04f1f0f6e5f6fd4ccf8a22d41"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-01-02_100.csv",
+      "size": 93859,
+      "sha256": "928456ac05670d2966bb07244b29574118078d773a2f1d2924537540faf39c2a"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-01-02_25.csv",
+      "size": 93247,
+      "sha256": "2519a6f0c5a34231dd8a389f05371474a7ed1cf3f50d48c331a30f3ec4851494"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-04-01_0.csv",
+      "size": 70222,
+      "sha256": "9752bac66dcbd5e8d5fdfc6092684e79f92419deeb93061939b751f1361155f2"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-04-01_100.csv",
+      "size": 72387,
+      "sha256": "0c6c967af4773ad62b7d11947b2607d6e37579118270dbfe4031881cbb3487cb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-04-01_25.csv",
+      "size": 72220,
+      "sha256": "5bbaeb60babb01c6f836537c2ad850a487f03af6177c0540a20535934ab15ec4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-07-01_0.csv",
+      "size": 57889,
+      "sha256": "ef2d1f2b5cfe1c8e942387bb2f0d1def35b8364822eb0345321dffa3ef9a9637"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-07-01_100.csv",
+      "size": 60630,
+      "sha256": "574f03a990d53239a476668cd44c249f705b86a37b30aa6d1980cc0da3bb3570"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-07-01_25.csv",
+      "size": 59956,
+      "sha256": "9df579ed89644321899e962f8a58a9f22847365ac0f92d66bd9014841f82efcb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-10-01_0.csv",
+      "size": 45774,
+      "sha256": "4ebbf92f7849cf70c3f5bc15846f70975d28465df9fc7d91b93259d8b45afb95"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-10-01_100.csv",
+      "size": 48115,
+      "sha256": "85ff450eba672c0371153910d981e7abdb801eeae37f4f9f9c5871e882d02687"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2025-10-01_25.csv",
+      "size": 47858,
+      "sha256": "47eee3417b5ce2dcb2133af487c26545c49c91c7fa611f956aad108d4016b47f"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2026-01-02_0.csv",
+      "size": 30187,
+      "sha256": "4f129ac6a24ec7c8613885362b65cbfafdf0a56d9bde9cd6b809f8cdede2f03b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2026-01-02_100.csv",
+      "size": 30222,
+      "sha256": "34043a0e7b9c38f27db1c74b507ea1af6acaab1fd2192c38ad55ddb2440fedee"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/daily_2026-01-02_25.csv",
+      "size": 30355,
+      "sha256": "5673322631a08df5ecf00de21bf39e9fb25741b1223ec0e0f02fb82d84db685a"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/data/daily.json",
+      "size": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/data/daily_adjclose.csv",
+      "size": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/data/fear-greed.csv",
+      "size": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/data_coverage.json",
+      "size": 1513,
+      "sha256": "d18ac28697d74765e4e4d880ddf1f1bb0536ebea583c30675f5b569411b0ca4a"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/diagnostic_sensitivity.csv",
+      "size": 6584,
+      "sha256": "ea00abd594e73307cd8133edcf06b82258f2b49fe6558e3edf84c211fbfd7f53"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/diagnostic_summary.csv",
+      "size": 3114,
+      "sha256": "bd3a459305544fc494636bea7ddc6db5ec92beb51355ded7ee8ff0a0fc5c07ea"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/disabled_reentry_fault_injection.json",
+      "size": 1780,
+      "sha256": "4cfca54be5b1936db3ce31f7abeb6e8a68bede0f28bd771d43a1fbce5eac34a4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/dividends_verified.json",
+      "size": 826,
+      "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/dividend_zero_evidence.json",
+      "size": 694,
+      "sha256": "7e6781e39e7645e5232fbc795f631cea943e43471edca06de4550353a3017946"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/data_access_probe.json",
+      "size": 983,
+      "sha256": "f5ef7ad9dab699ccb092cd74069565d540e2563ba7b455d6b47b7286074c5ff0"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_crosscheck_status.json",
+      "size": 340,
+      "sha256": "1486a97d37b63f8a78026f048c689e5f14dd6538a015b7c2db61af0a44c6ec01"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_historical_probe.json",
+      "size": 764,
+      "sha256": "ce876b9f731da4c228c97bd81dda657fb979472afc981bd27410be6fea39c10c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_IEF.json",
+      "size": 72276,
+      "sha256": "c233f2de82b62fbccbe4c76ec76f90f0be6cbcf1d264812aadccb398e342da85"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_SOXL.json",
+      "size": 72864,
+      "sha256": "164ec98e4184417a104445202dbe39e77f582f4adbcdd36879c7e0e9f676d9eb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_SOXX.json",
+      "size": 72688,
+      "sha256": "9492e43f5830bfa4fdbd4408f06a9e2320c83d0e1f9442ff96757d9f417b2c6b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/evidence/yahoo_SPY.json",
+      "size": 71602,
+      "sha256": "677c5c47b16a51fb356007b86d66ce847474bd93e963642c696dc5dab3d12672"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/fixed_signal_execution_comparison.csv",
+      "size": 8123,
+      "sha256": "69072b656b9068624cff8a88a6952823ea11c573ccd5acf3be11dd0309c6a139"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/handoff_original.md",
+      "size": 31724,
+      "sha256": "087d14e9b5af4c5f11aa357dc538fceca7b7ce6df17ba73807007350884c96e0"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/initial_state_and_target_variants.csv",
+      "size": 2135,
+      "sha256": "7a97473e39cce25cfd71ca82df825533c3ad2223cbf2b296cb72606c55e02a6f"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/input_manifest.json",
+      "size": 426,
+      "sha256": "dcb7c8962e320167c2b10129326b88e8a910ee381d9c1da81f2ee61742a52bb6"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/intraday_request_manifest.csv",
+      "size": 17868,
+      "sha256": "0e71044e0acf995d44a5254eb7f3989aa05b770cc0a298c1896c645b3f48573c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2024-10-01_0.csv",
+      "size": 101821,
+      "sha256": "eac0887aa84eb82f07d84a15c5ea4c9fd892190d0fb01ca69d96769d716be64b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2024-10-01_100.csv",
+      "size": 107816,
+      "sha256": "29819d686b803b0abea9f3c9789ed09bca7c9da0329be02ef32e3743c3193dec"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2024-10-01_25.csv",
+      "size": 106720,
+      "sha256": "bc62b537df32810afc1c71eea93806395f7799c47c7098ba15db5752fbce25f2"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-01-02_0.csv",
+      "size": 91492,
+      "sha256": "6e2abbdb0d471e8c51b5254b41ae2c10325453e612d2a6106e2dd22914e313be"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-01-02_100.csv",
+      "size": 93914,
+      "sha256": "08c4836b74eca4e35c7f4e679b896117449d970b58ce8558606af14270127a51"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-01-02_25.csv",
+      "size": 93295,
+      "sha256": "3aaba1bc8d5b76a3a1a95f150cee73f2ad7eb381f84f553623a534d89743f8f1"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-04-01_0.csv",
+      "size": 70222,
+      "sha256": "9752bac66dcbd5e8d5fdfc6092684e79f92419deeb93061939b751f1361155f2"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-04-01_100.csv",
+      "size": 72387,
+      "sha256": "0c6c967af4773ad62b7d11947b2607d6e37579118270dbfe4031881cbb3487cb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-04-01_25.csv",
+      "size": 72220,
+      "sha256": "5bbaeb60babb01c6f836537c2ad850a487f03af6177c0540a20535934ab15ec4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-07-01_0.csv",
+      "size": 57889,
+      "sha256": "ef2d1f2b5cfe1c8e942387bb2f0d1def35b8364822eb0345321dffa3ef9a9637"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-07-01_100.csv",
+      "size": 60630,
+      "sha256": "574f03a990d53239a476668cd44c249f705b86a37b30aa6d1980cc0da3bb3570"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-07-01_25.csv",
+      "size": 59956,
+      "sha256": "9df579ed89644321899e962f8a58a9f22847365ac0f92d66bd9014841f82efcb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-10-01_0.csv",
+      "size": 45774,
+      "sha256": "4ebbf92f7849cf70c3f5bc15846f70975d28465df9fc7d91b93259d8b45afb95"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-10-01_100.csv",
+      "size": 48115,
+      "sha256": "85ff450eba672c0371153910d981e7abdb801eeae37f4f9f9c5871e882d02687"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2025-10-01_25.csv",
+      "size": 47858,
+      "sha256": "47eee3417b5ce2dcb2133af487c26545c49c91c7fa611f956aad108d4016b47f"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2026-01-02_0.csv",
+      "size": 30187,
+      "sha256": "4f129ac6a24ec7c8613885362b65cbfafdf0a56d9bde9cd6b809f8cdede2f03b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2026-01-02_100.csv",
+      "size": 30222,
+      "sha256": "34043a0e7b9c38f27db1c74b507ea1af6acaab1fd2192c38ad55ddb2440fedee"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_daily_2026-01-02_25.csv",
+      "size": 30355,
+      "sha256": "5673322631a08df5ecf00de21bf39e9fb25741b1223ec0e0f02fb82d84db685a"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_diagnostic_summary.csv",
+      "size": 3109,
+      "sha256": "9f02b1909915eb53753414b6ca1193b7604e91580d2576cec79921d128558349"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2024-10-01_0.csv",
+      "size": 7583,
+      "sha256": "78f4629ff8a8d7455980b17a11fce11c60696c4c80120ed3b985e83fcef749b7"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2024-10-01_100.csv",
+      "size": 8658,
+      "sha256": "7d3a49923af791bfbb230a1eebf25eb62d7f527e7cbbbf5a8f7bcfb1da1e26ec"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2024-10-01_25.csv",
+      "size": 8345,
+      "sha256": "5e2238766cf78ca7786b9f37610f04279422002271d2dd1b4787e429f373e949"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-01-02_0.csv",
+      "size": 6870,
+      "sha256": "5efb00ee284c245f1786ecf17e39e3b9d58134275bd96ca7bda8139f48c9d55f"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-01-02_100.csv",
+      "size": 7400,
+      "sha256": "a4ef825349b33b80b280ce4adc0fdd2d38dd6a6b6a7d91b3437a8281082ba49c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-01-02_25.csv",
+      "size": 7366,
+      "sha256": "855d73a75ff09f0944af44cde76523d5c083506d3f08d936dfc2191569a9b92f"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-04-01_0.csv",
+      "size": 4909,
+      "sha256": "44db272748365f225d472c2525e931f321e72461f51cebffa5fc9f67efa463f4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-04-01_100.csv",
+      "size": 5338,
+      "sha256": "a903bce5923aabce3593fafc05c4e065a07eb2e5145794bbb97751519e03a56c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-04-01_25.csv",
+      "size": 5334,
+      "sha256": "be7acd39940d1057762a3f8d8777cf87a5d936da161679dc10055cf19173b3d7"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-07-01_0.csv",
+      "size": 4668,
+      "sha256": "68cf41e2cf34a8e5c829c7cca72fe755fd58b1de9409671f3b46ad95070ba062"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-07-01_100.csv",
+      "size": 5087,
+      "sha256": "6f08ea56d7e76a26f120b7bab2e11fe7851a7be6ddd5f98a0d9dd03998d7d7ec"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-07-01_25.csv",
+      "size": 5074,
+      "sha256": "00b8c8e1b5d0ae8840d01778bc4ccaca0323e0e53892dcb663a3b7b5616e3acd"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-10-01_0.csv",
+      "size": 4290,
+      "sha256": "e2995d7b5ce787b34f87d8012ec9ab4651bed2ab88d58c8d02ce777e614a4e66"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-10-01_100.csv",
+      "size": 4791,
+      "sha256": "c6f8ddc4660195f50ac34ea8c272394a1f96af21773489be3d6247270e3ae6cc"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2025-10-01_25.csv",
+      "size": 4875,
+      "sha256": "b87d591a64cbf3e6986f0a9c1891d5a2e96db50910ae01220ffbfea4fddc3fa3"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2026-01-02_0.csv",
+      "size": 3164,
+      "sha256": "00efeb2b23ba2a3fde98ed4b97264842de0b6ed1da7290217f39e10975a0e12b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2026-01-02_100.csv",
+      "size": 3308,
+      "sha256": "5b446a51a7ca2d1f86226a91b2788d0d99d5b8a97ff109ff921595807efed6ad"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/issuer_dividend_ledger_2026-01-02_25.csv",
+      "size": 3368,
+      "sha256": "188763287420ab0609199cf549e5a53a78b3d4f00020a6d63cfd82089c549501"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2024-10-01_0.csv",
+      "size": 7029,
+      "sha256": "1e8331438019a22a1c57ff8ce2fe5ace57de2c8c487a0edb7041f4f3a264f97c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2024-10-01_100.csv",
+      "size": 7940,
+      "sha256": "36d07069ce65a9429d3fef1b562cbf0c38728109c3fab76ba476dbf845754594"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2024-10-01_25.csv",
+      "size": 7810,
+      "sha256": "53db03e5ef3d961ad43e596557a6e52b82f1396a2d64175126df889f5450401d"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-01-02_0.csv",
+      "size": 6492,
+      "sha256": "0e46a8b4db91f89024fd820ddf16e23da79c267a9ce6986820425572a20b7a8b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-01-02_100.csv",
+      "size": 7023,
+      "sha256": "21911401c1b781987763fdeab564fe54c304b39f86fa3bb48b81014878975208"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-01-02_25.csv",
+      "size": 6990,
+      "sha256": "da6396eb12a073cc7d82de0032c8244a30dba0135383af0635aa7fb8bbe5e54d"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-04-01_0.csv",
+      "size": 4909,
+      "sha256": "44db272748365f225d472c2525e931f321e72461f51cebffa5fc9f67efa463f4"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-04-01_100.csv",
+      "size": 5338,
+      "sha256": "a903bce5923aabce3593fafc05c4e065a07eb2e5145794bbb97751519e03a56c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-04-01_25.csv",
+      "size": 5334,
+      "sha256": "be7acd39940d1057762a3f8d8777cf87a5d936da161679dc10055cf19173b3d7"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-07-01_0.csv",
+      "size": 4668,
+      "sha256": "68cf41e2cf34a8e5c829c7cca72fe755fd58b1de9409671f3b46ad95070ba062"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-07-01_100.csv",
+      "size": 5087,
+      "sha256": "6f08ea56d7e76a26f120b7bab2e11fe7851a7be6ddd5f98a0d9dd03998d7d7ec"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-07-01_25.csv",
+      "size": 5074,
+      "sha256": "00b8c8e1b5d0ae8840d01778bc4ccaca0323e0e53892dcb663a3b7b5616e3acd"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-10-01_0.csv",
+      "size": 4290,
+      "sha256": "e2995d7b5ce787b34f87d8012ec9ab4651bed2ab88d58c8d02ce777e614a4e66"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-10-01_100.csv",
+      "size": 4791,
+      "sha256": "c6f8ddc4660195f50ac34ea8c272394a1f96af21773489be3d6247270e3ae6cc"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2025-10-01_25.csv",
+      "size": 4875,
+      "sha256": "b87d591a64cbf3e6986f0a9c1891d5a2e96db50910ae01220ffbfea4fddc3fa3"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2026-01-02_0.csv",
+      "size": 3164,
+      "sha256": "00efeb2b23ba2a3fde98ed4b97264842de0b6ed1da7290217f39e10975a0e12b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2026-01-02_100.csv",
+      "size": 3308,
+      "sha256": "5b446a51a7ca2d1f86226a91b2788d0d99d5b8a97ff109ff921595807efed6ad"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/ledger_2026-01-02_25.csv",
+      "size": 3368,
+      "sha256": "188763287420ab0609199cf549e5a53a78b3d4f00020a6d63cfd82089c549501"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/legacy_ledger_0.csv",
+      "size": 7029,
+      "sha256": "1e8331438019a22a1c57ff8ce2fe5ace57de2c8c487a0edb7041f4f3a264f97c"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/legacy_ledger_100.csv",
+      "size": 7533,
+      "sha256": "da4d55be175220dffcb1aa3dfba89c0e998fb2aa82ac79646ca339fd02078f9b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/legacy_ledger_25.csv",
+      "size": 7817,
+      "sha256": "665316adc6cdb8cb7e9254a03dc038f780fd01e5e7e7699064dfd6584d5a5722"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/legacy_reconciliation.csv",
+      "size": 462,
+      "sha256": "6f3d76bac0623d17f97ca8b47dcd8b8f71f7f87377df719b42beeaceae85f05b"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/provenance.json",
+      "size": 1431,
+      "sha256": "44476c23e050ee14f3e9e57689619f657ae6aec7e3c01b1bc3d6be96c0815a6d"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/README.md",
+      "size": 684,
+      "sha256": "b4c84de6659a62284b7f5ed2530f3ccef7836c57761d480c0082571144b19816"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/reported_date_regression.json",
+      "size": 3353,
+      "sha256": "e4db1fe2626c8db075d43d518b8c931a197fae3d43e53f84adebc576417f4a6a"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/requested_timing_comparison.csv",
+      "size": 3823,
+      "sha256": "6b735c81f3778704027a93d1899edb755c612d46d9a035a926cd865b58c09c6e"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/run_audit.mjs",
+      "size": 413,
+      "sha256": "8902f64ab889be395c759d25d06f5d5886ad493bacd310e853ac163663f64860"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/sec_dividend_zero_evidence.json",
+      "size": 770,
+      "sha256": "9191fdfa44410475911589b850f1a57db6814523646bf4757b84a55f5045b181"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/shd_upstream_crosscheck.json",
+      "size": 82908,
+      "sha256": "81bc48fcb27e100e7ef42c9f86155d37fcfb3aab7e5a7cfb62569292ad7860eb"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/signals.csv",
+      "size": 123499,
+      "sha256": "3fae1198b178365feddad8acc8d36348439b112b5fb75ac4dd0502ee48dc020e"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/SOXL_Audit_Report_2026-10-23.md",
+      "size": 15452,
+      "sha256": "5ca2e669c73d5ea532c61c280533ed2c5b37f5094146b60d40a31c9e2f87b2c8"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/standalone_verification.json",
+      "size": 155,
+      "sha256": "bcd802243b1db267e675855b6e70164aceefe71e01a8ffc9b825b22f35bf29c2"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/test_audit.mjs",
+      "size": 8051,
+      "sha256": "160d62b399e722647a847811399c71ed27f2decdf56d6f7bc638311622e462a0"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/test_results.json",
+      "size": 1894,
+      "sha256": "3970618ffea419ad19050eb604df8e4cc1e3cd89235d4cfc298d712d85989bd3"
+    },
+    {
+      "path": "research/SOXL_audit_20261023/upstream_crosscheck.json",
+      "size": 7124,
+      "sha256": "349307b4b9ac56ec434cf4fb196f24924ff0521d648a1c7bb2471ea6cf11b1a5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/audit.mjs",
+      "size": 15599,
+      "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_0.csv",
+      "size": 2296,
+      "sha256": "99188e4e25d12e009c4b106f03fbf0ca229a14bddf6294509985803b4b0429c1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_10.csv",
+      "size": 2371,
+      "sha256": "63a265fa87f1516e36a19e43776342631b112ba3bf079cc306717c725fbaca13"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_100.csv",
+      "size": 2375,
+      "sha256": "ef00ce0acebe4a476e73e5375743b3741363f692854f04b6d48f79b766ffee1b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_25.csv",
+      "size": 2379,
+      "sha256": "6199ea0ac49b77938a117f574ae5d5be6189eec10179c6d07a4972743ef79f1c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_50.csv",
+      "size": 2374,
+      "sha256": "caade59a28a22530012cac013481c68d3d383bddec56ba8e7507c9c7e0f54c24"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_no_75.csv",
+      "size": 2374,
+      "sha256": "793a3c83168551cf22480555f812f0957a66f330144c11934f3d5b8d74ffcd43"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_0.csv",
+      "size": 2289,
+      "sha256": "e1231dcb8727f2a8b79123f5bb1e881c03a9ea0bb520841224dce5fdef6dd3b5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_10.csv",
+      "size": 2459,
+      "sha256": "57ecc65044952c025fb7bc67ab5a4d70c56c697f5759d577224ccea6c7516863"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_100.csv",
+      "size": 2445,
+      "sha256": "52ebaa4971af0773bf1c180523745408464c6e1888cbcffefc757d8ca76ab76d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_25.csv",
+      "size": 2528,
+      "sha256": "3fc922e5ee9e8a3238d3028b36f6ae55d67eb4fbabddc79bb23f07e5b1903b61"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_50.csv",
+      "size": 2445,
+      "sha256": "b4a37465662df3c81e4db7245bf60a85e85690f3b57c8326afdcfd5075c804b5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2024-10-01_initial_yes_75.csv",
+      "size": 2449,
+      "sha256": "45b7beccf0c34aeae6b7e6e09e9c7453deb8e66e5881bb9458675215efaf3c89"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_0.csv",
+      "size": 2074,
+      "sha256": "0fc275bea1fc8d2e8ecd6711c15e0283159bb6287da18cce0e1ba3ddb4a3e9ce"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_10.csv",
+      "size": 2125,
+      "sha256": "68f14784b0c520bfdb61808ac87f6a492ebbae47c1acf817512946cb2d871193"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_100.csv",
+      "size": 2125,
+      "sha256": "f887a7654356942a0c93773f9e77eaf619ebf05c62b4132f1517cdf21ce3276e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_25.csv",
+      "size": 2126,
+      "sha256": "eb8bcb6806ca44c5635d7071f0aeab49698201e815e3f3a2ee07dc8d77c998f5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_50.csv",
+      "size": 2129,
+      "sha256": "c90476f424ad24747e50ab71c874003008fa22d0b2d5db1ee07dddbee0b84e13"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_no_75.csv",
+      "size": 2129,
+      "sha256": "6310eefc24b4a5a367ff45e97d5f8d1599cce4de727b60be6df046d0a1968f50"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_0.csv",
+      "size": 2070,
+      "sha256": "3a5eeec56dacb73830a195579e5e183288fab05e9277d72fed3f49f0dee984e2"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_10.csv",
+      "size": 2121,
+      "sha256": "526f6e00f3f0e94b775ed5b176b996c121602772939f10589e736733c15b7784"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_100.csv",
+      "size": 2121,
+      "sha256": "df5cd34ddba4a3bc12b325065f8738d2d544cc20439e9777a1a0b8ca4373a153"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_25.csv",
+      "size": 2122,
+      "sha256": "5ec30ba71f7a37dceee2913c1a10c2ee35fefa33f9caad2ceaf88ff406c53a0b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_50.csv",
+      "size": 2125,
+      "sha256": "35ac47d4b7c46b0a255076c29ecf26b5194857c90f5ba352f6f3fcfff064346b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-01-02_initial_yes_75.csv",
+      "size": 2125,
+      "sha256": "34dab4413ec97a2ab1f9e0be75f2f938d4e7b5934dbb3566eb5433583656dae0"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_0.csv",
+      "size": 1542,
+      "sha256": "180cbc797219f1d7a045b117e0f360a11f776625c2b303c0ed0ed43eb5052e3c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_10.csv",
+      "size": 1599,
+      "sha256": "22e0c9388835a6cb41ba247598df350a91f8e9c061386e8e42da7fc301ccb781"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_100.csv",
+      "size": 1599,
+      "sha256": "ec10cc17da290c7a2c76272ab82262d5fad5365631c4ec1c4e78578f6b5883d8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_25.csv",
+      "size": 1596,
+      "sha256": "5e26622c9daecf8e51f216ba5c5335e204a29d2b0c4139bc2dc66bb8cea3fcc0"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_50.csv",
+      "size": 1597,
+      "sha256": "c2760eb3b1f8b015db79e8761704b6e133d773fe54ce0f1c6c1b3a1660926ac9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_no_75.csv",
+      "size": 1601,
+      "sha256": "2902f040662f42c5137a45d0674bdb84e3fadbb14273835b029df5e8f49289a1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_0.csv",
+      "size": 1537,
+      "sha256": "2ccdfdd2d247cdd1eb2d2439d8f2a8cacd4ed840ee80b45f9c4a19485df48555"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_10.csv",
+      "size": 1732,
+      "sha256": "7857b97a2c35b190e2fcc1967ef71a98fcc90e5db838a2ce6e3078f78dc3103c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_100.csv",
+      "size": 1733,
+      "sha256": "0518b2e4206ca93b7d97638746297079c38e5870709e320acaf8e7603f11b6a8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_25.csv",
+      "size": 1731,
+      "sha256": "66a92734e912cc529c5547bc4ce5999a846cdd58a77ce00aa027b1ed2d714036"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_50.csv",
+      "size": 1731,
+      "sha256": "68a9a7af3977b734b6c31e99150e56bbd3deef495a7436f88c079d48bced739e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-04-01_initial_yes_75.csv",
+      "size": 1732,
+      "sha256": "a1f77b3d3cac1ca80e394099f8ee88f7ef8c2a36ff0d7fb5bff7fb9e0ea4b03b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_0.csv",
+      "size": 1547,
+      "sha256": "dacb1a0da51552c3befe2306b23f55913874c4c62a8836d8a71320e9fc7cf27d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_10.csv",
+      "size": 1599,
+      "sha256": "8d3a75a889645231d1afce1517ef8f6398deab33ba6d3fc974456bce45c8d5c7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_100.csv",
+      "size": 1602,
+      "sha256": "ced410cbd41c16c2e35a6ffc3e057ca54a3510aff32f3e68e725c2714b3109ed"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_25.csv",
+      "size": 1600,
+      "sha256": "6fec0ee2985bfb6d04bec4250cf39253c1596b44773cccf7973dac799a50e4c4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_50.csv",
+      "size": 1600,
+      "sha256": "00252ad8e9c8ff3f400ca0c306cbb7a0b52c6375d58c6b0769ea8d71d4958e50"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_no_75.csv",
+      "size": 1599,
+      "sha256": "a5a71a2f4f6e1554b2f75dc835a26eae580f700d5ada0db6562ed3ae289cf0f3"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_0.csv",
+      "size": 1542,
+      "sha256": "f88d663086441d8d8fa8ae059fedf09dd9bf1cde7ab1c6b865ca909770c3c1fe"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_10.csv",
+      "size": 1734,
+      "sha256": "971fa1e2aa7dfdc5a5299dfa8991a657b98b856ecadd1a93f0b843898eb2472e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_100.csv",
+      "size": 1734,
+      "sha256": "bccd45a6f2e81b550c400d3726a11f09b4c7722629d04954ca9a60aa356167aa"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_25.csv",
+      "size": 1734,
+      "sha256": "7ff2b2f5288965ef851ffecb2eca1c515659852ac6e429a731e5f941e5c68ba1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_50.csv",
+      "size": 1728,
+      "sha256": "ba43175c1c89748829e3d13af967eac9378e5663fa0a317a484993cf25a94310"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-07-01_initial_yes_75.csv",
+      "size": 1732,
+      "sha256": "38f2c09ab9582f5fc61d1f5d119255e40841f18f978d90b902e43b43f6ad8c9b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_0.csv",
+      "size": 1373,
+      "sha256": "387b9eb1dbb769d85712579d56ddd8eff6fb2e856eabef4bbdb7a68deb173554"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_10.csv",
+      "size": 1426,
+      "sha256": "61c28723d1e5cff30c939d960215166ce4a7210ff7d80feadba2b4fa1bb4ecb7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_100.csv",
+      "size": 1426,
+      "sha256": "1a4ff812d717ff46dc1b1a54dd59f7e6f9c920b6b23829e2af24549e5c98b50e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_25.csv",
+      "size": 1428,
+      "sha256": "2b2c36a6aaf9bb30ec64593642a267b9db0d0b88edd919a47b3afb54ed03f2df"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_50.csv",
+      "size": 1426,
+      "sha256": "300f5eedb8c5b967e0a087902792b3a66240ae3650a7bb9642a46b6b62bee244"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_no_75.csv",
+      "size": 1426,
+      "sha256": "934aaba4c5028d5330127dce7562032423c6c1775c7674de0e675df3d73dad4d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_0.csv",
+      "size": 1371,
+      "sha256": "003e30a89cc2dea6e2a2c04f526461c9d3f4ed2eceb9dbcd4259057415028562"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_10.csv",
+      "size": 1424,
+      "sha256": "7f105de7cb5c3e9280cedbe2991fb9821da88c39156479932294374c45147845"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_100.csv",
+      "size": 1424,
+      "sha256": "27a6989f1f5ebf8f6b65c15ea339e30f39403c40a6fc92d4060acdebcd446267"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_25.csv",
+      "size": 1426,
+      "sha256": "9a5719a4ebe7bd3893232c5ac728e89b015c3c508ef0b2e61041d4e941730f48"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_50.csv",
+      "size": 1424,
+      "sha256": "355d746e3fd6f9d05df6af7f3145007a2dfc6e706d9479625bea023f085a3376"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2025-10-01_initial_yes_75.csv",
+      "size": 1424,
+      "sha256": "ca4a46b43af7e0d05bc48c5019789d85d6b367a794723cea270985c5137f33ce"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_0.csv",
+      "size": 959,
+      "sha256": "3de59ec1457d4bd81fe0d2fe6715a18f60ef9e5fd965f6d009010cc2980a43c9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_10.csv",
+      "size": 986,
+      "sha256": "3389b0be5108b17734e48e4c1cd30c224c0ad44d5f3da462820af71940adc3e3"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_100.csv",
+      "size": 987,
+      "sha256": "6ca8d4c92fdf2c84ff1d3b2399217e98ea7ee37bbec753f86e3229997c25061c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_25.csv",
+      "size": 985,
+      "sha256": "8291fa770840a197bbd7159bab682de7154c167bd2177458acff33de88bdb8e1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_50.csv",
+      "size": 987,
+      "sha256": "c4bb35cc1c2e8bffdb88a4d25d290931f496d2656f3d4f18268965e185137d43"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_no_75.csv",
+      "size": 983,
+      "sha256": "c1a1c2b1c2888063aafa48c0c891ba4c30821bbf7a4680d0cf45693193cd681b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_0.csv",
+      "size": 954,
+      "sha256": "306a9cda8e8b156ea2aa40a48f0cae939c579bd241215c9e4c682ba8d0619712"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_10.csv",
+      "size": 1105,
+      "sha256": "7b9dddb912b3ce149c0dd9621419c93c8ad1fc9352b23543bf18476ca9876250"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_100.csv",
+      "size": 1111,
+      "sha256": "3d8ca403667584134a0ca9fe834f1c13e887b311296f0aed12fa56f0cb21c82b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_25.csv",
+      "size": 1111,
+      "sha256": "bf9dc853e7f30c8aa5d0d0b370ae051b0e80103e59ca83beffa5a889521505c4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_50.csv",
+      "size": 1108,
+      "sha256": "d28374859c2f6beba540e1af2f5bff158509d6c6cb44a56b428a4e1ab577c4e7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/candidates_2026-01-02_initial_yes_75.csv",
+      "size": 1111,
+      "sha256": "481b72564a8022a215f05669f06d3418b8f016b5f786ed2724a25fd55701034f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/code_report_sha256.json",
+      "size": 650,
+      "sha256": "a3d24182c302a40a188ebe4ce910e6f4cb583707f3c02ea1f5b9181998f1129c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/compare_initial_trend.mjs",
+      "size": 10137,
+      "sha256": "03433e994a56bc28e27b5feb842e1b939796a67c60cb63a1fda920665f00c562"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/comparison_summary.csv",
+      "size": 23081,
+      "sha256": "6cb1c6bd881f063e4a019d933cdc2e1d8dbb9655e7d6f99e4ed20a50f368ac3e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_0.csv",
+      "size": 101821,
+      "sha256": "eac0887aa84eb82f07d84a15c5ea4c9fd892190d0fb01ca69d96769d716be64b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_10.csv",
+      "size": 105367,
+      "sha256": "bb722badfd789c442474ba25047edad97a9167fd41d43b687f5684608cd62516"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_100.csv",
+      "size": 107816,
+      "sha256": "29819d686b803b0abea9f3c9789ed09bca7c9da0329be02ef32e3743c3193dec"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_25.csv",
+      "size": 106720,
+      "sha256": "bc62b537df32810afc1c71eea93806395f7799c47c7098ba15db5752fbce25f2"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_50.csv",
+      "size": 107682,
+      "sha256": "ce6d06fe56cb3a5250444ba23cb8edeb84bc83cccc4bd076aa4d7cf1d3e99a2c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_no_75.csv",
+      "size": 106698,
+      "sha256": "2dda1d62c95fa12463f3700e37b67b5f4df8f62235214abd86a2a54dcff15dda"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_0.csv",
+      "size": 101821,
+      "sha256": "eac0887aa84eb82f07d84a15c5ea4c9fd892190d0fb01ca69d96769d716be64b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_10.csv",
+      "size": 106634,
+      "sha256": "3d294e3e07425f1efec8f6d7a19b1b9bd9696e701dcea538ecf393b206809b83"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_100.csv",
+      "size": 109197,
+      "sha256": "f8f2087bbe5acf2b9977d57bfb2e629db9cc778559ec0927f1240936e8111f64"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_25.csv",
+      "size": 106893,
+      "sha256": "74788788c297ea9854b06d45dff9da406c69c07b2ef24e3dde1ad24fe67a6ba7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_50.csv",
+      "size": 107969,
+      "sha256": "96bb29d8d10c1bd3cd38f3afe8b7b2d36dc8318430d2c33b24dc337a91b141b0"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2024-10-01_initial_yes_75.csv",
+      "size": 111191,
+      "sha256": "9e7cd97cd06b900f7a80a11e69b5b7e477879ca1f3c0ae28951b82fbb44a59bd"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_0.csv",
+      "size": 91492,
+      "sha256": "6e2abbdb0d471e8c51b5254b41ae2c10325453e612d2a6106e2dd22914e313be"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_10.csv",
+      "size": 92310,
+      "sha256": "6eda74c74d73d6f1ea718aad292cc437cb3c154e567f019f1ca62cfbbd013510"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_100.csv",
+      "size": 93914,
+      "sha256": "08c4836b74eca4e35c7f4e679b896117449d970b58ce8558606af14270127a51"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_25.csv",
+      "size": 93295,
+      "sha256": "3aaba1bc8d5b76a3a1a95f150cee73f2ad7eb381f84f553623a534d89743f8f1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_50.csv",
+      "size": 93306,
+      "sha256": "fc9d08de033165c6054de661fb0294a385fc7ca9402f6e3877776ea3688de529"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_no_75.csv",
+      "size": 93522,
+      "sha256": "b3e4093fbec3cc53243a780e3edbba135e255f29362a7af37ad7f356d02952c8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_0.csv",
+      "size": 91492,
+      "sha256": "6e2abbdb0d471e8c51b5254b41ae2c10325453e612d2a6106e2dd22914e313be"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_10.csv",
+      "size": 92310,
+      "sha256": "6eda74c74d73d6f1ea718aad292cc437cb3c154e567f019f1ca62cfbbd013510"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_100.csv",
+      "size": 93914,
+      "sha256": "08c4836b74eca4e35c7f4e679b896117449d970b58ce8558606af14270127a51"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_25.csv",
+      "size": 93295,
+      "sha256": "3aaba1bc8d5b76a3a1a95f150cee73f2ad7eb381f84f553623a534d89743f8f1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_50.csv",
+      "size": 93306,
+      "sha256": "fc9d08de033165c6054de661fb0294a385fc7ca9402f6e3877776ea3688de529"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-01-02_initial_yes_75.csv",
+      "size": 93522,
+      "sha256": "b3e4093fbec3cc53243a780e3edbba135e255f29362a7af37ad7f356d02952c8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_0.csv",
+      "size": 70222,
+      "sha256": "9752bac66dcbd5e8d5fdfc6092684e79f92419deeb93061939b751f1361155f2"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_10.csv",
+      "size": 71112,
+      "sha256": "99065c1e06eeae63a8cf21976e2fda42451558e26f24788c8b4750004154cb1d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_100.csv",
+      "size": 72387,
+      "sha256": "0c6c967af4773ad62b7d11947b2607d6e37579118270dbfe4031881cbb3487cb"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_25.csv",
+      "size": 72220,
+      "sha256": "5bbaeb60babb01c6f836537c2ad850a487f03af6177c0540a20535934ab15ec4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_50.csv",
+      "size": 72432,
+      "sha256": "8c71b6ea502307411374e4986591b13dafbf76f00a7ecabbc10f2e691344d385"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_no_75.csv",
+      "size": 72345,
+      "sha256": "7d09d9afb17b50fdee5c7f1314fcd867fdf3b5b977e7af0976461b7a779fc7f2"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_0.csv",
+      "size": 70222,
+      "sha256": "9752bac66dcbd5e8d5fdfc6092684e79f92419deeb93061939b751f1361155f2"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_10.csv",
+      "size": 72192,
+      "sha256": "888dd49a4e8c367f0300253ccad15301ae907558f024f5b99763a562b5ccdb28"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_100.csv",
+      "size": 74002,
+      "sha256": "f72936a73910427520abc4b7a3c83cc618ba13bae7d9b75904b290f5eafbd287"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_25.csv",
+      "size": 73341,
+      "sha256": "8ebd2455161ab2b6c9b2faffdb29b3a203baa242443a9e6ecce049520bfdad87"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_50.csv",
+      "size": 73195,
+      "sha256": "e818f0bcc85847a2d7ea0a16df890db32e9f3ff501e75ec16a7821383893e0a9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-04-01_initial_yes_75.csv",
+      "size": 73399,
+      "sha256": "a9c2888434f123f6009ef6d9bb276484345e530d1158c1a26f89112a59c5fd58"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_0.csv",
+      "size": 57889,
+      "sha256": "ef2d1f2b5cfe1c8e942387bb2f0d1def35b8364822eb0345321dffa3ef9a9637"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_10.csv",
+      "size": 58870,
+      "sha256": "6ddd3e597430984c67a42f5868671468f82fd5e9b529f5c64e79ec474bee6b6a"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_100.csv",
+      "size": 60630,
+      "sha256": "574f03a990d53239a476668cd44c249f705b86a37b30aa6d1980cc0da3bb3570"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_25.csv",
+      "size": 59956,
+      "sha256": "9df579ed89644321899e962f8a58a9f22847365ac0f92d66bd9014841f82efcb"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_50.csv",
+      "size": 60247,
+      "sha256": "0eafe13fe0c1638a5ab5f171354f1199449f96401fe37c3090bd8a3de36ef221"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_no_75.csv",
+      "size": 59988,
+      "sha256": "d705150e5619566d92fd1e8a9dcf84eb8789e0379bf9ff21798b7a570307e438"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_0.csv",
+      "size": 57889,
+      "sha256": "ef2d1f2b5cfe1c8e942387bb2f0d1def35b8364822eb0345321dffa3ef9a9637"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_10.csv",
+      "size": 59873,
+      "sha256": "2c3dd399210fb309f29231a68a2f7074209f11951aee9ddb6144bb6caa8b7a4d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_100.csv",
+      "size": 61706,
+      "sha256": "c411e6873f5f85295ffb5ee4af2b4279f448025db3eb5392662df5a28bd51dc4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_25.csv",
+      "size": 60716,
+      "sha256": "bf283c9946f146e4a70955af296ae20d0b726e50f2bc8df3716d7e575ece6d12"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_50.csv",
+      "size": 61238,
+      "sha256": "80ab69ea3f89c4c45774da4d22769516347ba0443cc8dc8afab46d71a91919c6"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-07-01_initial_yes_75.csv",
+      "size": 61721,
+      "sha256": "a8b25202b3a7aae25c8ef26477f9bec1f06d518cfc0d538ab2a3d2718c79157c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_0.csv",
+      "size": 45774,
+      "sha256": "4ebbf92f7849cf70c3f5bc15846f70975d28465df9fc7d91b93259d8b45afb95"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_10.csv",
+      "size": 46863,
+      "sha256": "7a166dd3e1a1227cca5534ea7cb7d32ddb55a98ac8a3066760aa073b8034766f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_100.csv",
+      "size": 48115,
+      "sha256": "85ff450eba672c0371153910d981e7abdb801eeae37f4f9f9c5871e882d02687"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_25.csv",
+      "size": 47858,
+      "sha256": "47eee3417b5ce2dcb2133af487c26545c49c91c7fa611f956aad108d4016b47f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_50.csv",
+      "size": 47724,
+      "sha256": "4310b6c7e97f6b1253794c6337b58a9f77ebb2522e553c386dcf0ecadd99a24c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_no_75.csv",
+      "size": 48121,
+      "sha256": "bf35a64b3190e37e0949044c1db7f607b7bdf73e8fb5c3917a6104e7dce5514f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_0.csv",
+      "size": 45774,
+      "sha256": "4ebbf92f7849cf70c3f5bc15846f70975d28465df9fc7d91b93259d8b45afb95"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_10.csv",
+      "size": 46863,
+      "sha256": "7a166dd3e1a1227cca5534ea7cb7d32ddb55a98ac8a3066760aa073b8034766f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_100.csv",
+      "size": 48115,
+      "sha256": "85ff450eba672c0371153910d981e7abdb801eeae37f4f9f9c5871e882d02687"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_25.csv",
+      "size": 47858,
+      "sha256": "47eee3417b5ce2dcb2133af487c26545c49c91c7fa611f956aad108d4016b47f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_50.csv",
+      "size": 47724,
+      "sha256": "4310b6c7e97f6b1253794c6337b58a9f77ebb2522e553c386dcf0ecadd99a24c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2025-10-01_initial_yes_75.csv",
+      "size": 48121,
+      "sha256": "bf35a64b3190e37e0949044c1db7f607b7bdf73e8fb5c3917a6104e7dce5514f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_0.csv",
+      "size": 30187,
+      "sha256": "4f129ac6a24ec7c8613885362b65cbfafdf0a56d9bde9cd6b809f8cdede2f03b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_10.csv",
+      "size": 30430,
+      "sha256": "a5d6b4db48f3d72d88f98f48081a8593b38cbea7103727c53d28d977807aca62"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_100.csv",
+      "size": 30222,
+      "sha256": "34043a0e7b9c38f27db1c74b507ea1af6acaab1fd2192c38ad55ddb2440fedee"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_25.csv",
+      "size": 30355,
+      "sha256": "5673322631a08df5ecf00de21bf39e9fb25741b1223ec0e0f02fb82d84db685a"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_50.csv",
+      "size": 30279,
+      "sha256": "530afd271853dbc60431c18057aad4bee2e050f291acc71ace5cd399c6a3d900"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_no_75.csv",
+      "size": 30289,
+      "sha256": "603358e5c76a5b403f438ce49a8e707993d2b1116c91f9924adf213238665fd0"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_0.csv",
+      "size": 30187,
+      "sha256": "4f129ac6a24ec7c8613885362b65cbfafdf0a56d9bde9cd6b809f8cdede2f03b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_10.csv",
+      "size": 31374,
+      "sha256": "18df81c14b23ab16a364dd8e09aa5cc5e625371efa5a6a7bf72d7981af461d6f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_100.csv",
+      "size": 33161,
+      "sha256": "0db42d3b90d0e53ad1b1b50c49b08dccb71ef3c2a8a646657e24817b1a508f60"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_25.csv",
+      "size": 32907,
+      "sha256": "1b75985d946b28050740b64cc4b2c942cc45fc2cf517f7f3f84938650032f87d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_50.csv",
+      "size": 32802,
+      "sha256": "33aedcbbd8fa065b09775061bcf4fc11e8f2887eba34346feaef693059569fe4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/daily_2026-01-02_initial_yes_75.csv",
+      "size": 32826,
+      "sha256": "4ca5eaf192e0bdf9d80898a632fd414ac6f3a835ccf9e51a4175b541bf900e9b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/data/daily.json",
+      "size": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/data/daily_adjclose.csv",
+      "size": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/data/fear-greed.csv",
+      "size": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/dividends_verified.json",
+      "size": 826,
+      "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/exit_path_attribution.json",
+      "size": 834,
+      "sha256": "48c869c1935e09fa718dba4f670ab66a50590e969e1346c148520cd0be7fa8f6"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/initial_entry_effect.csv",
+      "size": 3581,
+      "sha256": "eb39ee0e1564cabb5376c65e8d1ff496919655dd148ce75c12e2e4e6dba95b9f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/input_manifest.json",
+      "size": 426,
+      "sha256": "dcb7c8962e320167c2b10129326b88e8a910ee381d9c1da81f2ee61742a52bb6"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_0.csv",
+      "size": 7583,
+      "sha256": "78f4629ff8a8d7455980b17a11fce11c60696c4c80120ed3b985e83fcef749b7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_10.csv",
+      "size": 8344,
+      "sha256": "dd1408650ecde4b977210fa489a40f8e28a04700f2a65a4b250afa10e11f7fe6"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_100.csv",
+      "size": 8658,
+      "sha256": "7d3a49923af791bfbb230a1eebf25eb62d7f527e7cbbbf5a8f7bcfb1da1e26ec"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_25.csv",
+      "size": 8345,
+      "sha256": "5e2238766cf78ca7786b9f37610f04279422002271d2dd1b4787e429f373e949"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_50.csv",
+      "size": 8485,
+      "sha256": "1bd65cd393fe5c454cd208cb5840eef18cf08486d594b8b3d40f898d5dca6200"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_no_75.csv",
+      "size": 8373,
+      "sha256": "e4fb94ee2b6a01eb45df486cd39754ef92532423cccf641b838acfd58b812a5a"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_0.csv",
+      "size": 7583,
+      "sha256": "78f4629ff8a8d7455980b17a11fce11c60696c4c80120ed3b985e83fcef749b7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_10.csv",
+      "size": 8556,
+      "sha256": "3fd2df488c1f1f119546d594db0ece9324bc8e09e556b3b8f93c1487c6a1717e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_100.csv",
+      "size": 8265,
+      "sha256": "ca3fcc13e4f43ff81dcfa099c554acf9a2db9805439ebabe3cd8b0846e335cb4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_25.csv",
+      "size": 8364,
+      "sha256": "fa72f8f07bd1ad821d087093b7f3de85a8e16640a135c46a5c38744e818a17af"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_50.csv",
+      "size": 8074,
+      "sha256": "6f07f56f3a7230cd991dc5a9b74161d1e22925151dd729d604c8c84743ef22d1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2024-10-01_initial_yes_75.csv",
+      "size": 8082,
+      "sha256": "35faf18b7f7c28a36f34095b8b8431e40092c645facdb4a2d2c0267b84e10e25"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_0.csv",
+      "size": 6870,
+      "sha256": "5efb00ee284c245f1786ecf17e39e3b9d58134275bd96ca7bda8139f48c9d55f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_10.csv",
+      "size": 7395,
+      "sha256": "0a572c50061bce2ee93fddb78fa48e96b013b0850397391b01b03737d1c6434e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_100.csv",
+      "size": 7400,
+      "sha256": "a4ef825349b33b80b280ce4adc0fdd2d38dd6a6b6a7d91b3437a8281082ba49c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_25.csv",
+      "size": 7366,
+      "sha256": "855d73a75ff09f0944af44cde76523d5c083506d3f08d936dfc2191569a9b92f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_50.csv",
+      "size": 7389,
+      "sha256": "b65a540b0d5fb40c7d6110a248498892b49db771f2b66be0d66868a93ad64ec9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_no_75.csv",
+      "size": 7350,
+      "sha256": "72ad48f729e6842f775ee38bbe8b55e2de10daaed47ed10d9a3d68e7ce1a43d8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_0.csv",
+      "size": 6870,
+      "sha256": "5efb00ee284c245f1786ecf17e39e3b9d58134275bd96ca7bda8139f48c9d55f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_10.csv",
+      "size": 7395,
+      "sha256": "0a572c50061bce2ee93fddb78fa48e96b013b0850397391b01b03737d1c6434e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_100.csv",
+      "size": 7400,
+      "sha256": "a4ef825349b33b80b280ce4adc0fdd2d38dd6a6b6a7d91b3437a8281082ba49c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_25.csv",
+      "size": 7366,
+      "sha256": "855d73a75ff09f0944af44cde76523d5c083506d3f08d936dfc2191569a9b92f"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_50.csv",
+      "size": 7389,
+      "sha256": "b65a540b0d5fb40c7d6110a248498892b49db771f2b66be0d66868a93ad64ec9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-01-02_initial_yes_75.csv",
+      "size": 7350,
+      "sha256": "72ad48f729e6842f775ee38bbe8b55e2de10daaed47ed10d9a3d68e7ce1a43d8"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_0.csv",
+      "size": 4909,
+      "sha256": "44db272748365f225d472c2525e931f321e72461f51cebffa5fc9f67efa463f4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_10.csv",
+      "size": 5415,
+      "sha256": "203395aee333bf1ab983564aaaf7b8b52eda546674d274e4eb6b83f706d5ed24"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_100.csv",
+      "size": 5338,
+      "sha256": "a903bce5923aabce3593fafc05c4e065a07eb2e5145794bbb97751519e03a56c"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_25.csv",
+      "size": 5334,
+      "sha256": "be7acd39940d1057762a3f8d8777cf87a5d936da161679dc10055cf19173b3d7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_50.csv",
+      "size": 5444,
+      "sha256": "6c28d092d9cefe1035e5e977d63b0c39fe75aaa58741a36078daf1ceaec5ec7d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_no_75.csv",
+      "size": 5385,
+      "sha256": "1c24b538b26a878a3b243c2e3baedea36f8ca41e84d119d7bda18576c96ff881"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_0.csv",
+      "size": 4909,
+      "sha256": "44db272748365f225d472c2525e931f321e72461f51cebffa5fc9f67efa463f4"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_10.csv",
+      "size": 5878,
+      "sha256": "0bba4c865e0e6daf2dfa8c684496599e41725df728a9b12d4536ba973de58ca3"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_100.csv",
+      "size": 5887,
+      "sha256": "d2c0b7fd02598e9a0201384c4a48fb99401c12feed5c3ff33755d4dcf37cb3d6"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_25.csv",
+      "size": 5878,
+      "sha256": "db88e6672372450543ff01d7b7663e252df6a2b65eebe51becc69f7f797e93ff"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_50.csv",
+      "size": 5918,
+      "sha256": "17fbd9892a6f84d22a3db0255d3a8bb239334564765262b466802a72dd978800"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-04-01_initial_yes_75.csv",
+      "size": 5907,
+      "sha256": "edc9ac077eed4560bc9c898f11b3d38b08b616aec669f18e3a6383a6fb867542"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_0.csv",
+      "size": 4668,
+      "sha256": "68cf41e2cf34a8e5c829c7cca72fe755fd58b1de9409671f3b46ad95070ba062"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_10.csv",
+      "size": 5152,
+      "sha256": "8f487f8a720be8765e67d6eee601312feb3eb08d80efc40ba616533a51318d00"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_100.csv",
+      "size": 5087,
+      "sha256": "6f08ea56d7e76a26f120b7bab2e11fe7851a7be6ddd5f98a0d9dd03998d7d7ec"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_25.csv",
+      "size": 5074,
+      "sha256": "00b8c8e1b5d0ae8840d01778bc4ccaca0323e0e53892dcb663a3b7b5616e3acd"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_50.csv",
+      "size": 5122,
+      "sha256": "fdc13a8641a03294542eed978ffe71bf4e994edabce071e86bdca1074f6e0946"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_no_75.csv",
+      "size": 5069,
+      "sha256": "eda36e7161462a5aa806a6ebb40feb28f939dfadcfeea8f0d3e933f046c220e7"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_0.csv",
+      "size": 4668,
+      "sha256": "68cf41e2cf34a8e5c829c7cca72fe755fd58b1de9409671f3b46ad95070ba062"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_10.csv",
+      "size": 5599,
+      "sha256": "1dc64e7a8443bc3f320c1cec08fa8c38ca5c58264d9ec8e4901fcc09bb1e2b1e"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_100.csv",
+      "size": 5592,
+      "sha256": "a8cefde3caf0e29504306ed2688e353cf51c14c9b6a270ee6254e344c7ba2ea1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_25.csv",
+      "size": 5545,
+      "sha256": "60d2b8ecf76c0eba7fd22c17e8f4c41633f382732020f9b693211047b90de6fc"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_50.csv",
+      "size": 5578,
+      "sha256": "72349eed83ab3baf570845dfb5d68292f79793eae419652931bc1c955d2edcb1"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-07-01_initial_yes_75.csv",
+      "size": 5668,
+      "sha256": "2878eda8310a195366f37f1fdd05851aa123112a6339ec97d0f20ca7ae606702"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_0.csv",
+      "size": 4290,
+      "sha256": "e2995d7b5ce787b34f87d8012ec9ab4651bed2ab88d58c8d02ce777e614a4e66"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_10.csv",
+      "size": 4882,
+      "sha256": "c2758b8b0adc7a3c2dc431db99a2bd0b8d5bba55e908b440bd975f5768ad8d79"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_100.csv",
+      "size": 4791,
+      "sha256": "c6f8ddc4660195f50ac34ea8c272394a1f96af21773489be3d6247270e3ae6cc"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_25.csv",
+      "size": 4875,
+      "sha256": "b87d591a64cbf3e6986f0a9c1891d5a2e96db50910ae01220ffbfea4fddc3fa3"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_50.csv",
+      "size": 4761,
+      "sha256": "6f3bda3f9f6b5dd05346983782295760dd17c6899c8bc9fa62a34d40bb90568b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_no_75.csv",
+      "size": 4875,
+      "sha256": "a0e76a213a5cf3f65222d6cd8f6f32cdf91d3f4f0e94e78ce44459e89bf80c49"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_0.csv",
+      "size": 4290,
+      "sha256": "e2995d7b5ce787b34f87d8012ec9ab4651bed2ab88d58c8d02ce777e614a4e66"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_10.csv",
+      "size": 4882,
+      "sha256": "c2758b8b0adc7a3c2dc431db99a2bd0b8d5bba55e908b440bd975f5768ad8d79"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_100.csv",
+      "size": 4791,
+      "sha256": "c6f8ddc4660195f50ac34ea8c272394a1f96af21773489be3d6247270e3ae6cc"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_25.csv",
+      "size": 4875,
+      "sha256": "b87d591a64cbf3e6986f0a9c1891d5a2e96db50910ae01220ffbfea4fddc3fa3"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_50.csv",
+      "size": 4761,
+      "sha256": "6f3bda3f9f6b5dd05346983782295760dd17c6899c8bc9fa62a34d40bb90568b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2025-10-01_initial_yes_75.csv",
+      "size": 4875,
+      "sha256": "a0e76a213a5cf3f65222d6cd8f6f32cdf91d3f4f0e94e78ce44459e89bf80c49"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_0.csv",
+      "size": 3164,
+      "sha256": "00efeb2b23ba2a3fde98ed4b97264842de0b6ed1da7290217f39e10975a0e12b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_10.csv",
+      "size": 3449,
+      "sha256": "5f62f29bfcd8007fa49ee6bd20f7860b5245a2cbe04457f3300eeb76e68ad729"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_100.csv",
+      "size": 3308,
+      "sha256": "5b446a51a7ca2d1f86226a91b2788d0d99d5b8a97ff109ff921595807efed6ad"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_25.csv",
+      "size": 3368,
+      "sha256": "188763287420ab0609199cf549e5a53a78b3d4f00020a6d63cfd82089c549501"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_50.csv",
+      "size": 3345,
+      "sha256": "74777c3514a377ba75cf339c863e35ae8f8ab9715cdeb147b640d06fe080b781"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_no_75.csv",
+      "size": 3368,
+      "sha256": "c33c3b9474ee0a44f7fc826d5875a924ea058fc525709be95ca5cbea941cfbc9"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_0.csv",
+      "size": 3164,
+      "sha256": "00efeb2b23ba2a3fde98ed4b97264842de0b6ed1da7290217f39e10975a0e12b"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_10.csv",
+      "size": 3961,
+      "sha256": "a884397efe72a4026cbd3acb472c7c318c169191483d3e5421212b2c8d5430cb"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_100.csv",
+      "size": 4021,
+      "sha256": "5641a9ed2fd2f248e7cb805f62098d31e6e933360e1f70ab3ab37ff7ceb2e013"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_25.csv",
+      "size": 4066,
+      "sha256": "8fa3eadd3a98ea5956d5591e008015fd9d19cbb7255c97db312543dcd16a53b5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_50.csv",
+      "size": 4012,
+      "sha256": "6f85d5257c2a295c8e402728cc8d88f4c99000b487d03995ff574d1968229f1a"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/ledger_2026-01-02_initial_yes_75.csv",
+      "size": 4033,
+      "sha256": "3bfed41e9fbd03f9994d931747d81c6578ae8147d8995a169fc4d789e33907df"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/previous_dividend_summary.csv",
+      "size": 3109,
+      "sha256": "9f02b1909915eb53753414b6ca1193b7604e91580d2576cec79921d128558349"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/provenance.json",
+      "size": 1431,
+      "sha256": "44476c23e050ee14f3e9e57689619f657ae6aec7e3c01b1bc3d6be96c0815a6d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/rankings.json",
+      "size": 1623,
+      "sha256": "9ff3ecc00706df253240fa773fd5c7458b0a845c61f61766c5c1d266ccd0f8bc"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/README.md",
+      "size": 711,
+      "sha256": "30d212b1caaba186573abd710783ef1c38ef4ef3ef1f570024b0094a2f947f34"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/rerun_verification.json",
+      "size": 161,
+      "sha256": "e0bf06b0f951d0a94024ece6e245ab672a41409bb7840ca9c4d6a9c7a5369b6a"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/run_comparison.mjs",
+      "size": 583,
+      "sha256": "3ddb7abe63808f4e76470d62b25ebd730456212dd8865f38d8a9a31a8655ab86"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/sensitivity.csv",
+      "size": 49409,
+      "sha256": "3dc2a643c3447dd478d537c8f4f99e6269cb631bdbc1a41451d738ef42e6a81d"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/sensitivity_rankings.json",
+      "size": 4958,
+      "sha256": "7dd4124ea3cb8f6d14fbca1aed7c66026c7dea1a0a1e135b436c56ac4466da80"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/SOXL_Initial_Trend_Comparison_2026-10-23.md",
+      "size": 11935,
+      "sha256": "2396b0c2e029836d3f6f2143f970e5ac2f26517be5a0c49afb632dc08770fbd5"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/specification.json",
+      "size": 1676,
+      "sha256": "53f5827cbdb34802b552417243ff1e183c638fd6a48a5a65f07b5dda45e396a0"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/trade_paths.json",
+      "size": 826971,
+      "sha256": "7be1034d255d220238d7cbda37ab5a7c81d3887aabe97639e4cf3bc5f9f11457"
+    },
+    {
+      "path": "research/SOXL_initial_trend_20261023/verification.json",
+      "size": 1085,
+      "sha256": "e25fa3d2c560a4ed2ba48f0562d53195a608693cf145df2d95fc191300d3c8a1"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/all_transactions.csv",
+      "size": 4080630,
+      "sha256": "4afa70af27b7ab1e705cc9940af7a74797e41cac2cb7dd9a1470f260f5b3fa8b"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/audit_exit.mjs",
+      "size": 15844,
+      "sha256": "9fe10b5185d9900bc3ea2d364d27c6484054933a1f532d05c24bf177fed5ec0a"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/audit_previous.mjs",
+      "size": 15599,
+      "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/code_report_sha256.json",
+      "size": 759,
+      "sha256": "faff5407e7bb13fe2128333f9a09cfd898e48f18c44bd77dcc521ced35d5641c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2024-10-01_NO_SELL_0.csv",
+      "size": 111528,
+      "sha256": "bfa94b7db6b350a3355292290979f5cd7b8d4c1dc145ea9881109ec1e831822b"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2024-10-01_NO_SELL_0p1.csv",
+      "size": 118171,
+      "sha256": "e6f80af0743f40bfd7831f5e52ce659e2c08647bfe147ff15e641830159e9467"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2024-10-01_NO_SELL_0p25.csv",
+      "size": 118253,
+      "sha256": "0f320c109e417e27fa223100a6576f5c58d806670d75f962949fd13341e0c90b"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2024-10-01_P20_OR_R75_0p25.csv",
+      "size": 106893,
+      "sha256": "74788788c297ea9854b06d45dff9da406c69c07b2ef24e3dde1ad24fe67a6ba7"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2024-10-01_P20_OR_R80_0p25.csv",
+      "size": 106893,
+      "sha256": "74788788c297ea9854b06d45dff9da406c69c07b2ef24e3dde1ad24fe67a6ba7"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0.csv",
+      "size": 100781,
+      "sha256": "72e629b18d189a03d575d67c17894c3bb94bdef8b7ad374295a87879ffe51b06"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0p1.csv",
+      "size": 100781,
+      "sha256": "72e629b18d189a03d575d67c17894c3bb94bdef8b7ad374295a87879ffe51b06"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0p25.csv",
+      "size": 100781,
+      "sha256": "72e629b18d189a03d575d67c17894c3bb94bdef8b7ad374295a87879ffe51b06"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0p5.csv",
+      "size": 100781,
+      "sha256": "72e629b18d189a03d575d67c17894c3bb94bdef8b7ad374295a87879ffe51b06"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0p75.csv",
+      "size": 100781,
+      "sha256": "72e629b18d189a03d575d67c17894c3bb94bdef8b7ad374295a87879ffe51b06"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-01-02_P20_OR_R75_0p25.csv",
+      "size": 93295,
+      "sha256": "3aaba1bc8d5b76a3a1a95f150cee73f2ad7eb381f84f553623a534d89743f8f1"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_NO_SELL_0p1.csv",
+      "size": 81231,
+      "sha256": "1e25f0d474127b5ab7079248583ddbcb4834bd1b92f51fc7e38dc52ad6993819"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_NO_SELL_0p25.csv",
+      "size": 78941,
+      "sha256": "abf4e256550de85507a550093bad858b373d9c6518234d2287cb67d3ccd98f7a"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_NO_SELL_0p5.csv",
+      "size": 80121,
+      "sha256": "41d213e8655126280fc34b51d32518f3bebde2958b9722e38348ba268ab262fa"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_NO_SELL_0p75.csv",
+      "size": 78489,
+      "sha256": "f4ca144672a7f0b9f69dd61f5ed810f40846c9d93c10ddbbc8c33d1af7cf1063"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_NO_SELL_1.csv",
+      "size": 79188,
+      "sha256": "585a22bcc22abb17d13e391ef7b4f05975d74354e84b054300df82126b3e10e1"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-04-01_P20_OR_R75_0p25.csv",
+      "size": 73341,
+      "sha256": "8ebd2455161ab2b6c9b2faffdb29b3a203baa242443a9e6ecce049520bfdad87"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_NO_SELL_0p1.csv",
+      "size": 66255,
+      "sha256": "4e743e3ca9b510687832e7438a7f124c398ee265b284bf1b12664bdd33f4e14d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_NO_SELL_0p25.csv",
+      "size": 68447,
+      "sha256": "8920701e8eaf1f22887944015be14f7a212aa8604690fd5751e9a39ec7f6ce02"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_NO_SELL_0p5.csv",
+      "size": 66065,
+      "sha256": "2f21bbb8f3f61c73ee091c3b51c24039ef7158d5e73f75662437d2035d890c69"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_NO_SELL_0p75.csv",
+      "size": 66462,
+      "sha256": "6d9f09304926198a08f6c3416afd13cd7877d0ccaf82853825108dc74578631b"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_NO_SELL_1.csv",
+      "size": 69174,
+      "sha256": "c458037eefb37acc8d7585e2d8547f074d5bde9e6e909482c3919a9075016dfe"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-07-01_P20_OR_R75_0p25.csv",
+      "size": 60716,
+      "sha256": "bf283c9946f146e4a70955af296ae20d0b726e50f2bc8df3716d7e575ece6d12"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_NO_SELL_0.csv",
+      "size": 52143,
+      "sha256": "5377f9e561b91fdb4a6b206f7e54a18eff5549f6e1c82652088d952c606d9e7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_NO_SELL_0p1.csv",
+      "size": 52143,
+      "sha256": "5377f9e561b91fdb4a6b206f7e54a18eff5549f6e1c82652088d952c606d9e7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_NO_SELL_0p25.csv",
+      "size": 52143,
+      "sha256": "5377f9e561b91fdb4a6b206f7e54a18eff5549f6e1c82652088d952c606d9e7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_NO_SELL_0p5.csv",
+      "size": 52143,
+      "sha256": "5377f9e561b91fdb4a6b206f7e54a18eff5549f6e1c82652088d952c606d9e7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_NO_SELL_0p75.csv",
+      "size": 52143,
+      "sha256": "5377f9e561b91fdb4a6b206f7e54a18eff5549f6e1c82652088d952c606d9e7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2025-10-01_P20_OR_R75_0p25.csv",
+      "size": 47858,
+      "sha256": "47eee3417b5ce2dcb2133af487c26545c49c91c7fa611f956aad108d4016b47f"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_NO_SELL_0.csv",
+      "size": 35559,
+      "sha256": "e40712ffdf0eba7e1eacb532a78aa97483da120f6ef2485571f1c8b6157db6b7"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_NO_SELL_0p1.csv",
+      "size": 37735,
+      "sha256": "915258d8f5c3e647da8c5c13777ec49d21d51d2e5680bb08332ed98533df2138"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_NO_SELL_0p25.csv",
+      "size": 37185,
+      "sha256": "6a62b7a8018f8ad469db7a394f0ba195ba92e14dd99ab46e344263b6608099d5"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_NO_SELL_0p5.csv",
+      "size": 36301,
+      "sha256": "a32ffb0ce5ba117ca88f6d57a6c001525ddaa5c4ea14e3168c1826edd0c402a0"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_NO_SELL_0p75.csv",
+      "size": 36609,
+      "sha256": "52af2aba3c3e9389dbad635b68886da063da80a9605e5196b3b84890991ef4e4"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/daily_2026-01-02_P20_OR_R75_0p25.csv",
+      "size": 32907,
+      "sha256": "1b75985d946b28050740b64cc4b2c942cc45fc2cf517f7f3f84938650032f87d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/data/daily.json",
+      "size": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/data/daily_adjclose.csv",
+      "size": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/data/fear-greed.csv",
+      "size": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/dividends_verified.json",
+      "size": 826,
+      "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/exit_path_details.json",
+      "size": 13353,
+      "sha256": "d1bfeac7f8bb804465ca4c7e3cb6405420cafcde0d6429ecb9c4ca0e932e2e26"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/exit_study.mjs",
+      "size": 10480,
+      "sha256": "1997f9a2af3a61b01d9e3c1bb5930f7977ec35554df860223e48d07ca76a35f5"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/input_manifest.json",
+      "size": 426,
+      "sha256": "dcb7c8962e320167c2b10129326b88e8a910ee381d9c1da81f2ee61742a52bb6"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/interpretation_summary.json",
+      "size": 12391,
+      "sha256": "ee40ad1d0e853d4a023bb89796020bef13943c4873f1e801b4581eaf7ce9c9b2"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0.csv",
+      "size": 5577,
+      "sha256": "f3569947804e66921e15b5837a6ad25ec59e33073161e96bfcbd399e9a7a6156"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0p1.csv",
+      "size": 5824,
+      "sha256": "66cc015401c5b21f0f90ac21b670df711d471db6248b646c0734fc576ee7d697"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0p25.csv",
+      "size": 5841,
+      "sha256": "43b15a5d0353f833359f28117216137203148b94dcadea5e89c4f3b43b23c269"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_P20_OR_R75_0p25.csv",
+      "size": 8364,
+      "sha256": "fa72f8f07bd1ad821d087093b7f3de85a8e16640a135c46a5c38744e818a17af"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_P20_OR_R80_0p25.csv",
+      "size": 8364,
+      "sha256": "fa72f8f07bd1ad821d087093b7f3de85a8e16640a135c46a5c38744e818a17af"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0.csv",
+      "size": 4853,
+      "sha256": "cb5410b7977a61b4d9e26775e2a2c3b304c3cb18be93985812b563fe5e1b195c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p1.csv",
+      "size": 4853,
+      "sha256": "cb5410b7977a61b4d9e26775e2a2c3b304c3cb18be93985812b563fe5e1b195c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p25.csv",
+      "size": 4853,
+      "sha256": "cb5410b7977a61b4d9e26775e2a2c3b304c3cb18be93985812b563fe5e1b195c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p5.csv",
+      "size": 4853,
+      "sha256": "cb5410b7977a61b4d9e26775e2a2c3b304c3cb18be93985812b563fe5e1b195c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p75.csv",
+      "size": 4853,
+      "sha256": "cb5410b7977a61b4d9e26775e2a2c3b304c3cb18be93985812b563fe5e1b195c"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_P20_OR_R75_0p25.csv",
+      "size": 7366,
+      "sha256": "855d73a75ff09f0944af44cde76523d5c083506d3f08d936dfc2191569a9b92f"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p1.csv",
+      "size": 3862,
+      "sha256": "e1fafb7450f1eb445610bfb24a0da480ec05b2e79bc750080bb9948dd3fead7d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p25.csv",
+      "size": 3837,
+      "sha256": "1b590c48abb95b3e58712b0d66890b0cf58ba679adf8c11d39cd7c767be0b20e"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p5.csv",
+      "size": 3895,
+      "sha256": "fbd7ea16c515548c32326cb351e6e92049f202bf5a9bd82b7fe75465d1db49a8"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p75.csv",
+      "size": 3822,
+      "sha256": "765a27c677b96a3928c85e7aa12dedd19b574a752862804795bc33a2d1b2cb5e"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_1.csv",
+      "size": 3855,
+      "sha256": "5dca72d9bab4b6e9c297696079762363c55c1c63c7d9f00c3dcee2bef4a17ae4"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_P20_OR_R75_0p25.csv",
+      "size": 5878,
+      "sha256": "db88e6672372450543ff01d7b7663e252df6a2b65eebe51becc69f7f797e93ff"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p1.csv",
+      "size": 3518,
+      "sha256": "09c751338be20c69be66093ce3eb9188353bc989e019505fc0be667820dd9e78"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p25.csv",
+      "size": 3611,
+      "sha256": "a7dfd938831cd7202a1ec35202acc6c709d0d6f8e37061276a2562ce917c3ca4"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p5.csv",
+      "size": 3578,
+      "sha256": "e0c4795cf338b2f401698352a936d0228967723371dd1b77ae8031352d16de8e"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p75.csv",
+      "size": 3584,
+      "sha256": "b2a8b5357351ca497a07d07adb116afece5b37479c011997f9fe23fe637a0b5f"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_1.csv",
+      "size": 3627,
+      "sha256": "760ca8806160b0694da6588b818f3abeb106427bc4fa15ff827f91b527b336f6"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_P20_OR_R75_0p25.csv",
+      "size": 5545,
+      "sha256": "60d2b8ecf76c0eba7fd22c17e8f4c41633f382732020f9b693211047b90de6fc"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0.csv",
+      "size": 2685,
+      "sha256": "5376f771913d56aed68e7f9380bf39c9f66484757c4d251e22fbd4a07a262e04"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p1.csv",
+      "size": 2685,
+      "sha256": "5376f771913d56aed68e7f9380bf39c9f66484757c4d251e22fbd4a07a262e04"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p25.csv",
+      "size": 2685,
+      "sha256": "5376f771913d56aed68e7f9380bf39c9f66484757c4d251e22fbd4a07a262e04"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p5.csv",
+      "size": 2685,
+      "sha256": "5376f771913d56aed68e7f9380bf39c9f66484757c4d251e22fbd4a07a262e04"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p75.csv",
+      "size": 2685,
+      "sha256": "5376f771913d56aed68e7f9380bf39c9f66484757c4d251e22fbd4a07a262e04"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_P20_OR_R75_0p25.csv",
+      "size": 4875,
+      "sha256": "b87d591a64cbf3e6986f0a9c1891d5a2e96db50910ae01220ffbfea4fddc3fa3"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0.csv",
+      "size": 2000,
+      "sha256": "f37d88bac378df6a39e0857a8d0303c2ad4be97a03d958ab99d80cdafa4f23f2"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p1.csv",
+      "size": 2189,
+      "sha256": "a40ed75abd824c380322d5b5d8d434a70706169b0205426ded95c038a51dbfcc"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p25.csv",
+      "size": 2182,
+      "sha256": "1688f95ea7253e76eacfeab82fcace493b24a85c5a448ce2c65a8ca72ab09e76"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p5.csv",
+      "size": 2154,
+      "sha256": "deb2eac6604bf93b526742c35cd3f064cced41583d37127be44c0f98c88400b7"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p75.csv",
+      "size": 2170,
+      "sha256": "f979cf07121ed3420cc1dba298a7e1bad9961f1f44f02f093ad67ce79aedb2d2"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_P20_OR_R75_0p25.csv",
+      "size": 4066,
+      "sha256": "8fa3eadd3a98ea5956d5591e008015fd9d19cbb7255c97db312543dcd16a53b5"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/previous_audit_report.md",
+      "size": 15452,
+      "sha256": "5ca2e669c73d5ea532c61c280533ed2c5b37f5094146b60d40a31c9e2f87b2c8"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/provenance.json",
+      "size": 1431,
+      "sha256": "44476c23e050ee14f3e9e57689619f657ae6aec7e3c01b1bc3d6be96c0815a6d"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/ratio_rank_by_exit.csv",
+      "size": 20971,
+      "sha256": "d5d800bdc1f06411b46594ccb47e84b482aee2dcd3b72fd70c3f0fe9fb6fa0f5"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/README.md",
+      "size": 671,
+      "sha256": "0de11514b929e5d7098e6d593506ca2fefa2ff01391802cbcad268a6d202d14e"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/rerun_verification.json",
+      "size": 100,
+      "sha256": "58160a0f61ce51b70c806a878987daec9efeffd9758d7d12dc8d780c374f7f57"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/run_exit_study.mjs",
+      "size": 465,
+      "sha256": "1e57b6d377a77f4ddc27a944a9c48189b9af51778df9cdac00990cba771ae5bc"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/sensitivity.csv",
+      "size": 189096,
+      "sha256": "9383cb2f1f30f4665599409e173b827fae8cb14ed3992fa23955140f13625402"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/SOXL_Exit_Comparison_2026-10-23.md",
+      "size": 13532,
+      "sha256": "5c7b822d66981ea22c7b4d88759dac26c41b0951998219c61d5875c4c5b5d1dd"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/specification.json",
+      "size": 3487,
+      "sha256": "1f4f319c1419f09821ad5a504f789b30269fced79e02b94ca4afdbc16d35c863"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/summary.csv",
+      "size": 259666,
+      "sha256": "bb2a3cef8e882126e48cdb3bc1505d356c4b7a2f0da80e4c7331fd3d6b853793"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/top_by_start.json",
+      "size": 64744,
+      "sha256": "b610685615d5159c1a9a462fbc2bf8df7557be5bc803758e5358f7db8ad7d574"
+    },
+    {
+      "path": "research/SOXL_exit_study_20261023/verification.json",
+      "size": 712,
+      "sha256": "15ccf1a7c4c7ceaae140834c68c796562d22da7e883a85fd6e646913d1c71a4a"
+    }
+  ],
+  "excluded": "Temporary downloads, runtime binaries, upload helpers and duplicate ZIP packages; research assets are stored unpacked."
+}

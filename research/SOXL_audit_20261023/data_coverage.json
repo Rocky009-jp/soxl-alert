@@ -1,0 +1,64 @@
+{
+  "input_manifest": [
+    {
+      "file": "daily.json",
+      "bytes": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "file": "daily_adjclose.csv",
+      "bytes": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "file": "fear-greed.csv",
+      "bytes": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    }
+  ],
+  "priceSource": "Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart), interval 1d",
+  "priceNote": "date is the shared trading calendar; each series starts at index `start`. adjClose (full history) is split- and dividend-adjusted (total return); ohlcv (since 2024-10-01) is split-adjusted only. Prices rounded to 6 significant digits.",
+  "date_order_errors": {
+    "daily": [],
+    "ohlcv": [],
+    "market": [],
+    "fg": []
+  },
+  "missing_fg": [
+    "2026-03-12"
+  ],
+  "invalid_ohlc": [],
+  "target_rows": 465,
+  "missing_target_ohlc": [],
+  "missing_target_shd": [],
+  "splits": [
+    [
+      "2015-05-20",
+      "4:1"
+    ],
+    [
+      "2021-03-02",
+      "15:1"
+    ]
+  ],
+  "dividends": [
+    [
+      "2024-12-23",
+      0.077
+    ],
+    [
+      "2025-03-25",
+      0.065
+    ],
+    [
+      "2025-06-24",
+      0.068
+    ],
+    [
+      "2025-09-23",
+      0.01
+    ]
+  ],
+  "input_market_last": "2026-08-11",
+  "historical_fg_asof": "UNVERIFIED: no original observation or decision timestamp available"
+}

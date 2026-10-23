@@ -1,0 +1,9 @@
+{
+  "main_72_exact": true,
+  "sensitivity_144_exact": true,
+  "input_manifest_matches_previous": true,
+  "counts": {
+    "main": 72,
+    "sensitivity": 144
+  }
+}

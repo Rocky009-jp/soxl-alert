@@ -1,0 +1,26 @@
+[
+  {
+    "file": "audit_exit.mjs",
+    "sha256": "9fe10b5185d9900bc3ea2d364d27c6484054933a1f532d05c24bf177fed5ec0a"
+  },
+  {
+    "file": "audit_previous.mjs",
+    "sha256": "73cb552d7d179385c0af9ffc5dc10cbd7b5e1699320a5fa9cf1ce56092cf5b22"
+  },
+  {
+    "file": "exit_study.mjs",
+    "sha256": "1997f9a2af3a61b01d9e3c1bb5930f7977ec35554df860223e48d07ca76a35f5"
+  },
+  {
+    "file": "run_exit_study.mjs",
+    "sha256": "1e57b6d377a77f4ddc27a944a9c48189b9af51778df9cdac00990cba771ae5bc"
+  },
+  {
+    "file": "dividends_verified.json",
+    "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+  },
+  {
+    "file": "SOXL_Exit_Comparison_2026-10-23.md",
+    "sha256": "5c7b822d66981ea22c7b4d88759dac26c41b0951998219c61d5875c4c5b5d1dd"
+  }
+]

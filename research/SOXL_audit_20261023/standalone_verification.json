@@ -1,0 +1,10 @@
+{
+  "tests": 30,
+  "legacy_rounded": [
+    41135,
+    44683,
+    26327
+  ],
+  "all_old_report_dollar_values_match": true,
+  "fixed_inputs_verified": true
+}

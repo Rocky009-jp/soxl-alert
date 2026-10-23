@@ -1,0 +1,12 @@
+[
+  {
+    "url": "https://api.massive.com/v2/aggs/ticker/SOXL/range/1/minute/2026-02-09/2026-02-09?adjusted=false&sort=asc&limit=50000",
+    "status": 401,
+    "sample": "{\"status\":\"ERROR\",\"request_id\":\"c1e380ef31de5d3740a9943b1d223064\",\"error\":\"API Key was not provided\"}"
+  },
+  {
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/SOXL?interval=1m&range=1d",
+    "status": 200,
+    "sample": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"SOXL\",\"exchangeName\":\"PCX\",\"fullExchangeName\":\"NYSEArca\",\"instrumentType\":\"ETF\",\"firstTradeDate\":1268317800,\"regularMarketTime\":1792699201,\"hasPrePostMarketData\":true,\"gmtoffset\":-14400,\"timezone\":\"EDT\",\"exchangeTimezoneName\":\"America/New_York\",\"regularMarketPrice\":82.11,\"regularMarketChangePercent\":-20.467,\"fulldayPrice\":86.49,\"fulldayChange\":-22.68,\"fulldayChangePercent\":-21.968,\"fiftyTwoWeekHigh\":302.0,\"fiftyTwoWeekLow\":28.12,\"regularMar"
+  }
+]

@@ -1,0 +1,284 @@
+[
+  {
+    "start": "2024-10-01",
+    "scenario": "MMF0",
+    "best": [
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 43770.469358586684
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 43241.2986385419
+      },
+      {
+        "initial": true,
+        "total": 43770.469358586684
+      }
+    ]
+  },
+  {
+    "start": "2024-10-01",
+    "scenario": "MMF2",
+    "best": [
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 44362.942081923655
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 43763.61818887871
+      },
+      {
+        "initial": true,
+        "total": 44362.942081923655
+      }
+    ]
+  },
+  {
+    "start": "2024-10-01",
+    "scenario": "MMF4",
+    "best": [
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 44893.40808696713
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 44434.67827370319
+      },
+      {
+        "initial": true,
+        "total": 44893.40808696713
+      }
+    ]
+  },
+  {
+    "start": "2024-10-01",
+    "scenario": "SLIP_0.25pct_each_side",
+    "best": [
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 43232.02863840545
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 42652.28001146858
+      },
+      {
+        "initial": true,
+        "total": 43232.02863840545
+      }
+    ]
+  },
+  {
+    "start": "2024-10-01",
+    "scenario": "SLIP_0.5pct_each_side",
+    "best": [
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 41733.42144518286
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 41266.942481181526
+      },
+      {
+        "initial": true,
+        "total": 41733.42144518286
+      }
+    ]
+  },
+  {
+    "start": "2024-10-01",
+    "scenario": "FG_ONE_DAY_DELAY_STRESS",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 1,
+        "total": 32702.26346921172
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 26435.562794165457
+      },
+      {
+        "initial": true,
+        "total": 20322.391396291678
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "MMF0",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 0.25,
+        "total": 41723.367068199805
+      },
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 41723.367068199805
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 41723.367068199805
+      },
+      {
+        "initial": true,
+        "total": 41723.367068199805
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "MMF2",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 0.25,
+        "total": 42122.316631460555
+      },
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 42122.316631460555
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 42122.316631460555
+      },
+      {
+        "initial": true,
+        "total": 42122.316631460555
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "MMF4",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 0.25,
+        "total": 42511.46943412251
+      },
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 42511.46943412251
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 42511.46943412251
+      },
+      {
+        "initial": true,
+        "total": 42511.46943412251
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "SLIP_0.25pct_each_side",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 0.25,
+        "total": 40973.29887002497
+      },
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 40973.29887002497
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 40973.29887002497
+      },
+      {
+        "initial": true,
+        "total": 40973.29887002497
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "SLIP_0.5pct_each_side",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 0.25,
+        "total": 39608.64702881149
+      },
+      {
+        "initial": true,
+        "ratio": 0.25,
+        "total": 39608.64702881149
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 39608.64702881149
+      },
+      {
+        "initial": true,
+        "total": 39608.64702881149
+      }
+    ]
+  },
+  {
+    "start": "2025-01-02",
+    "scenario": "FG_ONE_DAY_DELAY_STRESS",
+    "best": [
+      {
+        "initial": false,
+        "ratio": 1,
+        "total": 23550.59072094566
+      },
+      {
+        "initial": true,
+        "ratio": 1,
+        "total": 23550.59072094566
+      }
+    ],
+    "q25": [
+      {
+        "initial": false,
+        "total": 19061.32675072115
+      },
+      {
+        "initial": true,
+        "total": 19061.32675072115
+      }
+    ]
+  }
+]
