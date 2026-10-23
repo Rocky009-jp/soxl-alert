@@ -1,0 +1,87 @@
+[
+  {
+    "run_id": 39875924968,
+    "job_id": 120161391480,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39875924968",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-10-23T00:05:31.9391461Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.10.19 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 curl_cffi-0.16.3 google-auth-2.62.0 google-auth-oauthlib-1.5.0 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.3 platformdirs-4.12.4 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.11 pyparsing-3.3.3 python-dateutil-3.0.0 pytz-2026.5 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.5 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-10-23T00:05:34.8706363Z データ取得を開始します...",
+      "2026-10-23T00:05:34.8708082Z SHD内訳: 日付=2026/10/21, SPY20日騰落率=np.float64(0.00687673944551892), IEF20日騰落率=np.float64(0.0038944046676832045), SHD=np.float64(0.29823347778357157)",
+      "2026-10-23T00:05:34.8709080Z 計算完了: 日付 2026/10/22, SOXX nan, 乖離率 nan%, RSI 39.39, SHD 0.30%",
+      "2026-10-23T00:05:34.8710151Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+      "2026-10-23T00:05:34.8711013Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+    ]
+  },
+  {
+    "run_id": 39697826668,
+    "job_id": 119559428527,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39697826668",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-10-22T00:08:26.6397089Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.10.19 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 curl_cffi-0.16.3 google-auth-2.62.0 google-auth-oauthlib-1.5.0 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.3 platformdirs-4.12.4 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.11 pyparsing-3.3.3 python-dateutil-3.0.0 pytz-2026.5 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.5 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-10-22T00:08:28.9476899Z データ取得を開始します...",
+      "2026-10-22T00:08:28.9477945Z SHD内訳: 日付=2026/10/20, SPY20日騰落率=np.float64(-0.005598822134663117), IEF20日騰落率=np.float64(-0.006567568491358866), SHD=np.float64(0.09687463566957488)",
+      "2026-10-22T00:08:28.9478499Z 計算完了: 日付 2026/10/21, SOXX nan, 乖離率 nan%, RSI 34.33, SHD 0.10%",
+      "2026-10-22T00:08:28.9479030Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+      "2026-10-22T00:08:28.9479477Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+    ]
+  },
+  {
+    "run_id": 39518873144,
+    "job_id": 118957556487,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39518873144",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-10-21T00:03:08.2061538Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.10.19 cffi-2.1.1 charset_normalizer-3.5.2 cryptography-50.0.2 curl_cffi-0.16.3 google-auth-2.62.0 google-auth-oauthlib-1.5.0 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.3 platformdirs-4.12.4 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.11 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pytz-2026.5 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.5 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-10-21T00:03:10.3629455Z データ取得を開始します...",
+      "2026-10-21T00:03:10.3630483Z SHD内訳: 日付=2026/10/19, SPY20日騰落率=np.float64(-0.0090756555025856), IEF20日騰落率=np.float64(-0.008330068212675013), SHD=np.float64(-0.07455872899105875)",
+      "2026-10-21T00:03:10.3631247Z 計算完了: 日付 2026/10/20, SOXX nan, 乖離率 nan%, RSI 34.83, SHD -0.07%",
+      "2026-10-21T00:03:10.3631792Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+      "2026-10-21T00:03:10.3632211Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+    ]
+  },
+  {
+    "run_id": 36386477349,
+    "job_id": 108812805392,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/36386477349",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-09-28T06:26:47.9793482Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.1 cryptography-50.0.1 curl_cffi-0.16.3 google-auth-2.58.1 google-auth-oauthlib-1.4.1 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.2 platformdirs-4.12.1 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.0 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pytz-2026.4 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.4 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-09-28T06:26:48.1367895Z ##[group]Run python main.py",
+      "2026-09-28T06:26:48.1368280Z python main.py",
+      "2026-09-28T06:26:48.1471686Z ##[endgroup]",
+      "2026-09-28T06:26:48.1682854Z   File \"/home/runner/work/soxl-alert/soxl-alert/main.py\", line 69",
+      "2026-09-28T06:26:48.1683824Z     row_data = [",
+      "2026-09-28T06:26:48.1684367Z IndentationError: unexpected indent",
+      "2026-09-28T06:26:48.1717965Z ##[error]Process completed with exit code 1."
+    ]
+  },
+  {
+    "run_id": 36386755204,
+    "job_id": 108813630060,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/36386755204",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-09-28T06:30:40.5620581Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.1 cryptography-50.0.1 curl_cffi-0.16.3 google-auth-2.58.1 google-auth-oauthlib-1.4.1 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.2 platformdirs-4.12.1 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.0 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pytz-2026.4 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.4 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-09-28T06:30:43.1151481Z データ取得を開始します...",
+      "2026-09-28T06:30:43.1152236Z 計算完了: 日付 2026/09/25, SOXX 572.68, 乖離率 27.81%, RSI 63.88, SHD nan%",
+      "2026-09-28T06:30:43.1152839Z スプレッドシートへの書き込みをスキップ。有限でない値: SHD=np.float64(nan)",
+      "2026-09-28T06:30:43.1153338Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+    ]
+  },
+  {
+    "run_id": 36387402653,
+    "job_id": 108815602700,
+    "run_url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/36387402653",
+    "log_sha256_note": "Raw logs not committed; the following are selected, timestamp-preserving excerpts.",
+    "versions_line": "2026-09-28T06:37:52.5690120Z Successfully installed beautifulsoup4-4.15.0 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.1 cryptography-50.0.1 curl_cffi-0.16.3 google-auth-2.58.1 google-auth-oauthlib-1.4.1 gspread-6.2.1 httplib2-0.32.0 idna-3.20 lxml-6.1.3 multitasking-0.0.13 numpy-2.2.6 oauth2client-4.1.3 oauthlib-4.0.0 pandas-2.3.3 peewee-4.5.2 platformdirs-4.12.1 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.0 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pytz-2026.4 requests-2.34.2 requests-oauthlib-2.0.0 rsa-4.9.1 six-1.17.0 soupsieve-2.10 typing-extensions-4.16.0 tzdata-2026.4 urllib3-2.8.0 websockets-16.1.1 yfinance-1.7.0",
+    "excerpt": [
+      "2026-09-28T06:37:56.9675438Z データ取得を開始します...",
+      "2026-09-28T06:37:56.9677816Z SHD内訳: 日付=2026/09/25, SPY20日騰落率=np.float64(0.0028081934817536514), IEF20日騰落率=np.float64(-0.031177231915941572), SHD=np.float64(3.3985425397695224)",
+      "2026-09-28T06:37:56.9679288Z 計算完了: 日付 2026/09/25, SOXX 572.68, 乖離率 27.81%, RSI 63.88, SHD 3.40%",
+      "2026-09-28T06:37:56.9680305Z スプレッドシートへの書き込みが完了しました。",
+      "2026-09-28T06:37:56.9681061Z Discordへ通知を送信しました。"
+    ]
+  }
+]

@@ -35,3 +35,8 @@ node research/SOXL_exit_study_20261023/run_exit_study.mjs
 ## 作業管理
 
 今後の作業成果と判断はGitHubを正本としてコミットする。ローカルにしかない引き継ぎ情報を作らない。既存本番コードや通知設定の変更・切替は別途具体的な差分を示して承認を受ける。秘密値・実口座の個人情報は公開リポジトリへ保存しない。
+
+
+## 工程0：現行ツールの初期診断
+
+[診断書](research/phase0_20261023/PHASE0_DIAGNOSIS.md)と[最小修正案](research/phase0_20261023/MINIMAL_FIX_PROPOSAL.md)、[14項目の再現結果](research/phase0_20261023/reproduction_results.json)を追加しました。実ログと合成入力の再現を区別しています。修正は未適用。[Claude Sonnet 5.5向け依頼文](docs/reviews/PHASE0_SONNET55_REQUEST.md)と[モデル分担](docs/MODEL_POLICY.md)も参照してください。

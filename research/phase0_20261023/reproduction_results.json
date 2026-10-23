@@ -1,0 +1,425 @@
+{
+  "production_commit": "7731ef0c4e02a3a26ae80dcb7ed79f2842c0c2cb",
+  "production_blob": "7926aa563455822dceb0fd09c43033e21e7198bc",
+  "source_sha256": "0a72e551304cadf157bf0cd80ff76a2a4bf2eceb5300facad7f1522c1d5a9785",
+  "fixture_type": "synthetic: missing trailing row and adapter faults",
+  "historical_payload_recovered": false,
+  "environment": {
+    "python": "3.12.10",
+    "pandas": "2.3.3",
+    "numpy": "2.2.6"
+  },
+  "checked": 14,
+  "cases": [
+    {
+      "id": "complete_buy_fixture_control",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "nan_tail_silently_reported_as_no_signal",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/21, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.01569858712715866), SHD=np.float64(-1.5698587127158659)",
+        "計算完了: 日付 2026/10/22, SOXX nan, 乖離率 nan%, RSI 28.36, SHD -1.57%",
+        "スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ],
+      "download": 1,
+      "post": [],
+      "sheet_rows": [],
+      "sheet_attempts": 0,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "http_404_reported_as_sent",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 404,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "http_429_reported_as_sent",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 429,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "webhook_missing_normal_return",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discord URLが設定されていないため、通知をスキップしました。"
+      ],
+      "download": 1,
+      "post": [],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "sheet_failure_normal_return",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシート書き込みエラー: synthetic spreadsheet failure",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "repeated_run_duplicates_same_day",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。",
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 2,
+      "post": [
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        },
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ],
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 2,
+      "credentials": 2,
+      "network_attempts": 0
+    },
+    {
+      "id": "stale_complete_data_still_generates_alert",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/01, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/01, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/01\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/01",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "empty_download_unhandled_index_error",
+      "characterization_confirmed": true,
+      "exception": {
+        "type": "IndexError",
+        "message": "single positional indexer is out-of-bounds"
+      },
+      "stdout": [
+        "データ取得を開始します..."
+      ],
+      "download": 1,
+      "post": [],
+      "sheet_rows": [],
+      "sheet_attempts": 0,
+      "credentials": 0,
+      "network_attempts": 0
+    },
+    {
+      "id": "nan_tail_can_still_emit_sell_from_retained_rsi",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/21, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.01569858712715866), SHD=np.float64(-1.5698587127158659)",
+        "計算完了: 日付 2026/10/22, SOXX nan, 乖離率 nan%, RSI 100.00, SHD -1.57%",
+        "スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🔴 **【SOXL 売りシグナル 点灯】** 🔴\n相場が過熱領域に達しました。利益確定（または緊急脱出）を検討してください。\n日付: 2026/10/22\n・RSI: 100.00 (基準: 70以上)\n・SHD: -1.57% (基準: 3.0以上)\n※SOXLを保有している場合は、全額売却してMMFに資金を戻すタイミングです。",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [],
+      "sheet_attempts": 0,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "under_200_rows_can_still_emit_sell",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.0888888888888888), SHD=np.float64(-8.888888888888879)",
+        "計算完了: 日付 2026/10/22, SOXX 114.70, 乖離率 nan%, RSI 100.00, SHD -8.89%",
+        "スプレッドシートへの書き込みをスキップ。有限でない値: SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan)",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🔴 **【SOXL 売りシグナル 点灯】** 🔴\n相場が過熱領域に達しました。利益確定（または緊急脱出）を検討してください。\n日付: 2026/10/22\n・RSI: 100.00 (基準: 70以上)\n・SHD: -8.89% (基準: 3.0以上)\n※SOXLを保有している場合は、全額売却してMMFに資金を戻すタイミングです。",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [],
+      "sheet_attempts": 0,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "mixed_indicator_dates_still_emit_alert",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/21, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.01569858712715866), SHD=np.float64(-1.5698587127158659)",
+        "計算完了: 日付 2026/10/22, SOXX 165.70, 乖離率 12.78%, RSI 26.70, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🟢 **【SOXL 買いシグナル 予備点灯】** 🟢\n日付: 2026/10/22\n・SOXXトレンド: OK (現在値 > 200SMA)\n・RSI: 26.70\n・SHD: -1.57%\n\n✅ CNN Fear & Greed Indexを確認し、**【30以下】**なら買いタイミングです！",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          165.7,
+          146.92,
+          12.78,
+          26.7,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "sell_without_position_or_cost_basis_input",
+      "characterization_confirmed": true,
+      "exception": null,
+      "stdout": [
+        "データ取得を開始します...",
+        "SHD内訳: 日付=2026/10/22, SPY20日騰落率=np.float64(0.0), IEF20日騰落率=np.float64(0.015686274509803866), SHD=np.float64(-1.5686274509803866)",
+        "計算完了: 日付 2026/10/22, SOXX 177.70, 乖離率 20.19%, RSI 100.00, SHD -1.57%",
+        "スプレッドシートへの書き込みが完了しました。",
+        "Discordへ通知を送信しました。"
+      ],
+      "download": 1,
+      "post": [
+        {
+          "status": 204,
+          "content": "🔴 **【SOXL 売りシグナル 点灯】** 🔴\n相場が過熱領域に達しました。利益確定（または緊急脱出）を検討してください。\n日付: 2026/10/22\n・RSI: 100.00 (基準: 70以上)\n・SHD: -1.57% (基準: 3.0以上)\n※SOXLを保有している場合は、全額売却してMMFに資金を戻すタイミングです。",
+          "timeout_configured": false
+        }
+      ],
+      "sheet_rows": [
+        [
+          "2026/10/22",
+          177.7,
+          147.85,
+          20.19,
+          100.0,
+          -1.57,
+          45.0,
+          44.55
+        ]
+      ],
+      "sheet_attempts": 1,
+      "credentials": 1,
+      "network_attempts": 0
+    },
+    {
+      "id": "historical_966c323_syntax_error",
+      "characterization_confirmed": true,
+      "exception": {
+        "type": "IndentationError",
+        "line": 69
+      }
+    }
+  ],
+  "note": "Confirmed defect characterizations, not fixed-production acceptance tests."
+}

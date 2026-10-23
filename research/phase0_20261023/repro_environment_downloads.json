@@ -1,0 +1,38 @@
+[
+  {
+    "package": "pandas",
+    "version": "2.3.3",
+    "file": "pandas-2.3.3-cp312-cp312-win_amd64.whl",
+    "sha256": "a16dcec078a01eeef8ee61bf64074b4e524a2a3f4b3be9326420cabe59c4778b"
+  },
+  {
+    "package": "numpy",
+    "version": "2.2.6",
+    "file": "numpy-2.2.6-cp312-cp312-win_amd64.whl",
+    "sha256": "c1f9540be57940698ed329904db803cf7a402f3fc200bfe599334c9bd84a40b2"
+  },
+  {
+    "package": "python-dateutil",
+    "version": "2.9.0.post0",
+    "file": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+    "sha256": "a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
+  },
+  {
+    "package": "six",
+    "version": "1.17.0",
+    "file": "six-1.17.0-py2.py3-none-any.whl",
+    "sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+  },
+  {
+    "package": "pytz",
+    "version": "2026.2",
+    "file": "pytz-2026.2-py2.py3-none-any.whl",
+    "sha256": "04156e608bee23d3792fd45c94ae47fae1036688e75032eea2e3bf0323d1f126"
+  },
+  {
+    "package": "tzdata",
+    "version": "2025.2",
+    "file": "tzdata-2025.2-py2.py3-none-any.whl",
+    "sha256": "1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"
+  }
+]
