@@ -1,0 +1,12 @@
+{
+  "fixture": "synthetic; not original production payload",
+  "pandas": "2.3.3",
+  "last_date": "2026-10-22",
+  "last_valid_close_date": "2026-10-21",
+  "rsi_last": 28.36234931008626,
+  "rsi_previous": 28.36234931008626,
+  "equal": true,
+  "network_calls": 0,
+  "interpretation": "The current ewm formula retains the previous RSI on a missing final close.",
+  "note": "Captured from the successful local run before the execution environment became unavailable."
+}

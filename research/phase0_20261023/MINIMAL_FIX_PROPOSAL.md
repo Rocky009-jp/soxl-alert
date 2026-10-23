@@ -53,10 +53,13 @@ def send_discord_message(content):
             timeout=(5, 15),
         )
         response.raise_for_status()
-    except requests.RequestException:
-        # URLにはWebhookの秘密値があるため元例外をログへ連鎖させない。
+    except requests.RequestException as error:
+        status = getattr(getattr(error, "response", None), "status_code", None)
+        print(f"event=NOTIFY_FAILED http_status={status if status is not None else 'none'}")
+        # 非秘密ステータスだけを記録。URL・本文・元例外は出さない。
         raise RuntimeError("NOTIFY_FAILED") from None
     if response.status_code != 200:
+        print(f"event=NOTIFY_UNCONFIRMED http_status={response.status_code}")
         raise RuntimeError("NOTIFY_UNCONFIRMED")
     try:
         message_id = response.json().get("id")
@@ -77,8 +80,17 @@ Sheets連携が有効な構成では、書き込み失敗を記録の成功と�
 
 1. 末尾欠損、空データ、履歴不足、日付不一致では売買通知なし・理由と失敗終了が確認できる。
 2. HTTP200＋message idの場合だけ確認済み表示。404／429・タイムアウト・無効応答は失敗として分かり、秘密URLがログに出ない。
-3. 完全な固定データでは旧基準による候補内容が維持される。基準変更と障害修正を混在させない。
+3. 完全な固定データでは技術指標・条件判定の差を照合する。ただし旧「全額売却」文言の維持を受入条件にはしない。R-02の暫定仕様の採否を明示し、売却可否未確認時の推奨抑止を別途レビューする。
 4. 期待取引日と実データの一致、データ取得元の欠損原因、実通知先の有効性が確認されるまで「全面復旧」としない。
 5. 現行の全額売却案内が損切り禁止を満たさないことを解決するまで、V2の売却機能の受入合格とはしない。
 
 今回の成果は提案まで。受入条件に対応する修正版テストや本番確認を実施済みとはしない。
+
+
+## Sonnetレビュー反映と未決仕様
+
+RSIが数値でも対象日のClose欠損時は有効扱いにしない。4銘柄すべて欠損と断定せず、銘柄・項目別に調べる。HTTP失敗は非秘密ステータスを記録し、接続失敗などステータスなしと区別する。
+
+R-01障害通知経路とR-02原価未確認時の案内は[判断案](../../docs/decisions/DECISION_OPTIONS_R01_R02.md)を作成。非0終了だけで復旧としない。両案とも未採用・未適用。データ検査だけ加え旧全額売却案内をそのまま本番へ戻す提案ではない。
+
+[診断モード仕様案](../phase0_review1_20261023/DIAGNOSTIC_MODE_SPEC.md)に銘柄別末尾・最終有効日・期待取引日・取得エラー・必要履歴の記録を定義。未実装。上のコード例も未適用で、更新後の受入試験を実施済みとはしない。

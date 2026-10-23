@@ -45,3 +45,8 @@ node research/SOXL_exit_study_20261023/run_exit_study.mjs
 ## Claudeへの引き継ぎ
 
 共通前提はルートの[CLAUDE.md](CLAUDE.md)。新しい会話へは[入口プロンプト](docs/CLAUDE_START_PROMPT.md)を貼り付けてください。以後の依頼は[個別依頼テンプレート](docs/CLAUDE_TASK_TEMPLATE.md)で対象版・指定モデル・許可範囲・完了条件を固定します。
+
+
+## 工程0レビュー後の更新
+
+[対応表](docs/reviews/PHASE0_REVIEW_RESPONSE.md)、[追加調査](research/phase0_review1_20261023/FOLLOWUP_FINDINGS.md)、[暫定判断案](docs/decisions/DECISION_OPTIONS_R01_R02.md)を追加。次は[Opus 5.5による限定仕様レビュー](docs/reviews/PHASE0_OPUS55_REQUEST.md)。採用・コード適用・本番送信は未実施。

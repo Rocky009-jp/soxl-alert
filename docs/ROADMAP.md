@@ -1,7 +1,7 @@
 # SOXL通知アラートツール Ver.2 開発ロードマップ
 
 作成日：2026年10月23日  
-版：0.3／工程0初期診断・モデル分担を追加  
+版：0.4／レビュー反映・追加調査・暫定仕様案  
 対象：既存GitHubリポジトリの通知アラートツール（引き継ぎ資料上の名称：soxl-alert）
 
 ## 1. 最終目標と、この計画の位置づけ
@@ -277,3 +277,12 @@ GitHubの定期実行中に人の入力を待つ仕組みを前提にせず、�
 [最小修正案](../research/phase0_20261023/MINIMAL_FIX_PROPOSAL.md)は未適用。本番コード・通知設定は変更していない。
 
 ユーザー指示により、6.1 Sol Highが難易度と担当モデルを判断する。定型作業はLunaへ分担し、Claudeへの指示もSonnet 5.5／Opus 5.5から選定理由とともに指定する。詳細は[モデル分担ルール](MODEL_POLICY.md)。今回の診断レビューは[Sonnet 5.5向け依頼](reviews/PHASE0_SONNET55_REQUEST.md)を用意した。モデル変更による節約効果と今回の消費量は未計測のため、見積もりを実測値のように減額しない。
+
+
+## 15. 工程0レビュー後の記録（2026-10-23）
+
+Sonnet指定の[レビュー要約](reviews/CLAUDE_PHASE0_REVIEW_RECEIVED.md)を受領。全文未提供。[対応表](reviews/PHASE0_REVIEW_RESPONSE.md)で文面修正と未決仕様を分けた。
+
+16ジョブ追加し現行定期19回を確認。14回が価格欠損、5回は有限値記録。欠損8回が古いSHDから売りPOSTへ到達し、2回で銘柄別DBロックエラーがあった。実配信と全欠損原因は未確定。区間最初の欠損は9/29朝実行（対象9/28）で間欠的。[追加調査](../research/phase0_review1_20261023/FOLLOWUP_FINDINGS.md)。
+
+R-01障害通知とR-02原価未確認時の推奨抑止の[判断案](decisions/DECISION_OPTIONS_R01_R02.md)、[診断モード仕様](../research/phase0_review1_20261023/DIAGNOSTIC_MODE_SPEC.md)を作成。未採用・未適用。次は **Opus 5.5** に限定仕様レビューを依頼する。選定6.1 Sol High、損切り禁止と失敗経路の設計判断のため。[依頼文](reviews/PHASE0_OPUS55_REQUEST.md)。本番コード・設定の変更なし。
