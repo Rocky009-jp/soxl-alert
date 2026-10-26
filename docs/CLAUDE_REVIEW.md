@@ -2,10 +2,10 @@
 
 [CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を先に確認してください。
 
-Sonnet指定の初期レビューとOpus指定のR-01／R-02レビューについて、ユーザーから要約を受領しました。現在は[Opusレビュー全文・§5の受領と、現行運用のユーザー判断](reviews/PHASE0_OPUS55_RESPONSE.md)が待ち事項です。初回Opusレビューを繰り返す段階ではありません。
+Opus指定レビューの[ユーザー提供本文・§5要点](reviews/PHASE0_OPUS55_REVIEW_RESULT.md)を指定パスへ保存しました。添付原本の同一性は未確認ですが、§5の承認5項目と論点2件は受領済みです。
 
-- [今回の受領要約](reviews/PHASE0_OPUS55_REVIEW_RECEIVED.md)
-- [指摘対応・完了通知・一時停止の判断案](reviews/PHASE0_OPUS55_RESPONSE.md)
-- [貼り付け用の状態確認指示](CLAUDE_START_PROMPT.md)
+- [承認事項と6.1 Sol Highの論点](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)
+- [対応案](reviews/PHASE0_OPUS55_RESPONSE.md)
+- [現在の状態確認指示](CLAUDE_START_PROMPT.md)
 
-追加作業は[テンプレート](CLAUDE_TASK_TEMPLATE.md)で範囲を定め、6.1 Sol Highがモデルを指定します。レビュー完了とユーザーの採用承認を混同せず、未取得の§5を推測しないでください。
+保存依頼は採用・実装・停止・送信の承認ではありません。現在はユーザーの採否判断と、6.1 Sol Highの仕様整理を待つ状態です。旧レビューを繰り返したり、受領済みの§5要点を未受領扱いにしないでください。追加作業は[テンプレート](CLAUDE_TASK_TEMPLATE.md)で範囲を固定します。
