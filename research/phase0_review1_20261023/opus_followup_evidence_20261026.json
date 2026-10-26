@@ -1,0 +1,133 @@
+{
+  "checked_date": "2026-10-26",
+  "production_commit": "7731ef0c4e02a3a26ae80dcb7ed79f2842c0c2cb",
+  "source_timeline": "research/phase0_review1_20261023/missing_data_timeline.json",
+  "missing_success_without_notification": [
+    {
+      "number": 134,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/36651578298",
+      "excerpt": [
+        "2026-09-30T00:42:21.0020952Z データ取得を開始します...",
+        "2026-09-30T00:42:21.0022831Z SHD内訳: 日付=2026/09/28, SPY20日騰落率=np.float64(-0.002390127349656268), IEF20日騰落率=np.float64(-0.032292257918155376), SHD=np.float64(2.990213056849911)",
+        "2026-09-30T00:42:21.0024194Z 計算完了: 日付 2026/09/29, SOXX nan, 乖離率 nan%, RSI 58.80, SHD 2.99%",
+        "2026-09-30T00:42:21.0025512Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-09-30T00:42:21.0026566Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    },
+    {
+      "number": 137,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/37082968829",
+      "excerpt": [
+        "2026-10-03T00:39:45.8646805Z データ取得を開始します...",
+        "2026-10-03T00:39:45.8649031Z SHD内訳: 日付=2026/10/01, SPY20日騰落率=np.float64(0.0009503149377609876), IEF20日騰落率=np.float64(-0.0279016517747952), SHD=np.float64(2.8851966712556187)",
+        "2026-10-03T00:39:45.8649957Z 計算完了: 日付 2026/10/02, SOXX nan, 乖離率 nan%, RSI 63.26, SHD 2.89%",
+        "2026-10-03T00:39:45.8650986Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-10-03T00:39:45.8651819Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    },
+    {
+      "number": 148,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39348282180",
+      "excerpt": [
+        "2026-10-20T00:33:09.0454133Z データ取得を開始します...",
+        "2026-10-20T00:33:09.0454618Z SHDを計算できません。SPYとIEFの有効な共通データは0日分です。",
+        "2026-10-20T00:33:09.0454929Z 計算完了: 日付 2026/10/19, SOXX nan, 乖離率 nan%, RSI 30.65, SHD nan%",
+        "2026-10-20T00:33:09.0455430Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SHD=nan, SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-10-20T00:33:09.0455821Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    },
+    {
+      "number": 151,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39875924968",
+      "excerpt": [
+        "2026-10-23T00:05:34.8706363Z データ取得を開始します...",
+        "2026-10-23T00:05:34.8708082Z SHD内訳: 日付=2026/10/21, SPY20日騰落率=np.float64(0.00687673944551892), IEF20日騰落率=np.float64(0.0038944046676832045), SHD=np.float64(0.29823347778357157)",
+        "2026-10-23T00:05:34.8709080Z 計算完了: 日付 2026/10/22, SOXX nan, 乖離率 nan%, RSI 39.39, SHD 0.30%",
+        "2026-10-23T00:05:34.8710151Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-10-23T00:05:34.8711013Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    },
+    {
+      "number": 150,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39697826668",
+      "excerpt": [
+        "2026-10-22T00:08:28.9476899Z データ取得を開始します...",
+        "2026-10-22T00:08:28.9477945Z SHD内訳: 日付=2026/10/20, SPY20日騰落率=np.float64(-0.005598822134663117), IEF20日騰落率=np.float64(-0.006567568491358866), SHD=np.float64(0.09687463566957488)",
+        "2026-10-22T00:08:28.9478499Z 計算完了: 日付 2026/10/21, SOXX nan, 乖離率 nan%, RSI 34.33, SHD 0.10%",
+        "2026-10-22T00:08:28.9479030Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-10-22T00:08:28.9479477Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    },
+    {
+      "number": 149,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/39518873144",
+      "excerpt": [
+        "2026-10-21T00:03:10.3629455Z データ取得を開始します...",
+        "2026-10-21T00:03:10.3630483Z SHD内訳: 日付=2026/10/19, SPY20日騰落率=np.float64(-0.0090756555025856), IEF20日騰落率=np.float64(-0.008330068212675013), SHD=np.float64(-0.07455872899105875)",
+        "2026-10-21T00:03:10.3631247Z 計算完了: 日付 2026/10/20, SOXX nan, 乖離率 nan%, RSI 34.83, SHD -0.07%",
+        "2026-10-21T00:03:10.3631792Z スプレッドシートへの書き込みをスキップ。有限でない値: SOXX終値=np.float64(nan), SOXX_200日移動平均=np.float64(nan), 乖離率=np.float64(nan), SOXL終値=np.float64(nan), SOXL始値=np.float64(nan)",
+        "2026-10-21T00:03:10.3632211Z 本日は買い・売り共に条件未達のため、通知は送信しません。"
+      ]
+    }
+  ],
+  "finite_prices_sell_posts": [
+    {
+      "number": 138,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/37401182035",
+      "target_date": "2026/10/05",
+      "excerpt": [
+        "2026-10-06T01:50:46.5904751Z データ取得を開始します...",
+        "2026-10-06T01:50:46.5906353Z SHD内訳: 日付=2026/10/05, SPY20日騰落率=np.float64(0.008522636995834665), IEF20日騰落率=np.float64(-0.03277274995128565), SHD=np.float64(4.129538694712032)",
+        "2026-10-06T01:50:46.5907431Z 計算完了: 日付 2026/10/05, SOXX 589.51, 乖離率 29.23%, RSI 66.78, SHD 4.13%",
+        "2026-10-06T01:50:46.5907819Z スプレッドシートへの書き込みが完了しました。",
+        "2026-10-06T01:50:46.5908138Z Discordへ通知を送信しました。"
+      ]
+    },
+    {
+      "number": 139,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/37554597159",
+      "target_date": "2026/10/06",
+      "excerpt": [
+        "2026-10-07T00:57:14.4292047Z データ取得を開始します...",
+        "2026-10-07T00:57:14.4293122Z SHD内訳: 日付=2026/10/06, SPY20日騰落率=np.float64(0.019667684448247957), IEF20日騰落率=np.float64(-0.029541771344965273), SHD=np.float64(4.920945579321323)",
+        "2026-10-07T00:57:14.4293796Z 計算完了: 日付 2026/10/06, SOXX 589.45, 乖離率 28.79%, RSI 66.75, SHD 4.92%",
+        "2026-10-07T00:57:14.4294175Z スプレッドシートへの書き込みが完了しました。",
+        "2026-10-07T00:57:14.4294489Z Discordへ通知を送信しました。"
+      ]
+    },
+    {
+      "number": 143,
+      "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/38338038079",
+      "target_date": "2026/10/12",
+      "excerpt": [
+        "2026-10-13T02:41:18.7150227Z データ取得を開始します...",
+        "2026-10-13T02:41:18.7152923Z SHD内訳: 日付=2026/10/12, SPY20日騰落率=np.float64(0.025171088486413584), IEF20日騰落率=np.float64(-0.013103784933547802), SHD=np.float64(3.8274873419961386)",
+        "2026-10-13T02:41:18.7155214Z 計算完了: 日付 2026/10/12, SOXX 544.85, 乖離率 17.69%, RSI 45.87, SHD 3.83%",
+        "2026-10-13T02:41:18.7156542Z スプレッドシートへの書き込みが完了しました。",
+        "2026-10-13T02:41:18.7157662Z Discordへ通知を送信しました。"
+      ]
+    }
+  ],
+  "latest_observed_run": {
+    "id": 40042434050,
+    "number": 152,
+    "workflow_id": 261792748,
+    "created_at": "2026-10-23T23:56:45Z",
+    "conclusion": "success",
+    "head_sha": "7731ef0c4e02a3a26ae80dcb7ed79f2842c0c2cb",
+    "event": "schedule",
+    "url": "https://github.com/Rocky009-jp/soxl-alert/actions/runs/40042434050"
+  },
+  "latest_observed_script_excerpt": [
+    "2026-10-23T23:57:05.6175145Z データ取得を開始します...",
+    "2026-10-23T23:57:05.6176624Z SHD内訳: 日付=2026/10/23, SPY20日騰落率=np.float64(-0.014753361305505863), IEF20日騰落率=np.float64(0.015156265816485881), SHD=np.float64(-2.9909627121991744)",
+    "2026-10-23T23:57:05.6177583Z 計算完了: 日付 2026/10/23, SOXX 478.20, 乖離率 1.39%, RSI 31.97, SHD -2.99%",
+    "2026-10-23T23:57:05.6178112Z スプレッドシートへの書き込みが完了しました。",
+    "2026-10-23T23:57:05.6178504Z Discordへ通知を送信しました。"
+  ],
+  "limits": [
+    "Logs establish reaching POST, not actual Discord receipt or executions.",
+    "Workflow enabled/disabled state could not be read via the available GitHub fetch endpoint; no state change was attempted.",
+    "The original Opus review file and section 5 were not retrieved."
+  ]
+}
