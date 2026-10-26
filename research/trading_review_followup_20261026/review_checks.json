@@ -1,0 +1,42 @@
+{
+  "source_commit": "429f90e77a2aecdb77252a0e1e53adbcbf186628",
+  "method": "Existing daily CSV arithmetic only; no new strategy simulation",
+  "pairs": [
+    {
+      "start": "2024-10-01",
+      "sessions": 465,
+      "no_sell_greater_days": 119,
+      "endpoint": "2026-08-10",
+      "baseline_total": 44682.38522296779,
+      "hold_total": 47063.089999255135,
+      "difference": 2380.704776287348,
+      "hold_shares": 362,
+      "hold_cash": 3.0881789259529957,
+      "hold_nonstock_total": 3.0899992551348987,
+      "hold_liquidation": 39535.273470755135,
+      "crossover_close": 123.42346746881948,
+      "endpoint_close": 130
+    },
+    {
+      "start": "2025-01-02",
+      "sessions": 401,
+      "no_sell_greater_days": 127,
+      "endpoint": "2026-08-10",
+      "baseline_total": 42339.1533605725,
+      "hold_total": 45896.92441879124,
+      "difference": 3557.771058218743,
+      "hold_shares": 353,
+      "hold_cash": 6.920339592327414,
+      "hold_nonstock_total": 6.924418791240896,
+      "hold_liquidation": 38593.769128791246,
+      "crossover_close": 119.9213284469724,
+      "endpoint_close": 130
+    }
+  ],
+  "input_git_blobs": {
+    "research/SOXL_exit_study_20261023/daily_2024-10-01_NO_SELL_0p25.csv": "3b11be3f1ccdf33771ed7324cbf67428697ced04",
+    "research/SOXL_exit_study_20261023/daily_2024-10-01_P20_OR_R75_0p25.csv": "bb22a001e8451a82b68986010e7da5cd92831410",
+    "research/SOXL_exit_study_20261023/daily_2025-01-02_NO_SELL_0p25.csv": "5e01f19f3a1adba3a9e3076c4549477b9b52e160",
+    "research/SOXL_exit_study_20261023/daily_2025-01-02_P20_OR_R75_0p25.csv": "65f8d8c374e85449a2b88cf2b978be1277a86414"
+  }
+}

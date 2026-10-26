@@ -137,8 +137,10 @@ GitHubを正本とし、次回に必要な情報をローカルだけに残さ�
 
 ## 11. 現在の段階
 
-mainは停止コミット31144d9、候補は920e695。IR-01〜05はレビュー範囲で対応済み。価格・対象セッションの[設計案](docs/specs/DATA_SESSION_CONTRACT_DRAFT.md)は6dbc71cで作成完了・受領済み、未採用。[受領時の留保](docs/reviews/DATA_SESSION_RECEIPT_20261026.md)を引き継ぐ。
+main=31144d9（停止維持）、候補=920e695。価格・対象日案は未採用。429f90eで[Opus売買ルールレビュー](docs/reviews/TRADING_RULE_REVIEW_OPUS55_RESULT.md)を受領し、[主担当回答](docs/reviews/TRADING_RULE_REVIEW_RESPONSE_20261026.md)を作成した。
 
-次はユーザー指定どおり、**実装前の[Opus 5.5による売買ルール検討](docs/tasks/TRADING_RULE_REVIEW_OPUS55_REQUEST.md)**。基準候補の初回あり＋25%を正式採用せず、既存結果・コードから独立評価し、売却なし対照・出口と配分・損切り禁止の実行可能性を扱う。次の検証は最大3件に絞る。価格設計や旧5指摘の全面再レビューへ戻らない。
+正式採用保留、初回あり＋25%・20% OR RSI75は売却ありの参照候補として維持。売却なしが固定終端の主評価で上回った事実も維持し、終端依存から一般化はしない。楽天の「寄付き前は一律前日終値基準」という一般化は採らず、時間帯を区別する。
 
-cron22:40UTC、JST09:00確認期限、Sheets重複対応は未決。既存5項目の承認は維持するが、新たな戦略・本番変更は未承認。ルールの採否・必要検証の整理後に、依存固定・NT-01等をSonnetへまとめる。main反映・停止解除・Actions起動／再実行・実送信は行わない。[STATUS](docs/STATUS.md)を優先する。
+次は **[Sonnet 5.5による初回／再エントリー率分離の限定比較](docs/tasks/ALLOCATION_SEPARATION_SONNET55_REQUEST.md)**。21ユニーク候補×6開始×F&G遅延2＝252診断試算に限定。F&G記録の終了を待たず着手できる。[空様式](docs/templates/FG_OBSERVATION_TEMPLATE.csv)は作成したが実観測は未開始。20日不一致0件を過去の同等性証明にしない。
+
+部分売却・新閾値探索・期間延長・市場データ取得・本番変更は今回行わない。売却推奨停止、既存5項目の採用、主評価と固定条件を維持。main反映・停止解除・Actions起動／再実行・実送信は未承認。[STATUS](docs/STATUS.md)を優先する。
