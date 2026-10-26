@@ -1,0 +1,32 @@
+{
+  "title": "Initial-allocation (I) vs after-sale re-entry (R) separation, limited study V2 stage 1",
+  "date_JST": "2026-10-26",
+  "docs_start_sha": "359216b9cb18afaca8d8a278fc6cb62460e7b7c0",
+  "evidence_sha": "429f90e77a2aecdb77252a0e1e53adbcbf186628",
+  "grid": {
+    "I_initial_trend": [0, 0.25, 1],
+    "R_after_sale": [0, 0.25, 1],
+    "exits_with_sales": ["P20_OR_R75", "P20_ONLY"],
+    "exit_without_sales": "NO_SELL (R has no effect: 3 candidates by I only)",
+    "starts": ["2024-10-01", "2025-01-02", "2025-04-01", "2025-07-01", "2025-10-01", "2026-01-02"],
+    "primary_terminal": "2026-08-10",
+    "fg_delay": [0, 1],
+    "unique_candidates": 21,
+    "diagnostic_runs": 252,
+    "note": "21 candidates = 2 exits x 3 I x 3 R + 3 NO_SELL(I). 21 x 6 starts x 2 delays = 252."
+  },
+  "month_end_sensitivity": {
+    "months": "2025-06 .. 2026-07",
+    "definition": "last saved daily record date inside each calendar month (month-end proxy; official exchange calendar NOT checked); months before the start are excluded; August = 2026-08-10 only; no forced liquidation"
+  },
+  "engine": {
+    "file": "engine.mjs",
+    "source": "research/SOXL_exit_study_20261023/audit_exit.mjs (SHA256 9fe10b5185d9900bc3ea2d364d27c6484054933a1f532d05c24bf177fed5ec0a)",
+    "change": "only initialRatio / reentryRatio options; unspecified -> legacy I=R coupling",
+    "common_options": {"end": "2026-08-10", "initial": 10000, "allowInitialReentry": true, "dividendSchedule": "dividends_verified.json (copied from exit study)", "dividendMode": "issuer_exact_pay_date_proxy", "mmfRate": 0.03, "closeTargetNet": false, "buffer": 0, "slippage": 0},
+    "fixed": "USD 10,000 initial, JPY 150, tax 20.315%, integer shares, cost-inclusive basis, ideal daily-open fill with retrospective 2% net pre-tax gate, 20% condition on close without costs, SOXX RSI, 3-trading-day wait after filled sale"
+  },
+  "inputs": "daily.json / daily_adjclose.csv / fear-greed.csv reused from research/SOXL_exit_study_20261023/data, SHA256 checked against input_manifest.json",
+  "not_done": ["partial sale", "threshold search", "market data fetch", "production code change", "Actions/Discord/Sheets", "order models"],
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS; not a Rakuten-tradable performance; no rule adopted"
+}
