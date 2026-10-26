@@ -1,0 +1,26 @@
+{
+  "type": "algebraic_counterexample_not_market_data",
+  "alpha": 0.9285714285714286,
+  "k": 250,
+  "factor": 8.991438065797736e-9,
+  "states": [
+    {
+      "gain": 1,
+      "loss": 1
+    },
+    {
+      "gain": 3,
+      "loss": 1
+    }
+  ],
+  "common_future_deltas": "250 zeros",
+  "rsi_before": [
+    50,
+    75
+  ],
+  "rsi_after": [
+    50,
+    75
+  ],
+  "explanation": "Smoothing states contract, but RSI is a ratio; a universal pointwise RSI bound does not follow without denominator assumptions."
+}
