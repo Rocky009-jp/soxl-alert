@@ -1,0 +1,79 @@
+{
+  "research_fixed_commit": "37a14c02517b6357bcaeecb6f0a023bfc8a3696a",
+  "docs_start_commit": "7812065cd75c4096c74bf5a3163571c0c6623e6e",
+  "note": "SHA256 of every file read; nothing in these folders was modified",
+  "files": [
+    {
+      "file": "research/SOXL_allocation_separation_20261026/engine.mjs",
+      "bytes": 13544,
+      "sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/run.mjs",
+      "bytes": 18048,
+      "sha256": "f7eab09dc1d1c24c87a6b9b34262359a7f1e7bf1f5f0417df82c6add363946cd"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/specification.json",
+      "bytes": 2292,
+      "sha256": "6790a9bccc970f8b0be28ad9f7143a69d8437e62e7512f204eb4113bf5846f0a"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/summary.csv",
+      "bytes": 74706,
+      "sha256": "c2b5225d8357abc79604596971035576b145721b0bc3f1f577d91c25c280fc82"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/month_end_summary.csv",
+      "bytes": 420915,
+      "sha256": "93779b75dec45f085413d985496688b2be258a1291d41410c6b3817097829b4b"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/contrast_ledger.csv",
+      "bytes": 75973,
+      "sha256": "45e1512f25c56378d5d20aa039f15a1cd2a0a0b405f8abc8c07737fcf40480ba"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/contrast_daily.csv",
+      "bytes": 1136655,
+      "sha256": "03749ec89ba82c4e9f50e461e408f9eac151a513ca998ee9e65ce345e41cadc3"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/dividends_verified.json",
+      "bytes": 826,
+      "sha256": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/verification.json",
+      "bytes": 3268,
+      "sha256": "5de0daed3e65556c2584c11ba5af5adb44c02e164f19cdcb00212543f98d8c6c"
+    },
+    {
+      "file": "research/SOXL_allocation_separation_20261026/REPORT.md",
+      "bytes": 11881,
+      "sha256": "28073ea664a1a5b686607f0a40cc05c5665b6a70b34a785fca63c6576970e605"
+    },
+    {
+      "file": "research/SOXL_exit_study_20261023/data/daily.json",
+      "bytes": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "file": "research/SOXL_exit_study_20261023/data/daily_adjclose.csv",
+      "bytes": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "file": "research/SOXL_exit_study_20261023/data/fear-greed.csv",
+      "bytes": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    }
+  ],
+  "this_script": {
+    "file": "research/daily_rule_analysis_20261026/analyze.mjs",
+    "bytes": 13880,
+    "sha256": "90ee2ce362dd5f7da8f3071e54790751b3e684346a0dce15afebe4d949367e93"
+  },
+  "node": "v22.22.0",
+  "network": "not used"
+}

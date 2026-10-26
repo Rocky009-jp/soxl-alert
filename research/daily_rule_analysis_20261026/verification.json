@@ -1,0 +1,187 @@
+{
+  "passed_all": true,
+  "failure_count": 0,
+  "failures": [],
+  "counts": {
+    "saved_summary_rows": 252,
+    "extracted_rows": 120,
+    "extracted_candidates": 10,
+    "month_end_subset_rows": 1440,
+    "reused_contrast_paths": 16,
+    "extra_fixed_engine_runs": 4,
+    "extra_runs_note": "P20_ONLY_I25_R25 and P20_ONLY_I100_R25 x 2024-10-01/2025-01-02 x delay 0; NOT part of the 120 extraction and NOT a re-run of the 252",
+    "event_rows": 332,
+    "paths": 20
+  },
+  "tolerance_usd": 0.000001,
+  "extra_runs": [
+    {
+      "candidate_id": "P20_ONLY_I25_R25",
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "final_total_rerun": 44682.38522296779,
+      "final_total_saved": 44682.38522296779,
+      "max_abs_diff_usd": 0,
+      "fields_compared": [
+        "final_total",
+        "liquidation",
+        "final_shares",
+        "final_cash",
+        "final_market_value",
+        "final_basis",
+        "mmf_net_total",
+        "dividend_net_total",
+        "realized_stock_gain",
+        "realized_stock_tax",
+        "total_order_fees",
+        "sell_count",
+        "blocked_sales"
+      ]
+    },
+    {
+      "candidate_id": "P20_ONLY_I100_R25",
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "final_total_rerun": 31510.796411450443,
+      "final_total_saved": 31510.796411450443,
+      "max_abs_diff_usd": 0,
+      "fields_compared": [
+        "final_total",
+        "liquidation",
+        "final_shares",
+        "final_cash",
+        "final_market_value",
+        "final_basis",
+        "mmf_net_total",
+        "dividend_net_total",
+        "realized_stock_gain",
+        "realized_stock_tax",
+        "total_order_fees",
+        "sell_count",
+        "blocked_sales"
+      ]
+    },
+    {
+      "candidate_id": "P20_ONLY_I25_R25",
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "final_total_rerun": 42339.1533605725,
+      "final_total_saved": 42339.1533605725,
+      "max_abs_diff_usd": 0,
+      "fields_compared": [
+        "final_total",
+        "liquidation",
+        "final_shares",
+        "final_cash",
+        "final_market_value",
+        "final_basis",
+        "mmf_net_total",
+        "dividend_net_total",
+        "realized_stock_gain",
+        "realized_stock_tax",
+        "total_order_fees",
+        "sell_count",
+        "blocked_sales"
+      ]
+    },
+    {
+      "candidate_id": "P20_ONLY_I100_R25",
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "final_total_rerun": 42339.1533605725,
+      "final_total_saved": 42339.1533605725,
+      "max_abs_diff_usd": 0,
+      "fields_compared": [
+        "final_total",
+        "liquidation",
+        "final_shares",
+        "final_cash",
+        "final_market_value",
+        "final_basis",
+        "mmf_net_total",
+        "dividend_net_total",
+        "realized_stock_gain",
+        "realized_stock_tax",
+        "total_order_fees",
+        "sell_count",
+        "blocked_sales"
+      ]
+    }
+  ],
+  "exit_identity": [
+    {
+      "start": "2024-10-01",
+      "pair": "P20_OR_R75_I25_R25 vs P20_ONLY_I25_R25",
+      "identical_ledger": true,
+      "delta_total": 0
+    },
+    {
+      "start": "2024-10-01",
+      "pair": "P20_OR_R75_I100_R25 vs P20_ONLY_I100_R25",
+      "identical_ledger": false,
+      "delta_total": 550.3689828929346
+    },
+    {
+      "start": "2025-01-02",
+      "pair": "P20_OR_R75_I25_R25 vs P20_ONLY_I25_R25",
+      "identical_ledger": true,
+      "delta_total": 0
+    },
+    {
+      "start": "2025-01-02",
+      "pair": "P20_OR_R75_I100_R25 vs P20_ONLY_I100_R25",
+      "identical_ledger": true,
+      "delta_total": 0
+    }
+  ],
+  "checks": {
+    "engine_sha256_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "run_sha256_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "input_sha256_equals_manifest": {
+      "n": 3,
+      "fail": 0
+    },
+    "saved_summary_rows_252": {
+      "n": 1,
+      "fail": 0
+    },
+    "subset_rows_120": {
+      "n": 1,
+      "fail": 0
+    },
+    "subset_candidates_10": {
+      "n": 1,
+      "fail": 0
+    },
+    "extra_run_matches_saved_summary_1e-6": {
+      "n": 4,
+      "fail": 0
+    },
+    "path_has_rows": {
+      "n": 20,
+      "fail": 0
+    },
+    "execution_is_next_session_after_signal": {
+      "n": 332,
+      "fail": 0
+    },
+    "reconciliation_parts_sum_to_total": {
+      "n": 20,
+      "fail": 0
+    },
+    "flow_decomposition_sums_to_total": {
+      "n": 20,
+      "fail": 0
+    },
+    "reconciliation_liquidation_delta_present": {
+      "n": 20,
+      "fail": 0
+    }
+  }
+}
