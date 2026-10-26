@@ -1,13 +1,7 @@
 # Claude作業・レビューの入口
 
-[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を先に確認。
+[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を確認してください。
 
-暫定仕様ドラフトの作成報告を受領したが、主担当は本文をまだ取得できていません。次は **Claude Sonnet 5.5** による限定修正と本文出力です。6.1 Sol Highが判断しました。
+添付原稿の取得と本文レビューは完了し、[原稿](specs/INTERIM_NOTIFICATION_SPEC_DRAFT.md)を変更せず保存しました。[整理版](specs/INTERIM_NOTIFICATION_SPEC_PROPOSAL.md)と[レビュー・採用案](reviews/INTERIM_SPEC_REVIEW_20261026.md)は別資料です。
 
-- [詳細依頼](tasks/INTERIM_SPEC_DRAFT_REVISION_SONNET55_REQUEST.md)
-- [貼り付け用](CLAUDE_START_PROMPT.md)
-- [6.1 Sol Highの判断](decisions/INTERIM_SCOPE_DECISIONS_20261026.md)
-- [受領報告](reviews/INTERIM_SPEC_DRAFT_RECEIVED.md)
-- [SHA比較](reviews/INTERIM_MATERIALS_SHA_COMPARISON.json)
-
-原稿のある会話・環境で修正し、要約だけでなくMarkdown全文または実際の添付を返してください。原稿未取得の環境で本文を再現したと偽らないでください。新しい全面レビューやコード適用の依頼ではありません。承認5項目は未決です。
+次は承認5項目の採否判断。原稿の再要求や全面レビューの繰り返しは不要です。コード適用・設定変更・停止・起動・送信を依頼した段階ではありません。具体タスク発行時に6.1 Sol Highが担当モデルと許可範囲を決めます。

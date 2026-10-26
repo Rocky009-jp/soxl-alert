@@ -1,0 +1,11 @@
+{
+  "source": "User attachment: INTERIM_NOTIFICATION_SPEC_DRAFT.md",
+  "source_file_id": "file_00000000c1d4820984524c0c4db7745d",
+  "received_date": "2026-10-26",
+  "bytes": 17305,
+  "sha256": "eb47e2ddbaa83d5fc7e7ddcca806a9298f0a2d8beb86294f11c29e345b483481",
+  "original_text_unchanged": true,
+  "encoding": "UTF-8",
+  "original_draft_commit": "a4ca17a423f685120ddb39a70cf3fd342f827353",
+  "review_status": "Original preserved; implementation clarifications are in INTERIM_NOTIFICATION_SPEC_PROPOSAL.md and the separate review."
+}

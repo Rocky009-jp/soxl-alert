@@ -20,4 +20,7 @@ Rockyさん＝ユーザー本人。第三者の承認や連絡を求める項目
 暫定方針と今回の文書化範囲は[Sonnet 5.5依頼](../tasks/INTERIM_SPEC_DRAFT_SONNET55_REQUEST.md)を参照。5つのユーザー承認項目の状態は変更しない。
 
 
-作成報告への[6.1 Sol High判断](../decisions/INTERIM_SCOPE_DECISIONS_20261026.md)を追記。承認5項目の状態は変更しない。仕様書本文のレビューは未実施。
+作成報告への[6.1 Sol High判断](../decisions/INTERIM_SCOPE_DECISIONS_20261026.md)を追記。承認5項目の状態は変更しない。添付原稿の本文レビューと整理版作成は実施し、仕様採用・実装・受入試験は未実施。
+
+
+[本文レビューと採用案](INTERIM_SPEC_REVIEW_20261026.md)を提示。原稿と整理版は保存済みで、再度の本文取得依頼は不要。5項目の採用承認は別途必要。
