@@ -25,8 +25,35 @@ jobs:
           pip install yfinance pandas requests gspread oauth2client
 
       - name: Run script
+        id: run
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+          # Sheetsは現行どおり有効。無効にする場合も明示的に false とする。
+          SHEETS_ENABLED: 'true'
+          # 対象セッション日（YYYY-MM-DD）。決定方式は未決のため、未設定なら
+          # main.py が設定エラーで非0終了する（データ最終行から推測しない）。
+          TARGET_SESSION_DATE: ${{ vars.TARGET_SESSION_DATE }}
         run: python main.py
+
+      # アプリ本体が実行されなかった（先行ステップの失敗）場合のみ、
+      # 追加依存なしの curl で失敗を1回だけ報告する。本体が失敗した場合は
+      # 本体が通知を試みるため二重送信しない。報告の成否に関わらずジョブは
+      # 先行の失敗のまま（成功へ変えない）。checkout 自体の失敗や共通の
+      # 通知経路の故障は保証できない。
+      - name: Report setup failure
+        if: ${{ failure() && steps.run.outcome == 'skipped' }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "通知設定がないため失敗報告を送れません。"
+            exit 1
+          fi
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            -H 'Content-Type: application/json' \
+            -d '{"content":"🚫 **【SOXL 運用エラー】** 実行準備（依存導入など）に失敗したため、データ検査・売買判定・Sheets記録は実行していません（条件未達ではありません）。F&G: 目視未確認"}' \
+            "$DISCORD_WEBHOOK_URL") || { echo "失敗報告: 配信不明（curl失敗）"; exit 1; }
+          echo "失敗報告: HTTP ${code}"
+          case "$code" in 2??) ;; *) exit 1 ;; esac
