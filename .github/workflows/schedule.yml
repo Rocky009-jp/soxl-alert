@@ -8,6 +8,8 @@ on:
 
 jobs:
   run-bot:
+    # User-approved temporary pause (2026-10-26). Remove only after resume approval.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
