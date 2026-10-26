@@ -1,11 +1,16 @@
 # Claude作業・レビューの入口
 
-[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を先に確認してください。
+[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を確認してください。
 
-Opus指定レビューの[ユーザー提供本文・§5要点](reviews/PHASE0_OPUS55_REVIEW_RESULT.md)を指定パスへ保存しました。添付原本の同一性は未確認ですが、§5の承認5項目と論点2件は受領済みです。
+## 次の依頼
 
-- [承認事項と6.1 Sol Highの論点](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)
-- [対応案](reviews/PHASE0_OPUS55_RESPONSE.md)
-- [現在の状態確認指示](CLAUDE_START_PROMPT.md)
+指定モデル：**Claude Sonnet 5.5**。6.1 Sol Highが、明示した暫定方針を仕様案・受入ケース・承認表へ整理する文書化に適すると判断しました。新しい戦略の採否、実装、本番操作は含めません。
 
-保存依頼は採用・実装・停止・送信の承認ではありません。現在はユーザーの採否判断と、6.1 Sol Highの仕様整理を待つ状態です。旧レビューを繰り返したり、受領済みの§5要点を未受領扱いにしないでください。追加作業は[テンプレート](CLAUDE_TASK_TEMPLATE.md)で範囲を固定します。
+- [詳細依頼](tasks/INTERIM_SPEC_DRAFT_SONNET55_REQUEST.md)
+- [貼り付け用プロンプト](CLAUDE_START_PROMPT.md)
+- [承認5項目・論点2件](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)
+- [提供レビュー本文と§5要点](reviews/PHASE0_OPUS55_REVIEW_RESULT.md)
+
+成果物は `docs/specs/INTERIM_NOTIFICATION_SPEC_DRAFT.md` の本文。GitHubへ書き込めなければ全文を回答すればよいことにしています。現在その成果物は未作成であり、レビューや作成を実施済みとはしていません。
+
+承認5項目は未承認・未決。こちらの方針案とユーザー承認を混同しないでください。
