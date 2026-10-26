@@ -1,0 +1,29 @@
+{
+  "title": "Profit-target isolation with initial ratio fixed (I=25%): P20/P30/P40/P60 profit-only x R0/25/100",
+  "date_JST": "2026-10-26",
+  "fixed_before_run": true,
+  "docs_start_sha": "e31691cd6a16457a47f63076912ad52bac058e8e",
+  "fixed_study": "37a14c02517b6357bcaeecb6f0a023bfc8a3696a (engine.mjs, run.mjs, summary.csv, month_end_summary.csv, inputs; unchanged)",
+  "question": "Does the R25 advantage depend on the exit being a profit-from-cost 20% trigger? Does it persist when the profit target is 30/40/60%?",
+  "candidates_18": {
+    "profit_only_x_R": ["P20_ONLY", "P30_ONLY", "P40_ONLY", "P60_ONLY"],
+    "reference_x_R": ["P20_OR_R75"],
+    "R_after_sale": [0, 0.25, 1],
+    "initial_ratio_I": 0.25,
+    "no_sell_controls": ["NO_SELL_I0", "NO_SELL_I25", "NO_SELL_I100"],
+    "note": "4+1 exits x 3 R = 15 with sales, plus 3 NO_SELL (R has no effect) = 18"
+  },
+  "cells": {"starts": ["2024-10-01", "2025-01-02", "2025-04-01", "2025-07-01", "2025-10-01", "2026-01-02"], "fg_delay": [0, 1], "terminal": "2026-08-10", "total": 216},
+  "reuse_from_37a14c0": {"candidates": ["P20_ONLY_I25_R{0,25,100}", "P20_OR_R75_I25_R{0,25,100}", "NO_SELL_I{0,25,100}"], "cells": 108},
+  "rerun_new": {"candidates": ["P30_ONLY_I25_R{0,25,100}", "P40_ONLY_I25_R{0,25,100}", "P60_ONLY_I25_R{0,25,100}"], "cells": 108,
+    "of_which_overlap_check_with_old_I_eq_R_study": "I25/R25 delay0, 3 exits x 6 starts = 18 cells, checked vs SOXL_exit_study_20261023/summary.csv (1e-6 USD); NOT counted as new candidates",
+    "additional_overlap_check_not_counted": "I25/R25 delay1 for starts 2024-10-01 and 2025-01-02 vs exit-study sensitivity.csv (6 cells)"},
+  "harness_check_extra_runs": "re-run the 9 reused candidates for start 2024-10-01 and 2025-01-02, delay 0/1 (36 cells) with this script and compare with stored summary (1e-6); counted separately from the 216",
+  "engine_use": "import simulate from SOXL_allocation_separation_20261026/engine.mjs unchanged; pass initialRatio=0.25 and reentryRatio=R explicitly; options identical to run.mjs baseOpts; exits: PROFIT_ONLY with profitTarget 0.3/0.4/0.6 (D-close gross profit on cost, before costs); 2% net-of-costs pre-tax gate unchanged",
+  "ranking": "rank_in_current_18 within each start x delay (ties share rank, tol 1e-7); source_rank_in_21 kept separately for reused rows only; no pooling of absolute assets across starts",
+  "evaluation": "primary: final market-value total at 2026-08-10. auxiliary: liquidation value, profit/tax/fees/MMF/dividends, shares and cost, trade counts. no drawdown penalty. no mean-rank or win-count objective.",
+  "month_end": "2025-06..2026-07 last saved daily record of each month (proxy, official calendar unchecked), before-start months excluded, Aug = 2026-08-10 only, no forced liquidation; reused cells from stored month_end_summary.csv, rerun cells extracted from their daily series",
+  "explanatory_data_rules": "fg_used column = signals(...).fg_used (delay-aware), never raw D.fg; D vs proxy exec date separate; gross-on-cost / net-of-costs / after-tax profit separate; signal / insufficient-cash / filled separate; zero-share reason judged by allocation budget vs one share at exec Open + fee",
+  "stop_condition": "216 cells only. no new ratios, RSI thresholds, partial sale, start dates, term extension, data fetch",
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+}

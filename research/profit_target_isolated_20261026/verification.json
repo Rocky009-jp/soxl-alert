@@ -1,0 +1,137 @@
+{
+  "passed_all": true,
+  "failure_count": 0,
+  "failures": [],
+  "counts": {
+    "cells": 216,
+    "reused_from_37a14c0": 108,
+    "rerun_new": 108,
+    "of_rerun_overlap_check_old_coupled_study_I25R25_delay0": 18,
+    "extra_overlap_delay1_not_counted": 6,
+    "harness_rerun_reused_extra_cells": 36,
+    "h2_corrected_event_rows_checked": 333,
+    "events_main_starts_rows": 512,
+    "events_filled": 362,
+    "events_insufficient_or_blocked": 150,
+    "month_end_rows": 2592,
+    "tolerance_USD": 0.000001
+  },
+  "checks": {
+    "engine_sha_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "run_sha_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "input_sha_equals_manifest": {
+      "n": 3,
+      "fail": 0
+    },
+    "eighteen_candidates": {
+      "n": 1,
+      "fail": 0
+    },
+    "reused_cell_exists_in_37a14c0": {
+      "n": 108,
+      "fail": 0
+    },
+    "accounting_identity": {
+      "n": 108,
+      "fail": 0
+    },
+    "terminal_date_2026-08-10": {
+      "n": 108,
+      "fail": 0
+    },
+    "fresh_account_at_start": {
+      "n": 108,
+      "fail": 0
+    },
+    "balance_invariants_nonneg_cash_integer_shares_zero_basis": {
+      "n": 108,
+      "fail": 0
+    },
+    "every_sale_net_gain_ge_2pct_of_cost": {
+      "n": 108,
+      "fail": 0
+    },
+    "dividend_no_double_counting": {
+      "n": 108,
+      "fail": 0
+    },
+    "R0_no_after_sale_buy": {
+      "n": 36,
+      "fail": 0
+    },
+    "sale_signal_gross_on_cost_at_least_target": {
+      "n": 310,
+      "fail": 0
+    },
+    "cells_216": {
+      "n": 1,
+      "fail": 0
+    },
+    "reuse_108": {
+      "n": 1,
+      "fail": 0
+    },
+    "rerun_108": {
+      "n": 1,
+      "fail": 0
+    },
+    "overlap_18": {
+      "n": 1,
+      "fail": 0
+    },
+    "overlap18_vs_exit_study_summary_final_total": {
+      "n": 18,
+      "fail": 0
+    },
+    "overlap18_vs_exit_study_summary_items": {
+      "n": 162,
+      "fail": 0
+    },
+    "extra_overlap6_delay1_vs_exit_study_sensitivity": {
+      "n": 6,
+      "fail": 0
+    },
+    "harness_rerun_reused_vs_37a14c0_summary": {
+      "n": 36,
+      "fail": 0
+    },
+    "harness_month_end_vs_37a14c0": {
+      "n": 504,
+      "fail": 0
+    },
+    "reused_month_end_row_exists": {
+      "n": 1296,
+      "fail": 0
+    },
+    "rerun_month_end_has_record": {
+      "n": 1296,
+      "fail": 0
+    },
+    "month_end_record_equals_tape_last_date": {
+      "n": 1296,
+      "fail": 0
+    },
+    "signals_fg_used_equals_row_i_minus_delay": {
+      "n": 2,
+      "fail": 0
+    },
+    "delay1_fg_used_differs_from_raw_D_fg_on_some_rows": {
+      "n": 1,
+      "fail": 0
+    },
+    "h2_corrected_events_found_in_this_harness": {
+      "n": 333,
+      "fail": 0
+    },
+    "h2_corrected_fg_used_matches": {
+      "n": 333,
+      "fail": 0
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "node": "v22.22.0",
+  "platform": "linux",
+  "command": "cd research/profit_target_isolated_20261026 && node run.mjs",
+  "network": "not used",
+  "secrets": "none"
+}

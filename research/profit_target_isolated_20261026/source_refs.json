@@ -1,0 +1,19 @@
+{
+  "docs_start_sha": "e31691cd6a16457a47f63076912ad52bac058e8e",
+  "fixed_study": "37a14c0",
+  "engine": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+  "run_37a14c0": "f7eab09dc1d1c24c87a6b9b34262359a7f1e7bf1f5f0417df82c6add363946cd",
+  "summary_37a14c0": "c2b5225d8357abc79604596971035576b145721b0bc3f1f577d91c25c280fc82",
+  "month_end_37a14c0": "93779b75dec45f085413d985496688b2be258a1291d41410c6b3817097829b4b",
+  "exit_study_summary": "bb2a3cef8e882126e48cdb3bc1505d356c4b7a2f0da80e4c7331fd3d6b853793",
+  "exit_study_sensitivity": "9383cb2f1f30f4665599409e173b827fae8cb14ed3992fa23955140f13625402",
+  "dividends": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99",
+  "inputs": {
+    "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+    "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+    "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+  },
+  "h2_corrections_reference": "bc2ce61374bbd52cae355c4a45b287aacf34aa6c0cc2da35409ed028504dc44a",
+  "specification": "9b120b077b993bdc42df694bf5b5f4ff908909d070a4df2d507c60ece654239b",
+  "run_this": "bcbfbe87cb0f19e762e2aa2c98a8f5a576ec95f6ae1021e99df57ca83fa0a0ab"
+}
