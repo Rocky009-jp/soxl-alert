@@ -1,0 +1,58 @@
+{
+  "date_jst": "2026-10-26",
+  "repository": "Rocky009-jp/soxl-alert",
+  "approval": {
+    "user_quote": "この5項目を採用して進めてよいです",
+    "selected_items": 5,
+    "production_fix_deployment_authorized": false,
+    "pause_authorized": true,
+    "github_failure_notification_settings_verified": false
+  },
+  "documents_start_commit": "ca8c2cca24e4fce61c03ae9b53be9e20501386d6",
+  "main_before": "7731ef0c4e02a3a26ae80dcb7ed79f2842c0c2cb",
+  "main_pause_commit": "31144d9b6af8a6c920ad53c395cd550e8c48a7fa",
+  "changed_files": [
+    {
+      "path": ".github/workflows/schedule.yml",
+      "added_lines": 2,
+      "deleted_lines": 0,
+      "job": "run-bot",
+      "condition": "${{ false }}",
+      "blob_before": "315355342da91be3f6471b7e955d5b77c8662982",
+      "blob_after": "b7c55f942f27b80c1242cb4722f1436faba69b2b"
+    }
+  ],
+  "main_py_blob_before": "7926aa563455822dceb0fd09c43033e21e7198bc",
+  "main_py_blob_after": "7926aa563455822dceb0fd09c43033e21e7198bc",
+  "readback": {
+    "workflow_exact_match": true,
+    "commit_changed_only_workflow": true,
+    "main_py_unchanged": true
+  },
+  "pre_change_runs_query": "https://api.github.com/repos/Rocky009-jp/soxl-alert/actions/runs?per_page=10",
+  "pre_change_run_ids": [
+    40042434050,
+    39875924968,
+    39697826668,
+    39518873144,
+    39348282180,
+    38983218437,
+    38825510199,
+    38657577272,
+    38490595443,
+    38338038079
+  ],
+  "pre_change_run_statuses": "all 10 completed",
+  "workflow_disable_api_used": false,
+  "workflow_disabled_flag_verified": false,
+  "actions_started": 0,
+  "discord_test_messages": 0,
+  "sheets_writes": 0,
+  "runtime_skip_observed": false,
+  "limitations": [
+    "Job guard readback verifies saved configuration; no execution was triggered.",
+    "Workflow events may still produce skipped runs; workflow disabled flag was not changed.",
+    "This change does not cancel existing runs.",
+    "No claim of fixed data feed, notification delivery or completed implementation."
+  ]
+}

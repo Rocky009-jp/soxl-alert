@@ -1,9 +1,10 @@
-対象はRocky009-jp/soxl-alert、docs/v2-roadmap-20261023です。
-CLAUDE.md、docs/STATUS.md、docs/reviews/INTERIM_SPEC_REVIEW_20261026.mdを確認してください。
-
-添付原稿はdocs/specs/INTERIM_NOTIFICATION_SPEC_DRAFT.mdへ保存済みです。
-6.1 Sol High整理版はdocs/specs/INTERIM_NOTIFICATION_SPEC_PROPOSAL.mdです。
-原稿の再要求や同じレビューを繰り返さないでください。
-
-現在は承認5項目の採否判断待ちです。仕様案を承認済みと扱わず、新しいコード・設定変更、停止、Actions起動、通知送信を行わないでください。
-具体的な次のタスクと使用モデルは6.1 Sol Highが指定します。
+使用モデルはClaude Sonnet 5.5です。利用環境で選択を確認してください。
+対象はRocky009-jp/soxl-alertです。
+最初に資料ブランチdocs/v2-roadmap-20261023のCLAUDE.md、docs/STATUS.mdを読み、開始SHAを記録してください。
+docs/tasks/INTERIM_IMPLEMENTATION_SONNET55_REQUEST.mdに従い、限定実装とオフライン試験まで進めてください。
+5項目は2026-10-26に採用済みです。同じ承認・原稿提出・全面レビューを繰り返さないでください。
+本番停止コミット31144d9b6af8a6c920ad53c395cd550e8c48a7faから別作業ブランチを作り、停止条件を維持してください。
+main反映、停止解除、Actions起動・再実行、Discord送信、Sheets実アクセスは今回行わないでください。
+GitHub通知設定・受信は本人確認待ちで、確認済みとは扱わないでください。
+候補コード・試験結果・未解決点をGitHubへ保存してください。書込不可なら全成果とパッチを返し、未保存を明記してください。
+詳細な範囲・対象ファイル・合格条件は依頼書を優先してください。
