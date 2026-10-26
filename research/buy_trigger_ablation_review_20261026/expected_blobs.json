@@ -1,0 +1,46 @@
+[
+  {
+    "path": "research/buy_trigger_ablation_20261026/engine.mjs",
+    "expected": "49931944704748d875560c3d94310c962e0861e3"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/environment.json",
+    "expected": "519534272bf9cc81e79bdd8359bdbc7a14807bbb"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/event_path_counts.csv",
+    "expected": "7d72fcf61c341e166d40701260ad788bad9e06ff"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/events_main_paths.csv",
+    "expected": "2a0c80d6f93a2edddf5efa143a25f2226c833aac"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/month_end_summary.csv",
+    "expected": "fff24f582c98d0bb251030ab5b2e78458a0e2f95"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/paired_effects.csv",
+    "expected": "96f31f6dacd074b4062039371528d4771b88a511"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/run.mjs",
+    "expected": "d8b56890b4df5d51e2446ad92bc857feb8882a83"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/source_refs.json",
+    "expected": "22548ca3d354fdb663ccc559fe61861948ea31be"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/specification.json",
+    "expected": "745205d52cecb6614894fbe7c3ab4f3f5e74fdbd"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/summary.csv",
+    "expected": "ae22f18f1997f1c47a1038b1af8af4af16c28b07"
+  },
+  {
+    "path": "research/buy_trigger_ablation_20261026/verification.json",
+    "expected": "1822661db9523212e28004ad2bcf4192a9564081"
+  }
+]

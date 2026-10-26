@@ -1,0 +1,67 @@
+{
+  "date_JST": "2026-10-26",
+  "reviewer": "6.1 Sol High",
+  "docs_start_sha": "172d5d6763533f83f802b9273314fb7b9c531be3",
+  "research_branch": "research/buy-trigger-ablation-20261026",
+  "research_commit": "e14efa847e45012058957dc7332e64ad58ab85f9",
+  "specification_commit": "4cb58b4dee6440b5200a0c22357cbcfeb1877ca1",
+  "ancestor_chain": [
+    "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+    "4cb58b4dee6440b5200a0c22357cbcfeb1877ca1",
+    "364ce7776a9debec7630a195b1666b1698b230bb",
+    "e14efa847e45012058957dc7332e64ad58ab85f9"
+  ],
+  "frozen_files_confirmed": [
+    "specification.json",
+    "source_refs.json",
+    "engine.mjs"
+  ],
+  "frozen_blobs_match": true,
+  "chronological_limit": "Specification commit precedes saved result in ancestry. Actual first calculation timing was not independently observed.",
+  "rerun_scope": "Unmodified run.mjs: 72 main + 24 regression + 9 synthetic = 105 simulate calls; 7 explicit signals calls in saved script. No original 252 / profit 216 / H2 full rerun.",
+  "additional_root_checks": {
+    "summary_arithmetic": "paired72/reuse72/rank144",
+    "market_signals_reads": 1,
+    "additional_simulate_calls": 0
+  },
+  "BA01_observed_market_state": [
+    {
+      "date": "2024-12-23",
+      "fg_used": 30.142857142857142,
+      "streak": 1,
+      "armed": false,
+      "ex": false
+    },
+    {
+      "date": "2024-12-24",
+      "fg_used": 34.51428571428571,
+      "streak": 2,
+      "armed": false,
+      "ex": false
+    },
+    {
+      "date": "2024-12-26",
+      "fg_used": 34.17142857142857,
+      "streak": 3,
+      "armed": true,
+      "ex": false
+    },
+    {
+      "date": "2025-01-02",
+      "fg_used": 24.31428571428572,
+      "streak": 0,
+      "armed": false,
+      "ex": true
+    }
+  ],
+  "BA01_interpretation": "2025-01-03 buy follows full-history rearm/consumption; account start did not reset armed. No P&L correction.",
+  "BA02_static_check": "options[k] ?? true treats null as default true; not all supplied non-booleans throw. No null used in evaluated cases. Source not modified.",
+  "BA03_limit": "First divergence is not a quantified causal attribution of final wealth difference to one fill.",
+  "production": {
+    "main": "31144d9b6af8a6c920ad53c395cd550e8c48a7fa",
+    "candidate": "920e69571cf4feda09f3f2f560e96fcb9cb09d50",
+    "runtime_job": "paused",
+    "deploy_resume_actions_discord_sheets_accounts": "not performed"
+  },
+  "next_task": "Opus 5.5: one operational rule draft; 0 simulation / new market API data / code changes; prepared only."
+}

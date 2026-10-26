@@ -1,0 +1,1082 @@
+{
+  "source_commit": "e14efa847e45012058957dc7332e64ad58ab85f9",
+  "cells": 144,
+  "paired": 72,
+  "reuse_checked": 72,
+  "paired_errors": 0,
+  "reuse_errors": 0,
+  "rank_errors": 0,
+  "lower": 56,
+  "equal": 14,
+  "higher": 2,
+  "byProfile": [
+    {
+      "profile": "NO_SELL_I25",
+      "settings": [
+        {
+          "setting": "NORMAL_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 1,
+              "equal": 5,
+              "higher": 0,
+              "min": -3134.2595071494798,
+              "max": 0,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": 0,
+                  "on": 47063.089999255135,
+                  "off": 47063.089999255135
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": 0,
+                  "on": 45896.92441879124,
+                  "off": 45896.92441879124
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": 0,
+                  "on": 36169.16531693474,
+                  "off": 36169.16531693474
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": 0,
+                  "on": 36018.23047251751,
+                  "off": 36018.23047251751
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": 0,
+                  "on": 32763.04134047857,
+                  "off": 32763.04134047857
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -3134.2595071494798,
+                  "on": 27842.751554272767,
+                  "off": 24708.492047123287
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 1,
+              "equal": 5,
+              "higher": 0,
+              "min": -747.9290740330252,
+              "max": 0,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": 0,
+                  "on": 44109.60420506323,
+                  "off": 44109.60420506323
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": 0,
+                  "on": 40835.85526863159,
+                  "off": 40835.85526863159
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": 0,
+                  "on": 35252.59987380476,
+                  "off": 35252.59987380476
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": 0,
+                  "on": 35015.19667423507,
+                  "off": 35015.19667423507
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": 0,
+                  "on": 32403.290302354,
+                  "off": 32403.290302354
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -747.9290740330252,
+                  "on": 24708.492047123287,
+                  "off": 23960.562973090262
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "setting": "EXFEAR_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 5,
+              "equal": 1,
+              "higher": 0,
+              "min": -15968.251124047369,
+              "max": 0,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -15968.251124047369,
+                  "on": 47063.089999255135,
+                  "off": 31094.838875207766
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -14293.285127691965,
+                  "on": 45896.92441879124,
+                  "off": 31603.639291099276
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -2998.9332163149957,
+                  "on": 36169.16531693474,
+                  "off": 33170.232100619745
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -2993.34958692066,
+                  "on": 36018.23047251751,
+                  "off": 33024.88088559685
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -3761.7155035431024,
+                  "on": 32763.04134047857,
+                  "off": 29001.325836935466
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": 0,
+                  "on": 27842.751554272767,
+                  "off": 27842.751554272767
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 5,
+              "equal": 1,
+              "higher": 0,
+              "min": -16264.757833981294,
+              "max": 0,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -16264.757833981294,
+                  "on": 44109.60420506323,
+                  "off": 27844.846371081938
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -10662.803472098192,
+                  "on": 40835.85526863159,
+                  "off": 30173.051796533397
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -5316.508320288602,
+                  "on": 35252.59987380476,
+                  "off": 29936.091553516155
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -5216.530357230691,
+                  "on": 35015.19667423507,
+                  "off": 29798.66631700438
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -5216.530357230691,
+                  "on": 32403.290302354,
+                  "off": 27186.759945123307
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": 0,
+                  "on": 24708.492047123287,
+                  "off": 24708.492047123287
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profile": "P20_ONLY_I25_R25",
+      "settings": [
+        {
+          "setting": "NORMAL_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -16775.091740823755,
+              "max": -8427.975000408667,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -16775.091740823755,
+                  "on": 44682.38522296779,
+                  "off": 27907.293482144032
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -15838.540046264054,
+                  "on": 42339.1533605725,
+                  "off": 26500.613314308444
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -11800.504487765094,
+                  "on": 31399.429900840627,
+                  "off": 19598.925413075533
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -11684.279060822566,
+                  "on": 31177.046018253808,
+                  "off": 19492.766957431242
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -11231.069530358734,
+                  "on": 29918.2538303415,
+                  "off": 18687.184299982764
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -8427.975000408667,
+                  "on": 22430.62475465224,
+                  "off": 14002.649754243572
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -10956.994361472023,
+              "max": -6617.325536430364,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -10956.994361472023,
+                  "on": 23050.784877765207,
+                  "off": 12093.790516293184
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -10340.92027690089,
+                  "on": 21738.637596860288,
+                  "off": 11397.717319959398
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -9032.925603666326,
+                  "on": 19121.966432604746,
+                  "off": 10089.04082893842
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -9024.41481315481,
+                  "on": 19015.156321594728,
+                  "off": 9990.741508439918
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -8655.611160750033,
+                  "on": 18218.275185875915,
+                  "off": 9562.664025125881
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -6617.325536430364,
+                  "on": 14002.649754243572,
+                  "off": 7385.324217813208
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "setting": "EXFEAR_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -21924.35111472662,
+              "max": -1583.687780803044,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -21924.35111472662,
+                  "on": 44682.38522296779,
+                  "off": 22758.034108241165
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -19811.24592191649,
+                  "on": 42339.1533605725,
+                  "off": 22527.90743865601
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -9228.322358209356,
+                  "on": 31399.429900840627,
+                  "off": 22171.10754263127
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -9107.734271225661,
+                  "on": 31177.046018253808,
+                  "off": 22069.311747028147
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -8759.88416657196,
+                  "on": 29918.2538303415,
+                  "off": 21158.36966376954
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -1583.687780803044,
+                  "on": 22430.62475465224,
+                  "off": 20846.936973849195
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 5,
+              "equal": 1,
+              "higher": 0,
+              "min": -7740.8763900537815,
+              "max": 0,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -7740.8763900537815,
+                  "on": 23050.784877765207,
+                  "off": 15309.908487711426
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -5931.697128741396,
+                  "on": 21738.637596860288,
+                  "off": 15806.940468118892
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -3397.697642939538,
+                  "on": 19121.966432604746,
+                  "off": 15724.268789665208
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -3456.0218374576707,
+                  "on": 19015.156321594728,
+                  "off": 15559.134484137057
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -3258.4594147983353,
+                  "on": 18218.275185875915,
+                  "off": 14959.81577107758
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": 0,
+                  "on": 14002.649754243572,
+                  "off": 14002.649754243572
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "profile": "P20_ONLY_I25_R100",
+      "settings": [
+        {
+          "setting": "NORMAL_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -6893.539612447756,
+              "max": -3214.2658652906903,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -6893.539612447756,
+                  "on": 40206.03339660206,
+                  "off": 33312.49378415431
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -3214.2658652906903,
+                  "on": 34791.02710733484,
+                  "off": 31576.76124204415
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -4850.061763794016,
+                  "on": 28265.315805947794,
+                  "off": 23415.254042153778
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -4781.386651806461,
+                  "on": 28027.097311804926,
+                  "off": 23245.710659998465
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -4626.041285582538,
+                  "on": 26927.870928711083,
+                  "off": 22301.829643128545
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -3443.598740440826,
+                  "on": 20159.74704961335,
+                  "off": 16716.148309172524
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -14161.315436495657,
+              "max": -8279.955542310192,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -14161.315436495657,
+                  "on": 28467.869112772023,
+                  "off": 14306.553676276366
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -13498.2889286898,
+                  "on": 26931.334410201373,
+                  "off": 13433.045481511572
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -11801.762156954705,
+                  "on": 23684.83818313587,
+                  "off": 11883.076026181167
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -11690.101923323102,
+                  "on": 23512.812187887095,
+                  "off": 11822.710264563993
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -10864.995507441603,
+                  "on": 21721.201910789805,
+                  "off": 10856.206403348202
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -8279.955542310192,
+                  "on": 16716.148309172524,
+                  "off": 8436.192766862332
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "setting": "EXFEAR_OFF",
+          "delays": [
+            {
+              "delay": 0,
+              "lower": 6,
+              "equal": 0,
+              "higher": 0,
+              "min": -17447.088092226157,
+              "max": -1424.580569957874,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -17447.088092226157,
+                  "on": 40206.03339660206,
+                  "off": 22758.945304375906
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -12255.562474912942,
+                  "on": 34791.02710733484,
+                  "off": 22535.4646324219
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": -6098.93204326852,
+                  "on": 28265.315805947794,
+                  "off": 22166.383762679274
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": -5970.343201113239,
+                  "on": 28027.097311804926,
+                  "off": 22056.754110691687
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -7878.212020164021,
+                  "on": 26927.870928711083,
+                  "off": 19049.658908547062
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": -1424.580569957874,
+                  "on": 20159.74704961335,
+                  "off": 18735.166479655476
+                }
+              ]
+            },
+            {
+              "delay": 1,
+              "lower": 3,
+              "equal": 1,
+              "higher": 2,
+              "min": -8159.744246705697,
+              "max": 292.87715733412915,
+              "rows": [
+                {
+                  "start": "2024-10-01",
+                  "delta_USD": -8159.744246705697,
+                  "on": 28467.869112772023,
+                  "off": 20308.124866066326
+                },
+                {
+                  "start": "2025-01-02",
+                  "delta_USD": -2854.170598447563,
+                  "on": 26931.334410201373,
+                  "off": 24077.16381175381
+                },
+                {
+                  "start": "2025-04-01",
+                  "delta_USD": 292.87715733412915,
+                  "on": 23684.83818313587,
+                  "off": 23977.71534047
+                },
+                {
+                  "start": "2025-07-01",
+                  "delta_USD": 274.9139020074763,
+                  "on": 23512.812187887095,
+                  "off": 23787.72608989457
+                },
+                {
+                  "start": "2025-10-01",
+                  "delta_USD": -1914.5518508210953,
+                  "on": 21721.201910789805,
+                  "off": 19806.65005996871
+                },
+                {
+                  "start": "2026-01-02",
+                  "delta_USD": 0,
+                  "on": 16716.148309172524,
+                  "off": 16716.148309172524
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "start": "2024-10-01",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I0__BOTH_ON"
+      ],
+      "final_total": 50703.100289853355
+    },
+    {
+      "start": "2024-10-01",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I0__BOTH_ON"
+      ],
+      "final_total": 46816.41757890169
+    },
+    {
+      "start": "2025-01-02",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I25__BOTH_ON",
+        "NO_SELL_I25__NORMAL_OFF",
+        "NO_SELL_I0__BOTH_ON",
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 45896.92441879124
+    },
+    {
+      "start": "2025-01-02",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I25__BOTH_ON",
+        "NO_SELL_I25__NORMAL_OFF",
+        "NO_SELL_I0__BOTH_ON",
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 40835.85526863159
+    },
+    {
+      "start": "2025-04-01",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 45642.732999934444
+    },
+    {
+      "start": "2025-04-01",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 45642.732999934444
+    },
+    {
+      "start": "2025-07-01",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 45279.39887283058
+    },
+    {
+      "start": "2025-07-01",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 45279.39887283058
+    },
+    {
+      "start": "2025-10-01",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I25__BOTH_ON",
+        "NO_SELL_I25__NORMAL_OFF",
+        "NO_SELL_I0__BOTH_ON",
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 32763.04134047857
+    },
+    {
+      "start": "2025-10-01",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 35386.376986419506
+    },
+    {
+      "start": "2026-01-02",
+      "delay": 0,
+      "winners": [
+        "NO_SELL_I0__BOTH_ON"
+      ],
+      "final_total": 28609.16633126833
+    },
+    {
+      "start": "2026-01-02",
+      "delay": 1,
+      "winners": [
+        "NO_SELL_I100__BOTH_ON"
+      ],
+      "final_total": 25750.813826361347
+    }
+  ],
+  "hashChecks": [
+    {
+      "path": "research/buy_trigger_ablation_20261026/engine.mjs",
+      "expected": "49931944704748d875560c3d94310c962e0861e3",
+      "actual": "49931944704748d875560c3d94310c962e0861e3",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/environment.json",
+      "expected": "519534272bf9cc81e79bdd8359bdbc7a14807bbb",
+      "actual": "7f44e28ec2e4efc9372e3cf834bd6ac53d823404",
+      "match": false
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/event_path_counts.csv",
+      "expected": "7d72fcf61c341e166d40701260ad788bad9e06ff",
+      "actual": "7d72fcf61c341e166d40701260ad788bad9e06ff",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/events_main_paths.csv",
+      "expected": "2a0c80d6f93a2edddf5efa143a25f2226c833aac",
+      "actual": "2a0c80d6f93a2edddf5efa143a25f2226c833aac",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/month_end_summary.csv",
+      "expected": "fff24f582c98d0bb251030ab5b2e78458a0e2f95",
+      "actual": "fff24f582c98d0bb251030ab5b2e78458a0e2f95",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/paired_effects.csv",
+      "expected": "96f31f6dacd074b4062039371528d4771b88a511",
+      "actual": "96f31f6dacd074b4062039371528d4771b88a511",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/run.mjs",
+      "expected": "d8b56890b4df5d51e2446ad92bc857feb8882a83",
+      "actual": "d8b56890b4df5d51e2446ad92bc857feb8882a83",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/source_refs.json",
+      "expected": "22548ca3d354fdb663ccc559fe61861948ea31be",
+      "actual": "22548ca3d354fdb663ccc559fe61861948ea31be",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/specification.json",
+      "expected": "745205d52cecb6614894fbe7c3ab4f3f5e74fdbd",
+      "actual": "745205d52cecb6614894fbe7c3ab4f3f5e74fdbd",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/summary.csv",
+      "expected": "ae22f18f1997f1c47a1038b1af8af4af16c28b07",
+      "actual": "ae22f18f1997f1c47a1038b1af8af4af16c28b07",
+      "match": true
+    },
+    {
+      "path": "research/buy_trigger_ablation_20261026/verification.json",
+      "expected": "1822661db9523212e28004ad2bcf4192a9564081",
+      "actual": "1822661db9523212e28004ad2bcf4192a9564081",
+      "match": true
+    }
+  ],
+  "verification": {
+    "passed_all": true,
+    "failure_count": 0,
+    "failures": [],
+    "counts": {
+      "evaluation_cells": 144,
+      "reused": 72,
+      "new": 72,
+      "candidates": 12,
+      "paired_comparisons": 72,
+      "month_end_rows": 1728,
+      "event_rows": 560,
+      "event_filled": 367,
+      "event_suppressed": 108,
+      "event_insufficient": 85,
+      "event_sell_blocked": 0,
+      "event_paths": 36,
+      "tolerance_USD": 0.000001
+    },
+    "simulate_calls": {
+      "main_new": 72,
+      "regression_original": 12,
+      "regression_copy": 12,
+      "synthetic": 9,
+      "total": 105,
+      "limit": 108,
+      "signals_calls_outside_simulate": 7
+    },
+    "checks": {
+      "original_engine_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "engine_copy_sha_equals_committed_ref": {
+        "n": 1,
+        "fail": 0
+      },
+      "profit_target_summary_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "profit_target_month_end_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "dividends_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "input_sha": {
+        "n": 3,
+        "fail": 0
+      },
+      "twelve_candidates": {
+        "n": 1,
+        "fail": 0
+      },
+      "no_day_with_ex_or_normal_and_reCandidate": {
+        "n": 2,
+        "fail": 0
+      },
+      "regression_summary_original_vs_copy": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_ledger_original_vs_copy": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_daily_original_vs_copy": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_candidates_original_vs_copy": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_signals_original_vs_copy": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_cfg_equal_except_new_flags": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_copy_final_total_equals_77bb44f_stored": {
+        "n": 12,
+        "fail": 0
+      },
+      "accounting_identity": {
+        "n": 84,
+        "fail": 0
+      },
+      "terminal_date_2026-08-10": {
+        "n": 84,
+        "fail": 0
+      },
+      "fresh_account_at_start": {
+        "n": 84,
+        "fail": 0
+      },
+      "balance_invariants_nonneg_cash_integer_shares_zero_basis": {
+        "n": 84,
+        "fail": 0
+      },
+      "every_sale_net_gain_ge_2pct_of_cost": {
+        "n": 84,
+        "fail": 0
+      },
+      "dividend_no_double_counting": {
+        "n": 84,
+        "fail": 0
+      },
+      "fee_tax_ledger_consistency": {
+        "n": 84,
+        "fail": 0
+      },
+      "no_sell_zero_sales_zero_aftersale": {
+        "n": 28,
+        "fail": 0
+      },
+      "no_suppression_field_when_both_on": {
+        "n": 12,
+        "fail": 0
+      },
+      "regression_runs_24": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_A_ex_signal_days_two_and_rearm": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_A_signals_identical_flag_on_off": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_A_on_has_EXFEAR_order_at_first_ex_day": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_A_off_zero_EXFEAR_but_episode_consumed": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_A_off_account_stays_cash": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_B_normal_rising_edges_only": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_B_signals_identical_flag_on_off": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_B_off_zero_NORMAL_orders_and_suppressed_recorded": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_C_ex_and_profit_same_day": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_C_pending_is_SELL_flag_on": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_C_pending_is_SELL_flag_off_and_no_suppression_recorded": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_C_ledger_equal_on_off_and_sale_filled": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_D_initial_then_aftersale_entries_exist": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_D_initial_is_25pct": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_D_aftersale_is_100pct": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_D_both_single_flag_runs_equal_when_no_market_buys": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_E_non_boolean_flag_throws": {
+        "n": 1,
+        "fail": 0
+      },
+      "synthetic_calls_le_12": {
+        "n": 1,
+        "fail": 0
+      },
+      "reused_cell_exists_in_77bb44f": {
+        "n": 72,
+        "fail": 0
+      },
+      "zero_NORMAL_orders_when_normal_off": {
+        "n": 36,
+        "fail": 0
+      },
+      "suppressed_type_matches_flag": {
+        "n": 72,
+        "fail": 0
+      },
+      "signals_identical_to_flag_independent_signals": {
+        "n": 72,
+        "fail": 0
+      },
+      "candidate_market_flags_match_signals": {
+        "n": 72,
+        "fail": 0
+      },
+      "zero_EXFEAR_orders_when_exfear_off": {
+        "n": 36,
+        "fail": 0
+      },
+      "cells_144": {
+        "n": 1,
+        "fail": 0
+      },
+      "reuse_72": {
+        "n": 1,
+        "fail": 0
+      },
+      "rerun_72": {
+        "n": 1,
+        "fail": 0
+      },
+      "main_new_72": {
+        "n": 1,
+        "fail": 0
+      },
+      "simulate_total_le_108": {
+        "n": 1,
+        "fail": 0
+      },
+      "all_final_totals_finite": {
+        "n": 1,
+        "fail": 0
+      },
+      "paired_72": {
+        "n": 1,
+        "fail": 0
+      },
+      "reused_month_end_row_exists": {
+        "n": 864,
+        "fail": 0
+      },
+      "rerun_month_end_has_record": {
+        "n": 864,
+        "fail": 0
+      },
+      "month_end_record_equals_tape_last_date": {
+        "n": 864,
+        "fail": 0
+      },
+      "event_paths_36": {
+        "n": 1,
+        "fail": 0
+      },
+      "events_fg_used_equals_signals_fg_used": {
+        "n": 560,
+        "fail": 0
+      }
+    }
+  },
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "win32",
+    "command": "cd research/buy_trigger_ablation_20261026 && node run.mjs",
+    "network": "not used",
+    "secrets": "none",
+    "spec_commit_before_computation": "4cb58b4dee6440b5200a0c22357cbcfeb1877ca1",
+    "run_mjs_sha256": "a27fa5f81a472507f6e060de6acb6202e2a7a5bec136f05aba43916e96dc775b",
+    "engine_copy_sha256": "e0cd50d61b43b86e3676c8553520d1124cf3ac9146f0c4d12cce44e03fecc0ad",
+    "specification_sha256": "a408456c28de38b47d60bc60ff0476877ddc5c914654694022e61d7f7fb4cf22",
+    "source_refs_sha256": "be779ec8ec9e2fc7e3c01df9a83cd426475da887dc23889656a84b812cbd9053",
+    "simulate_calls": {
+      "main_new": 72,
+      "regression_original": 12,
+      "regression_copy": 12,
+      "synthetic": 9,
+      "total": 105,
+      "limit": 108,
+      "signals_calls_outside_simulate": 7
+    }
+  }
+}
