@@ -137,8 +137,8 @@ GitHubを正本とし、次回に必要な情報をローカルだけに残さ�
 
 ## 11. 現在の個別依頼
 
-Opus指定レビューの提供本文と§5要点は保存済み。次は **Claude Sonnet 5.5** に暫定通知仕様案・受入ケース・ユーザー承認表の文書化を依頼する。6.1 Sol Highが、明示した方針からの限定した文書化として選定した。
+Sonnet指定の暫定仕様ドラフト作成報告を受領したが、本文は未取得。[受領報告](docs/reviews/INTERIM_SPEC_DRAFT_RECEIVED.md)と[6.1 Sol Highの判断](docs/decisions/INTERIM_SCOPE_DECISIONS_20261026.md)を確認する。
 
-[詳細依頼](docs/tasks/INTERIM_SPEC_DRAFT_SONNET55_REQUEST.md)と[STATUS](docs/STATUS.md)を確認する。6.1 Sol Highが提示した保有入力と旧参考条件の方針は案であり、ユーザー採用承認ではない。矛盾や範囲外の判断は根拠を返す。成果物はMarkdown本文でよく、書き込み権限がなくても完了できる。
+次は **Sonnet 5.5** で原稿のある環境から[限定修正・本文出力](docs/tasks/INTERIM_SPEC_DRAFT_REVISION_SONNET55_REQUEST.md)を行う。参考通知OFF推奨、保有依存機能を入れない範囲で保有読取実装を後工程化、資料SHA差は文書だけ、受入表13行許容。本文未取得のまま全文レビュー・仕様採用・試験合格を報告しない。
 
-[承認5項目](docs/reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)は引き続き未承認・未決。今回の依頼から、コード・設定変更、停止、Actions起動、通知送信、実口座データ取得へ進まない。受領済み§5を再要求して作業全体を止めたり、過去のレビューを繰り返す依頼ではない。
+ファイル名や保存先だけでなく、取得できるMarkdown全文または実際の添付を返す。原稿がない環境で作成報告から本文を復元したと偽らない。ユーザー承認5項目は未承認・未決で、コード・設定変更、停止、Actions起動、外部送信は行わない。

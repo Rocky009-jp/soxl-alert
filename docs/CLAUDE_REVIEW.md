@@ -1,16 +1,13 @@
 # Claude作業・レビューの入口
 
-[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を確認してください。
+[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を先に確認。
 
-## 次の依頼
+暫定仕様ドラフトの作成報告を受領したが、主担当は本文をまだ取得できていません。次は **Claude Sonnet 5.5** による限定修正と本文出力です。6.1 Sol Highが判断しました。
 
-指定モデル：**Claude Sonnet 5.5**。6.1 Sol Highが、明示した暫定方針を仕様案・受入ケース・承認表へ整理する文書化に適すると判断しました。新しい戦略の採否、実装、本番操作は含めません。
+- [詳細依頼](tasks/INTERIM_SPEC_DRAFT_REVISION_SONNET55_REQUEST.md)
+- [貼り付け用](CLAUDE_START_PROMPT.md)
+- [6.1 Sol Highの判断](decisions/INTERIM_SCOPE_DECISIONS_20261026.md)
+- [受領報告](reviews/INTERIM_SPEC_DRAFT_RECEIVED.md)
+- [SHA比較](reviews/INTERIM_MATERIALS_SHA_COMPARISON.json)
 
-- [詳細依頼](tasks/INTERIM_SPEC_DRAFT_SONNET55_REQUEST.md)
-- [貼り付け用プロンプト](CLAUDE_START_PROMPT.md)
-- [承認5項目・論点2件](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)
-- [提供レビュー本文と§5要点](reviews/PHASE0_OPUS55_REVIEW_RESULT.md)
-
-成果物は `docs/specs/INTERIM_NOTIFICATION_SPEC_DRAFT.md` の本文。GitHubへ書き込めなければ全文を回答すればよいことにしています。現在その成果物は未作成であり、レビューや作成を実施済みとはしていません。
-
-承認5項目は未承認・未決。こちらの方針案とユーザー承認を混同しないでください。
+原稿のある会話・環境で修正し、要約だけでなくMarkdown全文または実際の添付を返してください。原稿未取得の環境で本文を再現したと偽らないでください。新しい全面レビューやコード適用の依頼ではありません。承認5項目は未決です。

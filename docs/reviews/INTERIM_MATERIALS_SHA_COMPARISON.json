@@ -1,0 +1,89 @@
+{
+  "checked_date": "2026-10-26",
+  "source": "GitHub compare_commits connector",
+  "compare": {
+    "repository_full_name": "Rocky009-jp/soxl-alert",
+    "base": "7aa896a2c319f5926e1bfbc4aacea03e287cde18",
+    "head": "fb477ce6bb5c1c837305c5f4dd24e7b861dd6044",
+    "status": "ahead",
+    "ahead_by": 1,
+    "behind_by": 0,
+    "total_commits": 1,
+    "too_large": null,
+    "base_commit": {
+      "sha": "7aa896a2c319f5926e1bfbc4aacea03e287cde18",
+      "url": "https://api.github.com/repos/Rocky009-jp/soxl-alert/commits/7aa896a2c319f5926e1bfbc4aacea03e287cde18",
+      "html_url": "https://github.com/Rocky009-jp/soxl-alert/commit/7aa896a2c319f5926e1bfbc4aacea03e287cde18"
+    },
+    "merge_base_commit": {
+      "sha": "7aa896a2c319f5926e1bfbc4aacea03e287cde18",
+      "url": "https://api.github.com/repos/Rocky009-jp/soxl-alert/commits/7aa896a2c319f5926e1bfbc4aacea03e287cde18",
+      "html_url": "https://github.com/Rocky009-jp/soxl-alert/commit/7aa896a2c319f5926e1bfbc4aacea03e287cde18"
+    },
+    "files": [
+      {
+        "filename": "CLAUDE.md",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 4,
+        "changes": 8,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/CLAUDE_REVIEW.md",
+        "status": "modified",
+        "additions": 11,
+        "deletions": 6,
+        "changes": 17,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/CLAUDE_START_PROMPT.md",
+        "status": "modified",
+        "additions": 16,
+        "deletions": 8,
+        "changes": 24,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/MODEL_POLICY.md",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 3,
+        "changes": 7,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/STATUS.md",
+        "status": "modified",
+        "additions": 7,
+        "deletions": 2,
+        "changes": 9,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md",
+        "status": "modified",
+        "additions": 5,
+        "deletions": 2,
+        "changes": 7,
+        "previous_filename": null
+      },
+      {
+        "filename": "docs/tasks/INTERIM_SPEC_DRAFT_SONNET55_REQUEST.md",
+        "status": "added",
+        "additions": 93,
+        "deletions": 0,
+        "changes": 93,
+        "previous_filename": null
+      }
+    ]
+  },
+  "interpretation": {
+    "scope": "One commit and seven documentation/instruction files.",
+    "runtime_changed": false,
+    "research_engine_changed": false,
+    "input_data_changed": false,
+    "limitation": "This identifies changed files and statistics. It does not validate the unavailable draft's compliance or case coverage."
+  }
+}
