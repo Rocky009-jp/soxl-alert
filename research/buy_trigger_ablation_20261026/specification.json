@@ -1,0 +1,28 @@
+{
+  "title": "Buy-trigger ablation (NORMAL buy / EXFEAR buy) - diagnostic only",
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+  "model": "Claude Sonnet 5.5 (as designated by the request; actual selection depends on the runtime)",
+  "question": "With one buy trigger suppressed at a time, how do purchase dates and terminal market-value total change for fixed NO_SELL / P20_ONLY profiles? Not a threshold search, no strategy adoption.",
+  "fixed": {"starts": ["2024-10-01","2025-01-02","2025-04-01","2025-07-01","2025-10-01","2026-01-02"], "terminal": "2026-08-10", "fg_delay": [0,1], "initial_usd": 10000, "jpy": 150, "tax": 0.20315,
+    "inputs_and_dividends_and_costs_and_mmf": "unchanged from 77bb44f source_refs; no new data fetched, interpolated or replaced", "allowInitialReentry": true, "sale_gate": "existing 2% net-of-costs retrospective gate unchanged"},
+  "profiles": {
+    "main": [{"id":"NO_SELL_I25","exit":"NONE","I":0.25,"R":"n/a"},{"id":"P20_ONLY_I25_R25","exit":"PROFIT_ONLY 0.20","I":0.25,"R":0.25},{"id":"P20_ONLY_I25_R100","exit":"PROFIT_ONLY 0.20","I":0.25,"R":1}],
+    "settings": ["BOTH_ON (reuse 77bb44f)", "NORMAL_OFF (enableNormal=false, new)", "EXFEAR_OFF (enableExFear=false, new)"],
+    "references_both_on_only": ["NO_SELL_I0","NO_SELL_I100","P20_OR_R75_I25_R25"],
+    "not_computed": "NORMAL_OFF x EXFEAR_OFF combination"
+  },
+  "counts": {"candidates": 12, "evaluation_cells": 144, "reused_cells": 72, "new_cells": 72, "reused_note": "9 main (3 profiles x ... ) -> 6 both-ON/reference candidates x 12 = 72; new = 6 OFF candidates x 12 = 72",
+    "simulate_budget": {"main_new": 72, "regression": 24, "synthetic_max": 12, "total_max": 108}, "regression_detail": "2 starts (2024-10-01, 2025-01-02) x 3 main profiles x 2 delays = 12 conditions; original engine 12 + copy 12 (copy both flags ON: 6 explicit true, 6 omitted)",
+    "main_event_paths": "2 main starts x 3 profiles x 3 settings x 2 delays = 36; 24 new from main computation memory, 12 both-ON from regression copy runs"},
+  "engine_change": {"scope": "pending BUY order selection only", "default": "enableNormal=true, enableExFear=true; non-boolean throws",
+    "unchanged": ["signals() values","armed/streak/prevNormal state (an EXFEAR episode is consumed even if its order is suppressed)","sale priority","initial trend and after-sale reentry I/R/cooldown conditions","sale gate","accounting"],
+    "interpretation_note": "When the NORMAL/EXFEAR order is suppressed the code would evaluate the reentry branch next; by construction of signals() reCandidate (f>=30, rsi>55) cannot coincide with ex (f<25) or normal (rsi<=55), so no suppressed day can turn into a reentry order. The run verifies this on every input day.",
+    "no_additive_attribution": "Differences are not additive contributions or causal effects: sale dates and reinvestment capacity change as paths diverge."},
+  "checks": ["regression original vs copy (summary original fields, ledger, daily, candidates, signals, cfg except new flags; USD tolerance 1e-6, dates/types/shares/status exact)",
+    "synthetic boundary checks (<=12 simulate calls)", "main 72: accounting identity, nonneg cash/integer shares/basis, no double counting of fees/tax/dividends, 2% sale gate, terminal, fresh account, zero fills of the suppressed type",
+    "signals identical across all flag settings; episode consumption/re-arm and normal rise history identical; sale priority and I/R separation preserved", "fg_used from signals(delay) only, never raw D.fg at delay 1; D vs proxy exec date; suppressed vs insufficient vs filled separate; zero-share reason = allocation budget vs one share at exec Open + fee"],
+  "outputs": ["specification.json","source_refs.json","engine.mjs","run.mjs","summary.csv (144)","paired_effects.csv (72 comparisons)","month_end_summary.csv","events_main_paths.csv (36 paths)","verification.json","environment.json","REPORT.md"],
+  "ranking": "rank_in_current_12 per start x delay (ties share rank, tol 1e-7); source ranks (18 / 21 candidate studies) in separate columns with source names; no win counts, average rank, drawdown penalty or pooling across starts.",
+  "caveats": ["F&G history as-of unverified; real operation uses user's visual current value; 0 observations","delay 1 is an assumed stress","next-open quantity decision and retrospective sale gate are diagnostic only","independent price verification 0/32","dividend/fund-availability timing unverified","terminal-date dependence","market period already seen: not unused OOS; overlapping starts are not independent samples"],
+  "not_done": ["new thresholds / ratios / starts / period / partial sale","API or market data acquisition, minute/NBBO","production code, Actions, Discord/Sheets, Secrets, accounts, main/merge","H2 24 path rerun","strategy adoption"]
+}

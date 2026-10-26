@@ -1,0 +1,29 @@
+{
+  "docs_request_commit": "172d5d6763533f83f802b9273314fb7b9c531be3",
+  "docs_request_file": "docs/tasks/BUY_TRIGGER_ABLATION_SONNET55_REQUEST.md (blob sha cfd1de254497dfe2d8d93d3ff8183a319389a868)",
+  "base_of_this_branch": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47 (research/profit-target-isolated-20261026). The docs branch commit 172d5d6 holds no research folders, so the branch is created from the fixed profit-target commit that contains every source file; docs files were read through the GitHub API.",
+  "fixed_sources": {
+    "profit_target_commit": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+    "profit_target_summary_csv": "3cc7624ff96382cfcf0b5c763c26be12fdafdedb00b9999d9add0aa1a7a35800",
+    "profit_target_month_end_summary_csv": "eb606b02844d7e86c5e3bccd3748b018cf1e5764a8600c8fca8d8866f6879d3f",
+    "profit_target_specification_json": "9b120b077b993bdc42df694bf5b5f4ff908909d070a4df2d507c60ece654239b",
+    "profit_target_source_refs_json": "ef12614f03ffdc9a08887060f5f987c9843c4a6e49abeabfef253bb70ebc87cc",
+    "profit_target_report_md": "323c413535bb080ed847a7922ebf0f22d55e5a8eafd944d4d28d859d7e1c7ce6",
+    "allocation_separation_commit": "37a14c02517b6357bcaeecb6f0a023bfc8a3696a",
+    "original_engine_sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+    "original_engine_expected_sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+    "original_run_mjs_sha256": "f7eab09dc1d1c24c87a6b9b34262359a7f1e7bf1f5f0417df82c6add363946cd",
+    "dividends_verified_json": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99",
+    "inputs": {
+      "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+      "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+      "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    },
+    "h2_corrections_reference_sha256": "bc2ce61374bbd52cae355c4a45b287aacf34aa6c0cc2da35409ed028504dc44a (not re-run in this study)"
+  },
+  "this_study_files_committed_before_computation": {
+    "engine_copy_sha256": "e0cd50d61b43b86e3676c8553520d1124cf3ac9146f0c4d12cce44e03fecc0ad",
+    "engine_copy_diff_vs_original": "cfg.enableNormal/enableExFear (default true, boolean-checked), pending-order selection condition, optional candidates[].suppressed_market_order field only when a flag is false; header comment"
+  },
+  "no_new_market_data": true
+}
