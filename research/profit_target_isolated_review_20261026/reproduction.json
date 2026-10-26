@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-26",
+  "reviewer": "6.1 Sol High",
+  "docs_start_sha": "e31691cd6a16457a47f63076912ad52bac058e8e",
+  "source_research_branch": "research/profit-target-isolated-20261026",
+  "source_research_sha": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+  "source_folder": "research/profit_target_isolated_20261026",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "win32",
+    "command": "cd research/profit_target_isolated_20261026 && node run.mjs",
+    "network": "not used",
+    "secrets": "none"
+  },
+  "scope": "Unmodified saved run.mjs and inputs rerun; independent summary group checks; not a rerun of all original 252 cells. No new market data or external notifications.",
+  "verification": {
+    "passed_all": true,
+    "failure_count": 0,
+    "failures": [],
+    "counts": {
+      "cells": 216,
+      "reused_from_37a14c0": 108,
+      "rerun_new": 108,
+      "of_rerun_overlap_check_old_coupled_study_I25R25_delay0": 18,
+      "extra_overlap_delay1_not_counted": 6,
+      "harness_rerun_reused_extra_cells": 36,
+      "h2_corrected_event_rows_checked": 333,
+      "events_main_starts_rows": 512,
+      "events_filled": 362,
+      "events_insufficient_or_blocked": 150,
+      "month_end_rows": 2592,
+      "tolerance_USD": 0.000001
+    },
+    "checks": {
+      "engine_sha_equals_37a14c0_environment": {
+        "n": 1,
+        "fail": 0
+      },
+      "run_sha_equals_37a14c0_environment": {
+        "n": 1,
+        "fail": 0
+      },
+      "input_sha_equals_manifest": {
+        "n": 3,
+        "fail": 0
+      },
+      "eighteen_candidates": {
+        "n": 1,
+        "fail": 0
+      },
+      "reused_cell_exists_in_37a14c0": {
+        "n": 108,
+        "fail": 0
+      },
+      "accounting_identity": {
+        "n": 108,
+        "fail": 0
+      },
+      "terminal_date_2026-08-10": {
+        "n": 108,
+        "fail": 0
+      },
+      "fresh_account_at_start": {
+        "n": 108,
+        "fail": 0
+      },
+      "balance_invariants_nonneg_cash_integer_shares_zero_basis": {
+        "n": 108,
+        "fail": 0
+      },
+      "every_sale_net_gain_ge_2pct_of_cost": {
+        "n": 108,
+        "fail": 0
+      },
+      "dividend_no_double_counting": {
+        "n": 108,
+        "fail": 0
+      },
+      "R0_no_after_sale_buy": {
+        "n": 36,
+        "fail": 0
+      },
+      "sale_signal_gross_on_cost_at_least_target": {
+        "n": 310,
+        "fail": 0
+      },
+      "cells_216": {
+        "n": 1,
+        "fail": 0
+      },
+      "reuse_108": {
+        "n": 1,
+        "fail": 0
+      },
+      "rerun_108": {
+        "n": 1,
+        "fail": 0
+      },
+      "overlap_18": {
+        "n": 1,
+        "fail": 0
+      },
+      "overlap18_vs_exit_study_summary_final_total": {
+        "n": 18,
+        "fail": 0
+      },
+      "overlap18_vs_exit_study_summary_items": {
+        "n": 162,
+        "fail": 0
+      },
+      "extra_overlap6_delay1_vs_exit_study_sensitivity": {
+        "n": 6,
+        "fail": 0
+      },
+      "harness_rerun_reused_vs_37a14c0_summary": {
+        "n": 36,
+        "fail": 0
+      },
+      "harness_month_end_vs_37a14c0": {
+        "n": 504,
+        "fail": 0
+      },
+      "reused_month_end_row_exists": {
+        "n": 1296,
+        "fail": 0
+      },
+      "rerun_month_end_has_record": {
+        "n": 1296,
+        "fail": 0
+      },
+      "month_end_record_equals_tape_last_date": {
+        "n": 1296,
+        "fail": 0
+      },
+      "signals_fg_used_equals_row_i_minus_delay": {
+        "n": 2,
+        "fail": 0
+      },
+      "delay1_fg_used_differs_from_raw_D_fg_on_some_rows": {
+        "n": 1,
+        "fail": 0
+      },
+      "h2_corrected_events_found_in_this_harness": {
+        "n": 333,
+        "fail": 0
+      },
+      "h2_corrected_fg_used_matches": {
+        "n": 333,
+        "fail": 0
+      }
+    }
+  },
+  "blob_comparisons": {
+    "node": "v24.22.1",
+    "files": [
+      {
+        "path": "research/profit_target_isolated_20261026/R_effect_by_exit.csv",
+        "expected": "cc97aa4584a893b25f30efb0f83c21c07a7940b8",
+        "actual": "cc97aa4584a893b25f30efb0f83c21c07a7940b8",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/environment.json",
+        "expected": "fdaed537e2ec918c1b3f65da36527cfbd7c4a1a0",
+        "actual": "dbbcac3f14c562e39aa077816e50f80a6c14a1db",
+        "match": false
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/events_main_starts.csv",
+        "expected": "9c8633f3e4f846f5b9ace917834602906dbd71a7",
+        "actual": "9c8633f3e4f846f5b9ace917834602906dbd71a7",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/h2_annotation_corrections_reference.csv",
+        "expected": "ac07e22978ffd5a8f30545f80795a793235023ee",
+        "actual": "ac07e22978ffd5a8f30545f80795a793235023ee",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/month_end_summary.csv",
+        "expected": "3c31aa76df6c09b1d2c6bbaa910cb4ead30dabea",
+        "actual": "3c31aa76df6c09b1d2c6bbaa910cb4ead30dabea",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/run.mjs",
+        "expected": "fa083f8930f806d43b4cbb39fb3a12f565588c24",
+        "actual": "fa083f8930f806d43b4cbb39fb3a12f565588c24",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/source_refs.json",
+        "expected": "f4ee4793fe1229d575e99cb18eb558d390632133",
+        "actual": "f4ee4793fe1229d575e99cb18eb558d390632133",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/specification.json",
+        "expected": "2029b87896d8f57df6d688c7ed9c1fe4f89c36d4",
+        "actual": "2029b87896d8f57df6d688c7ed9c1fe4f89c36d4",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/summary.csv",
+        "expected": "dc9902af76492114f3854e7cde7510f1bccc7747",
+        "actual": "dc9902af76492114f3854e7cde7510f1bccc7747",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/target_effect_by_R.csv",
+        "expected": "575d82d058958e11c428361cb762b7ca8231c644",
+        "actual": "575d82d058958e11c428361cb762b7ca8231c644",
+        "match": true
+      },
+      {
+        "path": "research/profit_target_isolated_20261026/verification.json",
+        "expected": "4b688d53f8171d796b7d92031bdfc7fc1e7519f7",
+        "actual": "4b688d53f8171d796b7d92031bdfc7fc1e7519f7",
+        "match": true
+      }
+    ]
+  },
+  "execution_count_review": {
+    "method": "Static runCell/simulate control-flow review plus 24 unique start/fg_delay/R keys counted from the 333-row H2 reference; not an instrumented invocation trace.",
+    "unique_evaluation_cells": 216,
+    "stored_reuse_cells": 108,
+    "primary_simulate_calls": 108,
+    "reused_harness_calls": 36,
+    "h2_cache_calls": 24,
+    "total_simulate_calls_derived": 168,
+    "overlap_comparisons_not_extra_simulate_calls": 24,
+    "count_issue": "The report discloses 36 harness runs but not 24 additional h2Cache paths in its execution breakdown. No P&L difference found."
+  },
+  "chronology_limit": "Final specification hash verified. Claimed pre-run fixation timing was not independently proven from a single saved result commit.",
+  "source_report_blob": "d43d34ea15b72d2e3aacd31284fee35bbac8e56a",
+  "new_buy_ablation_status": "Request prepared only; no new ablation simulations run.",
+  "production_state": {
+    "main": "31144d9b6af8a6c920ad53c395cd550e8c48a7fa",
+    "candidate": "920e69571cf4feda09f3f2f560e96fcb9cb09d50",
+    "runtime_job": "paused; no trigger, deploy, resume, Discord or Sheets send"
+  }
+}
