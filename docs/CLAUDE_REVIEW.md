@@ -2,6 +2,6 @@
 
 [CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を読み、開始SHAを記録してください。
 
-候補920e695のIR-01〜05は[レビュー範囲で対応済み](reviews/INTERIM_FIX_REVIEW_920e695.md)。次は **[Opus 5.5による価格定義・対象セッションの設計](tasks/DATA_SESSION_OPUS55_REQUEST.md)** です。[主担当のたたき台](specs/DATA_SESSION_DESIGN_NOTES.md)を基に仕様案1ファイルを作ります。
+価格・対象セッションの[設計案](specs/DATA_SESSION_CONTRACT_DRAFT.md)は作成完了・未採用です。[受領判断](reviews/DATA_SESSION_RECEIPT_20261026.md)の留保を引き継ぎ、次はユーザー指定の **[Opus 5.5による売買ルール検討](tasks/TRADING_RULE_REVIEW_OPUS55_REQUEST.md)** へ進みます。
 
-コード変更・再試験・本番操作ではありません。旧5件の全面再レビューも不要です。設計後に依存固定・NT-01等をSonnetへまとめて依頼します。main反映・停止解除・Actions起動／再実行・実送信は未承認です。
+初回あり＋25%は未採用の基準候補。既存結果とコードを使って独立評価し、売却なし対照、出口と配分、損切り禁止の実行可能性を含めます。次の検証は最大3件です。価格設計や旧5件の全面再レビュー、コード変更、新規戦略バックテスト、本番操作・送信は今回行いません。
