@@ -1,7 +1,7 @@
 # Claude作業の入口
 
-[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を読み開始SHAを記録。
+[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を読み、開始SHAを記録。
 
-最新方針は **[日足で朝判定→次回開場で手動購入](decisions/DAILY_SIGNAL_NEXT_OPEN_POLICY_20261026.md)**。価格/対象日設計案083df4aは[受領](reviews/DATA_SESSION_FINALIZATION_RECEIPT_20261026.md)したが未採用で、設計の追加補完・通知実装は今は進めない。
+5f2593eの日足ルール分析は[受領済み](reviews/DAILY_RULE_ANALYSIS_RECEIPT_20261026.md)。120抽出・20経路・追加4本は主担当も再現済みなので、同じ分析を反復しない。
 
-次は前回と同じ **[Opus 5.5の日足ルール比較・経路分析](tasks/DAILY_RULE_ANALYSIS_OPUS55_REQUEST.md)**。固定10候補の保存結果再利用と、必要最小限の経路確認。分足/API/全252再試算/新閾値探索は行わない。[貼り付け用](CLAUDE_START_PROMPT.md)。
+次は **[Sonnet 5.5のH2経路確認](tasks/REENTRY_MECHANISM_SONNET55_REQUEST.md)**。固定24経路で再エントリー/原価/20%利確の相互作用と共通暦日の集中を確認する。新条件や朝固定数量は採用せず、API・通知実装へ戻らない。[貼り付け用](CLAUDE_START_PROMPT.md)。
