@@ -1,0 +1,29 @@
+{
+  "node": "v24.22.1",
+  "platform": "win32",
+  "command": "cd research/SOXL_allocation_separation_20261026 && node run.mjs",
+  "network": "not used",
+  "secrets": "none",
+  "elapsed_ms": 2734,
+  "input_manifest": [
+    {
+      "file": "daily.json",
+      "bytes": 310560,
+      "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+    },
+    {
+      "file": "daily_adjclose.csv",
+      "bytes": 1511995,
+      "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+    },
+    {
+      "file": "fear-greed.csv",
+      "bytes": 111027,
+      "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+    }
+  ],
+  "engine_sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+  "run_sha256": "f7eab09dc1d1c24c87a6b9b34262359a7f1e7bf1f5f0417df82c6add363946cd",
+  "specification_sha256": "6790a9bccc970f8b0be28ad9f7143a69d8437e62e7512f204eb4113bf5846f0a",
+  "old_engine_sha256": "9fe10b5185d9900bc3ea2d364d27c6484054933a1f532d05c24bf177fed5ec0a"
+}

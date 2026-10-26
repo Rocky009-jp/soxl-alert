@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "artifact_count": 53,
+  "exact": 52,
+  "environment_mismatch_allowed": true,
+  "main_rows": 252,
+  "terminal_groups": 12,
+  "price_checks": [
+    {
+      "field": "open",
+      "compared": 465,
+      "max_relative_error": 5.4937131399590555e-8
+    },
+    {
+      "field": "high",
+      "compared": 465,
+      "max_relative_error": 5.243570400104147e-8
+    },
+    {
+      "field": "low",
+      "compared": 465,
+      "max_relative_error": 5.707776140617682e-8
+    },
+    {
+      "field": "close",
+      "compared": 465,
+      "max_relative_error": 5.707776140617682e-8
+    }
+  ]
+}

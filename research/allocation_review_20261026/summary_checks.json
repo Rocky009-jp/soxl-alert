@@ -1,0 +1,171 @@
+{
+  "source_sha": "37a14c02517b6357bcaeecb6f0a023bfc8a3696a",
+  "row_count": 252,
+  "unique_candidates": 21,
+  "terminal_groups": [
+    {
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "baseline": 44682.38522296779,
+      "winners": [
+        "NO_SELL_I0"
+      ],
+      "winner_total": 50703.100289853355,
+      "best_sale_id": "P20_OR_R75_I25_R25",
+      "best_sale_total": 44682.38522296779,
+      "no_sell_I25": 47063.089999255135
+    },
+    {
+      "start": "2024-10-01",
+      "fg_delay": 1,
+      "baseline": 20322.391396291678,
+      "winners": [
+        "NO_SELL_I0"
+      ],
+      "winner_total": 46816.41757890169,
+      "best_sale_id": "P20_OR_R75_I0_R100",
+      "best_sale_total": 32702.26346921172,
+      "no_sell_I25": 44109.60420506323
+    },
+    {
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "baseline": 42339.1533605725,
+      "winners": [
+        "NO_SELL_I0",
+        "NO_SELL_I25",
+        "NO_SELL_I100"
+      ],
+      "winner_total": 45896.92441879124,
+      "best_sale_id": "P20_OR_R75_I0_R25",
+      "best_sale_total": 42339.1533605725,
+      "no_sell_I25": 45896.92441879124
+    },
+    {
+      "start": "2025-01-02",
+      "fg_delay": 1,
+      "baseline": 19061.32675072115,
+      "winners": [
+        "NO_SELL_I0",
+        "NO_SELL_I25",
+        "NO_SELL_I100"
+      ],
+      "winner_total": 40835.85526863159,
+      "best_sale_id": "P20_ONLY_I0_R100",
+      "best_sale_total": 26931.334410201373,
+      "no_sell_I25": 40835.85526863159
+    },
+    {
+      "start": "2025-04-01",
+      "fg_delay": 0,
+      "baseline": 31225.812202874007,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 45642.732999934444,
+      "best_sale_id": "P20_ONLY_I100_R25",
+      "best_sale_total": 34803.773639126826,
+      "no_sell_I25": 36169.16531693474
+    },
+    {
+      "start": "2025-04-01",
+      "fg_delay": 1,
+      "baseline": 19052.131975845008,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 45642.732999934444,
+      "best_sale_id": "P20_ONLY_I100_R100",
+      "best_sale_total": 26246.914601230394,
+      "no_sell_I25": 35252.59987380476
+    },
+    {
+      "start": "2025-07-01",
+      "fg_delay": 0,
+      "baseline": 31114.70432013377,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 45279.39887283058,
+      "best_sale_id": "P20_ONLY_I100_R25",
+      "best_sale_total": 34593.14048998593,
+      "no_sell_I25": 36018.23047251751
+    },
+    {
+      "start": "2025-07-01",
+      "fg_delay": 1,
+      "baseline": 18931.756635688296,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 45279.39887283058,
+      "best_sale_id": "P20_ONLY_I100_R100",
+      "best_sale_total": 26061.646964061936,
+      "no_sell_I25": 35015.19667423507
+    },
+    {
+      "start": "2025-10-01",
+      "fg_delay": 0,
+      "baseline": 29918.2538303415,
+      "winners": [
+        "NO_SELL_I0",
+        "NO_SELL_I25",
+        "NO_SELL_I100"
+      ],
+      "winner_total": 32763.04134047857,
+      "best_sale_id": "P20_OR_R75_I0_R25",
+      "best_sale_total": 29918.2538303415,
+      "no_sell_I25": 32763.04134047857
+    },
+    {
+      "start": "2025-10-01",
+      "fg_delay": 1,
+      "baseline": 18218.275185875915,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 35386.376986419506,
+      "best_sale_id": "P20_OR_R75_I100_R100",
+      "best_sale_total": 22567.232862298817,
+      "no_sell_I25": 32403.290302354
+    },
+    {
+      "start": "2026-01-02",
+      "fg_delay": 0,
+      "baseline": 22430.62475465224,
+      "winners": [
+        "NO_SELL_I0"
+      ],
+      "winner_total": 28609.16633126833,
+      "best_sale_id": "P20_OR_R75_I100_R25",
+      "best_sale_total": 24155.982338995378,
+      "no_sell_I25": 27842.751554272767
+    },
+    {
+      "start": "2026-01-02",
+      "fg_delay": 1,
+      "baseline": 14002.649754243572,
+      "winners": [
+        "NO_SELL_I100"
+      ],
+      "winner_total": 25750.813826361347,
+      "best_sale_id": "P20_OR_R75_I100_R100",
+      "best_sale_total": 18005.083991352825,
+      "no_sell_I25": 24708.492047123287
+    }
+  ],
+  "reentry_best_by_delay": {
+    "0": {
+      "R0": 2,
+      "R25": 34,
+      "R100": 0,
+      "tied_groups": 0
+    },
+    "1": {
+      "R0": 0,
+      "R25": 0,
+      "R100": 36,
+      "tied_groups": 0
+    }
+  }
+}

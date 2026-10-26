@@ -1,0 +1,156 @@
+{
+  "scope": "cached same-vendor comparison only; no new retrieval; not independent vendor validation",
+  "checks": [
+    {
+      "field": "open",
+      "compared": 465,
+      "over_0p005pct": 0,
+      "missing": [],
+      "max_relative_error": 5.4937131399590555e-8
+    },
+    {
+      "field": "high",
+      "compared": 465,
+      "over_0p005pct": 0,
+      "missing": [],
+      "max_relative_error": 5.243570400104147e-8
+    },
+    {
+      "field": "low",
+      "compared": 465,
+      "over_0p005pct": 0,
+      "missing": [],
+      "max_relative_error": 5.707776140617682e-8
+    },
+    {
+      "field": "close",
+      "compared": 465,
+      "over_0p005pct": 0,
+      "missing": [],
+      "max_relative_error": 5.707776140617682e-8
+    }
+  ],
+  "anchors": [
+    {
+      "date": "2024-10-07",
+      "saved": {
+        "open": 35.92,
+        "high": 37.24,
+        "low": 35.57,
+        "close": 36.41
+      },
+      "cached_yahoo": {
+        "open": 35.91999816894531,
+        "high": 37.2400016784668,
+        "low": 35.56999969482422,
+        "close": 36.40999984741211
+      }
+    },
+    {
+      "date": "2024-12-20",
+      "saved": {
+        "open": 25.82,
+        "high": 28.37,
+        "low": 25.59,
+        "close": 27.3
+      },
+      "cached_yahoo": {
+        "open": 25.81999969482422,
+        "high": 28.3700008392334,
+        "low": 25.59000015258789,
+        "close": 27.299999237060547
+      }
+    },
+    {
+      "date": "2026-06-30",
+      "saved": {
+        "open": 241.45,
+        "high": 272,
+        "low": 240.59,
+        "close": 266.71
+      },
+      "cached_yahoo": {
+        "open": 241.4499969482422,
+        "high": 272,
+        "low": 240.58999633789062,
+        "close": 266.7099914550781
+      }
+    },
+    {
+      "date": "2026-07-01",
+      "saved": {
+        "open": 237.79,
+        "high": 246.47,
+        "low": 215.38,
+        "close": 217.55
+      },
+      "cached_yahoo": {
+        "open": 237.7899932861328,
+        "high": 246.47000122070312,
+        "low": 215.3800048828125,
+        "close": 217.5500030517578
+      }
+    },
+    {
+      "date": "2026-07-29",
+      "saved": {
+        "open": 107.62,
+        "high": 112.67,
+        "low": 91.5,
+        "close": 91.99
+      },
+      "cached_yahoo": {
+        "open": 107.62000274658203,
+        "high": 112.66999816894531,
+        "low": 91.5,
+        "close": 91.98999786376953
+      }
+    },
+    {
+      "date": "2026-07-30",
+      "saved": {
+        "open": 107.38,
+        "high": 118,
+        "low": 105.12,
+        "close": 114.72
+      },
+      "cached_yahoo": {
+        "open": 107.37999725341797,
+        "high": 118,
+        "low": 105.12000274658203,
+        "close": 114.72000122070312
+      }
+    },
+    {
+      "date": "2026-07-31",
+      "saved": {
+        "open": 129.9,
+        "high": 133.88,
+        "low": 112.42,
+        "close": 114.72
+      },
+      "cached_yahoo": {
+        "open": 129.89999389648438,
+        "high": 133.8800048828125,
+        "low": 112.41999816894531,
+        "close": 114.72000122070312
+      }
+    },
+    {
+      "date": "2026-08-10",
+      "saved": {
+        "open": 142.8,
+        "high": 143.45,
+        "low": 130,
+        "close": 130
+      },
+      "cached_yahoo": {
+        "open": 142.8000030517578,
+        "high": 143.4499969482422,
+        "low": 130,
+        "close": 130
+      }
+    }
+  ],
+  "raw_regular_market_timestamp": 1792699201
+}

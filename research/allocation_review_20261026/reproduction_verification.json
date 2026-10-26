@@ -1,0 +1,145 @@
+{
+  "passed_all": true,
+  "failure_count": 0,
+  "failures": [],
+  "counts": {
+    "main_diagnostic_runs": 252,
+    "unique_candidates": 21,
+    "starts": 6,
+    "delays": 2,
+    "regression_extra_runs_old_vs_new_IeqR": 216,
+    "regression_extra_runs_note": "3 exits x 3 I x 6 starts x 2 delays x (old, new-unspecified, new-explicit) compared; NOT counted in the 252",
+    "stored_summary_rows_compared": 54,
+    "stored_delay1_rows_compared": 18,
+    "stored_ledger_files_compared": 18,
+    "NO_SELL_R_independence_extra_runs": 108,
+    "month_end_rows": 3024,
+    "month_end_notes": 0,
+    "separation_cases_I0_Rpos": 48,
+    "separation_cases_Ipos_R0_with_sale": 36
+  },
+  "tolerance": {
+    "amounts_USD": 0.000001,
+    "legacy_engine_comparison": "exact JSON equality of ledger/daily/candidates; final_total exact (===)",
+    "stored_csv_comparison": "1e-6 USD"
+  },
+  "checks": {
+    "input_sha256_matches_manifest": {
+      "n": 3,
+      "fail": 0
+    },
+    "dividend_table_identical_to_exit_study": {
+      "n": 1,
+      "fail": 0
+    },
+    "accounting_identity": {
+      "n": 360,
+      "fail": 0
+    },
+    "terminal_date_2026-08-10": {
+      "n": 360,
+      "fail": 0
+    },
+    "fresh_account_at_start": {
+      "n": 360,
+      "fail": 0
+    },
+    "balance_invariants": {
+      "n": 360,
+      "fail": 0
+    },
+    "no_loss_or_below_2pct_sale": {
+      "n": 360,
+      "fail": 0
+    },
+    "no_negative_basis_or_price": {
+      "n": 360,
+      "fail": 0
+    },
+    "dividend_no_double_counting": {
+      "n": 360,
+      "fail": 0
+    },
+    "I0_no_initial_trend_buy": {
+      "n": 120,
+      "fail": 0
+    },
+    "R0_no_after_sale_reentry": {
+      "n": 72,
+      "fail": 0
+    },
+    "initial_label_equals_legacy_not_bought_label": {
+      "n": 514,
+      "fail": 0
+    },
+    "no_sell_has_zero_sales_and_zero_reentry": {
+      "n": 144,
+      "fail": 0
+    },
+    "main_run_count_252": {
+      "n": 1,
+      "fail": 0
+    },
+    "unique_candidates_21": {
+      "n": 1,
+      "fail": 0
+    },
+    "month_end_record_equals_tape_last_date": {
+      "n": 3024,
+      "fail": 0
+    },
+    "legacy_IeqR_ledger_identical_to_old_engine": {
+      "n": 216,
+      "fail": 0
+    },
+    "legacy_IeqR_daily_identical_to_old_engine": {
+      "n": 216,
+      "fail": 0
+    },
+    "legacy_IeqR_candidates_identical_to_old_engine": {
+      "n": 216,
+      "fail": 0
+    },
+    "legacy_IeqR_final_total_exact": {
+      "n": 216,
+      "fail": 0
+    },
+    "grid_cell_IeqR_matches_old_engine_total": {
+      "n": 108,
+      "fail": 0
+    },
+    "stored_exit_study_summary_final_total": {
+      "n": 54,
+      "fail": 0
+    },
+    "stored_exit_study_delay1_final_total": {
+      "n": 18,
+      "fail": 0
+    },
+    "stored_exit_study_ledger_filled_rows": {
+      "n": 18,
+      "fail": 0
+    },
+    "separation_I0_Rpos_has_after_sale_reentry_cases": {
+      "n": 1,
+      "fail": 0
+    },
+    "separation_Ipos_R0_has_initial_then_sale_cases": {
+      "n": 1,
+      "fail": 0
+    },
+    "NO_SELL_ledger_independent_of_R": {
+      "n": 108,
+      "fail": 0
+    },
+    "R_change_does_not_alter_path_before_first_sale": {
+      "n": 72,
+      "fail": 0
+    },
+    "signal_tape_independent_of_I_R_and_exit": {
+      "n": 1,
+      "fail": 0
+    }
+  },
+  "month_end_notes": []
+}

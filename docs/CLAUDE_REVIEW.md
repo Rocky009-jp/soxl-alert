@@ -1,7 +1,7 @@
 # Claude作業の入口
 
-[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を読んで開始SHAを記録してください。
+[CLAUDE.md](../CLAUDE.md)と[STATUS](STATUS.md)を読み、開始SHAを記録してください。
 
-429f90eの[Opus売買ルールレビュー](reviews/TRADING_RULE_REVIEW_OPUS55_RESULT.md)と[主担当の補正](reviews/TRADING_RULE_REVIEW_RESPONSE_20261026.md)を受領済みです。正式採用は保留し、次は **[Sonnet 5.5による初回／再エントリー配分の分離比較](tasks/ALLOCATION_SEPARATION_SONNET55_REQUEST.md)** へ進みます。
+37a14c0の配分分離252件は完了し、主担当が再実行・受領済みです。[受領判断](reviews/ALLOCATION_SEPARATION_RESPONSE_20261026.md)を参照し、同じ比較を繰り返さないでください。
 
-252診断試算に限定し、F&Gの前向き記録を待ちません。F&Gの空様式は準備済みですが、実観測は始まっていません。元のレビューを繰り返さず、別研究ブランチで限定コード・検証・結果保存まで進めてください。本番操作、実市場データ、送信、部分売却・新閾値探索は今回含めません。
+次は **[Sonnet 5.5による価格の重点照合と執行データ入手可否](tasks/PRICE_EXECUTION_DATA_SONNET55_REQUEST.md)**。8日照合と提供元上限を守り、別研究ブランチへ必要な証拠とBLOCKEDを保存します。条件追加・本番操作・登録・課金・送信は行いません。[貼り付け用](CLAUDE_START_PROMPT.md)。

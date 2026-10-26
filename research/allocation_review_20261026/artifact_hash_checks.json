@@ -1,0 +1,320 @@
+[
+  {
+    "path": "research/SOXL_allocation_separation_20261026/contrast_daily.csv",
+    "expected": "a827228ec0b7188b4f82d56afe59f402d0750386",
+    "actual": "a827228ec0b7188b4f82d56afe59f402d0750386",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/contrast_ledger.csv",
+    "expected": "1934128576e344315c97bb52790719456f4dc463",
+    "actual": "1934128576e344315c97bb52790719456f4dc463",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/dividends_verified.json",
+    "expected": "24c4e00060642003f0fd52495b0c0c57156f971b",
+    "actual": "24c4e00060642003f0fd52495b0c0c57156f971b",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/engine.mjs",
+    "expected": "dee12d477f90db001d6ebd710e13e93d1f6995eb",
+    "actual": "dee12d477f90db001d6ebd710e13e93d1f6995eb",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/environment.json",
+    "expected": "f41db0234a9860791a917054545003f09f43e3e2",
+    "actual": "010d60b604fa63a15b30b4d2fd04216a562f02c1",
+    "match": false
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/input_manifest_reference.json",
+    "expected": "70667dbced88ba8abf0eb2039ddeaf11b8f30be1",
+    "actual": "70667dbced88ba8abf0eb2039ddeaf11b8f30be1",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/month_end_summary.csv",
+    "expected": "5bed3ea0449b44c2aa3dcf867a2f56be13155d9a",
+    "actual": "5bed3ea0449b44c2aa3dcf867a2f56be13155d9a",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/run.mjs",
+    "expected": "2ffd605c848ac7affbb560d03e6f6a00a092bbac",
+    "actual": "2ffd605c848ac7affbb560d03e6f6a00a092bbac",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/specification.json",
+    "expected": "e49c528d256491e3e1958dc30b12e6101355bcdc",
+    "actual": "e49c528d256491e3e1958dc30b12e6101355bcdc",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/summary.csv",
+    "expected": "e9a26d340fbb5ba1f90427fb7de8135cbf5758d2",
+    "actual": "e9a26d340fbb5ba1f90427fb7de8135cbf5758d2",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_allocation_separation_20261026/verification.json",
+    "expected": "469df37ce743f9aa400b5312009ca3be7cced0d2",
+    "actual": "469df37ce743f9aa400b5312009ca3be7cced0d2",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/audit_exit.mjs",
+    "expected": "5fb01bce25f09f52ce2d4c8ad1839a7fe2ccfb6d",
+    "actual": "5fb01bce25f09f52ce2d4c8ad1839a7fe2ccfb6d",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/data/daily.json",
+    "expected": "93f221eaba0b0b98044f13d0e8443d3c631650e0",
+    "actual": "93f221eaba0b0b98044f13d0e8443d3c631650e0",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/data/daily_adjclose.csv",
+    "expected": "29175a3fd8700cab31762bd72ced772ea5d1c807",
+    "actual": "29175a3fd8700cab31762bd72ced772ea5d1c807",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/data/fear-greed.csv",
+    "expected": "cea860f848268aee30e7e6a4613efe1e8cf81bfa",
+    "actual": "cea860f848268aee30e7e6a4613efe1e8cf81bfa",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/dividends_verified.json",
+    "expected": "24c4e00060642003f0fd52495b0c0c57156f971b",
+    "actual": "24c4e00060642003f0fd52495b0c0c57156f971b",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0.csv",
+    "expected": "89a72d9ca857a455d511721b55f586b89bf98f88",
+    "actual": "89a72d9ca857a455d511721b55f586b89bf98f88",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0p1.csv",
+    "expected": "01994da2c960989e9e2fe71b06341a35defa2b98",
+    "actual": "01994da2c960989e9e2fe71b06341a35defa2b98",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_NO_SELL_0p25.csv",
+    "expected": "a69ea87b1a543d150b4f0b47076eeecc95a62b1e",
+    "actual": "a69ea87b1a543d150b4f0b47076eeecc95a62b1e",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_P20_OR_R75_0p25.csv",
+    "expected": "df68c6a88ef94a91d83be870d4e1b6b741630b15",
+    "actual": "df68c6a88ef94a91d83be870d4e1b6b741630b15",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2024-10-01_P20_OR_R80_0p25.csv",
+    "expected": "df68c6a88ef94a91d83be870d4e1b6b741630b15",
+    "actual": "df68c6a88ef94a91d83be870d4e1b6b741630b15",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0.csv",
+    "expected": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "actual": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p1.csv",
+    "expected": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "actual": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p25.csv",
+    "expected": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "actual": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p5.csv",
+    "expected": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "actual": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_NO_SELL_0p75.csv",
+    "expected": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "actual": "71703c89c9b61d6bfb0b49e0bd8591cf44733c32",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-01-02_P20_OR_R75_0p25.csv",
+    "expected": "b9ba5ff377513197b952d70f2f22c88ed58dd3d4",
+    "actual": "b9ba5ff377513197b952d70f2f22c88ed58dd3d4",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p1.csv",
+    "expected": "414f00cf8f90c5a364958d0c1168dafb47b72dc8",
+    "actual": "414f00cf8f90c5a364958d0c1168dafb47b72dc8",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p25.csv",
+    "expected": "c7aa243a8928487a3991168dc6894a2f4fff65eb",
+    "actual": "c7aa243a8928487a3991168dc6894a2f4fff65eb",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p5.csv",
+    "expected": "170e507d4780bda97d23219f4973c2b927f47829",
+    "actual": "170e507d4780bda97d23219f4973c2b927f47829",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_0p75.csv",
+    "expected": "d704a2373fc48e9bcded9f174b7255deb30f3619",
+    "actual": "d704a2373fc48e9bcded9f174b7255deb30f3619",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_NO_SELL_1.csv",
+    "expected": "dc4df9ad685997a039f68343d0ab286c50e4c0e1",
+    "actual": "dc4df9ad685997a039f68343d0ab286c50e4c0e1",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-04-01_P20_OR_R75_0p25.csv",
+    "expected": "8fb1275c0be7521dcc2b79df9d45f809a32beb5d",
+    "actual": "8fb1275c0be7521dcc2b79df9d45f809a32beb5d",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p1.csv",
+    "expected": "9c3a0824f804e90c469a28ad8d850489ce4573ea",
+    "actual": "9c3a0824f804e90c469a28ad8d850489ce4573ea",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p25.csv",
+    "expected": "b7af93ea499f2ff98c02e4b097fba9ffab08b8a3",
+    "actual": "b7af93ea499f2ff98c02e4b097fba9ffab08b8a3",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p5.csv",
+    "expected": "8948a22bcba6addb836cdece4ed539273d281135",
+    "actual": "8948a22bcba6addb836cdece4ed539273d281135",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_0p75.csv",
+    "expected": "019b30bb303682ee8f022fa2ac228308c9dbe06c",
+    "actual": "019b30bb303682ee8f022fa2ac228308c9dbe06c",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_NO_SELL_1.csv",
+    "expected": "0f803ca9c3fed5bf63b2ceed5409891065a0eee3",
+    "actual": "0f803ca9c3fed5bf63b2ceed5409891065a0eee3",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-07-01_P20_OR_R75_0p25.csv",
+    "expected": "9745b653e591195d5e90950d98f56f3cbb002361",
+    "actual": "9745b653e591195d5e90950d98f56f3cbb002361",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0.csv",
+    "expected": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "actual": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p1.csv",
+    "expected": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "actual": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p25.csv",
+    "expected": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "actual": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p5.csv",
+    "expected": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "actual": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_NO_SELL_0p75.csv",
+    "expected": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "actual": "2155ca92af2326c156810aea9b07053af64fcbd7",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2025-10-01_P20_OR_R75_0p25.csv",
+    "expected": "74992aa3ebdc595e7c2a933b296a02bf46aea0b8",
+    "actual": "74992aa3ebdc595e7c2a933b296a02bf46aea0b8",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0.csv",
+    "expected": "4002e0e10b8dcbf0e8d4793a4b90ed5a87d3dd57",
+    "actual": "4002e0e10b8dcbf0e8d4793a4b90ed5a87d3dd57",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p1.csv",
+    "expected": "391ecdcbd2934d634d0e790ecf61a41def04c0ce",
+    "actual": "391ecdcbd2934d634d0e790ecf61a41def04c0ce",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p25.csv",
+    "expected": "7f8200054179bce71a4e3f64942143530ada945e",
+    "actual": "7f8200054179bce71a4e3f64942143530ada945e",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p5.csv",
+    "expected": "3c5a6d30d5cf6a04d1829e0ed0b47cb6ede1584f",
+    "actual": "3c5a6d30d5cf6a04d1829e0ed0b47cb6ede1584f",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_NO_SELL_0p75.csv",
+    "expected": "f14b3a540bb64dd19e65f37765ca975b0d40d7a9",
+    "actual": "f14b3a540bb64dd19e65f37765ca975b0d40d7a9",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/ledger_2026-01-02_P20_OR_R75_0p25.csv",
+    "expected": "ce979ff3fdec50cdb2a62bc10ffbcf52c595de28",
+    "actual": "ce979ff3fdec50cdb2a62bc10ffbcf52c595de28",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/sensitivity.csv",
+    "expected": "6a9f8a120689ec0e8de8a965dc40c95cf8fcff79",
+    "actual": "6a9f8a120689ec0e8de8a965dc40c95cf8fcff79",
+    "match": true
+  },
+  {
+    "path": "research/SOXL_exit_study_20261023/summary.csv",
+    "expected": "1972e391e75ebaf3a37d5cfebda0995b49213146",
+    "actual": "1972e391e75ebaf3a37d5cfebda0995b49213146",
+    "match": true
+  }
+]
