@@ -1,0 +1,59 @@
+{
+  "passed_all": true,
+  "failure_count": 0,
+  "failures": [],
+  "counts": {
+    "new_paths": 24,
+    "original_252_rerun": 0,
+    "summary_items_compared_per_path": 14,
+    "tolerance_USD": 0.000001,
+    "events_rows": 333,
+    "reused_5f2593e_event_rows_not_rerun": 332
+  },
+  "checks": {
+    "engine_sha_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "run_sha_equals_37a14c0_environment": {
+      "n": 1,
+      "fail": 0
+    },
+    "input_sha_equals_manifest": {
+      "n": 3,
+      "fail": 0
+    },
+    "path_vs_original_summary_1e-6": {
+      "n": 336,
+      "fail": 0
+    },
+    "twentyfour_paths": {
+      "n": 1,
+      "fail": 0
+    },
+    "exec_is_next_session_after_D": {
+      "n": 333,
+      "fail": 0
+    },
+    "same_ledger_up_to_first_sale_across_R": {
+      "n": 8,
+      "fail": 0
+    },
+    "reconcile_difference_to_R25_balance_sheet": {
+      "n": 24,
+      "fail": 0
+    },
+    "reconcile_difference_to_R25_flow_identity": {
+      "n": 24,
+      "fail": 0
+    },
+    "window_decomposition_sums_to_realized_net": {
+      "n": 24,
+      "fail": 0
+    },
+    "window_decomposition_plus_mmf_equals_total": {
+      "n": 24,
+      "fail": 0
+    }
+  }
+}

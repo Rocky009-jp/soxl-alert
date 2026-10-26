@@ -1,0 +1,7 @@
+{
+  "node": "v22.22.0",
+  "platform": "linux",
+  "command": "cd research/reentry_mechanism_20261026 && node analyze.mjs",
+  "network": "not used",
+  "secrets": "none"
+}

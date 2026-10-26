@@ -1,0 +1,14 @@
+{
+  "title": "H2: re-entry ratio R and daily profit-taking path check (24 fixed paths)",
+  "date_JST": "2026-10-26",
+  "docs_start_sha": "729eac801bb5c3ebf9ec61341264cece32a87bb2",
+  "fixed_study": "37a14c02517b6357bcaeecb6f0a023bfc8a3696a (engine.mjs, run.mjs, summary.csv, inputs; unchanged)",
+  "analysis_base": "5f2593e53601094c5ef4b680847275b4893b839e (event_comparison.csv for main starts is REUSED, not re-run)",
+  "paths": {"starts": ["2025-04-01", "2025-07-01", "2025-10-01", "2026-01-02"], "I": 0.25, "R": [0, 0.25, 1], "fg_delay": [0, 1], "exit": "P20_OR_R75", "terminal": "2026-08-10", "count": 24},
+  "options": "identical to SOXL_allocation_separation_20261026/run.mjs baseOpts: end 2026-08-10, initial 10000, allowInitialReentry true, dividendSchedule dividends_verified.json, issuer_exact_pay_date_proxy, mmfRate 0.03, closeTargetNet false, buffer 0, slippage 0; exitMode OR, profitTarget 0.2, exitRsi 75; initialRatio 0.25, reentryRatio R",
+  "checks": "each path vs original summary.csv (14 items, 1e-6 USD); pre-first-sale ledger identical across R; reconcile difference to R25 reference; 24 paths counted separately from the original 252",
+  "event_key": "unique market situation = signal date D + order type (EXFEAR / NORMAL / INITIAL_TREND / AFTER_SALE_REENTRY / SELL); R or account start does not make a new situation; delay 0 and 1 signals are not independent samples",
+  "calendar_dates_of_interest": {"AFTER_SALE_REENTRY exec": "2026-02-09", "NORMAL exec": "2026-03-09", "SELL exec": ["2026-03-12", "2026-04-09", "2026-04-13"]},
+  "not_done": ["H1 morning fixed quantity", "new thresholds", "partial sale", "re-running all 252", "API/minute data", "notification design"],
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+}

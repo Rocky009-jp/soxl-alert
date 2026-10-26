@@ -1,0 +1,16 @@
+{
+  "docs_start_sha": "729eac801bb5c3ebf9ec61341264cece32a87bb2",
+  "fixed_study": "37a14c0",
+  "analysis_base": "5f2593e",
+  "engine": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+  "run": "f7eab09dc1d1c24c87a6b9b34262359a7f1e7bf1f5f0417df82c6add363946cd",
+  "summary": "c2b5225d8357abc79604596971035576b145721b0bc3f1f577d91c25c280fc82",
+  "inputs": {
+    "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+    "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+    "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+  },
+  "specification": "61a24c33d343781ba2b019b48164f081378b0cb111c9ebf7f5d58e5d5873c326",
+  "analyze": "7a99065f4944d4850c405ccebb3bcd58dc7654f56645889b2525d73cf574a46e",
+  "reused_event_comparison_5f2593e": "120f8207d15192d7eb4124ba98ab3d3ccaa1848ba00c96b976994cf1a56158cc"
+}
