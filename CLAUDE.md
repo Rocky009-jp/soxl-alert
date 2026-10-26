@@ -137,8 +137,6 @@ GitHubを正本とし、次回に必要な情報をローカルだけに残さ�
 
 ## 11. 現在の段階
 
-原稿の取得・保存・本文レビューは完了。2026-10-26にユーザーが5項目を採用し、次作業へ進むことを承認した。[採用記録](docs/specs/INTERIM_NOTIFICATION_SPEC.md)を優先し、過去文書の「未承認」を現在へ持ち越さない。
+5項目は2026-10-26に採用済み。[採用記録](docs/specs/INTERIM_NOTIFICATION_SPEC.md)を優先する。mainは停止コミット `31144d9` のままで、候補は `feat/interim-notification-20261026`／`ad83f9b`。実装者は48件合格を報告し、主担当は別に5観測を行って[5指摘](docs/reviews/INTERIM_IMPLEMENTATION_REVIEW_20261026.md)を記録した。元48件の独立再実行や本番復旧とはしない。
 
-mainは停止コミット `31144d9b6af8a6c920ad53c395cd550e8c48a7fa`。schedule.ymlの実行ジョブに常時スキップ条件を追加し、main.pyは変更していない。停止解除は別途承認が必要。GitHub通知の本人確認は未実施で、未設定扱いを維持する。
-
-次は[Sonnet 5.5による限定実装・オフライン試験](docs/tasks/INTERIM_IMPLEMENTATION_SONNET55_REQUEST.md)。別作業ブランチで候補を作成し、停止条件を維持する。同じ承認の再要求や全面レビューの繰り返しをしない。コードの本番反映、Actions起動・再実行、実送信は未承認。[STATUS](docs/STATUS.md)を優先する。
+次は[Sonnet 5.5による指摘修正・Python 3.10と実依存のオフライン確認](docs/tasks/INTERIM_FIX_COMPAT_SONNET55_REQUEST.md)。候補ブランチで進め、停止条件・cron・トリガーを維持する。同じ採用承認、原稿再提出、全面レビューを繰り返さない。main反映・停止解除・Actions起動・再実行・実送信は未承認。GitHub通知の本人確認、対象セッションの自動決定等は未決のまま。[STATUS](docs/STATUS.md)を優先する。

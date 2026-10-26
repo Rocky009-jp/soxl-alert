@@ -1,0 +1,47 @@
+{
+  "source_commit": "ad83f9bf47c43f713e7cafb738f3de1bbb42705a",
+  "environment": {
+    "python": "3.12.10",
+    "pandas": "2.3.3",
+    "numpy": "2.2.6",
+    "requests": "stub; real redirects NOT executed"
+  },
+  "external_network_calls": 0,
+  "checks": [
+    {
+      "name": "valid_control",
+      "exit": 0,
+      "post_count": 1
+    },
+    {
+      "name": "request_options",
+      "allow_redirects_present": false,
+      "timeout": [
+        5,
+        15
+      ]
+    },
+    {
+      "name": "negative_old_rsi_input",
+      "old_input": -1000000000,
+      "accepted": true,
+      "control_rsi": 18.62924402784583,
+      "bad_rsi": 88.0955046062341,
+      "control_conditions": true,
+      "bad_conditions": false
+    },
+    {
+      "name": "invalid_latest_control",
+      "exit": 1,
+      "post_count": 1,
+      "target_in_message": false,
+      "target_in_log": false
+    },
+    {
+      "name": "curl_malformed_url_log",
+      "curl_version": "curl 8.21.0 (Windows) libcurl/8.21.0 Schannel zlib/1.3.2 WinIDN WinLDAP",
+      "exit": 3,
+      "synthetic_token_in_stderr": true
+    }
+  ]
+}
