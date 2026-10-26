@@ -1,16 +1,28 @@
-# 現在地 — 2026-10-26／配分分離252件を受領
+# 現在地 — 2026-10-26／価格調査受領・無料履歴の取得準備へ
 
 ## 対象と権限
 
 正本：Rocky009-jp/soxl-alert。資料ブランチdocs/v2-roadmap-20261023。
-今回の資料開始：359216b9cb18afaca8d8a278fc6cb62460e7b7c0。
+今回の資料開始：e19413e7e7e024d6da00859d83f502c0d8ca8d34。
 研究受領：research/allocation-separation-20261026、37a14c02517b6357bcaeecb6f0a023bfc8a3696a。
 
 main=31144d9b6af8a6c920ad53c395cd550e8c48a7fa（ジョブ停止維持）。
 通知候補=920e69571cf4feda09f3f2f560e96fcb9cb09d50。
 既存承認5項目は維持。main反映・停止解除・Actions起動/再実行・実送信・実Sheets・証券口座操作は未承認で、今回行っていない。
 
-## 完了・主担当判断
+## 価格・執行調査の受領
+
+研究research/price-execution-evidence-20261026、eb993a04d5b734d087fc73987b86d2110383a882の[報告](https://github.com/Rocky009-jp/soxl-alert/blob/eb993a04d5b734d087fc73987b86d2110383a882/research/price_execution_evidence_20261026/REPORT.md)を一部受領。[主担当回答](reviews/PRICE_EXECUTION_EVIDENCE_RESPONSE_20261026.md)。
+
+- CSV49行を再生成しGit blob一致。主担当がFinancialContent元表で4日OHLC16セルも確認。Yahooとの独立性・定義は不明なので、独立確認0/32を維持。残り16セルは未解消。
+- 分足/気配の実取得は0件。09:30/31/33/35 ETの優劣は保留。
+- **Alpacaの過去SIPは有料必須ではない**。公式FAQではendが15分以上前の履歴は有料購読不要と説明。認証は必要。株式履歴2016年以降という文書上の範囲は、SOXL対象日の実在や無料アカウントでの取得成功を保証しない。
+- 2024-12分配0.07683は誤りと確定していない。公式本文の表が抽出できない一方、公式検索結果は同額を示す。旧入力を維持し、元表行の追跡を保留。既存SEC/埋込表によるゼロ分配根拠も保持。
+- 前回の価格源3系統上限を5サイトへ超過した事実を記録。次は提供元を増やさない。
+
+[再現・元表確認記録](../research/price_review_20261026/README.md)。登録・キー設定・有料契約・認証リクエストは未実施。
+
+## 配分分離比較（完了）
 
 [Claude報告（固定研究版）](https://github.com/Rocky009-jp/soxl-alert/blob/37a14c02517b6357bcaeecb6f0a023bfc8a3696a/research/SOXL_allocation_separation_20261026/REPORT.md)を読了し、[受領判断](reviews/ALLOCATION_SEPARATION_RESPONSE_20261026.md)を作成した。
 
@@ -30,11 +42,13 @@ I100を「現金を使い切る」ことだけで除く提案は不採用。2025
 
 ## 次の作業
 
-**Sonnet 5.5**：[価格と執行データの限定調査](tasks/PRICE_EXECUTION_DATA_SONNET55_REQUEST.md)／[貼り付け用](CLAUDE_START_PROMPT.md)。
+**Sonnet 5.5**：[Alpacaの取得準備と証拠補正](tasks/ALPACA_PREPARATION_SONNET55_REQUEST.md)／[貼り付け用](CLAUDE_START_PROMPT.md)。
 
-8日の日足OHLC・企業行動を独立ソースへ重点照合し、分足/NBBOの対象期間・取得可否・条件を整理する。各最大3提供元、公開無認証サンプルは最大2日。取得できなければBLOCKED。新規登録・有料契約・認証変更はしない。研究別ブランチ・新規フォルダだけへ保存する。
+無料枠の条件・手順を整理し、日足8日と分足/気配2日サンプルに限定した取得用スクリプトを準備する。今回は既定plan・合成応答のオフライン確認まで。実取得0件を維持し、登録・キー設定・認証リクエスト・課金を行わない。生データの公開GitHub保存もしない。
 
-252再探索・新閾値・部分売却・注文方式の実装・暫定通知実装の続行は今回含めない。F&G空様式は準備済みだが実観測0件・未開始。20日不一致0件でも過去のas-of証明にしない。
+Alpacaの無認証アクセス成功を期待しない。将来ユーザー自身が登録/認証を選ぶ場合も、利用資格・対象日の実在・NBBO適合を先取りしない。選ばない場合は時刻別比較を保留。
+
+252再探索・閾値追加・部分売却・執行モデル/通知実装は今回行わない。F&G実観測0件・未開始を維持。20日不一致0件でも過去as-of証明としない。
 
 ## 継続事項
 

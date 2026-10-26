@@ -1,0 +1,84 @@
+{
+  "review_date_JST": "2026-10-26",
+  "docs_start_sha": "e19413e7e7e024d6da00859d83f502c0d8ca8d34",
+  "research_sha": "eb993a04d5b734d087fc73987b86d2110383a882",
+  "attachment_text_access": "unavailable; GitHub REPORT.md reviewed; byte identity not verified",
+  "csv_reproduction": {
+    "rows": 49,
+    "bytes": 11836,
+    "git_blob": "24e7b1b1756a0fa55187f0d524b419e18caf9876",
+    "matched_saved_git_blob": true,
+    "method": "unmodified build_price_checks.mjs with saved daily.json; confirms arithmetic/transcription reproducibility, not source truth",
+    "statuses": {
+      "NOT_AVAILABLE_FROM_SOURCE": 16,
+      "UNRESOLVED_NO_SOURCE_OBTAINED": 15,
+      "MATCH_MONTH_END_ONLY_NOT_A_DAILY_DATE_CONFIRMATION": 2,
+      "MATCH_WITHIN_0_005PCT_SOURCE_INDEPENDENCE_UNKNOWN": 16
+    }
+  },
+  "price_observations": {
+    "source_url": "https://www.financialcontent.com/quote/NY:SOXL/historical",
+    "accessed_on": "2026-10-26",
+    "method": "browser-extracted source table, not a model summary; raw HTML bytes and original SHA256 unavailable",
+    "upstream_independence": "UNKNOWN",
+    "session_and_adjustment_equivalence": "UNVERIFIED",
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close"
+    ],
+    "values": {
+      "2026-07-29": [
+        107.62,
+        112.67,
+        91.5,
+        91.99
+      ],
+      "2026-07-30": [
+        107.38,
+        118,
+        105.12,
+        114.72
+      ],
+      "2026-07-31": [
+        129.9,
+        133.88,
+        112.42,
+        114.72
+      ],
+      "2026-08-10": [
+        142.8,
+        143.45,
+        130,
+        130
+      ]
+    },
+    "matching_daily_cells": 16,
+    "independently_sourced_verified_daily_cells": 0,
+    "remaining_daily_cells": 16
+  },
+  "minute_bars_received": 0,
+  "quotes_received": 0,
+  "alpaca_documentation": {
+    "historical_SIP_without_paid_subscription": "documented for end at least 15 minutes before now",
+    "earliest_equity_history": "since 2016 per account subscription table; not SOXL date completeness proof",
+    "credentials_required": true,
+    "actual_entitlement_or_availability_tested": false,
+    "account_created": false,
+    "paid_subscription_started": false
+  },
+  "distribution_2024_12_23": {
+    "stored_amount": 0.07683,
+    "primary_search_result_supports_amount": true,
+    "full_source_table_row_retrieved": false,
+    "conflict_proven": false,
+    "action": "retain original input; missing extraction is not a contradiction; retain source-trace limitation"
+  },
+  "sources": [
+    "https://www.direxion.com/press-release/2024-etf-distributions",
+    "https://docs.alpaca.markets/us/docs/market-data-faq",
+    "https://docs.alpaca.markets/us/docs/about-market-data-api",
+    "https://massive.com/pricing"
+  ]
+}
