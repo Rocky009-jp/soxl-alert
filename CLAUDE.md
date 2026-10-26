@@ -137,6 +137,8 @@ GitHubを正本とし、次回に必要な情報をローカルだけに残さ�
 
 ## 11. 現在の段階
 
-5項目は2026-10-26に採用済み。[採用記録](docs/specs/INTERIM_NOTIFICATION_SPEC.md)を優先する。mainは停止コミット `31144d9` のままで、候補は `feat/interim-notification-20261026`／`ad83f9b`。実装者は48件合格を報告し、主担当は別に5観測を行って[5指摘](docs/reviews/INTERIM_IMPLEMENTATION_REVIEW_20261026.md)を記録した。元48件の独立再実行や本番復旧とはしない。
+5項目の採用承認は維持。mainは停止コミット31144d9、候補は920e695。IR-01〜05は[今回のレビュー](docs/reviews/INTERIM_FIX_REVIEW_920e695.md)の範囲で対応済み。実装者の3.10・実依存95件成功報告を受領し、主担当は別に4経路だけ確認した。95件の独立再実行や本番復旧とはしない。
 
-次は[Sonnet 5.5による指摘修正・Python 3.10と実依存のオフライン確認](docs/tasks/INTERIM_FIX_COMPAT_SONNET55_REQUEST.md)。候補ブランチで進め、停止条件・cron・トリガーを維持する。同じ採用承認、原稿再提出、全面レビューを繰り返さない。main反映・停止解除・Actions起動・再実行・実送信は未承認。GitHub通知の本人確認、対象セッションの自動決定等は未決のまま。[STATUS](docs/STATUS.md)を優先する。
+次は **[Opus 5.5による価格・対象セッション設計](docs/tasks/DATA_SESSION_OPUS55_REQUEST.md)**。たたき台を入力に仕様案1ファイルを作る。旧5件の全面再レビューは不要。設計判断後、依存固定とNT-01（curl試験入力の隔離）等の実装をSonnetへまとめる。
+
+価格調整の選択・カレンダー方式・確認期限などは未採用。版固定の技術方針は採るがまだコードを変更していない。main反映・停止解除・Actions起動／再実行・実送信は未承認。[STATUS](docs/STATUS.md)を優先する。

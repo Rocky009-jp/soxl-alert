@@ -1,55 +1,52 @@
-# 現在地 — 2026-10-26／限定実装受領・追加レビュー指摘
+# 現在地 — 2026-10-26／920e695の5指摘対応確認・データ設計へ
 
 ## 対象と権限
 
-- 正本：`Rocky009-jp/soxl-alert`、資料ブランチ `docs/v2-roadmap-20261023`。
-- 今回の資料開始：`07651d576527efd64ce714f85992c937b0ffc0bf`。
-- 候補：`feat/interim-notification-20261026`／`ad83f9bf47c43f713e7cafb738f3de1bbb42705a`。
-- main：`31144d9b6af8a6c920ad53c395cd550e8c48a7fa`。ジョブ常時スキップ条件を維持し、本番の判定コードは旧版のまま。
-- ユーザーの5項目採用と別作業ブランチの限定実装・オフライン試験は承認済み。同じ承認を取り直さない。
-- main反映、停止解除、Actions起動・再実行、実通知・Sheetsアクセスは未承認。「Rockyさん」はユーザー本人。
+- 正本：Rocky009-jp/soxl-alert、資料ブランチ `docs/v2-roadmap-20261023`。
+- 今回の資料開始：`c6faf9e78b32dab6959485042fd67f06277cdc3d`。
+- 候補：`feat/interim-notification-20261026`／`920e69571cf4feda09f3f2f560e96fcb9cb09d50`。
+- main：`31144d9b6af8a6c920ad53c395cd550e8c48a7fa`。ジョブ常時スキップを維持。
+- 5項目採用と別作業ブランチの限定実装・オフライン試験は承認済み。「Rockyさん」はユーザー本人。
+- 改修のmain反映・停止解除・Actions起動／再実行・実通知・Sheets実アクセスは未承認。今回も行っていない。
 
-## 受領と主担当の確認
+## 今回の結論
 
-[実装報告原本](https://github.com/Rocky009-jp/soxl-alert/blob/ad83f9bf47c43f713e7cafb738f3de1bbb42705a/docs/implementation/INTERIM_IMPLEMENTATION_RESULT.md)を取得し、候補のコード・テスト・YAML・基点からの差分を読了。実装者は新規pytest48件合格を報告している。
+**IR-01〜05は候補コード・回帰試験のレビュー範囲で対応済み。** 5件をまた未対応として全面レビューし直さない。候補本体は今回変更していない。
 
-主担当は固定候補に対する追加5観測を実施。元の48件を独立再実行したわけではない。Python 3.12.10／pandas 2.3.3／numpy 2.2.6、Requestsスタブ、Windows curl 8.21.0。候補が報告した3.13環境や本番3.10とは区別する。
+[対応確認レビュー](reviews/INTERIM_FIX_REVIEW_920e695.md)／[実装者の報告原本](https://github.com/Rocky009-jp/soxl-alert/blob/920e69571cf4feda09f3f2f560e96fcb9cb09d50/docs/implementation/INTERIM_IMPLEMENTATION_RESULT.md)。
 
-[レビュー全文](reviews/INTERIM_IMPLEMENTATION_REVIEW_20261026.md)／[再現コード](../research/interim_review_20261026/review_probes.py)／[観測JSON](../research/interim_review_20261026/review_probe_results.json)。
+| 項目 | 現在 |
+|---|---|
+| curlの秘密ログ・古いRSI元価格・リダイレクト・対象日表示・pyc混入 | 候補で対応確認済み |
+| Python 3.10.20・実依存 | 実装者の95 passed／skip0報告を受領。主担当の独立再実行ではない |
+| Python 3.13 | 実装者の90 passed／1 module skipped報告。実依存試験5件をモジュール単位でskip |
+| 主担当の追加確認 | 正常・古い負価格・最新欠損・不正日付の4経路を実行。3.12.10／pandas2.3.3／Requestsスタブ |
+| NT-01（通常） | curl子プロセス試験に外部ホスト解決へ進み得る入力が残る。次のSonnet作業で全入力をループバックに限定する。実API送信を観測したという意味ではない |
 
-| 指摘 | 内容 | 状態 |
-|---|---|---|
-| IR-01・重大 | curlの不正URLエラーで合成トークンがstderrに出た。秘密URL漏れの経路 | 要修正。実秘密の漏洩を観測したという意味ではない |
-| IR-02・重大 | RSIが使う200行より古い価格が未検査。負価格が通りRSI・技術条件が変化 | 合成入力で再現、要修正 |
-| IR-03・通常 | Requestsのリダイレクトを禁止していない。関数1回でもHTTP1回とは限らない | 引数未指定と公式仕様を確認。実クライアントの追加試験を依頼 |
-| IR-04・通常 | データエラーの通知本文・ログに指定対象日がない | 最新欠損の対照で再現、要修正 |
-| IR-05・通常 | 生成pyc6件がコミットに混入 | Git差分で確認、除外と再混入防止が必要 |
+[追加再現コード](../research/interim_review_920e695_20261026/review_probes.py)／[結果](../research/interim_review_920e695_20261026/review_probe_results.json)。95件と主担当4経路を加算して「99件合格」としない。主担当は実Requests／実YAML／本番3.10の全試験を再実行していない。
 
-本番切替は保留。候補ブランチ・mainのコードは今回変更せず、資料と再現成果だけを保存する。
+## 次の作業・モデル
 
-## 採用事項と現在
+**Opus 5.5：価格定義と対象セッションの2設計に限定。**
+[詳細依頼](tasks/DATA_SESSION_OPUS55_REQUEST.md)／[貼り付け用](CLAUDE_START_PROMPT.md)／[6.1 Sol Highのたたき台](specs/DATA_SESSION_DESIGN_NOTES.md)。
 
-毎回サマリ、異常非0・Sheets部分失敗通知、売却推奨なし・過熱参考OFFは候補に実装されたが、上記指摘があり本番未反映。GitHub失敗通知はユーザーが確認する方針のみ採用済みで、設定・受信は未確認、未設定扱い。現行ジョブの停止は維持する。
+調整価格・現金分配・過去検証との対応、休日／短縮取引／時差／遅延の設計が関わるためOpusを使う。コード・設定変更や再試験の依頼ではなく、採否判断できる仕様案1ファイルの作成。旧5件や全期間の再レビューは不要。Claudeへ自動送信・実行はしていない。
 
-[採用記録](specs/INTERIM_NOTIFICATION_SPEC.md)／[承認表](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)／[停止確認](../research/interim_20261026/PAUSE_VERIFICATION.json)。
+成果予定：docs/specs/DATA_SESSION_CONTRACT_DRAFT.md。まだ作成・採用していない。設計判断後、依存固定・NT-01・必要な実装と回帰確認をSonnetへまとめて渡す。
 
-## 次の作業
+## 6.1 Sol Highの判断と未決
 
-**Claude Sonnet 5.5：5指摘の修正とPython 3.10・実依存のオフライン確認。**
-[詳細依頼](tasks/INTERIM_FIX_COMPAT_SONNET55_REQUEST.md)／[貼り付け用](CLAUDE_START_PROMPT.md)。
+- **版を固定する技術方針は採る。** 起点は3.10の試験版セット。推移依存・OS・新カレンダー依存も確認し、直接依存固定だけで完全再現と呼ばない。候補コードへの固定は未実装。
+- **価格調整は未決。** auto_adjustの既定に任せず、指標用系列とSOXL表示・将来の損益価格を分ける。一律Falseへの変更はしない。旧Actionsや第三者研究の当時の定義は未復元。
+- **対象セッション自動決定は未決。** 正しいカレンダーと独立時刻で決め、休場・短縮取引・DST・遅延を扱う。データ最終日やJST前日で代用しない。
+- 確認期限、未起動の独立監視、手動再実行・Sheets行の重複防止、HTTP失敗の再試行方針は未決（現候補は自動再送なし）。
+- 実Actions #7、#8の未起動観測、実Discord／Sheets、GitHub失敗通知の本人確認は未実施。未起動を内部で検知できるとしない。
+- 市場データ取得自体と上流欠損原因は未検証。ソフトウェアの互換試験と実データの復旧を区別する。本番切替は保留。
 
-明確な修正と互換性確認を同じ限定作業へまとめ、作業ブランチで修正・試験・GitHub保存まで行う。Opusの全面再レビューは不要。重大な設計判断だけ6.1 Sol Highへ返す。Claudeへ自動送信・実行はしていない。
+## 採用事項と固定条件
 
-## 本番切替前に残る条件
+毎回サマリ、異常非0・Sheets部分失敗サマリ試行、売却推奨なし・過熱参考OFFは採用・候補実装済み。本番未反映。GitHub通知の本人確認方針は採用済みだが実設定・受信は未確認で未設定扱い。[採用記録](specs/INTERIM_NOTIFICATION_SPEC.md)／[承認表](reviews/PHASE0_OPUS55_APPROVAL_ITEMS.md)。現行ジョブは停止維持。
 
-- 対象セッションの自動決定（休日・短縮取引・夏冬時間・確定時刻・遅延）。現候補はTARGET_SESSION_DATE必須で、未設定なら非0。データ最終日や現在日で勝手に補わない。
-- Python 3.10と実依存でのオフライン確認。候補の実装者は3.13、yfinance/gspread/oauth2client未導入で試験した。
-- 完了通知の確認期限、未起動の独立監視、手動再実行の重複防止。
-- 実Actionsのpip失敗報告、Discord実配信・Sheets記録、GitHub失敗通知の本人確認。#7は実Actions未実施、#8は机上確認。
-- 上流欠損原因と実配信は未確定。候補実装や合成試験を本番復旧と扱わない。
+損切りなし・税引後利益全額再投資・最終総資産最大化、最大DDを制約にしない。楽天証券・150円・税20.315%・USD MMF・整数株・SOXL現金分配・目視F&G・自動発注なし。初回あり＋25%は仮候補。
 
-## 研究と固定条件
-
-損切りなし・税引後利益全額再投資・最終総資産最大化。最大DDで減点しない。楽天証券・150円固定・税20.315%・USD MMF・整数株・SOXL現金分配・目視F&G・自動発注なし。初回あり＋25%は仮候補。
-
-研究の過去利益額の未解決差、寄付き価格の先読み、分足・NBBO、F&G履歴取得時刻は保留。[ロードマップ](ROADMAP.md)と既存研究資料を維持する。旧欠陥再現14件・仕様13行／今回対象11行・候補48試験・主担当5観測を混同しない。
+過去利益額の未解決差、寄付き先読み、分足・NBBO、F&G履歴取得時刻は保留。[ロードマップ](ROADMAP.md)を維持し、今回の修正で解消したとはしない。

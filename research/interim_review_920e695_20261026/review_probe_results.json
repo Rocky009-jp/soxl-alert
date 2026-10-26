@@ -1,0 +1,58 @@
+{
+  "source_commit": "920e69571cf4feda09f3f2f560e96fcb9cb09d50",
+  "environment": {
+    "python": "3.12.10",
+    "pandas": "2.3.3",
+    "numpy": "2.2.6",
+    "requests": "stub"
+  },
+  "external_data_or_notification_calls": 0,
+  "paths": [
+    {
+      "path": "valid_control",
+      "exit": 0,
+      "notifications": 1,
+      "judgements": 1,
+      "sheet_writes": 1,
+      "redirects_disabled": true,
+      "target_in_message": true,
+      "target_in_notify_log": true
+    },
+    {
+      "path": "old_negative",
+      "exit": 1,
+      "notifications": 1,
+      "judgements": 0,
+      "sheet_writes": 0,
+      "redirects_disabled": true,
+      "target_in_message": true,
+      "target_in_notify_log": true
+    },
+    {
+      "path": "latest_missing",
+      "exit": 1,
+      "notifications": 1,
+      "judgements": 0,
+      "sheet_writes": 0,
+      "redirects_disabled": true,
+      "target_in_message": true,
+      "target_in_notify_log": true
+    },
+    {
+      "path": "invalid_target",
+      "exit": 1,
+      "notifications": 1,
+      "judgements": 0,
+      "sheet_writes": 0,
+      "redirects_disabled": true,
+      "target_in_message": true,
+      "target_in_notify_log": true
+    }
+  ],
+  "not_executed": [
+    "original 95-test suite",
+    "real Requests redirects",
+    "YAML/bash curl reporter",
+    "Python 3.10 runtime"
+  ]
+}
