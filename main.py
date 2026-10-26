@@ -51,7 +51,10 @@ def read_config(env):
     else:
         reasons.append(f"{ENV_SHEETS_ENABLED} は true / false のどちらかを明示してください")
 
+    # 検証済みの対象日だけを表示用ラベルにする。不正な生値は載せない。
+    target_label = target.strftime("%Y/%m/%d") if target else "対象日未確定"
     cfg = {
+        "target_label": target_label,
         "webhook": webhook,
         "target": target,
         "sheets_enabled": sheets_enabled,
@@ -90,7 +93,9 @@ def append_sheet_row(creds_json, spreadsheet_id, row):
 
 
 def _notify(cfg, content, post):
-    result, _status = soxl_notify.post_message(cfg["webhook"], content, post=post)
+    result, _status = soxl_notify.post_message(
+        cfg["webhook"], content, post=post, target_label=cfg["target_label"]
+    )
     return result
 
 
@@ -106,7 +111,7 @@ def run(env=None, fetch=None, write_row=None, post=None):
         for r in config_errors:
             print(f"設定エラー: {r}")
         if cfg["webhook"]:
-            _notify(cfg, soxl_notify.build_error(config_errors, "設定確認"), post)
+            _notify(cfg, soxl_notify.build_error(config_errors, "設定確認", cfg["target_label"]), post)
         print("終了コード: 1（設定エラー）")
         return 1
 
@@ -116,7 +121,7 @@ def run(env=None, fetch=None, write_row=None, post=None):
     except Exception as exc:  # 生例外メッセージは出さない
         reasons = [f"データ取得に失敗しました（{type(exc).__name__}）"]
         print(f"運用エラー: {reasons[0]}")
-        _notify(cfg, soxl_notify.build_error(reasons, "データ取得"), post)
+        _notify(cfg, soxl_notify.build_error(reasons, "データ取得", cfg["target_label"]), post)
         print("終了コード: 1（取得失敗）")
         return 1
 
@@ -125,13 +130,13 @@ def run(env=None, fetch=None, write_row=None, post=None):
     except soxl_checks.DataValidationError as exc:
         for r in exc.reasons:
             print(f"運用エラー: {r}")
-        _notify(cfg, soxl_notify.build_error(exc.reasons, "データ検査"), post)
+        _notify(cfg, soxl_notify.build_error(exc.reasons, "データ検査", cfg["target_label"]), post)
         print("終了コード: 1（データ検査NG）")
         return 1
     except Exception as exc:
         reasons = [f"検査中に想定外の失敗が発生しました（{type(exc).__name__}）"]
         print(f"運用エラー: {reasons[0]}")
-        _notify(cfg, soxl_notify.build_error(reasons, "データ検査"), post)
+        _notify(cfg, soxl_notify.build_error(reasons, "データ検査", cfg["target_label"]), post)
         print("終了コード: 1（検査失敗）")
         return 1
 

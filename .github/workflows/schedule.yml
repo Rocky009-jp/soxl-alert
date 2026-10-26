@@ -48,12 +48,21 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "通知設定がないため失敗報告を送れません。"
+            echo "失敗報告: 通知設定がないため送れません。"
             exit 1
           fi
-          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+          # curlの標準エラーは設定値（URL）を含み得るため捨て、非秘密の分類だけを出す。
+          # 1回だけ送信し、リダイレクトは追従しない（-L なし）。
+          rc=0
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
             -H 'Content-Type: application/json' \
             -d '{"content":"🚫 **【SOXL 運用エラー】** 実行準備（依存導入など）に失敗したため、データ検査・売買判定・Sheets記録は実行していません（条件未達ではありません）。F&G: 目視未確認"}' \
-            "$DISCORD_WEBHOOK_URL") || { echo "失敗報告: 配信不明（curl失敗）"; exit 1; }
-          echo "失敗報告: HTTP ${code}"
-          case "$code" in 2??) ;; *) exit 1 ;; esac
+            "$DISCORD_WEBHOOK_URL" 2>/dev/null) || rc=$?
+          if [ "$rc" -ne 0 ]; then
+            echo "失敗報告: 配信不明（curl終了値 ${rc}）。自動再送はしません。"
+            exit 1
+          fi
+          case "$code" in
+            2??) echo "失敗報告: 送信成功（HTTP ${code}）" ;;
+            *) echo "失敗報告: HTTP失敗（HTTP ${code}）。自動再送はしません。"; exit 1 ;;
+          esac

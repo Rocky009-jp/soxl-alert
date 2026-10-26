@@ -66,8 +66,9 @@ class FakePost:
         self.calls = []
         self.log = log if log is not None else []
 
-    def __call__(self, url, json=None, timeout=None):
-        self.calls.append({"url": url, "json": json, "timeout": timeout})
+    def __call__(self, url, json=None, timeout=None, allow_redirects=None):
+        self.calls.append({"url": url, "json": json, "timeout": timeout,
+                           "allow_redirects": allow_redirects})
         self.log.append("post")
         if self.raises:
             raise self.raises

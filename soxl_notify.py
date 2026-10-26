@@ -9,22 +9,27 @@ SENT_HTTP_ERROR = "http_error"
 SENT_UNKNOWN = "unknown"
 
 
-def post_message(url, content, post=requests.post):
+def post_message(url, content, post=requests.post, target_label="対象日未確定"):
     """1回だけ送信する。再送・再帰はしない。
 
     戻り値: (結果, HTTPステータスまたはNone)。
     URL・応答本文・例外メッセージはログに出さない（例外は型名のみ）。
     """
     try:
-        resp = post(url, json={"content": content}, timeout=(CONNECT_TIMEOUT, READ_TIMEOUT))
+        resp = post(
+            url,
+            json={"content": content},
+            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
+            allow_redirects=False,  # 追加要求・リダイレクト先の成功誤認を防ぐ
+        )
     except Exception as exc:  # タイムアウト・接続断など。結果不明
-        print(f"通知: 配信不明（{type(exc).__name__}）。自動再送はしません。")
+        print(f"通知（{target_label}）: 配信不明（{type(exc).__name__}）。自動再送はしません。")
         return SENT_UNKNOWN, None
     status = getattr(resp, "status_code", None)
     if isinstance(status, int) and 200 <= status < 300:
-        print(f"通知: 送信成功（HTTP {status}）。")
+        print(f"通知（{target_label}）: 送信成功（HTTP {status}）。")
         return SENT_OK, status
-    print(f"通知: HTTP失敗（HTTP {status}）。自動再送はしません。")
+    print(f"通知（{target_label}）: HTTP失敗（HTTP {status}）。自動再送はしません。")
     return SENT_HTTP_ERROR, status
 
 
@@ -59,11 +64,12 @@ def build_summary(ind, cond, sheets_state):
     return "\n".join(lines)
 
 
-def build_error(reasons, stage):
+def build_error(reasons, stage, target_label="対象日未確定"):
     """運用エラー通知。reasons は非秘密の固定文言のみを渡す。"""
     body = "\n".join(f"・{r}" for r in reasons)
     return (
         "🚫 **【SOXL 運用エラー】**\n"
+        f"対象取引日: {target_label}\n"
         f"段階: {stage}\n"
         "売買の判定とSheetsの価格行追記は実行していません（条件未達ではありません）。\n"
         f"{body}\n"

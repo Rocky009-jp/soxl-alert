@@ -253,8 +253,13 @@ def test_indicators_match_legacy_formulas():
 
 # --- 境界・import ---
 def test_import_has_no_network_or_heavy_deps():
+    import subprocess
     import sys
-    assert "yfinance" not in sys.modules and "gspread" not in sys.modules
+    root = __import__("os").path.dirname(__import__("os").path.dirname(__import__("os").path.abspath(__file__)))
+    code = ("import sys; sys.path.insert(0, %r); import main; "
+            "assert 'yfinance' not in sys.modules and 'gspread' not in sys.modules")
+    r = subprocess.run([sys.executable, "-c", code % root], capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr
 
 
 def test_network_is_actually_blocked():

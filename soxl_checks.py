@@ -134,14 +134,13 @@ def validate_and_compute(close, open_, target_date):
     if not _finite_positive(open_["SOXL"].iloc[-1]):
         reasons.append("SOXL: 対象日の始値が欠損または不正です")
 
-    # 履歴の妥当性。直近の窓が全て有限でなければ、古い日への後退や
-    # NaN越しの持ち越しが起き得るため通さない。
+    # 履歴の妥当性。RSIはSOXX全履歴を使い、SMAは直近200行、SHDは直近21行を
+    # 使う。計算に入る全ての元価格が有限・正でなければ通さない（NaN越しの
+    # 持ち越しや古い共通日への後退、窓外の不正値による結果変化を防ぐ）。
     if len(close) < SMA_WINDOW:
         reasons.append(f"SOXX: 履歴不足（200日移動平均に{SMA_WINDOW}行必要、{len(close)}行）")
-    else:
-        window = close["SOXX"].iloc[-SMA_WINDOW:]
-        if not all(_finite_positive(v) for v in window):
-            reasons.append("SOXX: 直近200行に欠損または不正な終値があります")
+    if not all(_finite_positive(v) for v in close["SOXX"]):
+        reasons.append("SOXX: 履歴に欠損または不正な終値があります（RSIの入力全体を検査）")
     for t in ("SPY", "IEF"):
         if len(close) < SHD_LOOKBACK:
             reasons.append(f"{t}: 履歴不足（SHDに{SHD_LOOKBACK}行必要、{len(close)}行）")
