@@ -1,0 +1,183 @@
+{
+  "date_JST": "2026-10-26",
+  "source_sha": "9f066e51286278677803357dde5ab7be1b4454fd",
+  "docs_start_sha": "729eac801bb5c3ebf9ec61341264cece32a87bb2",
+  "node": "v24.22.1",
+  "platform": "win32",
+  "command": "cd research/reentry_mechanism_20261026 && node analyze.mjs",
+  "verification": {
+    "passed_all": true,
+    "failure_count": 0,
+    "failures": [],
+    "counts": {
+      "new_paths": 24,
+      "original_252_rerun": 0,
+      "summary_items_compared_per_path": 14,
+      "tolerance_USD": 0.000001,
+      "events_rows": 333,
+      "reused_5f2593e_event_rows_not_rerun": 332
+    },
+    "checks": {
+      "engine_sha_equals_37a14c0_environment": {
+        "n": 1,
+        "fail": 0
+      },
+      "run_sha_equals_37a14c0_environment": {
+        "n": 1,
+        "fail": 0
+      },
+      "input_sha_equals_manifest": {
+        "n": 3,
+        "fail": 0
+      },
+      "path_vs_original_summary_1e-6": {
+        "n": 336,
+        "fail": 0
+      },
+      "twentyfour_paths": {
+        "n": 1,
+        "fail": 0
+      },
+      "exec_is_next_session_after_D": {
+        "n": 333,
+        "fail": 0
+      },
+      "same_ledger_up_to_first_sale_across_R": {
+        "n": 8,
+        "fail": 0
+      },
+      "reconcile_difference_to_R25_balance_sheet": {
+        "n": 24,
+        "fail": 0
+      },
+      "reconcile_difference_to_R25_flow_identity": {
+        "n": 24,
+        "fail": 0
+      },
+      "window_decomposition_sums_to_realized_net": {
+        "n": 24,
+        "fail": 0
+      },
+      "window_decomposition_plus_mmf_equals_total": {
+        "n": 24,
+        "fail": 0
+      }
+    }
+  },
+  "artifact_hash_checks": [
+    {
+      "path": "research/reentry_mechanism_20261026/analyze.mjs",
+      "sha": "8f85b7f51cdf09ed162d8c88db9f2b21e3570989",
+      "actual": "8f85b7f51cdf09ed162d8c88db9f2b21e3570989",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/buy_alignment.csv",
+      "sha": "dcb7c71699603e3ce933d648ab5818d58d7768f4",
+      "actual": "dcb7c71699603e3ce933d648ab5818d58d7768f4",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/calendar_concentration.csv",
+      "sha": "44735c27fefd172327c5e5569d599448350e5640",
+      "actual": "44735c27fefd172327c5e5569d599448350e5640",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/environment.json",
+      "sha": "c721bdd22ab65d7d402e2bf9547f295575f04067",
+      "actual": "359ea668af88969ec35adf0e144b71ccd46bdaa7",
+      "match": false
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/event_comparison.csv",
+      "sha": "25cb00db54422f02c8fb2dbcb6d07220a9be4a29",
+      "actual": "25cb00db54422f02c8fb2dbcb6d07220a9be4a29",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/first_divergence.csv",
+      "sha": "7c7ba5734877a618ed880f0c545a23352b0b3534",
+      "actual": "7c7ba5734877a618ed880f0c545a23352b0b3534",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/paths_check.csv",
+      "sha": "7e6dc6dff6d3813cd4377d0efc24c06cc90dccdf",
+      "actual": "7e6dc6dff6d3813cd4377d0efc24c06cc90dccdf",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/sale_cycles.csv",
+      "sha": "04dae8d1af16a323a37257b2789b2ffbb33bda5a",
+      "actual": "04dae8d1af16a323a37257b2789b2ffbb33bda5a",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/small_buys_after_first_sale.csv",
+      "sha": "65a6b31f48852f9b59ce8f8236aebd5ee8b56137",
+      "actual": "65a6b31f48852f9b59ce8f8236aebd5ee8b56137",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/source_refs.json",
+      "sha": "6f149bc289544a78dddac3f3f57265ffd5c14526",
+      "actual": "6f149bc289544a78dddac3f3f57265ffd5c14526",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/specification.json",
+      "sha": "14af8b969a704a6f25eab202aa7598066c84b78b",
+      "actual": "14af8b969a704a6f25eab202aa7598066c84b78b",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/terminal_reconciliation.csv",
+      "sha": "586bfd9aa3d0c0e58b0132e5efa18b4d74fab710",
+      "actual": "586bfd9aa3d0c0e58b0132e5efa18b4d74fab710",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/unique_situations.csv",
+      "sha": "c9901fc16e6ebe86834759317094e008316ee97b",
+      "actual": "c9901fc16e6ebe86834759317094e008316ee97b",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/unique_situations_after_first_sale.csv",
+      "sha": "9baba50c83c762785695ffe11a51d50cd278e891",
+      "actual": "9baba50c83c762785695ffe11a51d50cd278e891",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/verification.json",
+      "sha": "5dd199ba449f2285d9fb796dd49e2a99ca8cd811",
+      "actual": "5dd199ba449f2285d9fb796dd49e2a99ca8cd811",
+      "match": true
+    },
+    {
+      "path": "research/reentry_mechanism_20261026/window_decomposition.csv",
+      "sha": "8b902c9499a2b8bcb52633732b3e0cb90b0a39ad",
+      "actual": "8b902c9499a2b8bcb52633732b3e0cb90b0a39ad",
+      "match": true
+    }
+  ],
+  "annotation_audit": {
+    "source_sha": "9f066e51286278677803357dde5ab7be1b4454fd",
+    "source_event_csv_sha256": "1b8e6c8ac784e11289c2b632ba794f3cdf761172722d0d3bd05ddb38ca7d135d",
+    "event_rows": 333,
+    "status_counts": {
+      "FILLED_DIAGNOSTIC": 288,
+      "INSUFFICIENT_INTEGER_SHARE": 45
+    },
+    "fg_annotation_mismatch_count": 155,
+    "mismatches_by_delay": {
+      "0": 0,
+      "1": 155
+    },
+    "zero_share_rows": 45,
+    "unresolved_zero_share_reasons": 0,
+    "scope": "annotation audit only; original engine/input/PnL unchanged; expected F&G computed by pinned signals(delay); no fresh market data"
+  },
+  "scope": "same-code rerun of 24 paths; no full 252; no fresh market data/orders; next profit-width study not run"
+}

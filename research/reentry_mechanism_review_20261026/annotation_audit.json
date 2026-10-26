@@ -1,0 +1,17 @@
+{
+  "source_sha": "9f066e51286278677803357dde5ab7be1b4454fd",
+  "source_event_csv_sha256": "1b8e6c8ac784e11289c2b632ba794f3cdf761172722d0d3bd05ddb38ca7d135d",
+  "event_rows": 333,
+  "status_counts": {
+    "FILLED_DIAGNOSTIC": 288,
+    "INSUFFICIENT_INTEGER_SHARE": 45
+  },
+  "fg_annotation_mismatch_count": 155,
+  "mismatches_by_delay": {
+    "0": 0,
+    "1": 155
+  },
+  "zero_share_rows": 45,
+  "unresolved_zero_share_reasons": 0,
+  "scope": "annotation audit only; original engine/input/PnL unchanged; expected F&G computed by pinned signals(delay); no fresh market data"
+}
