@@ -1,0 +1,21 @@
+{
+  "node": "v22.22.0",
+  "platform": "linux",
+  "command": "cd research/buy_trigger_ablation_20261026 && node run.mjs",
+  "network": "not used",
+  "secrets": "none",
+  "spec_commit_before_computation": "4cb58b4dee6440b5200a0c22357cbcfeb1877ca1",
+  "run_mjs_sha256": "a27fa5f81a472507f6e060de6acb6202e2a7a5bec136f05aba43916e96dc775b",
+  "engine_copy_sha256": "e0cd50d61b43b86e3676c8553520d1124cf3ac9146f0c4d12cce44e03fecc0ad",
+  "specification_sha256": "a408456c28de38b47d60bc60ff0476877ddc5c914654694022e61d7f7fb4cf22",
+  "source_refs_sha256": "be779ec8ec9e2fc7e3c01df9a83cd426475da887dc23889656a84b812cbd9053",
+  "simulate_calls": {
+    "main_new": 72,
+    "regression_original": 12,
+    "regression_copy": 12,
+    "synthetic": 9,
+    "total": 105,
+    "limit": 108,
+    "signals_calls_outside_simulate": 7
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "passed_all": true,
+  "failure_count": 0,
+  "failures": [],
+  "counts": {
+    "evaluation_cells": 144,
+    "reused": 72,
+    "new": 72,
+    "candidates": 12,
+    "paired_comparisons": 72,
+    "month_end_rows": 1728,
+    "event_rows": 560,
+    "event_filled": 367,
+    "event_suppressed": 108,
+    "event_insufficient": 85,
+    "event_sell_blocked": 0,
+    "event_paths": 36,
+    "tolerance_USD": 0.000001
+  },
+  "simulate_calls": {
+    "main_new": 72,
+    "regression_original": 12,
+    "regression_copy": 12,
+    "synthetic": 9,
+    "total": 105,
+    "limit": 108,
+    "signals_calls_outside_simulate": 7
+  },
+  "checks": {
+    "original_engine_sha": {
+      "n": 1,
+      "fail": 0
+    },
+    "engine_copy_sha_equals_committed_ref": {
+      "n": 1,
+      "fail": 0
+    },
+    "profit_target_summary_sha": {
+      "n": 1,
+      "fail": 0
+    },
+    "profit_target_month_end_sha": {
+      "n": 1,
+      "fail": 0
+    },
+    "dividends_sha": {
+      "n": 1,
+      "fail": 0
+    },
+    "input_sha": {
+      "n": 3,
+      "fail": 0
+    },
+    "twelve_candidates": {
+      "n": 1,
+      "fail": 0
+    },
+    "no_day_with_ex_or_normal_and_reCandidate": {
+      "n": 2,
+      "fail": 0
+    },
+    "regression_summary_original_vs_copy": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_ledger_original_vs_copy": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_daily_original_vs_copy": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_candidates_original_vs_copy": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_signals_original_vs_copy": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_cfg_equal_except_new_flags": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_copy_final_total_equals_77bb44f_stored": {
+      "n": 12,
+      "fail": 0
+    },
+    "accounting_identity": {
+      "n": 84,
+      "fail": 0
+    },
+    "terminal_date_2026-08-10": {
+      "n": 84,
+      "fail": 0
+    },
+    "fresh_account_at_start": {
+      "n": 84,
+      "fail": 0
+    },
+    "balance_invariants_nonneg_cash_integer_shares_zero_basis": {
+      "n": 84,
+      "fail": 0
+    },
+    "every_sale_net_gain_ge_2pct_of_cost": {
+      "n": 84,
+      "fail": 0
+    },
+    "dividend_no_double_counting": {
+      "n": 84,
+      "fail": 0
+    },
+    "fee_tax_ledger_consistency": {
+      "n": 84,
+      "fail": 0
+    },
+    "no_sell_zero_sales_zero_aftersale": {
+      "n": 28,
+      "fail": 0
+    },
+    "no_suppression_field_when_both_on": {
+      "n": 12,
+      "fail": 0
+    },
+    "regression_runs_24": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_A_ex_signal_days_two_and_rearm": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_A_signals_identical_flag_on_off": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_A_on_has_EXFEAR_order_at_first_ex_day": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_A_off_zero_EXFEAR_but_episode_consumed": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_A_off_account_stays_cash": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_B_normal_rising_edges_only": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_B_signals_identical_flag_on_off": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_B_off_zero_NORMAL_orders_and_suppressed_recorded": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_C_ex_and_profit_same_day": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_C_pending_is_SELL_flag_on": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_C_pending_is_SELL_flag_off_and_no_suppression_recorded": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_C_ledger_equal_on_off_and_sale_filled": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_D_initial_then_aftersale_entries_exist": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_D_initial_is_25pct": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_D_aftersale_is_100pct": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_D_both_single_flag_runs_equal_when_no_market_buys": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_E_non_boolean_flag_throws": {
+      "n": 1,
+      "fail": 0
+    },
+    "synthetic_calls_le_12": {
+      "n": 1,
+      "fail": 0
+    },
+    "reused_cell_exists_in_77bb44f": {
+      "n": 72,
+      "fail": 0
+    },
+    "zero_NORMAL_orders_when_normal_off": {
+      "n": 36,
+      "fail": 0
+    },
+    "suppressed_type_matches_flag": {
+      "n": 72,
+      "fail": 0
+    },
+    "signals_identical_to_flag_independent_signals": {
+      "n": 72,
+      "fail": 0
+    },
+    "candidate_market_flags_match_signals": {
+      "n": 72,
+      "fail": 0
+    },
+    "zero_EXFEAR_orders_when_exfear_off": {
+      "n": 36,
+      "fail": 0
+    },
+    "cells_144": {
+      "n": 1,
+      "fail": 0
+    },
+    "reuse_72": {
+      "n": 1,
+      "fail": 0
+    },
+    "rerun_72": {
+      "n": 1,
+      "fail": 0
+    },
+    "main_new_72": {
+      "n": 1,
+      "fail": 0
+    },
+    "simulate_total_le_108": {
+      "n": 1,
+      "fail": 0
+    },
+    "all_final_totals_finite": {
+      "n": 1,
+      "fail": 0
+    },
+    "paired_72": {
+      "n": 1,
+      "fail": 0
+    },
+    "reused_month_end_row_exists": {
+      "n": 864,
+      "fail": 0
+    },
+    "rerun_month_end_has_record": {
+      "n": 864,
+      "fail": 0
+    },
+    "month_end_record_equals_tape_last_date": {
+      "n": 864,
+      "fail": 0
+    },
+    "event_paths_36": {
+      "n": 1,
+      "fail": 0
+    },
+    "events_fg_used_equals_signals_fg_used": {
+      "n": 560,
+      "fail": 0
+    }
+  }
+}
