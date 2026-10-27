@@ -7,5 +7,15 @@
     "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
     "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
     "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+  },
+  "spec_commit": "3b82c777f84e77995823052eed3524bee5929105",
+  "data_candidates": {
+    "B_digrin_monthly_SOXL_secondary_extraction.csv": "5ec40cac5ca0d915997ffc083ecf27a19aed2fce8d732a6f98a45cc4d507f991"
+  },
+  "derived_files": {
+    "digrin_vs_stored_adjclose_month_end.json": "0ca20fae2501aab6cf01ca447f4eb1348dcf81901ac997b15fe1a53145d43d33",
+    "incidental_ohlc_concordance.json": "9b77d0ae7fddae2fb2656729a2cc6f443f409a0bfc6c5770966172a2caa9d525",
+    "quality_check.json": "5974d9e3f61142ba748880123a0d718b82877790f8150614bd4a8489dd16b5d4",
+    "attempts.json": "cbfd65278ee7ecab4a020bf02683046754ffab29146590f668f994673fb33156"
   }
 }

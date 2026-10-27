@@ -1,0 +1,320 @@
+{
+ "note": "digrin monthly Adjusted price vs stored daily.json SOXL adjClose on the last stored trading date of each month (descriptive concordance only; digrin month-end convention unverified)",
+ "rows": [
+  {
+   "month": "2024-10",
+   "stored_month_end_date": "2024-10-31",
+   "stored_adjClose": 29.7898,
+   "digrin_adjusted": 29.81,
+   "rel_diff": 0.0006776249580677796
+  },
+  {
+   "month": "2024-09",
+   "stored_month_end_date": "2024-09-30",
+   "stored_adjClose": 36.3141,
+   "digrin_adjusted": 36.34,
+   "rel_diff": 0.0007127132636213229
+  },
+  {
+   "month": "2024-08",
+   "stored_month_end_date": "2024-08-30",
+   "stored_adjClose": 38.3351,
+   "digrin_adjusted": 38.36,
+   "rel_diff": 0.0006491136600625946
+  },
+  {
+   "month": "2024-07",
+   "stored_month_end_date": "2024-07-31",
+   "stored_adjClose": 43.8694,
+   "digrin_adjusted": 43.9,
+   "rel_diff": 0.0006970387243735443
+  },
+  {
+   "month": "2024-06",
+   "stored_month_end_date": "2024-06-28",
+   "stored_adjClose": 54.7108,
+   "digrin_adjusted": 54.75,
+   "rel_diff": 0.0007159817351598541
+  },
+  {
+   "month": "2024-05",
+   "stored_month_end_date": "2024-05-31",
+   "stored_adjClose": 47.8857,
+   "digrin_adjusted": 47.92,
+   "rel_diff": 0.0007157762938230228
+  },
+  {
+   "month": "2024-04",
+   "stored_month_end_date": "2024-04-30",
+   "stored_adjClose": 37.6266,
+   "digrin_adjusted": 37.65,
+   "rel_diff": 0.00062151394422294
+  },
+  {
+   "month": "2024-03",
+   "stored_month_end_date": "2024-03-28",
+   "stored_adjClose": 45.8556,
+   "digrin_adjusted": 45.89,
+   "rel_diff": 0.0007496186533013649
+  },
+  {
+   "month": "2024-02",
+   "stored_month_end_date": "2024-02-29",
+   "stored_adjClose": 42.1843,
+   "digrin_adjusted": 42.21,
+   "rel_diff": 0.0006088604596067304
+  },
+  {
+   "month": "2024-01",
+   "stored_month_end_date": "2024-01-31",
+   "stored_adjClose": 31.6087,
+   "digrin_adjusted": 31.63,
+   "rel_diff": 0.0006734113183686219
+  },
+  {
+   "month": "2023-12",
+   "stored_month_end_date": "2023-12-29",
+   "stored_adjClose": 30.9194,
+   "digrin_adjusted": 30.94,
+   "rel_diff": 0.0006658047834519065
+  },
+  {
+   "month": "2023-11",
+   "stored_month_end_date": "2023-11-30",
+   "stored_adjClose": 22.4105,
+   "digrin_adjusted": 22.42,
+   "rel_diff": 0.00042372881355945413
+  },
+  {
+   "month": "2023-10",
+   "stored_month_end_date": "2023-10-31",
+   "stored_adjClose": 14.6391,
+   "digrin_adjusted": 14.65,
+   "rel_diff": 0.0007440273037543355
+  },
+  {
+   "month": "2023-09",
+   "stored_month_end_date": "2023-09-29",
+   "stored_adjClose": 18.5395,
+   "digrin_adjusted": 18.55,
+   "rel_diff": 0.0005660377358490676
+  },
+  {
+   "month": "2023-08",
+   "stored_month_end_date": "2023-08-31",
+   "stored_adjClose": 23.4033,
+   "digrin_adjusted": 23.42,
+   "rel_diff": 0.0007130657557643527
+  },
+  {
+   "month": "2023-07",
+   "stored_month_end_date": "2023-07-31",
+   "stored_adjClose": 27.8662,
+   "digrin_adjusted": 27.88,
+   "rel_diff": 0.0004949784791965506
+  },
+  {
+   "month": "2023-06",
+   "stored_month_end_date": "2023-06-30",
+   "stored_adjClose": 24.3548,
+   "digrin_adjusted": 24.37,
+   "rel_diff": 0.0006237176856791482
+  },
+  {
+   "month": "2023-05",
+   "stored_month_end_date": "2023-05-31",
+   "stored_adjClose": 20.7132,
+   "digrin_adjusted": 20.73,
+   "rel_diff": 0.0008104196816208775
+  },
+  {
+   "month": "2023-04",
+   "stored_month_end_date": "2023-04-28",
+   "stored_adjClose": 13.9361,
+   "digrin_adjusted": 13.94,
+   "rel_diff": 0.00027977044476323876
+  },
+  {
+   "month": "2023-03",
+   "stored_month_end_date": "2023-03-31",
+   "stored_adjClose": 17.9221,
+   "digrin_adjusted": 17.93,
+   "rel_diff": 0.0004406023424428085
+  },
+  {
+   "month": "2023-02",
+   "stored_month_end_date": "2023-02-28",
+   "stored_adjClose": 14.3259,
+   "digrin_adjusted": 14.34,
+   "rel_diff": 0.000983263598326345
+  },
+  {
+   "month": "2023-01",
+   "stored_month_end_date": "2023-01-31",
+   "stored_adjClose": 14.1987,
+   "digrin_adjusted": 14.21,
+   "rel_diff": 0.0007952146375791447
+  },
+  {
+   "month": "2022-12",
+   "stored_month_end_date": "2022-12-30",
+   "stored_adjClose": 9.45604,
+   "digrin_adjusted": 9.46,
+   "rel_diff": 0.000418604651162946
+  },
+  {
+   "month": "2022-11",
+   "stored_month_end_date": "2022-11-30",
+   "stored_adjClose": 13.4662,
+   "digrin_adjusted": 13.48,
+   "rel_diff": 0.00102373887240359
+  },
+  {
+   "month": "2022-10",
+   "stored_month_end_date": "2022-10-31",
+   "stored_adjClose": 8.69163,
+   "digrin_adjusted": 8.7,
+   "rel_diff": 0.0009620689655172043
+  },
+  {
+   "month": "2022-09",
+   "stored_month_end_date": "2022-09-30",
+   "stored_adjClose": 8.63317,
+   "digrin_adjusted": 8.64,
+   "rel_diff": 0.0007905092592593865
+  },
+  {
+   "month": "2022-08",
+   "stored_month_end_date": "2022-08-31",
+   "stored_adjClose": 13.6359,
+   "digrin_adjusted": 13.64,
+   "rel_diff": 0.0003005865102639893
+  },
+  {
+   "month": "2022-07",
+   "stored_month_end_date": "2022-07-29",
+   "stored_adjClose": 19.2593,
+   "digrin_adjusted": 19.27,
+   "rel_diff": 0.0005552672548001514
+  },
+  {
+   "month": "2022-06",
+   "stored_month_end_date": "2022-06-30",
+   "stored_adjClose": 12.723,
+   "digrin_adjusted": 12.73,
+   "rel_diff": 0.0005498821681068078
+  },
+  {
+   "month": "2022-05",
+   "stored_month_end_date": "2022-05-31",
+   "stored_adjClose": 24.1135,
+   "digrin_adjusted": 24.13,
+   "rel_diff": 0.0006837961044343643
+  },
+  {
+   "month": "2022-04",
+   "stored_month_end_date": "2022-04-29",
+   "stored_adjClose": 21.5722,
+   "digrin_adjusted": 21.59,
+   "rel_diff": 0.0008244557665586516
+  },
+  {
+   "month": "2022-03",
+   "stored_month_end_date": "2022-03-31",
+   "stored_adjClose": 37.6155,
+   "digrin_adjusted": 37.64,
+   "rel_diff": 0.0006509032943677884
+  },
+  {
+   "month": "2022-02",
+   "stored_month_end_date": "2022-02-28",
+   "stored_adjClose": 39.7714,
+   "digrin_adjusted": 39.8,
+   "rel_diff": 0.0007185929648240164
+  },
+  {
+   "month": "2022-01",
+   "stored_month_end_date": "2022-01-31",
+   "stored_adjClose": 43.2336,
+   "digrin_adjusted": 43.26,
+   "rel_diff": 0.0006102635228847353
+  },
+  {
+   "month": "2021-12",
+   "stored_month_end_date": "2021-12-31",
+   "stored_adjClose": 65.956,
+   "digrin_adjusted": 66,
+   "rel_diff": 0.0006666666666665932
+  },
+  {
+   "month": "2021-11",
+   "stored_month_end_date": "2021-11-30",
+   "stored_adjClose": 62.7016,
+   "digrin_adjusted": 62.74,
+   "rel_diff": 0.000612049729040498
+  },
+  {
+   "month": "2021-10",
+   "stored_month_end_date": "2021-10-29",
+   "stored_adjClose": 46.1996,
+   "digrin_adjusted": 46.23,
+   "rel_diff": 0.0006575816569327486
+  },
+  {
+   "month": "2021-09",
+   "stored_month_end_date": "2021-09-30",
+   "stored_adjClose": 38.8213,
+   "digrin_adjusted": 38.85,
+   "rel_diff": 0.0007387387387387534
+  },
+  {
+   "month": "2021-08",
+   "stored_month_end_date": "2021-08-31",
+   "stored_adjClose": 45.1331,
+   "digrin_adjusted": 45.16,
+   "rel_diff": 0.0005956598759964127
+  },
+  {
+   "month": "2021-07",
+   "stored_month_end_date": "2021-07-30",
+   "stored_adjClose": 43.0389,
+   "digrin_adjusted": 43.07,
+   "rel_diff": 0.0007220803343395144
+  },
+  {
+   "month": "2021-06",
+   "stored_month_end_date": "2021-06-30",
+   "stored_adjClose": 43.1843,
+   "digrin_adjusted": 43.21,
+   "rel_diff": 0.0005947697292293386
+  },
+  {
+   "month": "2021-05",
+   "stored_month_end_date": "2021-05-28",
+   "stored_adjClose": 37.5996,
+   "digrin_adjusted": 37.62,
+   "rel_diff": 0.0005422647527909552
+  },
+  {
+   "month": "2021-04",
+   "stored_month_end_date": "2021-04-30",
+   "stored_adjClose": 35.7768,
+   "digrin_adjusted": 35.8,
+   "rel_diff": 0.0006480446927372707
+  },
+  {
+   "month": "2021-03",
+   "stored_month_end_date": "2021-03-31",
+   "stored_adjClose": 37.047,
+   "digrin_adjusted": 37.07,
+   "rel_diff": 0.0006204478014567583
+  },
+  {
+   "month": "2021-02",
+   "stored_month_end_date": "2021-02-26",
+   "stored_adjClose": 37.5162,
+   "digrin_adjusted": 37.54,
+   "rel_diff": 0.0006339904102291571
+  }
+ ]
+}

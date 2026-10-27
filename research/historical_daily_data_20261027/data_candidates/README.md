@@ -1,0 +1,4 @@
+# data_candidates
+
+- `B_digrin_monthly_SOXL_secondary_extraction.csv` : 45 monthly rows (2021-02..2024-10) of 'Adjusted price' / 'Real price' read from https://digrin.com/stocks/detail/SOXL/price on 2026-10-27 through the fetch tool (answer of a small model to a prompt; NOT a byte-exact download). Columns: month, adjusted_price, real_price, ratio. Adjustment definition: not stated by the page ('Real price' behaves as split-unadjusted, dividend-unadjusted). Redistribution/licence status: UNVERIFIED; only 45 monthly facts are kept, as a verifiable summary of what the page showed. SHA256 in ../source_refs.json.
+- No daily OHLC file and no distribution-date file was obtained. Quiver, TipRanks and Direxion pages were read but their rows are outside the target window (see ../attempts.json); only 11 daily rows and 4 Direxion distribution rows are summarised in ../incidental_ohlc_concordance.json and ../REPORT.md.

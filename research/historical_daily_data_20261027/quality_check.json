@@ -1,0 +1,13 @@
+{
+  "note": "Quality checks on what was actually obtained. No daily OHLC for 2021-03-03..2024-09-30 was obtained, so OHLC consistency / duplicate / missing-date checks on that window were NOT performed (nothing to check). Values were transcribed by the fetch tool summarizer, not downloaded byte-exact.",
+  "digrin_monthly": {
+    "file": "data_candidates/B_digrin_monthly_SOXL_secondary_extraction.csv",
+    "rows": 45,
+    "coverage": "2021-02 .. 2024-10 (monthly)",
+    "columns": "Adjusted price, Real price (page gives no definition note)",
+    "ratio_real_over_adjusted": "1.0094 (2024-09) rising smoothly to 1.0308 (2021-05/2021-03) for 2021-03..2024-09: no jump, i.e. no split-like discontinuity in month-end data inside the window; 2021-02 ratio 15.47 (real 580.66 vs adjusted 37.54)",
+    "interpretation": "consistent with the stored 2021-03-02 '15:1' being a forward split, 'Real price' being as-traded (split-unadjusted), and the 1.01-1.03 ratio being dividend adjustment only. A split inside the window would shift the ratio permanently for all earlier months; none appears after 2021-02. Circumstantial only: the page labels no events and is monthly, so this is not a primary-source confirmation of 'no split in the window'.",
+    "digrin_adjusted_vs_stored_adjClose_month_end": "45 months compared (digrin_vs_stored_adjclose_month_end.json): maximum relative difference 0.10%, none above 0.5%. Month-end convention of digrin is unverified. Not an independent confirmation (upstream unknown)."
+  },
+  "incidental_ohlc_concordance": "incidental_ohlc_concordance.json: 11 daily rows (Quiver 2025-10-23..29, TipRanks 2025-03-21..06-02) vs stored ohlcv. 9 rows equal; Quiver 2025-10-27 Low 45.13 vs stored 45.14 and 2025-10-28 High 47.60 vs stored 47.61 differ by one cent; TipRanks 2025-05-29 volume 181,707,109 vs stored 179,820,200 (1.05%). Outside the target window; the one-cent differences are recorded, not unified (cf. the 2026-07-01 Open 237.79 vs 237.78 mismatch in the principal spot check)."
+}

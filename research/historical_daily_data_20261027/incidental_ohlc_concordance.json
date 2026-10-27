@@ -1,0 +1,225 @@
+{
+ "note": "11 rows read from public pages vs stored daily.json ohlcv (split-adjusted, not dividend-adjusted). Incidental concordance, not an independent verification (upstream independence unknown); NOT in the 2021-03-03..2024-09-30 window; values transcribed by the fetch tool summarizer, not byte-exact downloads. Does not change the project count of independent price checks.",
+ "rows": [
+  {
+   "provider": "quiverquant",
+   "date": "2025-10-23",
+   "public": [
+    37.73,
+    41.47,
+    37.55,
+    41.17,
+    72467001
+   ],
+   "stored": [
+    37.73,
+    41.47,
+    37.55,
+    41.17,
+    72467000
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 1.3799384523949243e-8
+  },
+  {
+   "provider": "quiverquant",
+   "date": "2025-10-24",
+   "public": [
+    43.43,
+    44.16,
+    42.96,
+    43.14,
+    69872492
+   ],
+   "stored": [
+    43.43,
+    44.16,
+    42.96,
+    43.14,
+    69872500
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 1.144942574082819e-7
+  },
+  {
+   "provider": "quiverquant",
+   "date": "2025-10-27",
+   "public": [
+    45.49,
+    47.16,
+    45.13,
+    46.84,
+    72684112
+   ],
+   "stored": [
+    45.49,
+    47.16,
+    45.14,
+    46.84,
+    72684100
+   ],
+   "ohlc_equal": false,
+   "volume_rel_diff": 1.6509800637720673e-7
+  },
+  {
+   "provider": "quiverquant",
+   "date": "2025-10-28",
+   "public": [
+    46.44,
+    47.6,
+    45.94,
+    46.96,
+    53994951
+   ],
+   "stored": [
+    46.44,
+    47.61,
+    45.94,
+    46.96,
+    53995000
+   ],
+   "ohlc_equal": false,
+   "volume_rel_diff": 9.074914344431306e-7
+  },
+  {
+   "provider": "quiverquant",
+   "date": "2025-10-29",
+   "public": [
+    49.37,
+    50.76,
+    48.05,
+    49.38,
+    88268792
+   ],
+   "stored": [
+    49.37,
+    50.76,
+    48.05,
+    49.38,
+    88268800
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 9.063225059335878e-8
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-06-02",
+   "public": [
+    16.06,
+    17.1,
+    16.04,
+    16.9,
+    103937000
+   ],
+   "stored": [
+    16.06,
+    17.1,
+    16.04,
+    16.9,
+    103937000
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 0
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-05-30",
+   "public": [
+    16.9,
+    16.9,
+    15.24,
+    16.17,
+    194058703
+   ],
+   "stored": [
+    16.9,
+    16.9,
+    15.24,
+    16.17,
+    194058700
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 1.5459239888215848e-8
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-05-29",
+   "public": [
+    18.18,
+    18.21,
+    16.9,
+    17.2,
+    181707109
+   ],
+   "stored": [
+    18.18,
+    18.21,
+    16.9,
+    17.2,
+    179820200
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 0.010493309427973108
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-03-25",
+   "public": [
+    20.83,
+    21.02,
+    20.35,
+    20.55,
+    57784410
+   ],
+   "stored": [
+    20.83,
+    21.02,
+    20.35,
+    20.55,
+    57784400
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 1.730570879932003e-7
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-03-24",
+   "public": [
+    20.48,
+    21.37,
+    20.37,
+    21,
+    91671320
+   ],
+   "stored": [
+    20.48,
+    21.37,
+    20.37,
+    21,
+    91671300
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 2.1817079054464728e-7
+  },
+  {
+   "provider": "tipranks",
+   "date": "2025-03-21",
+   "public": [
+    18.82,
+    19.49,
+    18.37,
+    19.28,
+    84348320
+   ],
+   "stored": [
+    18.82,
+    19.49,
+    18.37,
+    19.28,
+    84348300
+   ],
+   "ohlc_equal": true,
+   "volume_rel_diff": 2.3711206975640664e-7
+  }
+ ]
+}
