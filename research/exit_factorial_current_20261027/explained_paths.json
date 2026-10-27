@@ -1,0 +1,65 @@
+{
+  "rule": "at most 6, chosen by this rule fixed now from the 52 executed runs: for start 2024-10-01 delay 0 and start 2025-01-02 delay 0, (a) highest same-day after-tax liquidation, (b) lowest, (c) P20_ONLY R25 (regression) as the reference. Whole tables are kept. No additional run after results.",
+  "paths": [
+    {
+      "key": "P20_OR_R80_I25_R25|2024-10-01|0",
+      "candidate_id": "P20_OR_R80_I25_R25",
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "liquidation": 44682.38522296779,
+      "roles": [
+        "highest_liquidation_among_executed_runs"
+      ]
+    },
+    {
+      "key": "P30_OR_R70_I25_R25|2024-10-01|0",
+      "candidate_id": "P30_OR_R70_I25_R25",
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "liquidation": 14904.146354789254,
+      "roles": [
+        "lowest_liquidation_among_executed_runs"
+      ]
+    },
+    {
+      "key": "P20_ONLY_I25_R25|2024-10-01|0|regression",
+      "candidate_id": "P20_ONLY_I25_R25",
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "liquidation": 44682.38522296779,
+      "roles": [
+        "reference_P20_ONLY_R25_regression"
+      ]
+    },
+    {
+      "key": "P20_OR_R80_I25_R25|2025-01-02|0",
+      "candidate_id": "P20_OR_R80_I25_R25",
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "liquidation": 42339.1533605725,
+      "roles": [
+        "highest_liquidation_among_executed_runs"
+      ]
+    },
+    {
+      "key": "P30_OR_R70_I25_R25|2025-01-02|0",
+      "candidate_id": "P30_OR_R70_I25_R25",
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "liquidation": 14556.869252148135,
+      "roles": [
+        "lowest_liquidation_among_executed_runs"
+      ]
+    },
+    {
+      "key": "P20_ONLY_I25_R25|2025-01-02|0|regression",
+      "candidate_id": "P20_ONLY_I25_R25",
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "liquidation": 42339.1533605725,
+      "roles": [
+        "reference_P20_ONLY_R25_regression"
+      ]
+    }
+  ]
+}
