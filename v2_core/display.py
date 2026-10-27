@@ -46,15 +46,19 @@ ERROR_HINT = {
         "decisionは1日1件だけです。追加の観測は observation_role を supplemental にして別の行に記録してください"
         "（判断は差し替わりません）。",
         "decisionの内容の訂正は、追加観測とは別の手順です。この核は自動で差し替えません（訂正の手順は未整備）。",
+        "衝突を残したまま次のセッションを処理しようとすると、中間セッション未処理（intermediate_session_unprocessed）で"
+        "停止し、状態は変わりません。欠測扱いにはなりません。",
     ],
     "record_id_conflict": [
         "同じrecord_idで内容が違います。追加の観測は新しいrecord_idのsupplementalで記録してください。",
         "既存の記録の訂正は、追加観測とは別の手順です。この核は自動で差し替えません。",
+        "衝突した記録が入力に残る間は、他の日を処理してもrecord_id_conflictで停止し、状態は変わりません。",
     ],
     "decision_conflict_with_applied": [
         "適用済みのdecisionと内容が違います。適用済みの状態は変更していません。",
         "追加の観測ならsupplementalで別の行に。適用済みdecisionの訂正は、追加観測とは別の明示手順が必要で、"
         "この核は自動で差し替えません（訂正の手順は未整備）。",
+        "次のセッションは、適用済みの状態から通常どおり処理できます。",
     ],
     "target_mismatch": [
         "このセッションの判断窓（確定後〜次回寄付き前）にあるdecisionの対象日(target_us_session_date)が、"
@@ -170,8 +174,6 @@ def render_message(result):
         if result.detail:
             out.append("  先に処理するセッション: %s" % result.detail)
         out += ["  " + t for t in ERROR_HINT.get(result.code, [])]
-        if result.run_class is RunClass.CONFLICT:
-            out.append("  衝突が残ったまま次のセッションを処理すると、このDは欠測扱い（armed不明・連続数0）になります。")
         return "\n".join(out)
     meta = result.series_meta
     lines = [
