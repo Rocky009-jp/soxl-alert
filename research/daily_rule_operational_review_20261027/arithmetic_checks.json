@@ -1,0 +1,310 @@
+{
+  "date_JST": "2026-10-27",
+  "docs_start_sha": "70ed313fed9574de4ffc367977ddbecbec13c1a2",
+  "draft_commit": "c02988d254ab8edc1018db3a8ce87082227fecbb",
+  "draft_attachment_and_github_match": {
+    "bytes": 17501,
+    "git_blob": "909256d469e331b706f5fdc7b0fcb8cb10053ecb",
+    "sha256": "05314f78b314faa94419656f0d0c9b3cdd7f062696a6017cf05fc6f849f0a22f"
+  },
+  "source_summary_commit": "e14efa847e45012058957dc7332e64ad58ab85f9",
+  "source_summary_blob": "ae22f18f1997f1c47a1038b1af8af4af16c28b07",
+  "source_path": "research/buy_trigger_ablation_20261026/summary.csv",
+  "six": [
+    {
+      "id": "NO_SELL_I25",
+      "n": 12,
+      "min": 24708.492047123287,
+      "max": 47063.089999255135,
+      "first": 3,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 47063.089999255135,
+          "rank": 2,
+          "liquidation": 39535.273470755135,
+          "tax": 0,
+          "shares": 362
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 44109.60420506323,
+          "rank": 2,
+          "liquidation": 37178.57439206323,
+          "tax": 0,
+          "shares": 339
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 45896.92441879124,
+          "rank": 1,
+          "liquidation": 38593.769128791246,
+          "tax": 0,
+          "shares": 353
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 40835.85526863159,
+          "rank": 1,
+          "liquidation": 34560.60489963159,
+          "tax": 0,
+          "shares": 314
+        }
+      ]
+    },
+    {
+      "id": "P20_ONLY_I25_R25",
+      "n": 12,
+      "min": 14002.649754243572,
+      "max": 44682.38522296779,
+      "first": 0,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 44682.38522296779,
+          "rank": 4,
+          "liquidation": 44682.38522296779,
+          "tax": 8723.8927965,
+          "shares": 0
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 23050.784877765207,
+          "rank": 7,
+          "liquidation": 23050.784877765207,
+          "tax": 3246.367472499999,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 42339.1533605725,
+          "rank": 5,
+          "liquidation": 42339.1533605725,
+          "tax": 8147.200734,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 21738.637596860288,
+          "rank": 8,
+          "liquidation": 21738.637596860288,
+          "tax": 2926.8795620000005,
+          "shares": 0
+        }
+      ]
+    },
+    {
+      "id": "P20_ONLY_I25_R100",
+      "n": 12,
+      "min": 16716.148309172524,
+      "max": 40206.03339660206,
+      "first": 0,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 40206.03339660206,
+          "rank": 6,
+          "liquidation": 40206.03339660206,
+          "tax": 7600.544399000002,
+          "shares": 0
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 28467.869112772023,
+          "rank": 5,
+          "liquidation": 28467.869112772023,
+          "tax": 4633.047026,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 34791.02710733484,
+          "rank": 7,
+          "liquidation": 34791.02710733484,
+          "tax": 6239.041225000001,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 26931.334410201373,
+          "rank": 6,
+          "liquidation": 26931.334410201373,
+          "tax": 4256.073759999999,
+          "shares": 0
+        }
+      ]
+    },
+    {
+      "id": "NO_SELL_I0",
+      "n": 12,
+      "min": 24354.050066220523,
+      "max": 50703.100289853355,
+      "first": 6,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 50703.100289853355,
+          "rank": 1,
+          "liquidation": 42439.09176785335,
+          "tax": 0,
+          "shares": 390
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 46816.41757890169,
+          "rank": 1,
+          "liquidation": 39337.60692490169,
+          "tax": 0,
+          "shares": 360
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 45896.92441879124,
+          "rank": 1,
+          "liquidation": 38593.769128791246,
+          "tax": 0,
+          "shares": 353
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 40835.85526863159,
+          "rank": 1,
+          "liquidation": 34560.60489963159,
+          "tax": 0,
+          "shares": 314
+        }
+      ]
+    },
+    {
+      "id": "NO_SELL_I100",
+      "n": 12,
+      "min": 25750.813826361347,
+      "max": 45896.92441879124,
+      "first": 9,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 36281.17615213997,
+          "rank": 7,
+          "liquidation": 30933.935754639966,
+          "tax": 0,
+          "shares": 279
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 36277.38948033656,
+          "rank": 4,
+          "liquidation": 30930.886517336563,
+          "tax": 0,
+          "shares": 279
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 45896.92441879124,
+          "rank": 1,
+          "liquidation": 38593.769128791246,
+          "tax": 0,
+          "shares": 353
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 40835.85526863159,
+          "rank": 1,
+          "liquidation": 34560.60489963159,
+          "tax": 0,
+          "shares": 314
+        }
+      ]
+    },
+    {
+      "id": "P20_OR_R75_I25_R25",
+      "n": 12,
+      "min": 14002.649754243572,
+      "max": 44682.38522296779,
+      "first": 0,
+      "primary": [
+        {
+          "start": "2024-10-01",
+          "delay": 0,
+          "total": 44682.38522296779,
+          "rank": 4,
+          "liquidation": 44682.38522296779,
+          "tax": 8723.8927965,
+          "shares": 0
+        },
+        {
+          "start": "2024-10-01",
+          "delay": 1,
+          "total": 20322.391396291678,
+          "rank": 8,
+          "liquidation": 20322.391396291678,
+          "tax": 2556.029236999999,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 0,
+          "total": 42339.1533605725,
+          "rank": 5,
+          "liquidation": 42339.1533605725,
+          "tax": 8147.200734,
+          "shares": 0
+        },
+        {
+          "start": "2025-01-02",
+          "delay": 1,
+          "total": 19061.32675072115,
+          "rank": 9,
+          "liquidation": 19061.32675072115,
+          "tax": 2249.5307375,
+          "shares": 0
+        }
+      ]
+    }
+  ],
+  "sensitivity": [
+    {
+      "start": "2024-10-01",
+      "proxy_close": 130,
+      "crossing_with_paths_fixed": 123.42346746881948
+    },
+    {
+      "start": "2025-01-02",
+      "proxy_close": 130,
+      "crossing_with_paths_fixed": 119.9213284469724
+    }
+  ],
+  "interpretation": "The field first counts rank-1 groups solely to reject an all-12 statement; it is not a strategy selection objective. Price crossing holds terminal holdings and paths fixed.",
+  "new_simulate_calls": 0,
+  "new_market_data_calls": 0,
+  "official_pages_read": [
+    "https://www.rakuten-sec.co.jp/web/us/stock/commission.html",
+    "https://www.rakuten-sec.co.jp/web/us/stock/rule/ground_rules.html"
+  ],
+  "unverified": [
+    "partial-fill fee aggregation and all rounding",
+    "real holdings, cash and MMF settings",
+    "actual model selection",
+    "executable no-loss sell order specification"
+  ]
+}
