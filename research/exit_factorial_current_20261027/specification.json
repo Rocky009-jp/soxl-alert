@@ -1,0 +1,60 @@
+{
+  "title": "Current-window sensitivity of profit target x SOXX-RSI exit, I25/R25 fixed, NEXT_OPEN only (68 evaluation cells)",
+  "date_JST": "2026-10-27",
+  "fixed_before_run": true,
+  "model_assignment": "Claude Sonnet 5.5 (per docs/tasks/EXIT_FACTORIAL_CURRENT_SONNET55_REQUEST.md); actual serving model not independently verifiable from inside the run",
+  "docs_start_sha": "49b37dd84dd4ef392705da0f5fa9b0fc1207177b",
+  "request": "docs/tasks/EXIT_FACTORIAL_CURRENT_SONNET55_REQUEST.md @ 49b37dd",
+  "base_commit": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+  "purpose": "Answer 'is +20% too low / should the OR-RSI threshold be lower' inside the already-known current window only. This is a sensitivity check on a known period; it is NOT an unused OOS and NOT evidence about other market periods. No data are fetched; the 052ee96 Adj Close fills / interval-mean IRX and the 737ef35 Close wrapper are not used.",
+  "fixed_references": {
+    "engine": "research/SOXL_allocation_separation_20261026/engine.mjs sha256 89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239 (unedited)",
+    "inputs": "research/SOXL_exit_study_20261023/data/{daily.json,daily_adjclose.csv,fear-greed.csv}",
+    "dividend_schedule": "research/SOXL_allocation_separation_20261026/dividends_verified.json",
+    "stored_summary": "research/profit_target_isolated_20261026/summary.csv (77bb44f)"
+  },
+  "design": {
+    "profit_targets_gross_on_cost": [0.2, 0.3, 0.4, 0.6],
+    "rsi_condition": ["none (PROFIT_ONLY)", "OR SOXX-Wilder-RSI >= 70", "OR >= 75", "OR >= 80"],
+    "rsi_definition": "engine's own RSI: Wilder RSI(14) of the SOXX Adj Close series as built in load(); unchanged period/smoothing/missing handling",
+    "profit_definition": "D-close stock market value / cost-inclusive basis - 1 >= target (closeTargetNet=false); the sale then needs the engine's original post-hoc net-of-cost pre-tax 2% gate at the next session Open. A fired signal does not mean a >=20% (or target) gain is realised at the fill.",
+    "allocation": "initial I=25%, after-sale R=25% fixed for all sell candidates (initialRatio 0.25, reentryRatio 0.25, reentry 0.25)",
+    "control": "NO_SELL I25 only (exitMode NONE)",
+    "starts": ["2024-10-01", "2025-01-02"],
+    "terminal": "2026-08-10",
+    "fg_delay": [0, 1],
+    "execution": "NEXT_OPEN only (original saved Open; engine unchanged)",
+    "common_options": "identical to 77bb44f run.mjs baseOpts: initial 10000, allowInitialReentry true, dividendSchedule fixed, dividendMode issuer_exact_pay_date_proxy, mmfRate 0.03 fixed scenario, closeTargetNet false, buffer 0, slippage 0. Tax 20.315%, USDJPY 150, integer shares, cost-inclusive basis, normal/ExFear buys ON.",
+    "excluded": "RSI_ONLY, AND, trailing, partial sale, additional thresholds / ratios / starts / terminals / slippage"
+  },
+  "cells_68": {
+    "formula": "(4 profit targets x 4 RSI options + 1 control) x 2 starts x 2 delays = 68",
+    "reused_from_stored_77bb44f": {"count": 24, "composition": "PROFIT_ONLY R25 x4 targets x4 conditions = 16; P20_OR_R75 R25 x4 = 4; NO_SELL_I25 x4 = 4", "recalculated": false},
+    "new_simulations": {"count": 44, "composition": "OR candidates at 11 (target, RSI) pairs (all OR pairs except 20/75) x 4 conditions"},
+    "regression_simulations": {"count": 8, "composition": "P20_ONLY R25 and P20_OR_R75 R25 x 2 starts x 2 delays, compared with stored values", "role": "harness check; also supplies explanatory ledger rows for those two candidates"},
+    "simulate_budget_total": 52,
+    "not_recomputed": "the other 16 stored cells (30/40/60 PROFIT_ONLY and NO_SELL) are not re-simulated; no extra synthetic simulation; no re-run of 48/954/216"
+  },
+  "outputs": {
+    "summary.csv": "68 rows: candidate, start, delay, reused/new, source sha, market value, same-day after-tax liquidation, difference vs principal, terminal liquidation cost/tax (for reused cells derived from stored final shares and the 2026-08-10 close, identity-checked), realised tax, fees, MMF and dividends after tax, cash, shares, basis, trade counts, blocked sales",
+    "profit_effects.csv": "12 rows: PROFIT_ONLY 30/40/60 minus 20, per start x delay (stored values only)",
+    "rsi_effects.csv": "48 rows: per target, RSI 70/75/80 minus no-RSI, per start x delay; assets are never summed across starts",
+    "interaction_effects.csv": "36 rows: (RSI effect at target 30/40/60) - (RSI effect at target 20), per start x delay; differences within this fixed input, no statistical significance implied",
+    "ledger_new_and_regression.csv": "from the in-memory ledgers of the 44 new + 8 regression runs only: D date, exec date, D profit rate, SOXX RSI, profit_hit, rsi_hit, signal class (both / profit-only / RSI-only), FILLED / BLOCKED, realised profit rate, tax, fees. Counts of classes are path descriptions, not unique causal contributions. Engine is not instrumented; anything the engine state does not expose is UNOBSERVED",
+    "explained_paths": "at most 6, chosen by this rule fixed now from the 52 executed runs: for start 2024-10-01 delay 0 and start 2025-01-02 delay 0, (a) highest same-day after-tax liquidation, (b) lowest, (c) P20_ONLY R25 (regression) as the reference. Whole tables are kept. No additional run after results.",
+    "verification.json / environment.json / REPORT.md": "see checks"
+  },
+  "checks_planned": [
+    "input / engine / dividend / stored-summary / specification sha256 equal source_refs.json",
+    "regression 8: amounts within 1e-6 USD, dates / quantities / counts identical to stored 77bb44f",
+    "all 44 new + 8 regression runs: accounting identity, market value vs liquidation identity, cash >= 0, integer shares, zero shares => zero basis, every filled sale net gain >= 2% of cost, no dividend entitlement/payment double count, start and terminal date, fresh account at start",
+    "each sale signal: D (signal date) strictly before the exec date; PROFIT_ONLY signals have D gross profit >= target; OR signals have profit_hit or rsi_hit; fill price equals the original Open of the exec date",
+    "fg_used equals signals(delay) (row i-delay), never raw D.fg for delay 1",
+    "reused cells: derived terminal liquidation cost / tax satisfy liquidation = total - cost - tax",
+    "simulate call count equals 52 (44 new + 8 regression)"
+  ],
+  "judging_order": "profit target alone -> RSI alone -> combination. No conclusion that a higher target requires a lower RSI is assumed. The best value per condition may be shown; win counts, mean rank and max drawdown are not objectives. Objective: final total assets, same-day after-tax liquidation first, market value alongside.",
+  "caveats": "post-hoc 2% gate and next-Open-known quantity decisions are diagnostic; historical F&G as-of unverified (delay 0 is not a morning observation); MMF 3% and dividend pay-date proxy are scenarios; real-account tax class and fund availability unverified; liquidation is a valuation, not an order; starts overlap in market period; known window, not OOS",
+  "stop_condition": "68 cells saved and explained, then stop. No data retrieval, no network retry, no new thresholds, no automatic follow-up exploration.",
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+}

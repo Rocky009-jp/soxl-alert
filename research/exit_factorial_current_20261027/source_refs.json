@@ -1,0 +1,13 @@
+{
+  "docs_start_sha": "49b37dd84dd4ef392705da0f5fa9b0fc1207177b",
+  "base_commit": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+  "engine": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+  "dividends": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99",
+  "stored_summary_77bb44f": "3cc7624ff96382cfcf0b5c763c26be12fdafdedb00b9999d9add0aa1a7a35800",
+  "inputs": {
+    "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+    "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+    "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+  },
+  "specification": "e63ff90a559e00c88d76df6678cfc620f4e76cb0cc55c76ff8927f044d10310f"
+}
