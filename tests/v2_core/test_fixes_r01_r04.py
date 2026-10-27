@@ -299,57 +299,67 @@ class P02ConflictGuidance(unittest.TestCase):
 
 
 class ConflictGuidanceMatchesBehaviour(unittest.TestCase):
-    """The conflict text must describe what the next session really does (no 'treated as a missing day' claim)."""
+    """Conflict text states only what is certain (this run stops, state unchanged); the next-day behaviour differs
+    by case and is pinned by the tests below, so the text must not make a claim about it."""
     N = "2026-01-12"
+    A = h.obs("a", D, 40)
 
     def next_day(self, state, raw):
         return run_day_safe(state, self.N, series(), SESS, raw + [h.obs("n", self.N, 40)])
 
-    def test_text_never_claims_missing_day_treatment(self):
-        a = h.obs("a", D, 40)
-        applied = evaluate_day(ARMED, D, series(), SESS, [a]).next_state
-        cases = [
-            (ARMED, [a, h.obs("b", D, 41)]),
-            (ARMED, [a, dict(a, current_fg_value=41)]),
-            (applied, [a, h.obs("b2", D, 41)]),
-            (applied, [dict(a, current_fg_value=41)]),
-        ]
-        for st, raw in cases:
-            t = render(run_day_safe(st, D, series(), SESS, raw))
-            self.assertNotIn("欠測扱い（armed不明", t)
-            self.assertNotIn("このDは欠測扱い", t)
+    def applied(self):
+        return evaluate_day(ARMED, D, series(), SESS, [self.A]).next_state
 
-    def test_decision_conflict_next_session_stops_with_state_unchanged(self):
-        raw = [h.obs("a", D, 40), h.obs("b", D, 41)]
-        r = self.next_day(ARMED, raw)
-        self.assertIs(r.run_class, RunClass.DATA_ERROR)
+    def cases(self):
+        a = self.A
+        return {
+            "two_decisions": (ARMED, [a, h.obs("b", D, 41)]),
+            "record_id": (ARMED, [a, dict(a, current_fg_value=41)]),
+            "applied_plus_other_id": (self.applied(), [a, h.obs("b2", D, 41)]),
+            "applied_other_content": (self.applied(), [dict(a, current_fg_value=41)]),
+        }
+
+    def test_text_is_the_certain_statement_only(self):
+        for name, (st, raw) in self.cases().items():
+            r = run_day_safe(st, D, series(), SESS, raw)
+            self.assertIs(r.run_class, RunClass.CONFLICT, name)
+            self.assertEqual(r.next_state, st, name)
+            self.assertFalse(r.state_updated, name)
+            t = render(r)
+            self.assertIn("今回の処理は停止し、状態は変更していません", t, name)
+            for claim in ("欠測扱い", "翌セッション", "次のセッションを処理しようとすると", "他の日を処理しても",
+                          "通常どおり処理できます", "intermediate_session_unprocessed"):
+                self.assertNotIn(claim, t, (name, claim))
+
+    def test_next_session_behaviour_by_case(self):
+        # pinned behaviour (logic unchanged); the text above deliberately does not promise any of it
+        st, raw = self.cases()["two_decisions"]
+        r = self.next_day(st, raw)
         self.assertEqual((r.code, r.detail, r.state_updated), ("intermediate_session_unprocessed", D, False))
-        self.assertEqual(r.next_state, ARMED)
-        t = render(run_day_safe(ARMED, D, series(), SESS, raw))
-        self.assertIn("intermediate_session_unprocessed", t)
-        self.assertIn("状態は変わりません", t)
-        self.assertIn("欠測扱いにはなりません", t)
+        self.assertEqual(r.next_state, st)
 
-    def test_record_id_conflict_next_session_also_stops(self):
-        a = h.obs("a", D, 40)
-        raw = [a, dict(a, current_fg_value=41)]
-        r = self.next_day(ARMED, raw)
-        self.assertIs(r.run_class, RunClass.CONFLICT)
+        st, raw = self.cases()["record_id"]
+        r = self.next_day(st, raw)
         self.assertEqual((r.code, r.state_updated), ("record_id_conflict", False))
-        self.assertEqual(r.next_state, ARMED)
-        t = render(run_day_safe(ARMED, D, series(), SESS, raw))
-        self.assertIn("他の日を処理してもrecord_id_conflictで停止し、状態は変わりません", t)
+        self.assertIs(r.run_class, RunClass.CONFLICT)
 
-    def test_conflict_with_applied_decision_next_session_proceeds_from_applied_state(self):
-        a = h.obs("a", D, 40)
-        applied = evaluate_day(ARMED, D, series(), SESS, [a]).next_state
-        other = h.obs("b", D, 41)
-        r = self.next_day(applied, [a, other])
-        self.assertIsInstance(r, type(evaluate_day(ARMED, D, series(), SESS, [a])))
-        self.assertEqual(r.next_state.as_of_d, self.N)
-        self.assertEqual(r.next_state.streak, applied.streak + 1)      # no gap: the applied D counts as processed
-        t = render(run_day_safe(applied, D, series(), SESS, [dict(a, current_fg_value=41)]))
-        self.assertIn("適用済みの状態から通常どおり処理できます", t)
+        for name in ("applied_plus_other_id", "applied_other_content"):
+            st, raw = self.cases()[name]
+            r = self.next_day(st, raw)
+            self.assertNotIsInstance(r, ErrorResult, name)
+            self.assertEqual(r.next_state.as_of_d, self.N, name)
+            self.assertEqual(r.next_state.streak, st.streak + 1, name)      # D counts as processed: no gap
+
+    def test_applied_d_plus_other_id_rerun_conflicts_but_next_day_proceeds_from_applied_state(self):
+        st, raw = self.cases()["applied_plus_other_id"]
+        r = run_day_safe(st, D, series(), SESS, raw)
+        self.assertEqual((r.code, r.run_class), ("decision_conflict", RunClass.CONFLICT))
+        self.assertEqual(r.next_state, st)
+        self.assertEqual(st.fixed_decision["record_id"], "a")
+        nxt = self.next_day(st, raw)
+        self.assertNotIsInstance(nxt, ErrorResult)
+        clean = evaluate_day(st, self.N, series(), SESS, [h.obs("n", self.N, 40)])
+        self.assertEqual(nxt.next_state, clean.next_state)   # the stray D record changes nothing for the next day
 
 
 class P03UnrecordedDayNotice(unittest.TestCase):

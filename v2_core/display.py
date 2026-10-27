@@ -41,24 +41,25 @@ BSTAR_NOTE = (
     "費用込み1株平均原価がこの値以下ならP20のD価格条件（含み益20%以上、手数料なし）を満たします。"
     "売却下限・指値・売却推奨ではありません。保有を入力していないため、本人のP20成立は未判定です。"
 )
+CONFLICT_STOP_NOTE = ("今回の処理は停止し、状態は変更していません。次の日の扱いは、衝突の内容と適用済みの状態によって"
+                      "違うため、ここでは断定しません。")
 ERROR_HINT = {
     "decision_conflict": [
         "decisionは1日1件だけです。追加の観測は observation_role を supplemental にして別の行に記録してください"
         "（判断は差し替わりません）。",
         "decisionの内容の訂正は、追加観測とは別の手順です。この核は自動で差し替えません（訂正の手順は未整備）。",
-        "衝突を残したまま次のセッションを処理しようとすると、中間セッション未処理（intermediate_session_unprocessed）で"
-        "停止し、状態は変わりません。欠測扱いにはなりません。",
+        CONFLICT_STOP_NOTE,
     ],
     "record_id_conflict": [
         "同じrecord_idで内容が違います。追加の観測は新しいrecord_idのsupplementalで記録してください。",
         "既存の記録の訂正は、追加観測とは別の手順です。この核は自動で差し替えません。",
-        "衝突した記録が入力に残る間は、他の日を処理してもrecord_id_conflictで停止し、状態は変わりません。",
+        CONFLICT_STOP_NOTE,
     ],
     "decision_conflict_with_applied": [
         "適用済みのdecisionと内容が違います。適用済みの状態は変更していません。",
         "追加の観測ならsupplementalで別の行に。適用済みdecisionの訂正は、追加観測とは別の明示手順が必要で、"
         "この核は自動で差し替えません（訂正の手順は未整備）。",
-        "次のセッションは、適用済みの状態から通常どおり処理できます。",
+        CONFLICT_STOP_NOTE,
     ],
     "target_mismatch": [
         "このセッションの判断窓（確定後〜次回寄付き前）にあるdecisionの対象日(target_us_session_date)が、"
