@@ -161,6 +161,13 @@ def load_research_fixture(root, through=None):
     Returns (MarketSeries, fear_greed) where fear_greed maps date -> float in [0, 100].
     Data after `through` is dropped before any indicator is computed.
     """
+    try:
+        return _load_research_fixture(root, through)
+    except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError):
+        raise InputError("fixture_unreadable_or_invalid", "fixture")
+
+
+def _load_research_fixture(root, through):
     names = ["daily.json", "daily_adjclose.csv", "fear-greed.csv"]
     raw = [_read(root, n) for n in names]
     manifest = [

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .errors import InputError
+from .fixture import parse_iso_date
 from .tri import Tri
 
 
@@ -30,19 +31,32 @@ class MarketState:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, _nested=False):
         try:
+            if not isinstance(data, dict):
+                raise ValueError
             streak = data["streak"]
             if isinstance(streak, bool) or not isinstance(streak, int) or streak < 0:
                 raise ValueError
+            as_of = data["as_of_d"]
+            if as_of is not None:
+                parse_iso_date(as_of, "state")
+            fixed = data.get("fixed_decision")
+            if fixed is not None:
+                if (not isinstance(fixed, dict) or not isinstance(fixed.get("record_id"), str)
+                        or not isinstance(fixed.get("fingerprint"), str)):
+                    raise ValueError
+                parse_iso_date(fixed.get("d"), "state")
             base = data.get("base")
+            if base is not None and _nested:
+                raise ValueError
             return cls(
-                as_of_d=data["as_of_d"],
+                as_of_d=as_of,
                 armed=Tri(data["armed"]),
                 streak=streak,
                 prev_normal_raw=Tri(data["prev_normal_raw"]),
-                fixed_decision=data.get("fixed_decision"),
-                base=cls.from_dict(base) if base else None,
+                fixed_decision=fixed,
+                base=cls.from_dict(base, True) if base else None,
             )
-        except (KeyError, ValueError, TypeError):
+        except (KeyError, ValueError, TypeError, InputError):
             raise InputError("state_invalid", "state")
