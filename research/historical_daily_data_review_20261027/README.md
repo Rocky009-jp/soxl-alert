@@ -1,0 +1,5 @@
+# 保存数値の限定照合
+
+対象6a836567。リポジトリルートからverify_saved_numbers.pyを実行する。受領元research/historical_daily_data_20261027を固定SHAから一緒に配置する必要がある。元入力は77bb44fと同一。simulate0、Web取得0。外部ページの転記自体は認証しない。
+
+保存verificationのdata_candidates/README.mdは初回確認時未照合。他の記載チェックは実行結果。再実行スクリプトではREADMEも検査する。独立価格確認件数は変更しない。

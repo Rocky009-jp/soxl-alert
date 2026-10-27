@@ -1,0 +1,360 @@
+{
+  "source_commit": "6a836567d92d1510c6ee507fefc0844e481ec1dd",
+  "simulate_calls": 0,
+  "scope": "saved-number arithmetic and input matching; external extraction and page completeness NOT independently verified",
+  "hash_checks": {
+    "specification.json": true,
+    "digrin_vs_stored_adjclose_month_end.json": true,
+    "incidental_ohlc_concordance.json": true,
+    "quality_check.json": true,
+    "attempts.json": true,
+    "data_candidates/B_digrin_monthly_SOXL_secondary_extraction.csv": true,
+    "data_candidates/README.md": "not staged",
+    "daily_input_sha": true
+  },
+  "stored_calendar_rows_in_target": 901,
+  "month_rows": 45,
+  "max_month_rel_diff_pct": 0.10237388724035901,
+  "monthly_checks": [
+    {
+      "month": "2024-10",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-09",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-08",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-07",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-06",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-05",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-04",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-03",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-02",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2024-01",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-12",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-11",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-10",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-09",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-08",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-07",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-06",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-05",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-04",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-03",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-02",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2023-01",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-12",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-11",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-10",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-09",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-08",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-07",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-06",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-05",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-04",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-03",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-02",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2022-01",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-12",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-11",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-10",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-09",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-08",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-07",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-06",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-05",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-04",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-03",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    },
+    {
+      "month": "2021-02",
+      "stored_date_correct": true,
+      "stored_adjclose_correct": true,
+      "reported_rel_diff_correct": true
+    }
+  ],
+  "incidental_checks": [
+    {
+      "date": "2025-10-23",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-10-24",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-10-27",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-10-28",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-10-29",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-06-02",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-05-30",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-05-29",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-03-25",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-03-24",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    },
+    {
+      "date": "2025-03-21",
+      "stored_fields_match": true,
+      "ohlc_comparison_correct": true,
+      "volume_rel_diff_correct": true
+    }
+  ],
+  "ohlc_equal_rows": 9,
+  "ohlcv_exact_rows": 1
+}
