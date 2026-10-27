@@ -1,0 +1,35 @@
+{
+  "date_JST": "2026-10-27",
+  "reviewer": "6.1 Sol High",
+  "docs_start_sha": "f48dceca918c9f7ba85e819e902bc28bb648ed5f",
+  "source_commit": "d7d98f4e4a3d3b4aad5066bec0de1f8b0d2852b1",
+  "source_path": "docs/specs/DAILY_RULE_OPERATIONAL_DRAFT.md",
+  "source_blob": "37ed8ddb7480b2eab8dd5d5411a42a5d7a64fafb",
+  "source_parent": "f48dceca918c9f7ba85e819e902bc28bb648ed5f",
+  "source_changed_files": 1,
+  "source_file_added_lines": 215,
+  "original_commit": "c02988d254ab8edc1018db3a8ce87082227fecbb",
+  "original_blob": "909256d469e331b706f5fdc7b0fcb8cb10053ecb",
+  "numeric_candidate_table_unchanged": true,
+  "method": "Read full corrected draft and original, compare main numeric table verbatim, inspect commit changed file list; no new P&L simulation or actual operation tests.",
+  "accepted_document_corrections": [
+    "DO-01",
+    "DO-02",
+    "DO-04 (explicitly deferred execution feasibility)",
+    "DO-05",
+    "DO-06"
+  ],
+  "DO03_supplement": {
+    "rows_changed": 2,
+    "first": "False prior armed with missing observation is not automatically confirmed false; proposed conservative UNKNOWN, unevaluated P&L.",
+    "second": "Initial/reentry independent of armed still needs current F&G>=30; unobserved current F&G remains waiting."
+  },
+  "supplementary_copy": "docs/specs/DAILY_RULE_OPERATIONAL_REVIEWED_DRAFT.md",
+  "source_branch_modified": false,
+  "trading_rule_adoption": false,
+  "new_simulate_calls": 0,
+  "new_market_data_calls": 0,
+  "code_settings_actions_sends_accounts_changed": false,
+  "next_direction": "Pending user A/B preference; not a blanket rule adoption or deployment approval",
+  "model_selection": "Author reports Opus 5.5 settings; actual selection unverified"
+}
