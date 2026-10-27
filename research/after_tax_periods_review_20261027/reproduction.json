@@ -1,0 +1,313 @@
+{
+  "date_JST": "2026-10-27",
+  "reviewer": "6.1 Sol High",
+  "docs_start_sha": "7a564c583dcd018847d10db62881aaaabc44c348",
+  "source_commit": "052ee96c898ecdef49204d61c46b7e66b77e4615",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "hash_checks": [
+    {
+      "path": "research/after_tax_periods_20261027/environment.json",
+      "expected": "83d9eb886b01e3188d9ddf25a3ac8a5b0f14f760",
+      "actual": "fde3b8a7247b36968723e7bbbadcd9beeaf53603",
+      "match": false,
+      "normalized_lf_blob": "fde3b8a7247b36968723e7bbbadcd9beeaf53603",
+      "normalized_lf_match": false
+    },
+    {
+      "path": "research/after_tax_periods_20261027/key_candidates_by_window.csv",
+      "expected": "dc9a8a5ea8615c30d332ec013522d56974b4618b",
+      "actual": "dc9a8a5ea8615c30d332ec013522d56974b4618b",
+      "match": true,
+      "normalized_lf_blob": "543c2a2a774e164fd8cfda403f831f60704f03a8",
+      "normalized_lf_match": false
+    },
+    {
+      "path": "research/after_tax_periods_20261027/ledger_key_candidates_delay0.csv",
+      "expected": "89d6c92b47b499e40fc4d8fbc52e926d894ff782",
+      "actual": "89d6c92b47b499e40fc4d8fbc52e926d894ff782",
+      "match": true,
+      "normalized_lf_blob": "89d6c92b47b499e40fc4d8fbc52e926d894ff782",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/make_tables.py",
+      "expected": "c5d2874b56c8c81dbf3a320147f405dde8228e53",
+      "actual": "c5d2874b56c8c81dbf3a320147f405dde8228e53",
+      "match": true,
+      "normalized_lf_blob": "c5d2874b56c8c81dbf3a320147f405dde8228e53",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/month_end_key_candidates.csv",
+      "expected": "17467306579462ea4cd510f4be76bea5d65be886",
+      "actual": "17467306579462ea4cd510f4be76bea5d65be886",
+      "match": true,
+      "normalized_lf_blob": "17467306579462ea4cd510f4be76bea5d65be886",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/reference_77bb44f_start2024-10.json",
+      "expected": "75c66a646019103bb831a7b5f57bba80a1249a03",
+      "actual": "75c66a646019103bb831a7b5f57bba80a1249a03",
+      "match": true,
+      "normalized_lf_blob": "75c66a646019103bb831a7b5f57bba80a1249a03",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/robustness_by_rule.csv",
+      "expected": "5b1ccfe79a1405c83e3e2d2da33daf49faee9eab",
+      "actual": "5b1ccfe79a1405c83e3e2d2da33daf49faee9eab",
+      "match": true,
+      "normalized_lf_blob": "5b1ccfe79a1405c83e3e2d2da33daf49faee9eab",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/run.mjs",
+      "expected": "89bd8b5207dff5b93119163b360783bf81024f8d",
+      "actual": "89bd8b5207dff5b93119163b360783bf81024f8d",
+      "match": true,
+      "normalized_lf_blob": "89bd8b5207dff5b93119163b360783bf81024f8d",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/specification.json",
+      "expected": "7a8124b9d1e4228e91f1e0151c66994ab7c729ca",
+      "actual": "7a8124b9d1e4228e91f1e0151c66994ab7c729ca",
+      "match": true,
+      "normalized_lf_blob": "7a8124b9d1e4228e91f1e0151c66994ab7c729ca",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/summary.csv",
+      "expected": "366f58f0590c918f7f5be4c78c59e08aca8a3a04",
+      "actual": "366f58f0590c918f7f5be4c78c59e08aca8a3a04",
+      "match": true,
+      "normalized_lf_blob": "366f58f0590c918f7f5be4c78c59e08aca8a3a04",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/tables.md",
+      "expected": "822cf73219516d3b0953b6e4d0ad60d181895de7",
+      "actual": "0f3b8d0d4aa2d94690d0191edf699e6853a9add7",
+      "match": false,
+      "normalized_lf_blob": "822cf73219516d3b0953b6e4d0ad60d181895de7",
+      "normalized_lf_match": true
+    },
+    {
+      "path": "research/after_tax_periods_20261027/verification.json",
+      "expected": "45cdd7b646b537ce4cec4ad6df059d6c8282a340",
+      "actual": "662eac3bc3c719249c030b6b01865e7b7666d887",
+      "match": false,
+      "normalized_lf_blob": "662eac3bc3c719249c030b6b01865e7b7666d887",
+      "normalized_lf_match": false
+    },
+    {
+      "path": "research/after_tax_periods_20261027/windows_used.json",
+      "expected": "90e99e139d9f8c12a5e889b62bf73e8b4ce50d8c",
+      "actual": "90e99e139d9f8c12a5e889b62bf73e8b4ce50d8c",
+      "match": true,
+      "normalized_lf_blob": "90e99e139d9f8c12a5e889b62bf73e8b4ce50d8c",
+      "normalized_lf_match": true
+    }
+  ],
+  "verification": {
+    "passed_all": true,
+    "checks": {
+      "input_sha256_matches_manifest": {
+        "n": 3,
+        "fail": 0
+      },
+      "close_proxy_rows_same_signals_inputs": {
+        "n": 1,
+        "fail": 0
+      },
+      "candidate_count_53": {
+        "n": 1,
+        "fail": 0
+      },
+      "accounting_identity": {
+        "n": 954,
+        "fail": 0
+      },
+      "balance_invariants": {
+        "n": 954,
+        "fail": 0
+      },
+      "no_sale_below_2pct_net_gain": {
+        "n": 954,
+        "fail": 0
+      },
+      "fills_on_next_session_after_signal": {
+        "n": 954,
+        "fail": 0
+      },
+      "window_bounds": {
+        "n": 954,
+        "fail": 0
+      },
+      "no_sell_has_zero_sales": {
+        "n": 54,
+        "fail": 0
+      },
+      "run_count_954": {
+        "n": 1,
+        "fail": 0
+      },
+      "reproduces_77bb44f_final_total_and_liquidation": {
+        "n": 26,
+        "fail": 0
+      },
+      "reproduction_overlap_count": {
+        "n": 1,
+        "fail": 0
+      }
+    },
+    "failures": [],
+    "runtime_ms": 3522
+  },
+  "environment": {
+    "node": "v24.22.1",
+    "engine_sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+    "input_manifest": [
+      {
+        "file": "daily.json",
+        "bytes": 310560,
+        "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+      },
+      {
+        "file": "daily_adjclose.csv",
+        "bytes": 1511995,
+        "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+      },
+      {
+        "file": "fear-greed.csv",
+        "bytes": 111027,
+        "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+      }
+    ],
+    "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+  },
+  "same_model_old_open_results": [
+    {
+      "start": "2024-10-01",
+      "fg_delay": 0,
+      "candidates": {
+        "NO_SELL_I25": {
+          "final_total": 47063.089999255135,
+          "liquidation": 39535.273470755135,
+          "realized_stock_tax": 0,
+          "dividend_net_total": 56.8167086466,
+          "mmf_net_total": 40.913290608535924
+        },
+        "P20_ONLY_I25_R25": {
+          "final_total": 44682.38522296779,
+          "liquidation": 44682.38522296779,
+          "realized_stock_tax": 8723.8927965,
+          "dividend_net_total": 63.72811381139999,
+          "mmf_net_total": 399.43990565638023
+        },
+        "P20_OR_R75_I25_R25": {
+          "final_total": 44682.38522296779,
+          "liquidation": 44682.38522296779,
+          "realized_stock_tax": 8723.8927965,
+          "dividend_net_total": 63.72811381139999,
+          "mmf_net_total": 399.43990565638023
+        }
+      }
+    },
+    {
+      "start": "2024-10-01",
+      "fg_delay": 1,
+      "candidates": {
+        "NO_SELL_I25": {
+          "final_total": 44109.60420506323,
+          "liquidation": 37178.57439206323,
+          "realized_stock_tax": 0,
+          "dividend_net_total": 38.52899397495,
+          "mmf_net_total": 43.14521108827614
+        },
+        "P20_ONLY_I25_R25": {
+          "final_total": 23050.784877765207,
+          "liquidation": 23050.784877765207,
+          "realized_stock_tax": 3246.367472499999,
+          "dividend_net_total": 38.52899397495,
+          "mmf_net_total": 278.47335629026475
+        },
+        "P20_OR_R75_I25_R25": {
+          "final_total": 20322.391396291678,
+          "liquidation": 20322.391396291678,
+          "realized_stock_tax": 2556.029236999999,
+          "dividend_net_total": 36.07835511015,
+          "mmf_net_total": 260.36227818153463
+        }
+      }
+    },
+    {
+      "start": "2025-01-02",
+      "fg_delay": 0,
+      "candidates": {
+        "NO_SELL_I25": {
+          "final_total": 45896.92441879124,
+          "liquidation": 38593.769128791246,
+          "realized_stock_tax": 0,
+          "dividend_net_total": 36.0588267072,
+          "mmf_net_total": 1.315592084039492
+        },
+        "P20_ONLY_I25_R25": {
+          "final_total": 42339.1533605725,
+          "liquidation": 42339.1533605725,
+          "realized_stock_tax": 8147.200734,
+          "dividend_net_total": 41.7023415252,
+          "mmf_net_total": 340.291753047295
+        },
+        "P20_OR_R75_I25_R25": {
+          "final_total": 42339.1533605725,
+          "liquidation": 42339.1533605725,
+          "realized_stock_tax": 8147.200734,
+          "dividend_net_total": 41.7023415252,
+          "mmf_net_total": 340.291753047295
+        }
+      }
+    },
+    {
+      "start": "2025-01-02",
+      "fg_delay": 1,
+      "candidates": {
+        "NO_SELL_I25": {
+          "final_total": 40835.85526863159,
+          "liquidation": 34560.60489963159,
+          "realized_stock_tax": 0,
+          "dividend_net_total": 32.063672611799994,
+          "mmf_net_total": 3.681596019782983
+        },
+        "P20_ONLY_I25_R25": {
+          "final_total": 21738.637596860288,
+          "liquidation": 21738.637596860288,
+          "realized_stock_tax": 2926.8795620000005,
+          "dividend_net_total": 32.063672611799994,
+          "mmf_net_total": 225.97348624849235
+        },
+        "P20_OR_R75_I25_R25": {
+          "final_total": 19061.32675072115,
+          "liquidation": 19061.32675072115,
+          "realized_stock_tax": 2249.5307375,
+          "dividend_net_total": 29.800988350199997,
+          "mmf_net_total": 207.80649987094944
+        }
+      }
+    }
+  ],
+  "new_rows": 954,
+  "verification_equal_to_source_except_runtime": true,
+  "interpretation": "Numeric reproduction of the 954-cell diagnostic; not validation of adjusted-close/no-cash-distribution accounting for a real cash account.",
+  "review_issues": [
+    "AT-01 adjusted close synthetic price, no separate cash distribution/tax/timing",
+    "AT-02 timing comparison also changes price/accounting",
+    "AT-03 full-window mean IRX is ex-post scenario, not MMF product as-of return",
+    "AT-04 historic split-adjusted integer shares not established as actual share units",
+    "AT-05 selection on already viewed periods not unused OOS",
+    "AT-06 marked total already deducts realized taxes"
+  ],
+  "market_data_fetched": false,
+  "next_48_comparison_not_run": true
+}
