@@ -41,6 +41,30 @@ BSTAR_NOTE = (
     "費用込み1株平均原価がこの値以下ならP20のD価格条件（含み益20%以上、手数料なし）を満たします。"
     "売却下限・指値・売却推奨ではありません。保有を入力していないため、本人のP20成立は未判定です。"
 )
+ERROR_HINT = {
+    "decision_conflict": [
+        "decisionは1日1件だけです。追加の観測は observation_role を supplemental にして別の行に記録してください"
+        "（判断は差し替わりません）。",
+        "decisionの内容の訂正は、追加観測とは別の手順です。この核は自動で差し替えません（訂正の手順は未整備）。",
+    ],
+    "record_id_conflict": [
+        "同じrecord_idで内容が違います。追加の観測は新しいrecord_idのsupplementalで記録してください。",
+        "既存の記録の訂正は、追加観測とは別の手順です。この核は自動で差し替えません。",
+    ],
+    "decision_conflict_with_applied": [
+        "適用済みのdecisionと内容が違います。適用済みの状態は変更していません。",
+        "追加の観測ならsupplementalで別の行に。適用済みdecisionの訂正は、追加観測とは別の明示手順が必要で、"
+        "この核は自動で差し替えません（訂正の手順は未整備）。",
+    ],
+    "target_mismatch": [
+        "このセッションの判断窓（確定後〜次回寄付き前）にあるdecisionの対象日(target_us_session_date)が、"
+        "処理するDと違います。対象日を直してください（日本時間の日付ではなく、米国セッションの日付）。",
+    ],
+    "intermediate_session_unprocessed": [
+        "基点より後で、このDより前のセッションに有効なdecisionが入力にあります。先にそのセッションから順に処理してください。"
+        "自動で過去は処理しません。欠測としても扱っていません。",
+    ],
+}
 FORBIDDEN_HINT = "株数・金額は出しません。売却推奨・注文方式は出しません。"
 
 
@@ -95,29 +119,41 @@ def _branch_lines(result):
     ]
 
 
+def _trend_lines(result, tag, lead):
+    lines = ["  %sNO_SELL I25%s: 本人が0株の場合のみ、利用可能資金の25%%（比率のみ）。再参加は該当しません。" % (lead, tag)]
+    lines.append("  %sP20_ONLY I25/R25%s: 初回（0株・売却歴なし）か全売却後の再参加か、どちらでもないかは手元確認。25%%"
+                 % (lead, tag))
+    if result.wait_session_date:
+        wait = ("全売却の約定セッションS・合図D・手動購入next(D)を区別します。再参加はD−S≧3（最短でS+4に購入）。"
+                "今回のD=%s では、Sが%s以前ならD−S≧3です。購入予定はnext(D)=%s の寄付き（目安）。"
+                "本人のSは未入力のため、待機の成立は未判定です。"
+                % (result.d, result.wait_session_date, result.next_session_date))
+    else:
+        wait = "セッション列が短く、待機の目安日を算出できません。本人のSは未入力のため待機の成立は未判定です。"
+    lines.append("  待機の表示: " + wait)
+    return lines
+
+
 def _profile_lines(result):
     met = [r for r in result.rules.values() if r.status in (RuleStatus.MET, RuleStatus.UNCONFIRMED)]
     lines = ["プロファイル別（案U: 保有・原価・現金・余力は入力していません）"]
-    if not met:
+    pending_trend = result.rules["TREND"].status is RuleStatus.PENDING_FG
+    if not met and not pending_trend:
         lines.append("  条件が成立した場合の口座条件は、手元で確認してください。")
         return lines
-    rule = met[0]
-    tag = "" if rule.status is RuleStatus.MET else "（参考・未確認）"
-    if rule.name in ("EXFEAR", "NORMAL"):
-        lines.append("  NO_SELL I25／P20_ONLY I25/R25 とも共通%s: 利用可能資金の100%%（比率のみ）" % tag)
-        lines.append("  100%は保有を全部買い換える意味ではなく、本人が確認した利用可能資金の条件付き投入割合です。"
-                     "注文拘束・未受渡・MMF利用可否は確定しません。")
+    if not met:
+        # F&G not observed yet, but the trend rule can still fire: show what the user must check by hand
+        lines.append("  F&Gが30以上でトレンド参加の条件が成立する場合（観測後に手元で判断。再通知はありません）:")
+        lines += _trend_lines(result, "", "")
     else:
-        lines.append("  NO_SELL I25%s: 本人が0株の場合のみ、利用可能資金の25%%（比率のみ）。再参加は該当しません。" % tag)
-        lines.append("  P20_ONLY I25/R25%s: 初回（0株・売却歴なし）か全売却後の再参加か、どちらでもないかは手元確認。25%%" % tag)
-        if result.wait_session_date:
-            wait = ("全売却の約定セッションS・合図D・手動購入next(D)を区別します。再参加はD−S≧3（最短でS+4に購入）。"
-                    "今回のD=%s では、Sが%s以前ならD−S≧3です。購入予定はnext(D)=%s の寄付き（目安）。"
-                    "本人のSは未入力のため、待機の成立は未判定です。"
-                    % (result.d, result.wait_session_date, result.next_session_date))
+        rule = met[0]
+        tag = "" if rule.status is RuleStatus.MET else "（参考・未確認）"
+        if rule.name in ("EXFEAR", "NORMAL"):
+            lines.append("  NO_SELL I25／P20_ONLY I25/R25 とも共通%s: 利用可能資金の100%%（比率のみ）" % tag)
+            lines.append("  100%は保有を全部買い換える意味ではなく、本人が確認した利用可能資金の条件付き投入割合です。"
+                         "注文拘束・未受渡・MMF利用可否は確定しません。")
         else:
-            wait = "セッション列が短く、待機の目安日を算出できません。本人のSは未入力のため待機の成立は未判定です。"
-        lines.append("  待機の表示: " + wait)
+            lines += _trend_lines(result, tag, "")
     lines.append("  P20保有があり本人にP20が成立し得る場合は、売却側の手元確認が先です（同日の売買両建ての推奨ではありません）。")
     lines.append("  手元確認: 保有株数／全売却歴／利用可能USD／未約定注文")
     return lines
@@ -125,12 +161,18 @@ def _profile_lines(result):
 
 def render_message(result):
     if isinstance(result, ErrorResult):
-        return "\n".join([
+        out = [
             "【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=%s ／実行区分: %s"
             % (result.d, CLASS_LABEL[result.run_class]),
             "  コード: %s%s" % (result.code, "" if result.field is None else "（%s）" % result.field),
             "  条件未達ではありません。古い日付に落とした判定や前日補完は行っていません。市場状態は変更していません。",
-        ])
+        ]
+        if result.detail:
+            out.append("  先に処理するセッション: %s" % result.detail)
+        out += ["  " + t for t in ERROR_HINT.get(result.code, [])]
+        if result.run_class is RunClass.CONFLICT:
+            out.append("  衝突が残ったまま次のセッションを処理すると、このDは欠測扱い（armed不明・連続数0）になります。")
+        return "\n".join(out)
     meta = result.series_meta
     lines = [
         "【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=%s ／実行区分: %s"
@@ -145,6 +187,8 @@ def render_message(result):
         lines.append("F&G現在値（目視）: 未記録 → 購入条件は未確定です。")
         if result.run_class is RunClass.WAITING_FG:
             lines += _branch_lines(result)
+        lines.append("  ※この日のdecision観測を記録しないと（合図なしの日も）、次のセッションを処理するときにarmedが不明、"
+                     "連続数が0になります。毎日記録してください。")
     else:
         lines.append("F&G現在値（目視）: %s（decision、observed_at=%s、対象D=%s）"
                      % (("%g" % result.decision.value), result.decision.observed_at.isoformat(), result.d))
@@ -169,10 +213,12 @@ def render_message(result):
 def render_summary(result):
     lines = ["――完了サマリ（ローカルプレビュー・実送信なし）――"]
     if isinstance(result, ErrorResult):
+        check = ("観測記録の検査: 衝突（価格データの異常ではありません。コード=%s）" % result.code
+                 if result.run_class is RunClass.CONFLICT else "データ検査: 異常（コード=%s）" % result.code)
         lines += [
             "実行区分: %s" % CLASS_LABEL[result.run_class],
             "対象D: %s" % result.d,
-            "データ検査: 異常（コード=%s）" % result.code,
+            check,
             "状態更新: なし（既存の市場状態は変更していません）",
             "記録・通知: 本コアは保存・送信しません（Sheets/Discord未接続）",
             "終了コード: %d" % result.exit_code,

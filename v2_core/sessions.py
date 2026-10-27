@@ -2,24 +2,48 @@
 
 There is no calendar library, clock or cron here. Callers pass the sessions.
 """
+import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from .errors import InputError
 from .fixture import parse_iso_date
 
 
+_TIME_RE = re.compile(
+    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]{1,6}))?)?"
+    r"(Z|[+-][0-9]{2}:[0-9]{2})?", re.ASCII)
+
+
 def parse_aware_datetime(text, field):
-    if not isinstance(text, str) or not text:
+    """Accepts exactly YYYY-MM-DDTHH:MM[:SS[.f{1,6}]](Z|+HH:MM|-HH:MM) and nothing else.
+
+    Parsed by hand (no datetime.fromisoformat), so every Python version accepts and rejects the same texts.
+    A text without an offset is a missing-time-zone error; any other shape is invalid.
+    """
+    if not isinstance(text, str):
         raise InputError("datetime_invalid", field)
-    s = text[:-1] + "+00:00" if text.endswith("Z") else text
+    m = _TIME_RE.fullmatch(text)      # fullmatch: "$" would also accept a trailing newline
+    if not m:
+        raise InputError("datetime_invalid", field)
+    year, month, day, hour, minute, second, frac, tz = m.groups()
+    if tz is None:
+        raise InputError("datetime_missing_timezone", field)
     try:
-        dt = datetime.fromisoformat(s)
+        if tz == "Z":
+            offset = timedelta(0)
+        else:
+            oh, om = int(tz[1:3]), int(tz[4:6])
+            if oh > 23 or om > 59:
+                raise ValueError
+            offset = timedelta(hours=oh, minutes=om)
+            if tz[0] == "-":
+                offset = -offset
+        micro = int((frac or "").ljust(6, "0")) if frac else 0
+        return datetime(int(year), int(month), int(day), int(hour), int(minute), int(second or 0), micro,
+                        tzinfo=timezone(offset))
     except ValueError:
         raise InputError("datetime_invalid", field)
-    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
-        raise InputError("datetime_missing_timezone", field)
-    return dt
 
 
 @dataclass(frozen=True)

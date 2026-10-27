@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from .errors import ConflictError, CoreError, InputError
 from .fixture import MarketRow, parse_iso_date
-from .observations import Observation, select_decision
+from .observations import Observation, first_unprocessed_session, select_decision
 from .state import MarketState
 from .tri import Tri, from_bool, tri_and
 
@@ -75,6 +75,7 @@ class ErrorResult:
     next_state: MarketState
     exit_code: int = 1
     state_updated: bool = False
+    detail: Optional[str] = None
 
 
 def market_side_normal(row):
@@ -130,6 +131,12 @@ def evaluate_day(state, d, series, sessions, raw_observations):
         base = state.base
     else:
         base = state
+
+    if base.as_of_d is not None and base.as_of_d < prev_session.date:
+        earlier = first_unprocessed_session(raw_observations, sessions, base.as_of_d, d)
+        if earlier is not None:
+            # an earlier session with a valid decision exists: process it first, never treat it as a gap
+            raise InputError("intermediate_session_unprocessed", "observations", detail=earlier)
 
     notes = []
     gap = base.as_of_d is not None and base.as_of_d != prev_session.date
@@ -256,6 +263,6 @@ def run_day_safe(state, d, series, sessions, raw_observations):
     try:
         return evaluate_day(state, d, series, sessions, raw_observations)
     except ConflictError as e:
-        return ErrorResult(d if isinstance(d, str) else None, e.code, e.field, RunClass.CONFLICT, state)
+        return ErrorResult(d if isinstance(d, str) else None, e.code, e.field, RunClass.CONFLICT, state, detail=e.detail)
     except CoreError as e:
-        return ErrorResult(d if isinstance(d, str) else None, e.code, e.field, RunClass.DATA_ERROR, state)
+        return ErrorResult(d if isinstance(d, str) else None, e.code, e.field, RunClass.DATA_ERROR, state, detail=e.detail)
