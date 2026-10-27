@@ -1,0 +1,257 @@
+{
+ "source": "research/profit_target_isolated_20261026/summary.csv at 77bb44f (rows with start 2024-10-01)",
+ "rows": [
+  {
+   "candidate_id": "P20_ONLY_I25_R0",
+   "fg_delay": 0,
+   "final_total": 39702.2793667554,
+   "liquidation": 39702.2793667554,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "P20_ONLY_I25_R25",
+   "fg_delay": 0,
+   "final_total": 44682.38522296779,
+   "liquidation": 44682.38522296779,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "P20_ONLY_I25_R100",
+   "fg_delay": 0,
+   "final_total": 40206.03339660206,
+   "liquidation": 40206.03339660206,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R0",
+   "fg_delay": 0,
+   "final_total": 18422.769730902583,
+   "liquidation": 18400.38973090258,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R25",
+   "fg_delay": 0,
+   "final_total": 16930.640784454892,
+   "liquidation": 16908.290784454894,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R100",
+   "fg_delay": 0,
+   "final_total": 13597.300221457084,
+   "liquidation": 13575.020221457084,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R0",
+   "fg_delay": 0,
+   "final_total": 19343.398813855852,
+   "liquidation": 19320.99881385585,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R25",
+   "fg_delay": 0,
+   "final_total": 17235.83739043154,
+   "liquidation": 17213.47739043154,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R100",
+   "fg_delay": 0,
+   "final_total": 13448.228548519673,
+   "liquidation": 13425.948548519673,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R0",
+   "fg_delay": 0,
+   "final_total": 23967.27412601117,
+   "liquidation": 23944.77412601117,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R25",
+   "fg_delay": 0,
+   "final_total": 23731.986253599578,
+   "liquidation": 23709.496253599576,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R100",
+   "fg_delay": 0,
+   "final_total": 20836.029579757353,
+   "liquidation": 20813.599579757352,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R0",
+   "fg_delay": 0,
+   "final_total": 39702.2793667554,
+   "liquidation": 39702.2793667554,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R25",
+   "fg_delay": 0,
+   "final_total": 44682.38522296779,
+   "liquidation": 44682.38522296779,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R100",
+   "fg_delay": 0,
+   "final_total": 40206.03339660206,
+   "liquidation": 40206.03339660206,
+   "sell_count": 8
+  },
+  {
+   "candidate_id": "NO_SELL_I0",
+   "fg_delay": 0,
+   "final_total": 50703.100289853355,
+   "liquidation": 42439.09176785335,
+   "sell_count": 0
+  },
+  {
+   "candidate_id": "NO_SELL_I25",
+   "fg_delay": 0,
+   "final_total": 47063.089999255135,
+   "liquidation": 39535.273470755135,
+   "sell_count": 0
+  },
+  {
+   "candidate_id": "NO_SELL_I100",
+   "fg_delay": 0,
+   "final_total": 36281.17615213997,
+   "liquidation": 30933.935754639966,
+   "sell_count": 0
+  },
+  {
+   "candidate_id": "P20_ONLY_I25_R0",
+   "fg_delay": 1,
+   "final_total": 18891.200784769462,
+   "liquidation": 18891.200784769462,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P20_ONLY_I25_R25",
+   "fg_delay": 1,
+   "final_total": 23050.784877765207,
+   "liquidation": 23050.784877765207,
+   "sell_count": 6
+  },
+  {
+   "candidate_id": "P20_ONLY_I25_R100",
+   "fg_delay": 1,
+   "final_total": 28467.869112772023,
+   "liquidation": 28467.869112772023,
+   "sell_count": 6
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R0",
+   "fg_delay": 1,
+   "final_total": 12318.071138499834,
+   "liquidation": 12295.821138499834,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R25",
+   "fg_delay": 1,
+   "final_total": 12343.638204388064,
+   "liquidation": 12321.378204388064,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P30_ONLY_I25_R100",
+   "fg_delay": 1,
+   "final_total": 15384.318103935717,
+   "liquidation": 15361.998103935717,
+   "sell_count": 5
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R0",
+   "fg_delay": 1,
+   "final_total": 15249.950756200775,
+   "liquidation": 15227.630756200775,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R25",
+   "fg_delay": 1,
+   "final_total": 14924.859320085048,
+   "liquidation": 14902.549320085049,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P40_ONLY_I25_R100",
+   "fg_delay": 1,
+   "final_total": 13932.58227376477,
+   "liquidation": 13910.29227376477,
+   "sell_count": 3
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R0",
+   "fg_delay": 1,
+   "final_total": 13703.656334632078,
+   "liquidation": 13681.366334632077,
+   "sell_count": 2
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R25",
+   "fg_delay": 1,
+   "final_total": 13590.814198879423,
+   "liquidation": 13568.534198879423,
+   "sell_count": 2
+  },
+  {
+   "candidate_id": "P60_ONLY_I25_R100",
+   "fg_delay": 1,
+   "final_total": 13035.639593009137,
+   "liquidation": 13013.369593009136,
+   "sell_count": 2
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R0",
+   "fg_delay": 1,
+   "final_total": 16697.946291177683,
+   "liquidation": 16697.946291177683,
+   "sell_count": 4
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R25",
+   "fg_delay": 1,
+   "final_total": 20322.391396291678,
+   "liquidation": 20322.391396291678,
+   "sell_count": 6
+  },
+  {
+   "candidate_id": "P20_OR_R75_I25_R100",
+   "fg_delay": 1,
+   "final_total": 25128.632264347794,
+   "liquidation": 25128.632264347794,
+   "sell_count": 6
+  },
+  {
+   "candidate_id": "NO_SELL_I0",
+   "fg_delay": 1,
+   "final_total": 46816.41757890169,
+   "liquidation": 39337.60692490169,
+   "sell_count": 0
+  },
+  {
+   "candidate_id": "NO_SELL_I25",
+   "fg_delay": 1,
+   "final_total": 44109.60420506323,
+   "liquidation": 37178.57439206323,
+   "sell_count": 0
+  },
+  {
+   "candidate_id": "NO_SELL_I100",
+   "fg_delay": 1,
+   "final_total": 36277.38948033656,
+   "liquidation": 30930.886517336563,
+   "sell_count": 0
+  }
+ ]
+}

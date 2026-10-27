@@ -1,0 +1,59 @@
+[
+ {
+  "id": "W2011",
+  "start": "2011-01-03",
+  "end": "2012-12-31",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.0006112549800796816
+ },
+ {
+  "id": "W2013",
+  "start": "2013-01-02",
+  "end": "2014-12-31",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.0003563690476190476
+ },
+ {
+  "id": "W2015",
+  "start": "2015-01-02",
+  "end": "2016-12-30",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.0017061630218687875
+ },
+ {
+  "id": "W2017",
+  "start": "2017-01-03",
+  "end": "2018-12-31",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.014216792828685234
+ },
+ {
+  "id": "W2019",
+  "start": "2019-01-02",
+  "end": "2020-12-31",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.01187378217821785
+ },
+ {
+  "id": "W2021",
+  "start": "2021-01-04",
+  "end": "2022-12-30",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.010132823061630216
+ },
+ {
+  "id": "W2023",
+  "start": "2023-01-03",
+  "end": "2024-09-30",
+  "mmf_rate_source": "mean ^IRX in window",
+  "mmfRate": 0.050886369863013634
+ },
+ {
+  "id": "W2024_CURRENT",
+  "start": "2024-10-01",
+  "end": "2026-08-10",
+  "mmf_rate_source": "fixed 3% (same as earlier studies)",
+  "note": "in-sample period of all earlier studies",
+  "mmfRate": 0.03
+ }
+]

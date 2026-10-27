@@ -1,0 +1,40 @@
+{
+  "study": "after_tax_periods_20261027",
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS",
+  "requested_by": "Rocky, 2026-10-27 (plan approved on decision card)",
+  "engine": "../SOXL_allocation_separation_20261026/engine.mjs (37a14c0, unchanged)",
+  "inputs": "../SOXL_exit_study_20261023/data (sha256 checked against input_manifest_reference.json)",
+  "windows": [
+    {"id":"W2011","start":"2011-01-03","end":"2012-12-31","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2013","start":"2013-01-02","end":"2014-12-31","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2015","start":"2015-01-02","end":"2016-12-30","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2017","start":"2017-01-03","end":"2018-12-31","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2019","start":"2019-01-02","end":"2020-12-31","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2021","start":"2021-01-04","end":"2022-12-30","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2023","start":"2023-01-03","end":"2024-09-30","mmf_rate_source":"mean ^IRX in window"},
+    {"id":"W2024_CURRENT","start":"2024-10-01","end":"2026-08-10","mmf_rate_source":"fixed 3% (same as earlier studies)","note":"in-sample period of all earlier studies"}
+  ],
+  "execution": {
+    "main": "NEXT_CLOSE_PROXY: signal at D close, fill at next session close. SOXL open/high/low/close all set to the SOXL adjClose of that day (split+dividend adjusted, total return); no separate dividend booking to avoid double counting. Used for ALL 8 windows because SOXL opens exist only from 2024-10-01 in the fixed input.",
+    "bridge": "NEXT_OPEN (original rows + issuer dividend schedule) for W2024_CURRENT only, to measure the execution-proxy effect and to reproduce earlier stored results."
+  },
+  "grid": {
+    "I_initial": 0.25,
+    "profit_target": [0.20, 0.25, 0.30, 0.40, 0.60],
+    "rsi_threshold": [null, 80, 75, 70, 65],
+    "rsi_rule": "null => PROFIT_ONLY; otherwise OR (sell all when profit target OR SOXX RSI14>=threshold, with the unchanged 2% net-gain gate)",
+    "R_after_sale": [0.25, 1.0],
+    "no_sell": {"I_initial": [0, 0.25, 1.0]},
+    "fg_delay": [0, 1],
+    "candidate_count": 53,
+    "run_count": "53 x 8 windows x 2 delays (close proxy) + 53 x 2 delays (open bridge) = 954"
+  },
+  "tax_and_metric": {
+    "main_metric": "after-tax liquidation at the window's last session close: cash + MMF accrued after tax + dividend receivable + (shares*close - sell costs) - 20.315% x max(0, that - basis)",
+    "also_reported": "final market-value total (pre-tax on unrealized gains)",
+    "tax": "20.315% withheld on each realized gain; MMF and distributions taxed as in the engine; FX fixed at 150 JPY/USD so FX gains are not taxed",
+    "fees": "current Rakuten commission/SEC schedule from the engine, applied to all years"
+  },
+  "comparison": "Per window and delay: rank of each candidate, and whether it beats NO_SELL_I25 after tax. Also share of month-ends inside each window where it beats NO_SELL_I25 after tax. No pooling of money across windows, no average rank.",
+  "not_done": "No new data download (Yahoo blocked by environment network policy), no adoption, no production change."
+}

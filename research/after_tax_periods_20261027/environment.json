@@ -1,0 +1,22 @@
+{
+ "node": "v22.22.0",
+ "engine_sha256": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+ "input_manifest": [
+  {
+   "file": "daily.json",
+   "bytes": 310560,
+   "sha256": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5"
+  },
+  {
+   "file": "daily_adjclose.csv",
+   "bytes": 1511995,
+   "sha256": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9"
+  },
+  {
+   "file": "fear-greed.csv",
+   "bytes": 111027,
+   "sha256": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+  }
+ ],
+ "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+}

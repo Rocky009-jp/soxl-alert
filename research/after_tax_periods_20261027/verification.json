@@ -1,0 +1,55 @@
+{
+ "passed_all": true,
+ "checks": {
+  "input_sha256_matches_manifest": {
+   "n": 3,
+   "fail": 0
+  },
+  "close_proxy_rows_same_signals_inputs": {
+   "n": 1,
+   "fail": 0
+  },
+  "candidate_count_53": {
+   "n": 1,
+   "fail": 0
+  },
+  "accounting_identity": {
+   "n": 954,
+   "fail": 0
+  },
+  "balance_invariants": {
+   "n": 954,
+   "fail": 0
+  },
+  "no_sale_below_2pct_net_gain": {
+   "n": 954,
+   "fail": 0
+  },
+  "fills_on_next_session_after_signal": {
+   "n": 954,
+   "fail": 0
+  },
+  "window_bounds": {
+   "n": 954,
+   "fail": 0
+  },
+  "no_sell_has_zero_sales": {
+   "n": 54,
+   "fail": 0
+  },
+  "run_count_954": {
+   "n": 1,
+   "fail": 0
+  },
+  "reproduces_77bb44f_final_total_and_liquidation": {
+   "n": 26,
+   "fail": 0
+  },
+  "reproduction_overlap_count": {
+   "n": 1,
+   "fail": 0
+  }
+ },
+ "failures": [],
+ "runtime_ms": 2900
+}
