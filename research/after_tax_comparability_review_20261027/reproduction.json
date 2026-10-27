@@ -1,0 +1,268 @@
+{
+  "source_commit": "737ef35a6c370cd25d0cc9374f4a59ecf86ce244",
+  "node": "v24.22.1",
+  "platform": "win32",
+  "checks": [
+    {
+      "path": "research/after_tax_comparability_20261027/environment.json",
+      "expected": "191a314ad7bb3bf30d08ee6778c4081d5f94cf03",
+      "actual": "c04505377c7fb1d2c7cc5a4f1d77b82d7b2d9661",
+      "match": false
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/fill_day_close_vs_open.json",
+      "expected": "fc2ae455ea48cf0a2587f62a2d63aac92deb6d91",
+      "actual": "fc2ae455ea48cf0a2587f62a2d63aac92deb6d91",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/first_divergence.csv",
+      "expected": "ff5ef03039aba2fb28c826f67384dfdd2f3e55e6",
+      "actual": "ff5ef03039aba2fb28c826f67384dfdd2f3e55e6",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/ledger_12paths.csv",
+      "expected": "6b4d33c0e1d6f093281b6264259048027f160e6a",
+      "actual": "6b4d33c0e1d6f093281b6264259048027f160e6a",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/month_end_gap_6pairs.csv",
+      "expected": "ac5d7aac073cc2af198fee48c0b3f40a6dfca23c",
+      "actual": "ac5d7aac073cc2af198fee48c0b3f40a6dfca23c",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/paired_execution_effects.csv",
+      "expected": "312ab639f51e215a9a914681446e2e49010c2373",
+      "actual": "312ab639f51e215a9a914681446e2e49010c2373",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/run.mjs",
+      "expected": "45ed9099d7ec2fc80f934778d5c34fc9afadf0e4",
+      "actual": "45ed9099d7ec2fc80f934778d5c34fc9afadf0e4",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/source_refs.json",
+      "expected": "adcb4950ae49ab61ba1ceb8a4e32d131cf2dd4b7",
+      "actual": "adcb4950ae49ab61ba1ceb8a4e32d131cf2dd4b7",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/specification.json",
+      "expected": "8b8d650984d195d1428a4119382a0c2a36995a9a",
+      "actual": "8b8d650984d195d1428a4119382a0c2a36995a9a",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/summary.csv",
+      "expected": "6db52454a7b262769b363c4246eecfb6df623908",
+      "actual": "6db52454a7b262769b363c4246eecfb6df623908",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/tables.md",
+      "expected": "fcebfe246bd12020c26456f7239878f7b6bc05b8",
+      "actual": "fcebfe246bd12020c26456f7239878f7b6bc05b8",
+      "match": true
+    },
+    {
+      "path": "research/after_tax_comparability_20261027/verification.json",
+      "expected": "cebaaae15a8d3ec4390a04fd0b5703a3f99c05f9",
+      "actual": "cebaaae15a8d3ec4390a04fd0b5703a3f99c05f9",
+      "match": true
+    }
+  ],
+  "generated_checked": 12,
+  "verification": {
+    "passed_all": true,
+    "failure_count": 0,
+    "failures": [],
+    "counts": {
+      "cells": 48,
+      "open_cells_reused_and_resimulated": 24,
+      "close_cells_new": 24,
+      "simulate_calls": 48,
+      "paired_rows": 24,
+      "explained_paths": 12,
+      "ledger_event_rows": 190,
+      "month_end_gap_rows": 129,
+      "tolerance_USD": 0.000001,
+      "original_ohlc_rows_with_open_ne_close_in_window": 464
+    },
+    "refs": {
+      "engine": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+      "dividends": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99",
+      "stored_summary_77bb44f": "3cc7624ff96382cfcf0b5c763c26be12fdafdedb00b9999d9add0aa1a7a35800",
+      "inputs": {
+        "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+        "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+        "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+      },
+      "specification": "65d9bb17d735443df341bd8efbc381ac6e9cfc4833410170c41f64ad77ab751b",
+      "run_this": "b72f31870e6b82d585196e8236a0da1af3d90a34912643fa33cef2610a2ae2a3"
+    },
+    "checks": {
+      "engine_sha_equals_source_refs": {
+        "n": 1,
+        "fail": 0
+      },
+      "dividends_sha_equals_source_refs": {
+        "n": 1,
+        "fail": 0
+      },
+      "stored_summary_sha_equals_source_refs": {
+        "n": 1,
+        "fail": 0
+      },
+      "specification_sha_equals_source_refs": {
+        "n": 1,
+        "fail": 0
+      },
+      "input_sha_equals_source_refs": {
+        "n": 3,
+        "fail": 0
+      },
+      "engine_open_uses_exactly_expected": {
+        "n": 1,
+        "fail": 0
+      },
+      "engine_open_use_sites": {
+        "n": 1,
+        "fail": 0
+      },
+      "close_copy_same_length_and_dates": {
+        "n": 1,
+        "fail": 0
+      },
+      "close_copy_open_equals_original_close_on_ohlc_rows": {
+        "n": 1,
+        "fail": 0
+      },
+      "close_copy_non_open_fields_identical": {
+        "n": 1,
+        "fail": 0
+      },
+      "signals_identical_before_after_close_transform": {
+        "n": 2,
+        "fail": 0
+      },
+      "six_candidates": {
+        "n": 1,
+        "fail": 0
+      },
+      "accounting_identity_total": {
+        "n": 48,
+        "fail": 0
+      },
+      "terminal_liquidation_identity_total_minus_cost_minus_tax": {
+        "n": 48,
+        "fail": 0
+      },
+      "terminal_date_2026-08-10": {
+        "n": 48,
+        "fail": 0
+      },
+      "fresh_account_at_start": {
+        "n": 48,
+        "fail": 0
+      },
+      "start_date_exactly_requested": {
+        "n": 48,
+        "fail": 0
+      },
+      "balance_invariants_nonneg_cash_integer_shares_zero_basis": {
+        "n": 48,
+        "fail": 0
+      },
+      "every_sale_net_gain_ge_2pct_of_cost": {
+        "n": 48,
+        "fail": 0
+      },
+      "dividend_no_double_counting": {
+        "n": 48,
+        "fail": 0
+      },
+      "no_sell_zero_sales_zero_aftersale": {
+        "n": 24,
+        "fail": 0
+      },
+      "I0_no_initial_trend_buy": {
+        "n": 8,
+        "fail": 0
+      },
+      "fill_price_equals_original_open_or_close_of_exec_date": {
+        "n": 425,
+        "fail": 0
+      },
+      "exec_date_after_signal_date": {
+        "n": 425,
+        "fail": 0
+      },
+      "engine_internal_phase_label_is_daily_open_proxy_for_both": {
+        "n": 425,
+        "fail": 0
+      },
+      "stored_77bb44f_open_cell_exists": {
+        "n": 24,
+        "fail": 0
+      },
+      "open_cell_equals_stored_77bb44f_value_1e-6": {
+        "n": 408,
+        "fail": 0
+      },
+      "open_cell_first_buy_first_sale_dates_equal_stored": {
+        "n": 24,
+        "fail": 0
+      },
+      "sale_signal_gross_on_cost_at_least_target_on_original_D_close": {
+        "n": 147,
+        "fail": 0
+      },
+      "cells_48": {
+        "n": 1,
+        "fail": 0
+      },
+      "open_24_close_24": {
+        "n": 1,
+        "fail": 0
+      },
+      "simulate_calls_equal_48_budget": {
+        "n": 1,
+        "fail": 0
+      },
+      "simulate_signal_tape_identical_open_vs_close": {
+        "n": 24,
+        "fail": 0
+      },
+      "original_rows_not_mutated_after_all_runs": {
+        "n": 1,
+        "fail": 0
+      },
+      "paired_24": {
+        "n": 1,
+        "fail": 0
+      },
+      "signals_fg_used_equals_row_i_minus_delay": {
+        "n": 2,
+        "fail": 0
+      },
+      "delay1_fg_used_differs_from_raw_D_fg_on_some_rows": {
+        "n": 1,
+        "fail": 0
+      },
+      "twelve_explained_paths": {
+        "n": 1,
+        "fail": 0
+      },
+      "month_end_record_equals_tape_last_date": {
+        "n": 129,
+        "fail": 0
+      }
+    }
+  },
+  "total_checks": 2471
+}

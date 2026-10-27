@@ -1,0 +1,80 @@
+{
+  "checked_date_JST": "2026-10-27",
+  "source_url": "https://www.quiverquant.com/stock/SOXL/historical-prices/",
+  "access_route": "public web page read; no signup/API key",
+  "scope": "eight selected dates, Open/Close only; upstream provider independence and adjustment definition unverified; no input substitution or simulation",
+  "rows": [
+    {
+      "date": "2026-06-16",
+      "saved_open": 267.13,
+      "publisher_open": 267.13,
+      "open_difference": 0,
+      "saved_close": 226.19,
+      "publisher_close": 226.19,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-06-29",
+      "saved_open": 216.36,
+      "publisher_open": 216.36,
+      "open_difference": 0,
+      "saved_close": 236.52,
+      "publisher_close": 236.52,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-06-30",
+      "saved_open": 241.45,
+      "publisher_open": 241.45,
+      "open_difference": 0,
+      "saved_close": 266.71,
+      "publisher_close": 266.71,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-07-01",
+      "saved_open": 237.79,
+      "publisher_open": 237.78,
+      "open_difference": -0.01,
+      "saved_close": 217.55,
+      "publisher_close": 217.55,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-07-29",
+      "saved_open": 107.62,
+      "publisher_open": 107.62,
+      "open_difference": 0,
+      "saved_close": 91.99,
+      "publisher_close": 91.99,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-07-30",
+      "saved_open": 107.38,
+      "publisher_open": 107.38,
+      "open_difference": 0,
+      "saved_close": 114.72,
+      "publisher_close": 114.72,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-08-05",
+      "saved_open": 135.54,
+      "publisher_open": 135.54,
+      "open_difference": 0,
+      "saved_close": 132.07,
+      "publisher_close": 132.07,
+      "close_difference": 0
+    },
+    {
+      "date": "2026-08-10",
+      "saved_open": 142.8,
+      "publisher_open": 142.8,
+      "open_difference": 0,
+      "saved_close": 130,
+      "publisher_close": 130,
+      "close_difference": 0
+    }
+  ]
+}
