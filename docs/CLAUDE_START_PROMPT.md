@@ -1,9 +1,7 @@
-CLAUDE.mdとSTATUSを最新の同じ資料開始SHAで読み、開始SHAを記録してください。
+CLAUDE.mdとSTATUSを同一の最新資料SHAで読み、開始SHAを記録してください。
 
-今回は **Sonnet5.5** で docs/tasks/V2_INTEGRATED_SPEC_SONNET55_REQUEST.md を進めてください。**統合仕様の1文書だけ**で、実装/試験実行/市場計算/送信はしません。
+統合仕様38f9f49を主担当がレビューしました。docs/reviews/V2_INTEGRATED_SPEC_RECEIPT_20261027.md と docs/specs/V2_DAILY_NOTIFICATION_INTEGRATED_REVIEWED_DRAFT.md の§9/§11を優先してください。元稿の一括083df4a採用/260行ewm/合図なし例などは補正済みです。
 
-Claudeレビューを受け、推奨案をP20とNO_SELLの並列設計、初版案U+b*、案Tは後続仕様だけへ改訂しました。共通市場状態と候補別口座状態を混ぜず、案Uで本人のP20/初回か再参加か/余力を確定しないでください。買いは比率だけです。
+次の担当はSonnet5.5、依頼は docs/tasks/V2_OFFLINE_CORE_SONNET55_REQUEST.md です。ただし現在、補正版§9の3項目と実装はユーザー承認待ちです。報告やレビューだけで実装に進まず、承認が提示されてから依頼の範囲だけ実行してください。追加の全面レビューや新しい市場計算は不要です。
 
-毎回完了サマリは既存承認済み要件。F&G目視の現在値を履歴遅延0/1へ決めつけず、観測待ち/不明/仮状態を区分。回帰は研究パリティと運用契約に分け、研究の株数を実運用の数量要件へ転用しないでください。
-
-指定新資料ブランチの docs/specs/V2_DAILY_NOTIFICATION_INTEGRATED_DRAFT.md だけを作成し、受入基準最大12、残る採否最大3にまとめてください。新参考出力b*も未採用です。レビューの回答案をユーザー承認とは扱いません。保存・報告して終了。本番反映/解除/Actions/Discord・Sheets/口座/新API登録・課金なし。
+承認後の範囲は独立判定/表示コアとオフライン試験まで。案U・条件付き並列表示・比率のみ・b*参考・UNKNOWN開始・明示D/注入セッション列。研究Wilderをfixtureで照合し、既存コード/候補/研究/依存/workflowを変更しません。自動取得・実保存アダプタ・Actions接続・実送信・本番は対象外です。
