@@ -1,0 +1,17 @@
+{
+  "note": "close/open-1 on the exec date; unique exec dates over the 24 Open cells; descriptive only, overlapping paths",
+  "BUY": {
+    "n": 19,
+    "mean_pct": 2.9446318974946113,
+    "median_pct": 2.6239067055393805,
+    "min_pct": -18.782673637042567,
+    "max_pct": 17.16106350252693
+  },
+  "SELL": {
+    "n": 15,
+    "mean_pct": -0.8313926689919829,
+    "median_pct": 0.30800821355234653,
+    "min_pct": -15.325871298618654,
+    "max_pct": 6.574943775631703
+  }
+}

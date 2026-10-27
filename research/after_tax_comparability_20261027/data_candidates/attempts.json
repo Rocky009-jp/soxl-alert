@@ -1,0 +1,16 @@
+{
+  "run_date_UTC": "2026-10-27",
+  "client": "curl with descriptive User-Agent 'soxl-alert-research/1.0 (public-data availability check)', default settings, no key, no login, no TLS bypass, no retry after denial",
+  "environment_note": "The project has no cloud environment selected (built-in environment with no network settings). Denials below are returned by the session's egress proxy (CONNECT tunnel 403, 'policy denial or upstream failure'), not by the websites.",
+  "candidate_sources_planned": 4,
+  "fetch_attempts_used": 4,
+  "fetch_attempts_budget": 8,
+  "attempts": [
+    {"id": "A1", "time_utc": "2026-10-27T02:31:46Z", "source": "Yahoo Finance chart API v8 (the same public endpoint family used for the stored daily.json)", "host": "query1.finance.yahoo.com", "url": "https://query1.finance.yahoo.com/v8/finance/chart/SOXL?period1=1268317800&period2=1727740800&interval=1d&events=div%7Csplit", "wanted": "SOXL 1d OHLC + dividend and split events, 2010-03-11 .. 2024-09-30", "result": "CONNECT tunnel failed, HTTP 403 from egress proxy", "classification": "environment network policy denial", "bytes_saved": 0},
+    {"id": "A2", "time_utc": "2026-10-27T02:31:46Z", "source": "Stooq daily CSV download", "host": "stooq.com", "url": "https://stooq.com/q/d/l/?s=soxl.us&i=d", "wanted": "SOXL.US daily OHLCV", "result": "CONNECT tunnel failed, HTTP 403 from egress proxy", "classification": "environment network policy denial", "bytes_saved": 0},
+    {"id": "A3", "time_utc": "2026-10-27T02:31:47Z", "source": "Nasdaq public dividend history API (no key)", "host": "api.nasdaq.com", "url": "https://api.nasdaq.com/api/quote/SOXL/dividends?assetclass=etf", "wanted": "ex/record/payment dates and amounts", "result": "CONNECT tunnel failed, HTTP 403 from egress proxy", "classification": "environment network policy denial", "bytes_saved": 0},
+    {"id": "A4", "time_utc": "2026-10-27T02:31:47Z", "source": "Direxion product page (distribution table)", "host": "www.direxion.com", "url": "https://www.direxion.com/product/daily-semiconductor-bull-3x-etf", "wanted": "distribution history with ex/record/pay dates (previous project work cited this issuer table for 2024-12 onward)", "result": "CONNECT tunnel failed, HTTP 403 from egress proxy", "classification": "environment network policy denial", "bytes_saved": 0}
+  ],
+  "not_tried": ["SEC EDGAR (N-CSR per-share distribution totals; would not give per-event pay dates anyway)", "any further source: planned-source budget (4) already used and every host was denied by policy"],
+  "not_concluded": "These failures say nothing about whether the data exists at the sources. They are not evidence that past SOXL Open prices are unavailable."
+}

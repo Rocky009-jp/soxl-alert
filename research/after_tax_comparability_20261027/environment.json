@@ -1,0 +1,7 @@
+{
+  "node": "v22.22.0",
+  "platform": "linux",
+  "command": "cd research/after_tax_comparability_20261027 && node run.mjs",
+  "network": "not used",
+  "secrets": "none"
+}
