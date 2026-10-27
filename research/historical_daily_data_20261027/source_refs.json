@@ -10,12 +10,13 @@
   },
   "spec_commit": "3b82c777f84e77995823052eed3524bee5929105",
   "data_candidates": {
-    "B_digrin_monthly_SOXL_secondary_extraction.csv": "5ec40cac5ca0d915997ffc083ecf27a19aed2fce8d732a6f98a45cc4d507f991"
+    "B_digrin_monthly_SOXL_secondary_extraction.csv": "5ec40cac5ca0d915997ffc083ecf27a19aed2fce8d732a6f98a45cc4d507f991",
+    "README.md": "cf2091dabe1a90843ec07f605321b13e93debc7d378a7af690e763425cea48fe"
   },
   "derived_files": {
     "digrin_vs_stored_adjclose_month_end.json": "0ca20fae2501aab6cf01ca447f4eb1348dcf81901ac997b15fe1a53145d43d33",
     "incidental_ohlc_concordance.json": "9b77d0ae7fddae2fb2656729a2cc6f443f409a0bfc6c5770966172a2caa9d525",
-    "quality_check.json": "5974d9e3f61142ba748880123a0d718b82877790f8150614bd4a8489dd16b5d4",
+    "quality_check.json": "d33cce5f03d9f7dcac38ec1c0916d1d946cdd90fa1310418fce2a206a508a2b2",
     "attempts.json": "cbfd65278ee7ecab4a020bf02683046754ffab29146590f668f994673fb33156"
   }
 }
