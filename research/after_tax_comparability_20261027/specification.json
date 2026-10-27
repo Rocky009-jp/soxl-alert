@@ -1,0 +1,66 @@
+{
+  "title": "Same-accounting execution-time comparison (NEXT_OPEN vs NEXT_CLOSE) + old-period data availability inventory",
+  "date_JST": "2026-10-27",
+  "fixed_before_run": true,
+  "model_assignment": "Claude Sonnet 5.5 (per docs/tasks/AFTER_TAX_COMPARABILITY_SONNET55_REQUEST.md); actual serving model not independently verified from inside the run",
+  "docs_start_sha": "e90c6bb5d379aa08677f184f958f8c0e4d4b2257",
+  "request": "docs/tasks/AFTER_TAX_COMPARABILITY_SONNET55_REQUEST.md @ e90c6bb",
+  "base_commit": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+  "fixed_references": {
+    "engine": "research/SOXL_allocation_separation_20261026/engine.mjs (sha256 89d766da...f9c239, NOT edited, imported as is)",
+    "stored_open_cells": "research/profit_target_isolated_20261026/summary.csv (77bb44f; 24 Open cells reused/compared)",
+    "inputs": "research/SOXL_exit_study_20261023/data/{daily.json,daily_adjclose.csv,fear-greed.csv}",
+    "dividend_schedule": "research/SOXL_allocation_separation_20261026/dividends_verified.json",
+    "diagnostic_only_not_used_as_input": "research/after_tax_periods_20261027 @ 052ee96 (NEXT_CLOSE_PROXY / interval-mean IRX are NOT reused)"
+  },
+  "question": "How much of the Open-vs-Close difference remains when price definition, dividends, tax, fees and MMF are identical and only the execution price changes?",
+  "candidates_6": [
+    {"id": "NO_SELL_I0", "exitMode": "NONE", "I": 0, "R": "I"},
+    {"id": "NO_SELL_I25", "exitMode": "NONE", "I": 0.25, "R": "I"},
+    {"id": "NO_SELL_I100", "exitMode": "NONE", "I": 1, "R": "I"},
+    {"id": "P20_ONLY_I25_R25", "exitMode": "PROFIT_ONLY", "profitTarget": 0.2, "I": 0.25, "R": 0.25},
+    {"id": "P20_ONLY_I25_R100", "exitMode": "PROFIT_ONLY", "profitTarget": 0.2, "I": 0.25, "R": 1},
+    {"id": "P20_OR_R75_I25_R25", "exitMode": "OR", "profitTarget": 0.2, "exitRsi": 75, "I": 0.25, "R": 0.25}
+  ],
+  "common_options": "identical to 77bb44f run.mjs baseOpts: end 2026-08-10, initial 10000, allowInitialReentry true, dividendSchedule=dividends_verified.json, dividendMode issuer_exact_pay_date_proxy, mmfRate 0.03 (fixed scenario, NOT interval-mean IRX), closeTargetNet false, buffer 0, slippage 0. Normal/ExFear buys ON. Tax 20.315%, USDJPY 150 fixed, integer shares, cost-inclusive basis, post-hoc 2% net-of-cost sale gate unchanged.",
+  "cells_48": {
+    "starts": ["2024-10-01", "2025-01-02"],
+    "terminal": "2026-08-10",
+    "fg_delay": [0, 1],
+    "execution": ["NEXT_OPEN", "NEXT_CLOSE"],
+    "total": 48,
+    "open_cells": "24 = stored 77bb44f values reused as reference AND re-simulated (same engine, same input) for ledger/explanation and reconciliation",
+    "close_cells": "24 new"
+  },
+  "execution_definition": {
+    "NEXT_OPEN": "original rows and options; the engine fills at the original saved SOXL Open of the next session (not split/dividend-adjusted beyond the saved split adjustment)",
+    "NEXT_CLOSE": "research copy of rows in which ONLY the field 'open' is replaced by that day's original 'close' for all rows that have OHLC. The engine fills at r.open, so the fill price becomes the next session's original Close. D-close evaluation close, all indicators (soxx, rsi, sma, shd, fg), dates, dividend schedule, tax, fees, MMF are unchanged. The modified 'open' is a wrapper for the fill price and is never stored as real OHLC.",
+    "labels": "report layer distinguishes engine_internal_phase (always 'daily_open_proxy' inside the unmodified engine) from evaluation_execution (NEXT_OPEN | NEXT_CLOSE); the engine label is never described as the real fill time",
+    "caveat": "diagnostic only; neither the Open nor the Close fill is guaranteed in real trading, and pre-submitted market orders cannot know quantity/loss avoidance in advance"
+  },
+  "simulate_budget": "48 simulate() calls in total (24 Open re-simulations + 24 Close). No hidden extra runs. Instrumented counter in run.mjs must equal 48. signals() is called only for verification and is not a simulation.",
+  "checks_planned": [
+    "input / engine / dividend sha256 equal 77bb44f source_refs.json",
+    "Close-row transformation: signals() output identical (all fields except open) before and after; non-open fields byte-identical; open==close for every OHLC row",
+    "engine source contains exactly the expected r.open uses (execution price + presence assert); no other use of open",
+    "Open24 equals stored 77bb44f summary: market value / liquidation / tax / fees / shares / counts within 1e-6 USD, dates/counts/state identical",
+    "all 48: accounting identity, cash >= 0, integer shares, zero shares => zero basis, every sale net gain >= 2% of cost, dividend entitlement vs payment no double count, start/terminal date, fresh account at start",
+    "D vs exec date separated; fg_used from signals(delay), never raw D.fg with delay 1",
+    "Close cells: every FILLED order price equals the exec date's original close; Open cells: equals original open"
+  ],
+  "reporting": {
+    "headline": "same-day after-tax liquidation value (summary 'liquidation'), market value alongside. Market value already deducts configured tax on realized gains, MMF and dividends; only the tax on unrealized gains and sale costs at 2026-08-10 are not yet deducted. Column name final_total is NOT 'before all taxes'.",
+    "terminal_liquidation_is_valuation_only": true,
+    "paired_effects": "24 rows of Close - Open for the same candidate/start/delay; amounts are not summed across starts; no win-count / mean-rank objective",
+    "ledger_12_paths": "start {2024-10-01, 2025-01-02} x delay 0 x {NO_SELL_I25, P20_ONLY_I25_R25, P20_OR_R75_I25_R25} x {Open, Close}; explains first divergence and large trade phases without attributing the whole final difference to one order",
+    "roi": "ROI vs principal 10,000; total assets and profit are not mixed"
+  },
+  "data_inventory": {
+    "scope": "separate from the computation; no past-period simulation",
+    "needs": ["SOXL daily Open/Close 2011-2024-09", "split dates/ratios", "cash distribution amount / ex / record / pay dates", "F&G provenance / gaps / as-of"],
+    "budget": "at most 4 candidate public sources, about 8 fetch attempts; actual counts reported",
+    "rules": "no API signup/contract/key/billing/account connection; no circumvention of 403/429/subscription walls; Yahoo failure is not evidence that past Open does not exist; fetched files go to data_candidates/ and are NOT adopted as fixed calculation input; Adj Close is not used as a fill price and does not replace cash distributions; payment dates / availability times are not guessed"
+  },
+  "stop_condition": "48 cells + inventory only. No new profit target / RSI / ratio / partial sale / start / term; no re-run of 954/252/216. Any material mismatch or needed accounting change: report minimal reproduction and stop.",
+  "status": "DIAGNOSTIC_ONLY_NOT_TRADABLE_RESULTS"
+}
