@@ -1,0 +1,260 @@
+{
+  "source_commit": "e6801dca6807d42bd548051ec868469ec22eddc5",
+  "node": "v24.22.1",
+  "platform": "win32",
+  "files": [
+    {
+      "path": "research/exit_factorial_current_20261027/environment.json",
+      "expected": "aaf35e2a8a317fa84192a3a1d498bc358c36f2c2",
+      "actual": "e0f72540747750408fb8518ad97886cc0260273d",
+      "exact": false
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/explained_paths.json",
+      "expected": "b550d6d82f8511bdc0a478f4a37d84b1e1c11f99",
+      "actual": "b550d6d82f8511bdc0a478f4a37d84b1e1c11f99",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/interaction_effects.csv",
+      "expected": "2040e4fc7ab552ee2c802879091fd6f4c2e752e0",
+      "actual": "2040e4fc7ab552ee2c802879091fd6f4c2e752e0",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/ledger_new_and_regression.csv",
+      "expected": "541395e76f3d659147a2fe225b3eb718308225a9",
+      "actual": "541395e76f3d659147a2fe225b3eb718308225a9",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/path_descriptions.csv",
+      "expected": "17e63f1273252a5118af82846c79518ac9c17f8a",
+      "actual": "17e63f1273252a5118af82846c79518ac9c17f8a",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/profit_effects.csv",
+      "expected": "33f52875f80ba7de7aedfb710b8eb5a6fad6b8ca",
+      "actual": "33f52875f80ba7de7aedfb710b8eb5a6fad6b8ca",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/rsi_effects.csv",
+      "expected": "0ff08332d74d121abf5738ddc3ec7a81dbc78ac2",
+      "actual": "0ff08332d74d121abf5738ddc3ec7a81dbc78ac2",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/run.mjs",
+      "expected": "9b9c8193a34c065cde7a674c60c7e094a6d39413",
+      "actual": "9b9c8193a34c065cde7a674c60c7e094a6d39413",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/snapshots_52runs.csv",
+      "expected": "eb773ea00b1069924d76ba1b92b01feb32ff9f9f",
+      "actual": "eb773ea00b1069924d76ba1b92b01feb32ff9f9f",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/source_refs.json",
+      "expected": "d0fc1ac39e2440eba150bdcc4655bfc94edc293d",
+      "actual": "d0fc1ac39e2440eba150bdcc4655bfc94edc293d",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/specification.json",
+      "expected": "8175f4e12ed0fe49efca48824eb108412a6800a9",
+      "actual": "8175f4e12ed0fe49efca48824eb108412a6800a9",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/summary.csv",
+      "expected": "722a94fae9f28bde01e906dfa5738439bd646e65",
+      "actual": "722a94fae9f28bde01e906dfa5738439bd646e65",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/tables.md",
+      "expected": "f3806de2e2c950778df494967be8b526d6f5e4fd",
+      "actual": "f3806de2e2c950778df494967be8b526d6f5e4fd",
+      "exact": true
+    },
+    {
+      "path": "research/exit_factorial_current_20261027/verification.json",
+      "expected": "1309ed3197d7f5e3142f4236c810f557b7287cc2",
+      "actual": "1309ed3197d7f5e3142f4236c810f557b7287cc2",
+      "exact": true
+    }
+  ],
+  "exact_files": 13,
+  "total_files": 14,
+  "total_checks": 2418,
+  "verification": {
+    "passed_all": true,
+    "failure_count": 0,
+    "failures": [],
+    "counts": {
+      "evaluation_cells": 68,
+      "reused_from_stored": 24,
+      "new_simulations": 44,
+      "regression_simulations": 8,
+      "simulate_calls": 52,
+      "ledger_event_rows": 866,
+      "explained_paths": 6,
+      "regression_max_abs_diff_USD": 0,
+      "tolerance_USD": 0.000001
+    },
+    "refs": {
+      "engine": "89d766dacf0a2c480b509fded1bf07c1023522daa68f574bd1df155dafd9c239",
+      "dividends": "9745eec618dfc2becb45e60d4763ffa91f4cf5e8b6a4d737af98badc38d61f99",
+      "stored_summary_77bb44f": "3cc7624ff96382cfcf0b5c763c26be12fdafdedb00b9999d9add0aa1a7a35800",
+      "inputs": {
+        "daily.json": "a39dd1fad31934114a3b1ff6e45b199365dfb651028a548d4eb0eda39c710ee5",
+        "daily_adjclose.csv": "361efb287116fc8200582c15fcd315bcce2e218fa1e50b416bacc5acebff37b9",
+        "fear-greed.csv": "ddf510d7e3b28535f96c13ba9d62593fdea3be888be4068c02e819ab89986c77"
+      },
+      "specification": "e63ff90a559e00c88d76df6678cfc620f4e76cb0cc55c76ff8927f044d10310f",
+      "run_this": "d8d7340a14db15f400e0d1d2681520f4e77c6dcf866b9e1ef12dcdf19fb1b4b9"
+    },
+    "checks": {
+      "engine_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "dividends_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "stored_summary_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "specification_sha": {
+        "n": 1,
+        "fail": 0
+      },
+      "input_sha": {
+        "n": 3,
+        "fail": 0
+      },
+      "candidates_17": {
+        "n": 1,
+        "fail": 0
+      },
+      "reused_candidates_6": {
+        "n": 1,
+        "fail": 0
+      },
+      "stored_cell_exists": {
+        "n": 24,
+        "fail": 0
+      },
+      "reused_liquidation_identity_with_derived_terminal_cost_tax": {
+        "n": 24,
+        "fail": 0
+      },
+      "accounting_identity_total": {
+        "n": 52,
+        "fail": 0
+      },
+      "liquidation_identity": {
+        "n": 52,
+        "fail": 0
+      },
+      "terminal_date": {
+        "n": 52,
+        "fail": 0
+      },
+      "fresh_account_and_start_date": {
+        "n": 52,
+        "fail": 0
+      },
+      "balance_invariants": {
+        "n": 52,
+        "fail": 0
+      },
+      "every_filled_sale_net_gain_ge_2pct_of_cost": {
+        "n": 52,
+        "fail": 0
+      },
+      "dividend_no_double_counting": {
+        "n": 52,
+        "fail": 0
+      },
+      "fill_price_equals_original_open_of_exec_date": {
+        "n": 704,
+        "fail": 0
+      },
+      "exec_date_after_signal_date": {
+        "n": 704,
+        "fail": 0
+      },
+      "sale_signal_has_profit_hit_or_rsi_hit_per_exit_mode": {
+        "n": 240,
+        "fail": 0
+      },
+      "cells_68": {
+        "n": 1,
+        "fail": 0
+      },
+      "new_44": {
+        "n": 1,
+        "fail": 0
+      },
+      "reused_24": {
+        "n": 1,
+        "fail": 0
+      },
+      "regression_amount_equals_stored_1e-6": {
+        "n": 120,
+        "fail": 0
+      },
+      "regression_dates_equal_stored": {
+        "n": 8,
+        "fail": 0
+      },
+      "simulate_calls_52": {
+        "n": 1,
+        "fail": 0
+      },
+      "runs_52": {
+        "n": 1,
+        "fail": 0
+      },
+      "signals_fg_used_equals_row_i_minus_delay": {
+        "n": 2,
+        "fail": 0
+      },
+      "delay1_fg_used_differs_from_raw_D_fg": {
+        "n": 1,
+        "fail": 0
+      },
+      "profit_effects_12": {
+        "n": 1,
+        "fail": 0
+      },
+      "rsi_effects_48": {
+        "n": 1,
+        "fail": 0
+      },
+      "interaction_effects_36": {
+        "n": 1,
+        "fail": 0
+      },
+      "explained_paths_at_most_6": {
+        "n": 1,
+        "fail": 0
+      },
+      "ledger_rows_from_52_runs_only": {
+        "n": 1,
+        "fail": 0
+      },
+      "snapshot_date_exists": {
+        "n": 208,
+        "fail": 0
+      }
+    }
+  }
+}
