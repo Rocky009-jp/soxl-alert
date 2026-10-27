@@ -1,0 +1,43 @@
+{
+  "title": "Limited acquisition and quality check of public SOXL daily OHLC / splits / cash-distribution dates for 2021-03-03..2024-09-30",
+  "date_JST": "2026-10-27",
+  "fixed_before_acquisition": true,
+  "model_assignment": "Claude Sonnet 5.5 (per docs/tasks/HISTORICAL_DAILY_DATA_SONNET55_REQUEST.md); actual serving model not independently verifiable from inside the run",
+  "docs_start_sha": "85801367031163363eb77f558bc7e02f62484483",
+  "request": "docs/tasks/HISTORICAL_DAILY_DATA_SONNET55_REQUEST.md @ 8580136",
+  "base_commit": "77bb44f0a043b0c9867ccbd2ea9d3013002bbd47",
+  "prior_attempts_not_repeated": "research/after_tax_comparability_20261027/data_candidates/attempts.json @ 737ef35: Yahoo chart API, Stooq, Nasdaq dividend API, Direxion product page via curl all returned CONNECT 403 from the egress proxy (environment policy). The same curl/host combinations are not repeated.",
+  "simulate_calls": 0,
+  "target_window": "2021-03-03..2024-09-30 (conditional candidate: day after the last known split 2021-03-02). Not an unused OOS: results over this window were already seen elsewhere in the project.",
+  "wanted": [
+    "SOXL daily Open/High/Low/Close/Volume, trading dates, price unit; NOT dividend-adjusted; state split-adjusted vs as-traded or mark UNVERIFIED",
+    "split dates / direction / ratio; confirm no split inside the window",
+    "cash distributions: unrounded amount, ex-date, record-date, pay-date; issuer primary source preferred; missing quarters never filled with 0",
+    "F&G provenance of the stored CSV and the 2021-02 integer-to-decimal change: report UNVERIFIED if not explained; history stays a proxy without as-of proof",
+    "historical fee history vs fixed Rakuten fee scenario: NOT decided here (principal design item)"
+  ],
+  "budget": {
+    "new_providers_max": 4,
+    "fetch_attempts_max": 8,
+    "attempt_definition": "one outbound read request for one URL, successful or not (a read of a page that is already in the conversation, a local file or a GitHub MCP read of this repository is not an attempt)",
+    "provider_definition": "one distinct site/organisation not used in the 737ef35 attempts"
+  },
+  "rules": [
+    "Only read paths already available to this session (no new API registration / key / contract / billing / account connection; no network, allowed-host or cloud-environment change)",
+    "Do not repeat an environment denial; record it and stop that path. No denial circumvention (no spoofed headers, no mirror hunting to bypass a block, no URL brute force, no site crawling)",
+    "Subscription / authentication / access-denied pages stop that provider",
+    "Search snippets are never described as a full-period CSV",
+    "Raw data goes to data_candidates/ with URL, retrieval time, applicable period, columns, adjustment definition, unit, SHA256 and licence-redistribution status; if redistribution is not allowed, save only the location and a verifiable summary",
+    "No reconstruction of Open from Adj Close; no pay-date guessing; no gap filling",
+    "Checks: duplicate dates, finite positive prices, OHLC consistency (low<=open,close<=high), missing dates vs the stored trading calendar, window boundaries, out-of-range coverage, event units. If no calendar cross-check is possible, missing vs holiday is not asserted",
+    "The 2026-07-01 Open one-cent mismatch (stored 237.79 vs public 237.78 in the principal spot check) is recorded as a mismatch and not silently unified",
+    "Not adopted into the fixed 48-cell input; no threshold / ratio / partial sale / start / end comparisons"
+  ],
+  "status_vocabulary": {
+    "DATA_READY": "OHLC, split, and distribution pay-date items all present and definitions verified for the interval (F&G is a separate flag: history proxy, as-of unknown)",
+    "PARTIAL": "some items or sub-intervals obtained",
+    "UNAVAILABLE_IN_THIS_ENV": "not obtainable by the permitted paths in this environment; not evidence that the data does not exist"
+  },
+  "deliverables": ["REPORT.md", "data_availability.md", "attempts.json", "source_refs.json", "specification.json", "data_candidates/*", "quality_check.json (if data obtained)"],
+  "stop_condition": "when availability of each item is determined, or the attempt/provider budget is spent, or all permitted paths are denied; report target SHA, counts obtained, missing items and attempts used"
+}
