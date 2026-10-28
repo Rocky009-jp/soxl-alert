@@ -1,6 +1,6 @@
 # V2 保存ドメイン・単日ランナー 限定実装依頼案
 
-作成日：2026-10-28／第3版：2026-10-28（日本時間）  
+作成日：2026-10-28／第4版：2026-10-28（日本時間）  
 状態：レビュー待ち・未承認。ユーザーの今回の指示は設計・依頼書作成まで。  
 本書を渡すだけでは実装を開始しない。ユーザーがS1の実装を指示した後、この範囲で実施する。
 
@@ -57,9 +57,9 @@
 - 明示Dだけを処理する。snapshot検査、必要セッション確認、台帳照合、コア呼出の順を固定する。
 - 台帳は境界以降を含む写し。適用済みdecisionの削除／変更／追加、欠測区間への遅着は停止する。ACKや補完で先へ進めない。
 - 適用済み各Dの保存範囲を現在sessionsから切り出し、必要窓のどちらかが欠ければsession_context_missing、存在して保存投影と異なればsession_context_mismatch。投影は当該Dのnext(D)のclose_at／confirmedだけを除く。この照合は台帳選択より先なので、同じ最新Dのセッション相違にも先にこのcodeを使う。
-- 新しいDを準備する際、通常・初回とも基準境界BとDの間の全セッションSへselect_decisionを日付順に適用する。窓外decision等は既存codeで確定前に拒否する。全Sの検査後に有効decisionがあればintermediate_session_unprocessed。first_unprocessed_sessionだけで済ませず、途中Dも自動処理しない。
+- 新しいDを準備する際、通常・初回とも基準境界BとDの間の全セッションSにconfirmed=trueを求める。未確定があれば必要sessions検査でintermediate_session_unconfirmed（field=sessions）、計画なしで停止する。decision無しのSにも適用し、next(D)には適用しない。確定確認後、全Sへselect_decisionを日付順に適用する。窓外decision等は既存codeで確定前に拒否する。全Sの検査後に有効decisionがあればintermediate_session_unprocessed。first_unprocessed_sessionだけで済ませず、途中Dも自動処理しない。
 - decision無しは計画なし。新規decisionは1件の準備だけ。作成したAPPLYを追記した候補Snapshotをvalidate_snapshotと同じ経路で全検査・再計算し、合格後にだけPREPAREDを返す。同じ最新Dで確定入力・遷移判定・状態が同じなら追記なし。判定が同じでも市場入力が違えばrecompute_mismatch。
-- 先に行う台帳照合での削除／内容違いはledger_mismatch。select_decisionが検出する複数decisionやrecord_id競合は既存codeを保つ。コア単体とラッパーの優先順位差を隠さない。
+- 台帳照合では、select_decisionの結果が無し、または正常に選択された単一行の指紋が保存値と違う場合にledger_mismatchとする。旧新併存・追加等でselect_decisionが出すrecord_id_conflict／decision_conflict／decision_outside_window等は、そのcodeを保持する。詳細は直後の対応表に従い、コア単体とラッパーの優先順位差を隠さない。
 - 正常commit直後に他の更新を挟まず、同じseries・sessions・台帳で同じ最新Dを再実行すれば、必ずALREADY_APPLIED、計画なし・追加0件。core_result.state_updatedを保存成功の意味へ変更しない。COMMITTEDはcommit成功時だけ返す。
 - エラーcode／field／優先順位は設計§9の対応表に従う。注入台帳への既存code保持と、保存Snapshot内部の不整合をsnapshot_invalidへ包む場合を区別する。
 
@@ -92,9 +92,9 @@
 |---|---|
 | A-01 既存回帰 | b616b4eの既存181件を一切編集せず合格。既存138件だけで代替しない。既存ファイル・基準データのGit差分0を確認 |
 | A-02 初期化・構造 | 未初期化読取、二重初期化、正常GENESIS、境界不正日付／不存在／未確認／Dが境界当日の拒否、APPLYを含む初期化／初期以外のGENESIS拒否、不明版／コアSHA／イベント／項目、seq／親／hash／D重複・逆転／先頭状態の不一致を拒否 |
-| A-03 再計算 | 複数APPLYのJSON往復後も全state_afterとtransition_resultが一致。正常な基点を受け付け、基点と親状態の不一致・固定decision指紋不一致を拒否。apply_transitionの実呼出を両経路でspyし、返値差替えで不一致を検出。候補Snapshotの自己検査で不一致ならPREPAREDを出さない。計画・先頭・計算環境が不変なら正常なPREPAREDのcommitは同じ検査にも合格 |
+| A-03 再計算 | 複数APPLYのJSON往復後も全state_afterとtransition_resultが一致。正常な基点を受け付け、基点と親状態の不一致・固定decision指紋不一致を拒否。保存済み中間Sが未確定なら、hashが整っていてもsnapshot_invalid（rule=skipped_session_unconfirmed）で拒否。apply_transitionの実呼出を両経路でspyし、返値差替えで不一致を検出。候補Snapshotの自己検査で不一致ならPREPAREDを出さない。計画・先頭・計算環境が不変なら正常なPREPAREDのcommitは同じ検査にも合格 |
 | A-04 単日・再実行 | 新規Dは準備だけで未保存、commit後1件、decision無しは追記0、正常commit直後の不変入力による同じ最新Dの再実行は必ずALREADY_APPLIED・計画なし・追記0。UTC別表記・同内容重複・合法で無関係な補助観測・将来行では入力同一性を保つ。next(D)のconfirmedだけ／close_atだけ／両方の有効な更新でも同じ結果とし、保存済み写し・event_hashは不変。next(D)のopen_at／dateの変更は除外せずsession_context_mismatchまたは欠落・入力不正の対応codeで停止。数値変更が判定を変えなくても停止。保存前の候補をCOMMITTEDと表示しない |
-| A-05 時系列・台帳 | 境界以前／過去D拒否、初回も含む途中decisionの停止、中間Sの窓外decisionを確定前にdecision_outside_windowで拒否、誤対象／複数decision／同ID内容違いも各codeで拒否。複数中間Sで有効decisionの後に不正行がある例も全区間検査を省略しない。通常欠測後F&G30以上はstreak=1、初回遅延はgap=falseでもskipped_sessionsあり。適用済みdecisionの削除／変更／別ID追加、同ID内容違い、遅着、必要sessions不足・保存セッション投影との相違を状態不変で拒否。行順を入れ替えても勝者を選ばない |
+| A-05 時系列・台帳 | 新規Dの中間Sに未確定があればintermediate_session_unconfirmedで計画なし、状態・seq・先頭不変。境界以前／過去D拒否、初回も含む途中decisionの停止、中間Sの窓外decisionを確定前にdecision_outside_windowで拒否、誤対象／複数decision／同ID内容違いも各codeで拒否。複数中間Sで有効decisionの後に不正行がある例も全区間検査を省略しない。通常欠測後F&G30以上はstreak=1、初回遅延はgap=falseでもskipped_sessionsあり。適用済みdecisionの削除／変更／別ID追加、同ID内容違い、遅着、必要sessions不足・保存セッション投影との相違を状態不変で拒否。行順を入れ替えても勝者を選ばない |
 | A-06 同時更新・照合 | 同じ先頭から同じD・同内容の2計画で成功1件、失敗側は読直し照合でALREADY_APPLIED。異なる入力の同Dではconcurrent_conflict。異なるDや親の計画を自動付替えしない。commit後に先頭が進んでも自分の記録を照合できる。相手だけが先頭を進めた例を成功と誤認しない |
 | A-07 障害・独立性 | commit直前の検査例外で状態不変、commit成功後に応答を失った想定でも照合により追加0。入力・戻り値・計画の入れ子改変で内部状態が変わらない。JSON重複キー・bool数値・NaN／Infinity・不正日時／窓を拒否。安全な例外に生行やURLを出さない |
 | A-08 境界・環境 | 新規コードに通信・実時刻・ファイルパス操作・通知・資格情報の経路が無い。設計§9のエラーcode／field／優先順位の対応表と一致し、既存evaluate_dayへの委譲を確認し、コアのエラーをNO_SIGNALへ変換しない。対象Python版と全試験件数・失敗／skipを記録。MemoryStoreの試験を耐久保存・複数プロセス・実配信の証明にしない |
@@ -110,6 +110,8 @@ N-02のA-04は、next(D)のconfirmedのみ、close_atのみ、両方を変えた
 A-07の「応答を失った想定」はメモリ内の障害注入である。実ネットワークや電源断を発生させない。エラー発生後も元Snapshotの内容と先頭が一致することを全エラー群で確認する。
 
 A-03のspy／返値差替えは、通常計算ではv2_core.engine.apply_transition、新パッケージの再計算では実際に参照される束縛名を対象とする。from-importの元v2_core.transition.apply_transitionだけを変更して効いたと見なさない。経路ごとに別ケースでspyと差替えを行い、通常計算と再計算を同時に同じ誤った返値へ変えて一致させない。差替え先、到達した経路、検出結果を報告する。再計算差替えは保存済み正常Snapshotの検査とPREPARED前の自己検査の両方を含める。
+
+Q-01のA-05は、初回・通常実行の両方でdecision無しの中間Sをconfirmed=falseとして準備を拒否し、保存状態・seq・先頭が変わらないことを確認する。同じSをtrueに確定し、他の入力を変えずに再準備・commitでき、直後の同日再実行もALREADY_APPLIEDになることを確認する。next(D)はfalseのままでよい。
 
 P-02のA-05は、最新Dより古い適用済みDの保存範囲の時刻等を改訂して停止する例も含める。next(D)の2項目除外は各APPLY自身のDを基準に行い、後続APPLYではそのセッションが当日・前日になることを区別する。
 
@@ -168,3 +170,11 @@ Pythonは3.10・3.11・3.12・3.13を対象とし、各版の完全バージョ�
 第3版では任意の提案も文書案へ反映する。P-01の台帳code表、P-02の保存セッション投影照合、P-03の不要文削除、P-04の上位との差の説明、P-05のPREPARED前検査、P-06のspy対象、P-07のhigh推奨、P-08の読取参照とパスを明確にした。追加の市場計算・保存アダプタ・復旧・通知・コア変更は増やしていない。
 
 S1のscopeと不一致時停止、受入条件、Sonnet 5.5／highと隔離Python環境案は依然として採用前の依頼案。実装を始める指示はまだ受けていない。既存181件のユーザーPC確認は後日実施のままで、今回も試験実行はない。
+
+## 9. 第4版：Q-01／Q-02の補正
+
+開始SHA：8ff1240cd213ce4f5845ded09dfe1bb395c5d07e。第3版への確認報告（新しい重大・通常問題なし）を受領し、任意提案2件を文書案へ反映した。
+
+Q-01は全中間Sの確定を準備条件とし、未確定の欠測記録をSnapshot検査でも拒否する。期待codeとA-03／A-05の受入例を設計§6／§7.2／§9に揃えた。Q-02は§3.2の古い一括表現を対応表どおりに修正した。
+
+今回の変更は文書2本のみ。試験は未実施、S1の実装は未承認・未着手。実装に進むかの判断は引き続き§6による。ユーザーPCでの181件確認は後日実施のまま。
