@@ -80,6 +80,10 @@ MUTATIONS = [
      "invalid UTF-8 repaired silently"),
     ("M30", "store.py", ("(st.st_dev, st.st_ino) != (lock.dev, lock.ino)", "(st2.st_dev, st2.st_ino) == (lock.dev, lock.ino)"),
      ("False", "True"), "lock inode not compared"),
+    ("M31", "store.py", "cleanup = earlier + tuple(t for t in (token,) if t not in earlier)", "cleanup = (token,)",
+     "R-01: earlier clean-up items dropped when the error is replaced"),
+    ("M32", "store.py", "            if self._lock_path_exists(path):", "            if False:",
+     "R-02: existing lock reported as I/O error when creation raises a non-FileExists error"),
 ]
 
 

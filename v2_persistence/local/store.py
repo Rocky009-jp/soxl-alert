@@ -173,6 +173,9 @@ class LocalFileStore:
             err = LocalStoreError("store_busy", "lock", "lock_acquire")
         except Exception:
             err = LocalStoreError("store_io_error", "lock", "lock_acquire")
+            if self._lock_path_exists(path):
+                # e.g. Windows reports an existing directory as PermissionError, not FileExistsError
+                err = LocalStoreError("store_busy", "lock", "lock_acquire")
         if err is not None:
             raise err
         st, writer, failed = None, None, False
@@ -189,6 +192,14 @@ class LocalFileStore:
             tokens = self._discard_own(path, st, writer, fd, CLEANUP_LOCK_LEFT)
             raise LocalStoreError("store_io_error", "lock", "lock_acquire", cleanup=tokens)
         return _Lock(path, st.st_dev, st.st_ino, marker)
+
+    def _lock_path_exists(self, path):
+        """Something (file, directory or link, never followed) is at the lock path. Unknown counts as not existing."""
+        try:
+            self._ops.lstat(path)
+        except Exception:
+            return False
+        return True
 
     def _owns(self, lock):
         """Still our lock file: same inode and our marker. Anything unreadable counts as not confirmed."""
@@ -226,15 +237,18 @@ class LocalFileStore:
             return value
         token = CLEANUP_LOCK_FOREIGN if rel == "lost" else CLEANUP_LOCK_LEFT
         phase = "lock_ownership" if rel == "lost" else "lock_release"
+        # A replacement error keeps what the earlier error already reported as left behind (fixed identifiers only).
+        earlier = tuple(getattr(exc, "cleanup", ())) if isinstance(exc, LocalStoreError) else ()
+        cleanup = earlier + tuple(t for t in (token,) if t not in earlier)
         if ctx.published:
             if isinstance(exc, LocalStoreError) and exc.code == "store_commit_uncertain":
                 raise exc.add_cleanup(token)
-            raise LocalStoreError("store_commit_uncertain", "snapshot", phase, cleanup=(token,),
+            raise LocalStoreError("store_commit_uncertain", "snapshot", phase, cleanup=cleanup,
                                   primary=getattr(exc, "code", None))
         if isinstance(exc, LocalStoreError) and exc.code == "store_lock_ownership_lost" and rel == "lost":
             raise exc.add_cleanup(token)
         code = "store_lock_ownership_lost" if rel == "lost" else "store_io_error"
-        raise LocalStoreError(code, "lock", phase, cleanup=(token,), primary=getattr(exc, "code", None))
+        raise LocalStoreError(code, "lock", phase, cleanup=cleanup, primary=getattr(exc, "code", None))
 
     # --- reading -------------------------------------------------------------------------------------------
     def _scan(self):
