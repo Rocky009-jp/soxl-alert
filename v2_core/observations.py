@@ -48,7 +48,10 @@ def _parse_value(raw):
     if isinstance(raw, bool):
         raise InputError("fg_value_invalid", "current_fg_value")
     if isinstance(raw, (int, float)):
-        v = float(raw)
+        try:
+            v = float(raw)
+        except OverflowError:
+            raise InputError("fg_value_invalid", "current_fg_value")
     elif isinstance(raw, str):
         try:
             v = float(raw.strip())
