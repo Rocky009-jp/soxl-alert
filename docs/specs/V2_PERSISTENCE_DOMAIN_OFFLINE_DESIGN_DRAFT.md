@@ -1,6 +1,6 @@
 # V2 保存ドメイン・単日ランナー オフライン設計案
 
-作成日：2026-10-28／第3版：2026-10-28（日本時間）  
+作成日：2026-10-28／第4版：2026-10-28（日本時間）  
 状態：レビュー用の設計案。実装は未承認・未着手。今回の指示は設計と依頼書の作成まで。  
 段階名：S1（メモリ上の検証）。本番の永続保存形式を確定する文書ではない。
 
@@ -115,7 +115,7 @@ validate_snapshotは毎回履歴全体を検査する（S1に限る提案。U-10
 3. 各APPLYのconfirmed_inputsを再検査する。decisionがDの窓内で、対象D・record_id・指紋がstate_after.fixed_decisionと一致することを確認する。session_contextはSessionList.from_dictsへ渡し、保存した基準境界・prev_session_date・D・next(D)の関係、Dがconfirmed=trueであること、D行の日付も検査する。
 4. 当該APPLYの基点は、親イベントのstate_afterからfixed_decisionとbaseだけを落とした値と比較する（IB-04）。同じ値を別の現在状態としてfrom_dictへ渡さない。
 5. 親の検査済み市場状態、保存済みの行・decision・prev_session_dateを既存apply_transitionに渡す。候補状態とtransition_resultを全項目比較する。戦略の計算式を新パッケージへ複製しない。
-6. skipped_sessionsは、基準境界の次からDの前までのsession_context上の全セッションと一致することを確認する。snapshot.current_stateは最後のstate_afterと一致する。
+6. skipped_sessionsは、基準境界の次からDの前までのsession_context上の全セッションと一致し、そのすべてがconfirmed=trueであることを確認する。未確定の保存済み中間セッションはsnapshot_invalid（rule=skipped_session_unconfirmed）で拒否する。snapshot.current_stateは最後のstate_afterと一致する。
 
 S1にACK等の状態を変えないイベントは無い。後に追加する際は、IB-04が「現在状態を作ったAPPLYの親」を指す上位設計を維持する。将来の復旧履歴を単純に末尾の状態とだけ比較して処理しない。
 
@@ -145,7 +145,7 @@ S1の呼出側はGENESIS以降の全履歴を照合できるsessionsを注入す
 
 DはGENESIS.start_afterより後で、現在state.as_of_dより過去であってはならない。
 
-新しいDを準備する際の基準境界Bは、現在state.as_of_dがあればその日、初回はGENESIS.start_after。B<S<Dの全注入セッションSを日付昇順で列挙し、各Sについて既存select_decision(raw_observations, sessions, S)を呼ぶ。窓外decision、誤対象、複数decision、同じrecord_idの内容違い等は、その既存codeで計画作成前に止める。有効なdecisionを1件見つけても、残りSの検査を飛ばして欠測を確定してはならない。全Sの検査を終え、有効なdecisionがあれば最も早いSをintermediate_session_unprocessedとして止める。全Sでdecisionが無い場合だけ、その区間をskipped_sessionsにできる。
+新しいDを準備する際の基準境界Bは、現在state.as_of_dがあればその日、初回はGENESIS.start_after。B<S<Dの全注入セッションSを日付昇順で列挙する。必要sessionsの検査段階で、全Sにconfirmed=trueを求め、未確定が1件でもあればintermediate_session_unconfirmed（field=sessions）で計画を作らず停止する。これはdecisionが無いSにも適用し、next(D)には適用しない。その後、各Sについて既存select_decision(raw_observations, sessions, S)を呼ぶ。窓外decision、誤対象、複数decision、同じrecord_idの内容違い等は、その既存codeで計画作成前に止める。有効なdecisionを1件見つけても、残りSの検査を飛ばして欠測を確定してはならない。全Sの検査を終え、有効なdecisionがあれば最も早いSをintermediate_session_unprocessedとして止める。全Sでdecisionが無い場合だけ、その区間をskipped_sessionsにできる。
 
 first_unprocessed_sessionだけでは窓外decisionを拒否できないため、S1の中間区間検査をこの関数だけで済ませない。初回も通常の新規Dも同じselect_decisionによる検査を行う。NO_COMMITの場合も検査を省略しない。これで新たに記録する欠測区間は、後続実行で行う§7.1と同じ検査を既に通っている。
 
@@ -194,6 +194,7 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 | Dが適用済み最新Dより前 | state_ahead_of_target | state。既存コアと同じcode |
 | Dがsessionsに無い／未確認、next／previous不足 | target_not_in_sessions／target_unconfirmed／next_session_missing／previous_session_missing | sessions。既存コアと同じcode |
 | 台帳照合・中間区間に必要なセッションや窓が不足 | session_context_missing | sessions |
+| 新規Dの中間区間にconfirmed=falseのSがある | intermediate_session_unconfirmed | sessions。必要sessions検査で停止、計画なし |
 | 適用済みDの保存範囲と今回のセッション投影が相違 | session_context_mismatch | sessions。next(D)のclose_at／confirmedだけの変更を除く |
 | 適用済みdecisionが無い／選択した指紋が保存値と異なる | ledger_mismatch | observations |
 | 既存の欠測区間に有効なdecisionが追加された | late_observation | observations |
@@ -205,7 +206,7 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 | reconcileで同じDに異なる記録 | concurrent_conflict | events |
 | reconcileで該当Dが無い | エラーではなくREPLAN_REQUIRED | 書込なしの結果ステータス |
 
-prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検査、③台帳照合、④evaluate_dayと同日比較。③では適用済みDの日付昇順、既存skipped_sessionsの日付昇順、新規Dの中間区間の日付昇順の順に検査する。適用済み各Dでは必要セッションの有無、保存範囲の投影一致、select_decision、保存指紋との一致の順とする。各select_decisionの例外はその時点で伝え、正常に選択された値についてのみledger_mismatch／late_observationを判定する。新規中間区間では全Sを検査後にintermediate_session_unprocessedを判定する。同日比較はinput_hash、transition_result、state_afterの順で不一致を判定する。
+prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検査、③台帳照合、④evaluate_dayと同日比較。②には新規Dの全中間Sのconfirmed検査も含める。③では適用済みDの日付昇順、既存skipped_sessionsの日付昇順、新規Dの中間区間の日付昇順の順に検査する。適用済み各Dでは必要セッションの有無、保存範囲の投影一致、select_decision、保存指紋との一致の順とする。各select_decisionの例外はその時点で伝え、正常に選択された値についてのみledger_mismatch／late_observationを判定する。新規中間区間では全Sを検査後にintermediate_session_unprocessedを判定する。同日比較はinput_hash、transition_result、state_afterの順で不一致を判定する。
 
 注入入力をコアが拒否した場合と、保存済みSnapshotの内部不整合は区別する。後者でstate_invalid等をsnapshot_invalidへ包むことは、前者のcodeを上書きする規則ではない。台帳照合を先に行うため、コア単体ならrerun_decision_missing等となる入力もS1ではledger_mismatchになる場合がある。
 
@@ -259,3 +260,12 @@ b616b4eのobservations.py、engine.py、sessions.pyを読み、2指摘の根拠�
 - S1のreconcileは自分と他実行の同一内容を区別しない。S2以降で上位§3.8の自分の保存への到達性を扱う場合、保存方式に応じた計画識別子とスキーマの版上げを別途設計する。送信権の意味を付けない。
 
 今回も文書のみ。本文・コアの読解による整合性確認であり、試験・再現スクリプトは実行していない。ユーザーPCでの全181件は後日実施、S1実装は未承認・未着手のままである。
+
+## 13. 第4版：第3版の確認報告とQ-01／Q-02
+
+開始SHA：8ff1240cd213ce4f5845ded09dfe1bb395c5d07e。ユーザーから、第3版はN-01／N-02と提案8件が反映され、新たな重大・通常問題なし、文書として実装判断へ進める、との確認報告を受領した。これは文書の確認でありS1の実装承認ではない。
+
+- Q-01：§7.2で新規Dの全中間Sにconfirmed=trueを要求。未確定なら準備前に停止し、§6でも未確定の欠測記録を拒否する。next(D)のconfirmed=falseは許容する。依頼A-03／A-05に拒否・確定後の再準備の受入例を追加。
+- Q-02：依頼§3.2の「内容違いはledger_mismatch」を、単一行の置換と旧新併存・追加を区別する対応表の意味に揃えた。
+
+変更は設計と依頼の2文書のみ。保存済みレビュー原文は変更しない。今回もコード変更・試験実行はなく、ユーザーPCでの181件確認は後日、S1は実装未承認・未着手のまま。
