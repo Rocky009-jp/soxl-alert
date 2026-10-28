@@ -1,6 +1,6 @@
 """Writes data/baseline_evaluate_day_1a54a85.json: what the code BEFORE the transition extraction returned.
 
-Run once, from the repository root, on a checkout of 1a54a85 (v2_core/ untouched):
+Run from the repository root on a tree whose v2_core/ is identical to 1a54a85's (the guard below checks this):
 
     python3 -B tests/v2_core/gen_baseline_evaluate_day.py
 
@@ -29,16 +29,15 @@ def git(*args):
 
 
 def main():
-    head = git("rev-parse", "HEAD")
     dirty = git("status", "--porcelain", "--", "v2_core")
-    if head != EXPECTED_SHA or dirty:
-        sys.exit("refusing to write: HEAD is %s (need %s) or v2_core/ is modified" % (head, EXPECTED_SHA))
+    if git("rev-parse", EXPECTED_SHA + ":v2_core") != git("rev-parse", "HEAD:v2_core") or dirty:
+        sys.exit("refusing to write: v2_core/ differs from %s" % EXPECTED_SHA)
     cases = {}
     for cid, _args, res in tc.iter_all():
         assert cid not in cases, cid
         cases[cid] = tc.to_plain(res)
     doc = {
-        "generated_from_sha": head,
+        "generated_from_sha": EXPECTED_SHA,
         "generator": "tests/v2_core/gen_baseline_evaluate_day.py",
         "note": "outputs of the code before the transition extraction; a before/after base, not a correctness oracle",
         "case_count": len(cases),
