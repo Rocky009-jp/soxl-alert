@@ -5,6 +5,7 @@ Never replaces a missing observation with 0, a previous value, or a historical p
 import hashlib
 import json
 import math
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
@@ -12,6 +13,10 @@ from typing import Optional
 from .errors import ConflictError, InputError
 from .fixture import parse_iso_date
 from .sessions import parse_aware_datetime
+
+# English letters/digits first, then letters, digits, "." "_" "-"; at most 64 characters. Matched with fullmatch
+# (a "$" anchor would accept a trailing newline). Keeps URLs, spaces and other free text out of saved state and logs.
+RECORD_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}")
 
 ROLES = ("decision", "supplemental")
 STATUSES = ("observed", "not_checked")
@@ -33,6 +38,10 @@ class Observation:
              self.target_date],
             ensure_ascii=True)
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def is_valid_record_id(value):
+    return isinstance(value, str) and RECORD_ID_PATTERN.fullmatch(value) is not None
 
 
 def _parse_value(raw):
@@ -60,7 +69,7 @@ def parse_observation(raw):
     if not isinstance(raw, dict):
         raise InputError("observation_invalid", "observation")
     record_id = raw.get("record_id")
-    if not isinstance(record_id, str) or not record_id.strip():
+    if not is_valid_record_id(record_id):
         raise InputError("record_id_invalid", "record_id")
     status = raw.get("observation_status")
     role = raw.get("observation_role")

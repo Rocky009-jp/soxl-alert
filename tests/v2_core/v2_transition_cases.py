@@ -68,6 +68,11 @@ class PrevRowUnavailable(h.StubSeries):
             raise InputError("insufficient_history", "market")
         return super().row(d)
 
+    def through(self, d):
+        cut = PrevRowUnavailable([r for r in self.rows.values() if r.date <= d])
+        cut.closes = dict(self.closes)
+        return cut
+
 
 def sessions(confirm_d=True, dates=SESSION_DATES):
     base = h.make_sessions(dates)
@@ -172,13 +177,14 @@ def representative_cases():
     c["target_row_missing"] = _args(series=h.StubSeries([h.row(PREV, **h.NORMAL_OK)]), raw=[stored])
     c["bad_target_date"] = _args(d="2026-3-11")
     c["state_not_a_state"] = _args(state="x")
-    s = PrevRowUnavailable([h.row(PREV, **h.NORMAL_OK), h.row(D, **h.NORMAL_OK)])
-    s.closes = {D: 31.25}
-    for fg in (None, 27.5):
-        for name, st in (("unknown", base_unknown), ("false", MarketState(PREV, Tri.FALSE, 0, Tri.FALSE)),
-                         ("fresh", MarketState.initial())):
-            c["prev_row_unavailable|%s|%s" % (fg, name)] = _args(
-                st, series=s, raw=[] if fg is None else [h.obs("r-" + D, D, fg)])
+    for d_kind, d_attrs in (("normal", h.NORMAL_OK), ("trend", h.TREND_OK), ("none", h.WEAK)):
+        s = PrevRowUnavailable([h.row(PREV, **h.NORMAL_OK), h.row(D, **d_attrs)])
+        s.closes = {D: 31.25}
+        for fg in (None, 27.5):
+            for name, st in (("unknown", base_unknown), ("false", MarketState(PREV, Tri.FALSE, 0, Tri.FALSE)),
+                             ("fresh", MarketState.initial())):
+                c["prev_row_unavailable|%s|%s|%s" % (d_kind, fg, name)] = _args(
+                    st, series=s, raw=[] if fg is None else [h.obs("r-" + D, D, fg)])
     no_close = stub_series()
     no_close.closes = {}
     c["no_soxl_close"] = _args(series=no_close, raw=[stored])
