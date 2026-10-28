@@ -2,7 +2,9 @@
 
 2026-10-28（日本時間）。依頼書 `docs/tasks/V2_PERSISTENCE_DOMAIN_OFFLINE_REQUEST.md` 第4版と設計書 `docs/specs/V2_PERSISTENCE_DOMAIN_OFFLINE_DESIGN_DRAFT.md` 第4版（資料ブランチ `docs/v2-persistence-domain-20261028` の `425df80d04b116e25e481184069b89bed1380c3a`）を、Rockyさんの採用文（2026-10-28 04:09 UTC、プロジェクトスレッド。S1の限定実装を承認、Sonnet 5.5・エフォートhigh、範囲は依頼書どおり）の範囲で実装した。PRは作っていない。
 
-## 1. 結論
+> **第2版（2026-10-28）**：受領レビュー（`docs/v2-persistence-domain-s1-receipt-20261028` の `da24fcd4fcd70a51753ff61b3f9aa1436ec431c2`、重大0・通常3・提案1）を受け、R-01〜R-03を別ブランチ `fix/v2-persistence-domain-s1-review-20261028`（`b9586d65aa411bfe32ca6fe795ad4b15e972d59c` 基準）で修正した。**§15が第2版の結果**で、§1〜§14は第1版（b9586d6）の記録。第1版の件数・SHAのうち、第2版で変わるものは§15に示す（試験は154→170件）。欠陥注入「58通り」は**57通りの誤り**で、§12を訂正した。
+
+## 1. 結論（第1版）
 
 - 新規パッケージ `v2_persistence/`（標準ライブラリと変更なしの `v2_core` だけに依存）、新規試験 `tests/v2_persistence/`、この結果文書だけを追加した。**b616b4e との差分は追加（A）のみで、変更・削除は0件**。
 - 受入条件 A-01〜A-08 を実施し、全て合格。**既存181件**（既存ファイル無変更）と**新規154件**は、Python 3.10.20・3.11.17・3.12.3・3.13.17の全てで、失敗0・skip0・終了コード0（クリーンクローン、`core.autocrlf=false`、OSレベルで通信を遮断した状態）。
@@ -181,9 +183,9 @@ PRなし。本番反映、停止解除、Actions起動、Discord／Sheets送信�
 
 依頼書どおり、前工程の43欠陥注入や3114ケース生成は作り直していない。今回の試験が本当に効くかを確かめるため、一時コピーに新パッケージの欠陥を1つずつ入れて新規試験を実行する一時スクリプトを使った（リポジトリには保存していない。保存するとtests/v2_persistenceの範囲外の道具が増えるため）。
 
-試験対象SHA `5083b37` のコードに対し、58通りを用意した（ストアの比較・全検査・ロックの除去、ハッシュ連鎖・正準形・基点IB-04・再計算比較・保存入力の各検査の除去、実行側のセッション確認・台帳照合・投影比較・再実行比較・候補の自己検査・入力の写しの除去、投影の誤り、Snapshot／計画の戻り値の共有、重複キー・NaNの許容、`reconcile`の緩和など）。結果：
+試験対象SHA `5083b37` のコードに対し、**57通り**を用意した（第1版では「58通り」と書いたが誤り。58は一時スクリプトの出力行数で、57通りの結果行に最後の集計の1行が加わった数だった）（ストアの比較・全検査・ロックの除去、ハッシュ連鎖・正準形・基点IB-04・再計算比較・保存入力の各検査の除去、実行側のセッション確認・台帳照合・投影比較・再実行比較・候補の自己検査・入力の写しの除去、投影の誤り、Snapshot／計画の戻り値の共有、重複キー・NaNの許容、`reconcile`の緩和など）。結果：
 
-- **検出55**（新規試験が失敗した）。
+- **検出55**（新規試験が失敗した）。55＋対象外1＋同値の未検出1＝**57**で、総数と一致する。
 - **適用対象外1**：`fixed_decision`の明示検査を外す案は、実装で冗長な検査を削除済み（§13の5）のため該当コードが無い。
 - **検出されない1**：保存した窓での`select_decision`の省略（`stored_window_select_skipped`）。投影一致の後は窓が常に同じになるため結果が変わらない同値の変更で、試験で検出できないのは構造上のもの（§13の3）。
 
@@ -209,3 +211,78 @@ PRなし。本番反映、停止解除、Actions起動、Discord／Sheets送信�
     python3 -B -m unittest discover -s tests/v2_core                        # 既存181件
     python3 -B -m unittest discover -s tests/v2_persistence -p "test_*.py"  # 新規154件
     # 通信遮断を強めるとき（Linux）：unshare -rn python3 -B -m unittest ...
+
+## 15. 第2版：受領レビュー（R-01〜R-03、P-01）への対応
+
+### 15.1 記録
+
+| 項目 | 値 |
+|---|---|
+| 受領レビュー | `da24fcd4fcd70a51753ff61b3f9aa1436ec431c2`（`docs/v2-persistence-domain-s1-receipt-20261028`）。レビュー本文と再現スクリプト `V2_PERSISTENCE_DOMAIN_S1_REPRO_20261028.py`。依頼は coordinator 経由で、レビュー§6の限定修正案の範囲 |
+| 修正の基準 | `b9586d65aa411bfe32ca6fe795ad4b15e972d59c` |
+| 修正ブランチ | `fix/v2-persistence-domain-s1-review-20261028`（新規。実装ブランチ `feat/v2-persistence-domain-offline-20261028` は b9586d6 のまま不変） |
+| 修正・試験のコミット（試験対象SHA、完全） | `e37275df1208a8c896954645e1997826f80a139e` |
+| 保存最終SHA（完全） | 報告に記載（この文書の追加だけが差分。§15.5） |
+| モデル／エフォート | 第1版と同じセッション（`claude-sonnet-5-5`、`high`） |
+| 環境 | 第1版と同じ（Ubuntu 24.04.5、Python 3.10.20／3.11.17／3.12.3／3.13.17、`core.autocrlf=false`） |
+
+### 15.2 修正内容
+
+| ID | 原因 | 修正（`v2_persistence/` のみ） |
+|---|---|---|
+| R-01 | `validate_snapshot` が `Snapshot` の内部の辞書（`_internal()`）を直接読み、戻り値の `ValidatedSnapshot`、`AppliedDay`、`MarketState`（そこから `evaluate_day` の `next_state` へ）が、ストアの保存内容への参照を持っていた | `recompute.py`：入口を `snapshot.to_dict()`（呼出しごとの深い写し）に変更。戻り値の構造化データはどれも保存内容と独立になる。ほかの公開API（`Snapshot` の各アクセサ、`AppendPlan.event`、`read`／`commit`／`reconcile`／`make_genesis`／`decode_snapshot` の戻り値）は第1版から写しまたは不変値で、今回全て確認した（§15.3） |
+| R-02 | `events.row_dict` が型検査の前に `float()` を呼び、`True` が `1.0` として保存候補に入った | `events.py`：`_market_float` を追加し、float変換の前に bool と数値以外を拒否。D行は rule=`row`、前日行は rule=`prev_row` の `snapshot_invalid`。通常の int／float は従来どおり float に正規化 |
+| R-03 | 保存入力の `_num` が `float(x)` の `OverflowError`（10**400 など）を包んでいなかった | `recompute.py`：`_num` で `OverflowError` を `snapshot_invalid` に変換。同じ原因の経路として、保存された decision の値をコアの `parse_observation` に渡す箇所（コアは10**400で `OverflowError` を出す）も `snapshot_invalid`（rule=`decision`）に変換。`events.py` 側（準備時の組立て）にも同じ変換 |
+
+既存の `v2_core`、既存181件、基準データ、依存・workflowは変更していない。b616b4e との差分は追加18ファイル（A）のみで、変更・削除は0件。第1版の結果文書以外にこの修正で変わったファイルは `v2_persistence/events.py`、`v2_persistence/recompute.py`、`tests/v2_persistence/test_a07_failure_independence.py`（ランダム編集の候補値に巨大整数を追加）、新規 `tests/v2_persistence/test_s1_review_fixes.py`（16件）。
+
+### 15.3 回帰試験（`test_s1_review_fixes.py`、16件）
+
+| 対象 | 試験の内容 |
+|---|---|
+| R-01（5件） | レビューの4経路（`NO_COMMIT` の `next_state.fixed_decision`、`boundary_session`、`applies[0].transition_result`、`applies[0].state_after`）。検証結果の全項目（`AppliedDay` の `context`／`stored_sessions`／`skipped` を含む）と、PREPARED／NO_COMMIT／ALREADY_APPLIED の `core_result` の `next_state`・`rules`・`notes`・`series_meta`、`plan.event`、`store.read()`／`commit`／`reconcile`／`make_genesis`／`decode_snapshot` の戻り値の全ての辞書・リストを書き換える。比較の基準は編集前に取った深い写しで、`to_dict`、`encode_snapshot`、先頭、encode→decodeの結果、`validate_snapshot` の再検査を全て確認。同じSnapshot参照との比較だけにはしていない |
+| R-02（5件） | D行・前日行の5項目×True／False を拒否（`snapshot_invalid`、rule=`row`／`prev_row`、計画なし、状態不変）、系列の巨大整数の拒否、`row_dict` の直接呼出し、正常な int／float 入力の float 正規化と従来どおりの PREPARED→commit→ALREADY_APPLIED |
+| R-03（6件） | 保存した `row` の5項目、前日行の5項目、decisionの値に正負の10**400（JSON往復後）、レビューの再現手順、`prepare_day`／`MemoryStore.initialize`／`reconcile` がそのSnapshotを `snapshot_invalid` で拒否、5000桁の整数テキスト（3.11以降はデコード段階、3.10は検証段階で `PersistenceError`）。例外文に桁が出ないことも確認 |
+
+**旧コード（b9586d6）に対する回帰試験の結果**：16件中13件が失敗または error（R-01の4件、R-02の4件、R-03の5件）。残り3件（R-01の公開アクセサ、R-02の正常な正規化、5000桁テキスト）は旧コードでも正しく動く部分の確認。
+
+**修正を1つずつ戻す欠陥注入（一時確認、保存しない）**：検証入口を `_internal()` に戻す、bool拒否を外す、`_num` の変換を外す、decision側の変換を外す、組立て側の変換を外す、前日行の厳密化を外す、の6通りを全て試験が検出した（検出6、未検出0）。
+
+**レビューの再現スクリプト**（`--expect-fixed`）：b9586d6 では10観測すべてで現象が出て終了コード1。第2版（e37275d、クリーンクローン）では10観測すべて `issue_present=false`、終了コード0（R-01=4経路、R-02=5項目、R-03=1入力）。
+
+### 15.4 試験結果（試験対象 `e37275d`、クリーンクローン、`unshare -rn` 下）
+
+    <python> -B -m unittest discover -s tests/v2_core                              # 既存（181件）
+    <python> -B -m unittest discover -s tests/v2_persistence -p "test_*.py"        # 新規（170件）
+
+| Python | 既存 | 新規 | skip | 終了コード |
+|---|---|---|---|---|
+| 3.10.20 | 181 合格 | 170 合格 | 0 | 0 / 0 |
+| 3.11.17 | 181 合格 | 170 合格 | 0 | 0 / 0 |
+| 3.12.3 | 181 合格 | 170 合格 | 0 | 0 / 0 |
+| 3.13.17 | 181 合格 | 170 合格 | 0 | 0 / 0 |
+
+新規170件＝第1版の154件（弱めていない）＋回帰16件。A-06の競合試験は修正後も3.10.20と3.13.17で各40回、失敗0。ユーザーPCでの b616b4e 全181件の確認は後日のままで、今回も別環境（Linux）の試験として区別する。
+
+### 15.5 変更ファイルと保護参照
+
+- 修正ブランチの b9586d6 からの差分：上記の `events.py`、`recompute.py`、`test_a07_failure_independence.py`（変更）、`test_s1_review_fixes.py`（追加）。この結果文書の更新は別コミット。試験対象 `e37275d` と保存最終SHAの差分は、`docs/implementation/V2_PERSISTENCE_DOMAIN_RESULT.md` の変更だけであることを報告時に確認する。
+- 保護参照は第1版と同じ：main `31144d9b6af8a6c920ad53c395cd550e8c48a7fa`、候補 `920e69571cf4feda09f3f2f560e96fcb9cb09d50`、資料正本 `647aeac34cde0d01ec27174f7620aff1724af0e1`、旧コア `1a54a8573023af9490017b02a8b6458f061031c7`、実装基準 `b616b4ec7169420e199ec7e247dd375b3603a013`。実装ブランチ `b9586d65aa411bfe32ca6fe795ad4b15e972d59c`、採用資料 `425df80d04b116e25e481184069b89bed1380c3a`、上位資料 `b43205ce1a53e4560fb85f9cfb715c72a1132a75`、レビュー資料 `da24fcd4fcd70a51753ff61b3f9aa1436ec431c2` は読取専用で、開始・終了時の `git ls-remote` で不変を確認する（終了時の結果は報告に記載）。PRなし、本番操作なし。
+
+### 15.6 P-01：欠陥注入の集計と、fixture依存の1件の扱い
+
+**欠陥注入の集計（訂正）**：総数は**57通り**（58ではない）。内訳は検出55、適用対象外1（`fixed_decision_unchecked`：冗長な明示検査を実装から削除したため該当コードが無い）、同値で検出不能1（`stored_window_select_skipped`）で、55＋1＋1＝57。スクリプトは保存していないが、独立確認のため57通りの名前を残す（試験対象 5083b37 に対する第1版の確認。修正後の全再実行はしていない）。
+
+> 検出55：cas_check_removed、commit_no_validation、event_hash_unchecked、parent_hash_unchecked、seq_unchecked、d_order_unchecked、IB04_unchecked、transition_unchecked、state_unchecked、input_hash_unchecked、skipped_unconfirmed_unchecked、skipped_list_unchecked、canonical_unchecked、decision_window_unchecked、head_hash_unchecked、current_state_unchecked、core_sha_unchecked、context_continuity_unchecked、intermediate_unconfirmed_unchecked、intermediate_unprocessed_unchecked、late_observation_unchecked、ledger_fingerprint_unchecked、ledger_none_unchecked、projection_mismatch_unchecked、projection_includes_all、projection_drops_open_at、context_missing_unchecked、rerun_input_unchecked、rerun_transition_unchecked、rerun_state_unchecked、candidate_check_removed、target_not_after_genesis_removed、state_ahead_removed、ledger_not_copied、sessions_not_copied、no_commit_gives_plan、serialize_drops_notes、snapshot_events_shared、snapshot_state_shared、snapshot_to_dict_shared、dup_keys_allowed、nan_allowed_in_decode、initialize_accepts_apply、genesis_unconfirmed_ok、reconcile_ignores_parent、reconcile_head_moved_is_success、reconcile_conflict_ignored、already_initialized_ignored、plan_event_shared、lock_removed_commit、range_check_removed_state_rule、rsi_range_removed、prev_session_date_unchecked、genesis_state_unchecked、session_context_next_unchecked。  
+> 対象外1：fixed_decision_unchecked。同値1：stored_window_select_skipped。
+
+**fixture依存の1件**：`test_a03_recompute.RoundTrip.test_research_fixture_chain_matches_core_and_survives_json` は、リポジトリ内の研究fixture（`research/SOXL_audit_20261023/data` の `daily.json`、`daily_adjclose.csv`、`fear-greed.csv`）を読む。受領レビューの確認環境にはこれが無く、153件だけを実行して1件を実行対象から外し、合格・skipとして集計しなかった。作業者の環境では、fixtureを含む完全なクリーンクローン（上記）で**この1件も実行して合格している**（170件の1件として。skip=0）。この試験が使うfixtureのGit blobは、既存のA1試験が固定値で照合している（`test_a1_research_parity.py` の `PIN`）。fixtureを揃えない環境では、この1件は「未実施」と書き、合格・skipに数えない。
+
+### 15.7 コア側の発見（今回は着手しない）
+
+`v2_core/observations.py` の `_parse_value` は、`current_fg_value` が float に変換できない巨大な整数（10**400など）のとき、`InputError` ではなく `OverflowError` を出す。台帳（呼出側が注入する `raw_observations`）にこの値があると、`prepare_day`／`select_decision`／`evaluate_day` が規定のエラーでなく `OverflowError` で止まる（状態は変わらない）。R-03の対象は保存入力であり、コアの変更は範囲外のため、保存入力側（`validate_snapshot` が呼ぶ `parse_observation` の結果）だけを変換した。原因は `float(raw)` の例外が捕捉されていないこと。最小差分案は、`_parse_value` の `float(raw)` を `try/except OverflowError` で包んで `InputError("fg_value_invalid", "current_fg_value")` に写すこと。これは既存181件の動作を変えない見込みだが、`v2_core` の変更になるため、別承認が必要。
+
+### 15.8 保留（変更なし）
+
+ユーザーPCでの181件確認、実ファイル保存、耐久性、複数プロセス、台帳完全性、配信、ACK／復元、Windows、実カレンダー、歴史遅延1の全日照合、S2以降は第1版の§10のまま未実施・未承認。
+
