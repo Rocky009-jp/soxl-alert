@@ -321,7 +321,7 @@ class MutationRobustness(unittest.TestCase):
     """Random leaf-level edits of a valid history (fixed seed): validation either accepts the (rare) harmless edit or
     raises the package error. It never crashes with another exception and never leaks the edited value."""
 
-    LEAVES = (None, True, False, 0, -1, 1, 7, 1.5, -2.5, "", "x", "2026-03-04", "2026-03-04T20:00:00Z", "A" * 70, [], {},
+    LEAVES = (None, True, False, 0, -1, 1, 7, 1.5, -2.5, 10 ** 400, -10 ** 400, "", "x", "2026-03-04", "2026-03-04T20:00:00Z", "A" * 70, [], {},
               [1], {"k": 1}, "http://example.invalid/hook")
 
     @staticmethod

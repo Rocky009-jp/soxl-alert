@@ -9,6 +9,7 @@ import copy
 
 from v2_core.state import MarketState
 
+from .errors import snapshot_invalid
 from .codec import CORE_SHA, SCHEMA_VERSION, Snapshot, canonical_json, compute_event_hash, sha256_text, utc_text
 
 GENESIS = "GENESIS"
@@ -31,9 +32,20 @@ def session_dict(s):
             "confirmed": s.confirmed}
 
 
-def row_dict(r):
-    return {"date": r.date, "soxx": float(r.soxx), "sma": float(r.sma), "rsi": float(r.rsi), "shd": float(r.shd),
-            "prev_rsi": float(r.prev_rsi)}
+def _market_float(x, rule):
+    """bool is refused before any conversion (True must never become 1.0); an int beyond float range is refused."""
+    if isinstance(x, bool) or not isinstance(x, (int, float)):
+        raise snapshot_invalid(rule)
+    try:
+        return float(x)
+    except OverflowError:
+        raise snapshot_invalid(rule)
+
+
+def row_dict(r, rule="row"):
+    return {"date": r.date, "soxx": _market_float(r.soxx, rule), "sma": _market_float(r.sma, rule),
+            "rsi": _market_float(r.rsi, rule), "shd": _market_float(r.shd, rule),
+            "prev_rsi": _market_float(r.prev_rsi, rule)}
 
 
 def decision_dict(o):
@@ -71,7 +83,7 @@ def input_hash_of(confirmed_inputs):
 
 def confirmed_inputs_dict(decision, row, prev_row, prev_session_date, context_sessions):
     return {"decision": decision_dict(decision), "row": row_dict(row),
-            "prev_row": None if prev_row is None else row_dict(prev_row),
+            "prev_row": None if prev_row is None else row_dict(prev_row, "prev_row"),
             "prev_session_date": prev_session_date,
             "session_context": [session_dict(s) for s in context_sessions]}
 

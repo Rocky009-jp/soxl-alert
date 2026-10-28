@@ -86,7 +86,10 @@ def _sessions(items, rule):
 def _num(x, rule, positive=False, lo=None, hi=None):
     if type(x) not in (int, float):
         raise snapshot_invalid(rule)
-    v = float(x)
+    try:
+        v = float(x)
+    except OverflowError:                       # an int too large for a float is JSON-valid but not a market value
+        raise snapshot_invalid(rule)
     if v != v or v in (float("inf"), float("-inf")):
         raise snapshot_invalid(rule)
     if positive and not v > 0:
@@ -128,7 +131,7 @@ def validate_snapshot(snapshot):
     """Raise on any problem; return a ValidatedSnapshot for the caller's use. Never modifies anything."""
     if not isinstance(snapshot, Snapshot):
         raise snapshot_invalid("type")
-    data = snapshot._internal()
+    data = snapshot.to_dict()        # a private deep copy: nothing returned below can alias the stored Snapshot
     if not isinstance(data, dict):
         raise snapshot_invalid("shape")
     sv = data.get("schema_version")
@@ -244,7 +247,7 @@ def _check_apply(ev, i, parent, parent_state, prev_d, prev_context, start_after,
     _keys(ci["decision"], DECISION_KEYS, "decision")
     try:
         obs = parse_observation(ci["decision"])
-    except (InputError, ConflictError):
+    except (InputError, ConflictError, OverflowError):      # the core raises OverflowError for an int beyond float
         raise snapshot_invalid("decision")
     if obs.role != "decision" or obs.status != "observed" or obs.target_date != d:
         raise snapshot_invalid("decision")
