@@ -34,7 +34,7 @@
 | v2_persistence/local/fsops.py | OSに触る唯一の層（`FileOps`）。試験は私的引数 `_ops` で記録・故障注入版に差し替える（契約外の試験用の継ぎ目） |
 | v2_persistence/local/errors.py | `LocalStoreError`（`PersistenceError`の子）。code／field に加え `phase`（固定識別子）、`cleanup`（後始末で残ったものの固定識別子）、`primary`（後始末失敗が置き換えた元のエラーcode） |
 | v2_persistence/local/results.py | `LocalCommitResult`（status／committed／snapshot／persistence_level）、`LocalInitResult`（initializeの戻り値。依頼に定めが無いので追加。status=INITIALIZED） |
-| tests/v2_persistence_local/ | 試験9ファイル、独立プロセスworker（worker.py）、補助（l_helpers.py）、欠陥注入（sensitivity_check.py） |
+| tests/v2_persistence_local/ | 新規 test_*.py 7ファイル、独立プロセスworker（worker.py）、補助（l_helpers.py）、欠陥注入（sensitivity_check.py）。S2追加は全体で16ファイル（ランタイム5、test_*.py 7、helper／worker／sensitivity 3、結果文書1）［§10で表記訂正（受領レビューQ-02）］ |
 
 保存形式：専用rootに `snapshot.json`（S1のencode_snapshotのUTF-8バイト列。S1の全履歴入りSnapshot一つ。schema_version=1、CORE_SHA=b616b4e…は不変）、`write.lock`、`.snapshot.<ランダム>.tmp` だけ。S1の検査・市場計算は複製せず、既存の `decode_snapshot`／`validate_snapshot`／`append_event`／`prepare_day`／`reconcile` を使う。
 
@@ -110,7 +110,7 @@ OSErrorのパス・文言・入力値はエラーに入れない。OSErrorは連
 
 ## 8. 保留事項・限界
 
-1. **実Windows未実施**。file_sync_onlyの実機確認、置換（既存ファイルの上書き）、プロセス競合、再解析ポイントの扱い、ロックのinode比較（Windowsでのst_ino）は未確認。Linux上の分岐模擬は実機の代わりにならない。実Windows専用3件は用意済み（Windowsで同じコマンドを実行すれば実行される）。
+1. **実Windows未実施**。file_sync_onlyの実機確認、置換（既存ファイルの上書き）、プロセス競合、再解析ポイントの扱い、ロックのinode比較（Windowsでのst_ino）は未確認。Linux上の分岐模擬は実機の代わりにならない。実Windows専用3件は用意済み。［§10で訂正：Windowsでは全探索ではなく§10.5のコマンドを使う（受領レビューQ-01）。主担当の実Windowsで3件合格の報告あり（§10.6）］
 2. **物理電源断は未試験**。COMMITTEDは指定した同期手順と後始末の完了を意味し、ドライブキャッシュ・全ファイルシステムの電源断耐久の保証ではない。強制終了（プロセス）の試験と区別する。
 3. ユーザーPCでの既存181件の確認は後日のまま。autocrlf=true も未試験。
 4. 前提：信頼できるローカル・非同期の専用フォルダ。NFS／SMB／同期フォルダは対象外で、ファイルシステム種別を自動判定したという主張はしない（実測はext4のみ）。ロックの確認と削除の間に第三者が差し替える攻撃には防御しない（設計§4）。root祖先のシンボリックリンクは許容し、解決後のパスを使う（root自体と管理対象のリンクは拒否）。
@@ -131,3 +131,71 @@ OSErrorのパス・文言・入力値はエラーに入れない。OSErrorは連
     # Python 3.10が無い場合：UV_PYTHON_INSTALL_DIR=<スクラッチ>/uvpy uv python install 3.10
 
 既存367件の研究fixtureは完全クローンで揃う。fixtureが無い環境で独立に確認する場合、その1件は「未実施」と書き、合格・skipに数えないこと（S1結果文書と同じ扱い）。
+
+## 10. 受領レビュー（重大0・通常2）への限定修正
+
+2026-10-28（日本時間）。上記§1〜§9は元の記録で、修正前の履歴として変更していない（§3・§8の2か所に訂正の注記だけ追加）。修正は受領レビュー［docs/v2-local-store-s2-receipt-20261028、コミット 87f22f448c41f4ec5951122afaae729167b2f9e3 の docs/reviews/V2_LOCAL_FILE_STORE_S2_RECEIPT_20261028.md §6］に従う。
+
+### 10.1 版・環境
+
+| 項目 | 内容 |
+|---|---|
+| 資料（レビュー・依頼） | 87f22f448c41f4ec5951122afaae729167b2f9e3（再現コード v2_s2_receipt_probe.py を含む） |
+| コード基準 | 00e7f84806ce34dc8754a0fc558870db145ade68（feat/v2-local-file-store-s2-20261028。上書きしていない） |
+| 修正ブランチ | fix/v2-local-store-s2-review-20261028（新規） |
+| **試験対象（修正コード＋試験）** | **163821a6e8a81d708f6c8cd6c9b026642d4a5a47** |
+| 保存最終 | 試験対象に本書の追記だけを加えたコミット（完全SHAは完了報告に記載） |
+| モデル・エフォート | 作業セッションのメタデータで configured_model `claude-sonnet-5-5[1m]`、last_served_model `claude-sonnet-5-5`、effort_level `high` を確認 |
+| 環境 | §2と同じ（Ubuntu 24.04.5、ext4、Python 3.10.20／3.11.17／3.12.3／3.13.17、`core.autocrlf=false`、`unshare -rn`、クリーンクローン） |
+
+### 10.2 修正内容（変更したのは store.py と tests/v2_persistence_local/ のみ。fsops.pyも既存S1・コアも未変更）
+
+- **R-01**：後始末の失敗でエラーを作り直す箇所（`_locked`）で、元のエラーの`cleanup`（`tmp_left`等）を新しいロックのトークン（`lock_left`／`lock_not_ours_left_untouched`）と重複なく統合するようにした。phase／primaryの優先順位、公開後のuncertain優先、他者所有物を削除しない動作は変更なし。
+- **R-02**：排他的作成が`FileExistsError`以外で失敗したとき、リンクを追わない`lstat`でロックの場所に何か（ファイル・ディレクトリ・リンク）があると確認できれば`store_busy`とする。確認できない（無い、または`lstat`自体が失敗）ときは従来どおり`store_io_error`。何も削除せず、再試行・自動解錠・新しい同期機構は入れていない。
+- 追加した試験：`tests/v2_persistence_local/test_b11_review_fixes.py`（13件）と、欠陥注入の2件（M31、M32）。
+
+### 10.3 修正前の失敗・修正後の合格
+
+| 確認 | 修正前（00e7f84、Linux） | 修正後（163821a、Linux） |
+|---|---|---|
+| 受領レビューの再現コード 既知挙動モード | 5件合格（R-01の欠落を観測：code=store_io_error／field=lock／phase=lock_release／cleanup=(lock_left,)、tmp1個とlockが残る。R-02はLinuxでは再現しない） | — |
+| 同 `--expect-fixed` | 5件中1件失敗（R-01）。R-02はLinuxでは元から合格（Windows差異はLinuxで再現できない） | **5件合格**（通信遮断下、クリーンクローン） |
+| 新しい回帰試験（B-11）を修正前コードに適用 | R-01の3件とR-02の4サブケースが失敗、対照（既に正しい分岐）は合格 | 12件実行・全合格、1件はWindows専用でskip |
+
+修正後のR-01（tmp書込失敗→tmp削除失敗→lock削除失敗）：code=store_io_error／field=lock／phase=lock_release／primary=store_io_error／**cleanup=(tmp_left, lock_left)**。tmpとlockが実際に残り、正本のバイト列は不変、次回のreadはstore_busy。tmp削除失敗＋所有喪失は code=store_lock_ownership_lost／**cleanup=(tmp_left, lock_not_ours_left_untouched)**で他者のロックは不変。公開後のuncertain（replace呼出し後）は優先され、cleanupは統合される。重複なし（試験で確認）。
+
+修正後のR-02（**Linux上の注入**：`create_exclusive`が`PermissionError`を送出）：既存がディレクトリ・通常ファイル・シンボリックリンク・ダングリングリンクの各場合に、read／commit／initializeとも store_busy／lock／lock_acquire、既存の実体と外側のファイルは不変、秘密風のパス・文言は公開エラーに出ない。ロックが無いときの権限エラーは store_io_error のまま（何も作成・削除しない）。`lstat`が失敗して存在を確認できないときも store_io_error。Linuxで本来の`FileExistsError`になるディレクトリもstore_busyのまま。
+
+### 10.4 実測（クリーンクローン、HEAD=163821a、`core.autocrlf=false`、`unshare -rn`）
+
+    <python> -B -W error::ResourceWarning -m unittest discover -s tests/v2_core                         # 既存コア197
+    <python> -B -W error::ResourceWarning -m unittest discover -s tests/v2_persistence -p "test_*.py"   # 既存保存ドメイン170
+    <python> -B -W error::ResourceWarning -m unittest discover -s tests/v2_persistence_local -p "test_*.py"   # S2新規：元の100＋追加13
+
+| Python | 既存コア | 既存保存 | S2（元100＋追加13） | skip | 失敗・error | 終了コード |
+|---|---|---|---|---|---|---|
+| 3.10.20 | 197 合格 | 170 合格 | 実行109合格（元97＋追加12） | 4 | 0 | 0 / 0 / 0 |
+| 3.11.17 | 197 合格 | 170 合格 | 109 合格 | 4 | 0 | 0 / 0 / 0 |
+| 3.12.3 | 197 合格 | 170 合格 | 109 合格 | 4 | 0 | 0 / 0 / 0 |
+| 3.13.17 | 197 合格 | 170 合格 | 109 合格 | 4 | 0 | 0 / 0 / 0 |
+
+既存367件は無編集（`git diff 00e7f84 HEAD` は store.py の変更と test／sensitivity の追加・変更のみ）。skip4はWindows実機専用（元の3件＋追加1件＝ロックがディレクトリの場合の実Windows試験）で、Linuxでは**未実施**であり合格に数えない。S2新規スイートを3.10.20と3.13.17で各10回繰り返して失敗0。欠陥注入は元の27件に2件（M31：後始末情報の脱落、M32：既存ロックの分類）を加えた29件を全て検出。全過去の欠陥注入の拡張、市場再計算、物理電源断は追加していない。
+
+### 10.5 Windowsでの実行コマンド（受領レビューQ-01に対応）
+
+全探索（`discover -p "test_*.py"`）は、Windowsではstrict前提のLinux試験やPOSIX専用機能も動くため、多数が失敗・errorになる（受領レビューの診断：100件探索でfailures=6・errors=77・skip=4）。これは製品不具合の数ではない。Windowsで確認する対象は次のコマンドの2クラスに限る（事前にTEMP／TMPを書込可能な専用フォルダへ）。
+
+    <python> -B -W error::ResourceWarning -m unittest discover -s tests/v2_persistence_local -p test_b09_modes_os.py -k RealWindows -v
+    <python> -B -W error::ResourceWarning -m unittest discover -s tests/v2_persistence_local -p test_b11_review_fixes.py -k RealWindowsLockDirectory -v
+
+既存のLinux試験をfile_sync_onlyに書き換えて合格扱いにはしていない。
+
+### 10.6 実Windowsの扱い
+
+- **私の環境での実Windows実行：なし（未実施）**。追加のWindows専用試験（RealWindowsLockDirectory）は未実行。R-02の本来のWindows挙動（PermissionError）はLinux上の注入でしか確認していない。
+- 別環境の受領レビュー（主担当）の報告：実Windows 11（10.0.26300）、Python 3.12.14で、**修正前コード**に対するWindows専用3件（RealWindows）が3件実行・全合格・skip0。これは私の実行ではなく、受領レビューの報告として記録する。また同レビューの再現コード`--expect-fixed`は、Windows上で修正後コードに対して5件合格することが最終の直接確認になる（未実施）。
+- 物理電源断、`core.autocrlf=true`、ユーザーPCでの既存181件の確認は引き続き**未実施**。主担当のWindows3件の実行はユーザーPC確認の代替ではない。
+
+### 10.7 保護参照
+
+開始時・終了時にgit ls-remoteで確認。依頼の13参照、資料73cec62、S2実装 feat/v2-local-file-store-s2-20261028（00e7f84）、受領レビューの資料ブランチ（87f22f4）はいずれも変更なし。書込んだのは新ブランチ fix/v2-local-store-s2-review-20261028 のみ。PR・Actions・外部送信・本番操作・S3／S4なし。
