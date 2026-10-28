@@ -296,6 +296,48 @@ class LedgerAgainstStoredDays(Unchanged, unittest.TestCase):
         self.assertEqual(err(self, w.prepare, D[4]).code, "record_id_invalid")
 
 
+class CoreVersusWrapper(unittest.TestCase):
+    """Where the wrapper's order differs from calling v2_core.evaluate_day alone (design 9: the difference is shown)."""
+
+    def setUp(self):
+        from v2_core.state import MarketState
+        self.MarketState = MarketState
+        self.w = h.World()
+        self.w.apply(D[1], 27.0)
+        self.w.apply(D[4], 28.0)
+        self.state = self.MarketState.from_dict(self.w.snap().current_state)
+
+    def core_code(self, d, ledger):
+        from v2_core.engine import evaluate_day
+        try:
+            evaluate_day(self.state, d, self.w.series, self.w.sessions, ledger)
+        except ERRORS as e:
+            return e.code
+        return None
+
+    def test_removed_or_changed_decision_of_the_latest_day(self):
+        removed = self.w.ledger[:1]
+        self.assertEqual(self.core_code(D[4], removed), "rerun_decision_missing")
+        self.w.ledger[:] = removed
+        self.assertEqual(err(self, self.w.prepare, D[4]).code, "ledger_mismatch")
+        changed = [self.w.ledger[0], dict(h.obs("R-" + D[4], D[4], 29.0))]
+        self.assertEqual(self.core_code(D[4], changed), "decision_conflict_with_applied")
+        self.w.ledger[:] = changed
+        self.assertEqual(err(self, self.w.prepare, D[4]).code, "ledger_mismatch")
+
+    def test_decision_outside_the_window_in_a_middle_session(self):
+        # the core alone does not look at the window when it searches earlier sessions; the wrapper does (N-01)
+        w = h.World()
+        ledger = [h.obs("TGT", D[5], 27.0), raw("MID", D[2], 20.0, at(D[2], 10, 0))]
+        from v2_core.engine import evaluate_day
+        from v2_core.state import MarketState
+        day = evaluate_day(MarketState.initial(), D[5], w.series, w.sessions, ledger)
+        self.assertIsNotNone(day.decision)                       # the core goes on and treats D1..D4 as a gap
+        w.ledger[:] = ledger
+        self.assertEqual(err(self, w.prepare, D[5]).code, "decision_outside_window")
+        self.assertEqual(w.snap().head_seq, 0)
+
+
 class StoredSessionRanges(Unchanged, unittest.TestCase):
     def setUp(self):
         self.w = h.World()
