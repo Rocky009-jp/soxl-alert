@@ -1,6 +1,6 @@
 # V2 保存ドメイン・単日ランナー オフライン設計案
 
-作成日：2026-10-28  
+作成日：2026-10-28／第2版：2026-10-28（日本時間）  
 状態：レビュー用の設計案。実装は未承認・未着手。今回の指示は設計と依頼書の作成まで。  
 段階名：S1（メモリ上の検証）。本番の永続保存形式を確定する文書ではない。
 
@@ -75,6 +75,8 @@ eventsはGENESISから先頭までの1本の順序付き履歴。退避履歴や
 
 GENESISのstate_afterはMarketState()の初期状態のみ。既存の任意状態をGENESISとして取り込む機能は作らない。保存先が無い・壊れているだけで自動初期化しない。
 
+start_afterは処理開始の「除外する下限」であり、初回に処理するDではない。make_genesisは呼出側が明示した日付を既存parse_iso_dateで検査し、注入sessionsにその日が存在しconfirmed=trueであること、boundary_session.dateと一致することを求める。最新日・台帳の最初の日・OS時刻から推定しない。GENESISは市場の1日を適用した記録ではなく、as_of_dはnullのまま。初回Dは必ずstart_afterより後とし、その直後からDの前までを中間区間として検査する。start_after当日は自動適用も欠測記録もしない。台帳に境界以前の行が混在した場合も全行の構文／record_id検査は省略せず、将来Dの窓に入る誤対象行を黙って無視しない。
+
 ### 5.2 確定入力
 
 confirmed_inputsには次だけを保存する。
@@ -84,7 +86,11 @@ confirmed_inputsには次だけを保存する。
 - 直前セッションのMarketRow全6項目、または利用できなかった場合はnull。prev_session_dateは別途必須とする。
 - session_context：基準境界からDの次セッションまでの連続した注入セッション列。基準境界は直前state_after.as_of_d、初回はGENESIS.start_after。Dの直前セッションを含むことが必要なら、その日まで前方へ広げる。open_at／close_atをUTCで保存し、confirmedも保持する。
 
-session_contextは新規APPLYでその時点の写しを固定する。同じDの照合では、保存時と同じ日付範囲で現在の注入列を切り出す。無関係な前史や次セッションより先を追加してもinput_hashを変えない。欠けた中間セッション、日付や時刻の改訂、確認フラグの相違は同一入力と扱わない。
+session_contextは新規APPLYでその時点の写しを固定する。同じDの照合では、保存時と同じ日付範囲で現在の注入列を切り出す。無関係な前史や次セッションより先を追加してもinput_hashを変えない。
+
+保存する写しと、入力同一性を比較するための投影を区別する。保存するsession_contextには全セッションの4項目を保持するが、input_hash用の投影ではnext(D)のclose_atとconfirmedだけを除く。next(D)のdateとopen_atは観測窓・翌セッションの同一性に必要なので含める。D以前の項目は従来どおり含める。欠けた中間セッションや投影に残る値の改訂は同一入力と扱わない。
+
+next(D)のclose_at／confirmedだけを後から更新しても、注入SessionListとして有効で他の判定入力が同一なら、同日再実行はALREADY_APPLIEDとする。除外項目の型・時刻順序等の入力検査は省略しない。保存済み写しは再実行時の新しい値で書き換えない。
 
 市場の数値はboolを拒否し有限floatへ正規化する。soxx・smaは正、rsi・prev_rsiは0〜100、shdは有限値とする。前日行があるならdateはprev_session_dateと一致する。入力に存在しない前日行を補わない。
 
@@ -96,7 +102,7 @@ session_contextは新規APPLYでその時点の写しを固定する。同じD�
 
 JSONはキー順を固定（sort_keys=True）、区切りを固定（comma／colon、空白なし）、ensure_ascii=True、allow_nan=False、UTF-8で符号化する。数値の正規化後にSHA-256を計算する。読込時の重複キー、NaN／Infinity、型違い、未知項目は拒否する。
 
-input_hashはconfirmed_inputsの正規化JSONから求める。event_hashはevent_hash自身を除くイベント全体から求める。ヘッダーの先頭とcurrent_stateは履歴から求めた値と一致させる。これは整合性検査であり、悪意ある書換えの真正性や署名を保証しない。
+input_hashはconfirmed_inputsからnext(D)のclose_atとconfirmedだけを落とした投影を正規化して求める。投影はハッシュ比較専用であり、完全なsession_contextを要求するSessionList.from_dictsの入力には使わない。event_hashはevent_hash自身を除くイベント全体（保存した完全なsession_contextを含む）から求める。ヘッダーの先頭とcurrent_stateは履歴から求めた値と一致させる。これは整合性検査であり、悪意ある書換えの真正性や署名を保証しない。
 
 transition_resultはapply_transitionとDayResultの共通部分を明示的に直列化する。rules各件のname／status／ratio／reasons／may_be_unconfirmed、run_class、gap、effective_armed、effective_streak、effective_prev_normal_raw、notesをすべて含める。Enumはvalue、理由やnotesの配列順は保持する。state_afterは別項目に置く。state_updatedと表示項目は含めない。
 
@@ -133,7 +139,11 @@ S1ではACKによる継続や保存入力の補完を実装しない。次のい
 
 検査の順は、snapshot→dと必要sessions→台帳照合→既存evaluate_dayとする。例外の優先順位は同じ段階内では既存コアに従い、S1が返すエラーの分類を新しい試験で固定する。
 
-DはGENESIS.start_afterより後で、現在state.as_of_dより過去であってはならない。初回でも境界とDの間に有効なdecisionがあればintermediate_session_unprocessedで止める。これは初期as_of_dがnullのコア単体では拾わないため、first_unprocessed_sessionにGENESIS.start_afterを渡す前処理で補う。
+DはGENESIS.start_afterより後で、現在state.as_of_dより過去であってはならない。
+
+新しいDを準備する際の基準境界Bは、現在state.as_of_dがあればその日、初回はGENESIS.start_after。B<S<Dの全注入セッションSを日付昇順で列挙し、各Sについて既存select_decision(raw_observations, sessions, S)を呼ぶ。窓外decision、誤対象、複数decision、同じrecord_idの内容違い等は、その既存codeで計画作成前に止める。有効なdecisionを1件見つけても、残りSの検査を飛ばして欠測を確定してはならない。全Sの検査を終え、有効なdecisionがあれば最も早いSをintermediate_session_unprocessedとして止める。全Sでdecisionが無い場合だけ、その区間をskipped_sessionsにできる。
+
+first_unprocessed_sessionだけでは窓外decisionを拒否できないため、S1の中間区間検査をこの関数だけで済ませない。初回も通常の新規Dも同じselect_decisionによる検査を行う。NO_COMMITの場合も検査を省略しない。これで新たに記録する欠測区間は、後続実行で行う§7.1と同じ検査を既に通っている。
 
 判定は既存evaluate_dayに委譲する。既存コアの不正入力／衝突を正常なNO_SIGNALへ変換しない。自動で過去Dを再生するループは作らない。
 
@@ -144,6 +154,8 @@ decisionが無ければNO_COMMIT。DayResultは返せるが、イベント・seq
 ### 7.3 同じ最新Dの再実行
 
 既存evaluate_dayを保存状態で再実行し、保存APPLYのinput_hash、transition_result、state_afterと比較する。同じならALREADY_APPLIEDで計画なし、追記なし。state_updatedだけがfalseになることは比較から除く。判定用の数値が変わった場合、判定結果が偶然同じでもrecompute_mismatchで止める。decisionが変わった／消えた場合は先に§7.1のledger_mismatchで止まる。複数decision等でselect_decision自身が出す既存エラーはそのcodeを保持する。コア単体とラッパーのエラー優先順位の違いを明記して試験する。
+
+新規Dを正常にcommitした直後、他の更新を挟まず、同じseries・sessions・台帳で同じDをprepare_dayすると、必ずALREADY_APPLIEDで計画なし・追記なしになることを受入条件にする。窓外decisionを含むため確定前に停止すべき入力を、commit後の再実行で初めて拒否する設計にしない。これは不変入力かつ最新Dの再実行の契約であり、その後の台帳改訂・先頭更新まで正常とする主張ではない。
 
 過去のD（最新Dより前）をprepare_dayで指定した場合は拒否する。過去記録の検査はvalidate_snapshot、成否不明の照合はreconcileで行う。
 
@@ -165,7 +177,32 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 
 ## 9. エラーと受入境界
 
-新規エラーは、snapshot_invalid、unsupported_schema、unsupported_event、store_uninitialized、already_initialized、session_context_missing、ledger_mismatch、late_observation、recompute_mismatch、cas_conflict、concurrent_conflict等、固定された安全なcode／field／ruleで表す。入力値・URL・生行を例外文へ埋め込まない。既存CoreErrorのcodeは保持し、S1の整合性エラーとの違いを結果文書へ示す。
+固定された安全なcode／field／ruleで表す。入力値・URL・生行を例外文へ埋め込まない。次の表をS1の対応規則とし、担当者が同じ条件へ別codeを付けない。
+
+| 条件・発生箇所 | code | field／扱い |
+|---|---|---|
+| Snapshotの版／core_shaが未対応 | unsupported_schema | schema_version／core_sha |
+| Snapshotのイベント種類が未対応 | unsupported_event | kind |
+| その他のSnapshot構造・hash・保存状態・再計算の不整合 | snapshot_invalid | snapshot。ruleは固定識別子。内部from_dict等のエラーもこの場合は安全なruleとして包む |
+| make_genesisのstart_afterが不正な日付 | invalid_date | start_after。既存parse_iso_dateのcode |
+| GENESIS境界日がsessionsに無い／未確認 | genesis_boundary_missing／genesis_boundary_unconfirmed | start_after |
+| DがGENESIS境界以前 | target_not_after_genesis | target_session_date |
+| Dが適用済み最新Dより前 | state_ahead_of_target | state。既存コアと同じcode |
+| Dがsessionsに無い／未確認、next／previous不足 | target_not_in_sessions／target_unconfirmed／next_session_missing／previous_session_missing | sessions。既存コアと同じcode |
+| 台帳照合・中間区間に必要なセッションや窓が不足 | session_context_missing | sessions |
+| 適用済みdecisionが無い／選択した指紋が保存値と異なる | ledger_mismatch | observations |
+| 既存の欠測区間に有効なdecisionが追加された | late_observation | observations |
+| 新規Dの中間区間に有効なdecisionがある | intermediate_session_unprocessed | observations。最も早い対象日を安全なdetailに残してよい |
+| 注入台帳をselect_decision等が拒否 | 元のCoreError.codeを保持 | 元のfieldを保持。decision_outside_window、target_mismatch、decision_conflict、record_id_conflict等 |
+| 同日再実行の入力投影／判定／状態の不一致 | recompute_mismatch | confirmed_inputs／transition_result／state |
+| 未初期化read・commit／二重initialize | store_uninitialized／already_initialized | store |
+| commitの期待先頭と実際の先頭が不一致 | cas_conflict | head |
+| reconcileで同じDに異なる記録 | concurrent_conflict | events |
+| reconcileで該当Dが無い | エラーではなくREPLAN_REQUIRED | 書込なしの結果ステータス |
+
+prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検査、③台帳照合、④evaluate_dayと同日比較。③では適用済みDの日付昇順、既存skipped_sessionsの日付昇順、新規Dの中間区間の日付昇順の順に検査する。各select_decisionの例外はその時点で伝え、正常に選択された値についてのみledger_mismatch／late_observationを判定する。新規中間区間では全Sを検査後にintermediate_session_unprocessedを判定する。同日比較はinput_hash、transition_result、state_afterの順で不一致を判定する。
+
+注入入力をコアが拒否した場合と、保存済みSnapshotの内部不整合は区別する。後者でstate_invalid等をsnapshot_invalidへ包むことは、前者のcodeを上書きする規則ではない。台帳照合を先に行うため、コア単体ならrerun_decision_missing等となる入力もS1ではledger_mismatchになる場合がある。
 
 受入条件の詳細は依頼書A-01〜A-08。本設計の中心は、コアを変えず、通常の評価と保存入力からの再計算が同じ純粋関数に到達し、同じDを2回確定しないことである。自動再送や完全なexactly-once配信の証明は含まない。
 
@@ -177,4 +214,17 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 
 S1完了後の結果により、S2の保存単位・復旧ポイント・実機検証を具体化する。S3のACK／復元は上位第4版の順序・参照関係を維持する。S4へ進む前にU-01／U-11／U-13と通知の送信権・再送契約をまとめて決める。
 
-保護対象はmain 31144d9、候補920e695、資料正本647aeac、旧コア1a54a85、今回の実装基準b616b4e。完全SHAは依頼書§1に記す。今回変更するのは本書と依頼書の新規2文書だけ。実装・試験実行・本番操作・PR作成は行わない。
+保護対象はmain 31144d9、候補920e695、資料正本647aeac、旧コア1a54a85、今回の実装基準b616b4e。完全SHAは依頼書§1に記す。今回変更するのは本書と依頼書の既存2文書だけ。実装・試験実行・本番操作・PR作成は行わない。
+
+## 11. 第2版の修正記録
+
+対象初版：97bdd98324098422ed034d87d5521ecc29dc2689。ユーザーから貼り付けられた2026-10-28のレビュー報告（重大0・通常2・提案8、試験未実施・リポジトリ変更なし）を受領した。リンク先のレビュー全文は取得できていない。以下は本文にある2指摘と、明記された2提案への対応であり、残り6提案を確認・採用した意味ではない。
+
+| 対応 | 修正箇所・受入例 |
+|---|---|
+| N-01 | §7.2を全中間Sへのselect_decisionに統一。窓外・競合を確定前に拒否。§7.3にcommit後の不変入力でのALREADY_APPLIED契約を追加。依頼書A-04／A-05 |
+| N-02 | §5.2／§5.3でnext(D)のclose_at／confirmedのみinput_hash投影から除外。event_hashと保存原本には保持。同日比較は完全なsession_contextの直接一致を求めない。依頼書A-04 |
+| エラーcodeの提案 | §9に条件・code・field・優先順位の対応表を追加。依頼書A-02／A-05／A-08 |
+| GENESIS境界の提案 | §5.1に明示・確認済みの除外下限、as_of_d=null、初回Dとの関係を記述。依頼書A-02／A-05 |
+
+b616b4eのobservations.py、engine.py、sessions.pyを読み、2指摘の根拠を確認した。今回行ったのは文書の補正と整合性確認であり、実装・試験実行はしていない。S1の範囲、保護5参照、実装未承認、ユーザーPCでの全181件保留は変えていない。
