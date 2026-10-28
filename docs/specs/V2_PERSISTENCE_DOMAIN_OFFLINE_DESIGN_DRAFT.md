@@ -1,6 +1,6 @@
 # V2 保存ドメイン・単日ランナー オフライン設計案
 
-作成日：2026-10-28／第2版：2026-10-28（日本時間）  
+作成日：2026-10-28／第3版：2026-10-28（日本時間）  
 状態：レビュー用の設計案。実装は未承認・未着手。今回の指示は設計と依頼書の作成まで。  
 段階名：S1（メモリ上の検証）。本番の永続保存形式を確定する文書ではない。
 
@@ -84,7 +84,7 @@ confirmed_inputsには次だけを保存する。
 - 選択されたdecisionの6項目。既存parse_observationで検査し、同じ意味の入力へ戻せるrawキー名で保存する。値はfloat、時刻はUTC、record_id・status・role・target Dを含む。指紋は既存Observation.fingerprint()を使う。
 - DのMarketRow全6項目（date、soxx、sma、rsi、shd、prev_rsi）。
 - 直前セッションのMarketRow全6項目、または利用できなかった場合はnull。prev_session_dateは別途必須とする。
-- session_context：基準境界からDの次セッションまでの連続した注入セッション列。基準境界は直前state_after.as_of_d、初回はGENESIS.start_after。Dの直前セッションを含むことが必要なら、その日まで前方へ広げる。open_at／close_atをUTCで保存し、confirmedも保持する。
+- session_context：基準境界からDの次セッションまでの連続した注入セッション列。基準境界は直前state_after.as_of_d、初回はGENESIS.start_after。境界は注入列上でDの直前セッション以前なので、この範囲に直前セッションも含まれる。open_at／close_atをUTCで保存し、confirmedも保持する。
 
 session_contextは新規APPLYでその時点の写しを固定する。同じDの照合では、保存時と同じ日付範囲で現在の注入列を切り出す。無関係な前史や次セッションより先を追加してもinput_hashを変えない。
 
@@ -129,7 +129,11 @@ S1ではACKによる継続や保存入力の補完を実装しない。次のい
 - skipped_sessionsにdecisionが後から追加された。late_observationとし、以前の遷移に自動挿入しない。
 - 同じrecord_idの内容違い、不正な入力行。台帳の並び順で勝者を選ばない。
 
-適用済みDの選択は既存select_decisionを使い、保存した窓と今回注入した窓の両方で照合する。両方の窓に必要なセッションが今回のsessionsに無ければsession_context_missingで停止する。欠測区間については各対象Dの窓を今回sessionsから得て、select_decisionで検査する。supplemental／not_checkedはdecisionの代用にしない。
+適用済み各Dについて、保存したsession_contextの日付範囲を今回のsessionsから切り出し、保存時と同じ投影（当該Dのnext(D)のclose_at／confirmedだけを除外）で照合する。必要なセッションや窓のどちらかが欠ければsession_context_missing、両方存在して投影が異なればsession_context_mismatchで停止する。保存した窓だけを正として現在の相違を無視せず、保存済み写しも書き換えない。
+
+投影が一致してから、既存select_decisionで保存した窓と今回注入した窓の両方の台帳照合を行う。欠測区間については各対象Dの窓を今回sessionsから得て、select_decisionで検査する。supplemental／not_checkedはdecisionの代用にしない。同じ最新Dの再実行もこの前処理を通るため、セッション投影の相違はrecompute_mismatchに先立ちsession_context_mismatchで止まる。
+
+S1の呼出側はGENESIS以降の全履歴を照合できるsessionsを注入する。必要な供給範囲と、現在のカレンダーを固定版として供給する方法の運用設計はS2／S4で決める。S1は実カレンダー取得や訂正許容を実装しない。
 
 最新Dより先の市場行は参照しない。過去Dを処理しない通常実行で、保存済み市場入力を最新価格へ自動差し替えしない。古い市場行の改訂を新しいDの処理時にもすべて検出する機能はS1の対象外。同じ最新Dの再実行では§7.3の厳密比較で検出する。
 
@@ -147,7 +151,7 @@ first_unprocessed_sessionだけでは窓外decisionを拒否できないため�
 
 判定は既存evaluate_dayに委譲する。既存コアの不正入力／衝突を正常なNO_SIGNALへ変換しない。自動で過去Dを再生するループは作らない。
 
-decisionが無ければNO_COMMIT。DayResultは返せるが、イベント・seq・状態は変更しない。decisionがある新しいDでは、候補状態をfrom_dictで再検査し、1件のAppendPlanを返す。この段階ではMemoryStoreを変更しない。
+decisionが無ければNO_COMMIT。DayResultは返せるが、イベント・seq・状態は変更しない。decisionがある新しいDでは、候補状態をfrom_dictで再検査し、作成したAPPLYを元Snapshotへ1件追記した候補Snapshotに対してvalidate_snapshotと同じ全検査・再計算を行う。これを通った1件だけをAppendPlanとしてPREPAREDで返す。この段階ではMemoryStoreを変更しない。
 
 初回に複数セッション空いた場合、初期状態のas_of_dがnullなのでコアのgapはfalseのまま。一方、GENESIS境界からのskipped_sessionsは記録する。通常の欠測後で当日のF&Gが30以上なら、コアどおり終了時streakは1。gapと記録上の欠測区間を同一視しない。
 
@@ -167,7 +171,7 @@ commitはthreading.Lockの同じクリティカルセクション内で、先頭
 
 readや各APIの戻り値は深い写しまたは再帰的な不変値とする。frozenなdataclassの内側のdictだけを書き換えられる構造を残さない。入力／戻り値の改変でストアや過去の計画を変えられないことを試験する。
 
-reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計画と同じ親hash、入力hash、transition_result、state_afterを持つAPPLYがあればALREADY_APPLIEDとする。先頭がその後進んでいてもよい。自分が書いた／通知を送れるという意味は持たせない。親が違えば、他の項目が同じでも同一計画の成功とはしない。
+reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計画と同じ親hash、入力hash、transition_result、state_afterを持つAPPLYがあればALREADY_APPLIEDとする。先頭がその後進んでいてもよい。自分が書いた／通知を送れるという意味は持たせない。親が違えば、他の項目が同じでも同一計画の成功とはしない。この親hashの条件は上位§3.8の内容一致判定より厳しいS1限定の契約である。S3で復元・退避履歴を扱う際に再検討し、上位設計の条件を変更済みとは扱わない。
 
 同じDで異なる記録があればconcurrent_conflict。該当Dが無ければREPLAN_REQUIREDを返す。先頭が新しいだけでは保存済みと判断しない。古い計画を新しい先頭へ付け替えない。呼出側は新Snapshotで明示的にprepare_dayし直す必要がある。
 
@@ -190,6 +194,7 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 | Dが適用済み最新Dより前 | state_ahead_of_target | state。既存コアと同じcode |
 | Dがsessionsに無い／未確認、next／previous不足 | target_not_in_sessions／target_unconfirmed／next_session_missing／previous_session_missing | sessions。既存コアと同じcode |
 | 台帳照合・中間区間に必要なセッションや窓が不足 | session_context_missing | sessions |
+| 適用済みDの保存範囲と今回のセッション投影が相違 | session_context_mismatch | sessions。next(D)のclose_at／confirmedだけの変更を除く |
 | 適用済みdecisionが無い／選択した指紋が保存値と異なる | ledger_mismatch | observations |
 | 既存の欠測区間に有効なdecisionが追加された | late_observation | observations |
 | 新規Dの中間区間に有効なdecisionがある | intermediate_session_unprocessed | observations。最も早い対象日を安全なdetailに残してよい |
@@ -200,7 +205,7 @@ reconcileは、検査済みの読直しSnapshot内に計画のDを探す。計�
 | reconcileで同じDに異なる記録 | concurrent_conflict | events |
 | reconcileで該当Dが無い | エラーではなくREPLAN_REQUIRED | 書込なしの結果ステータス |
 
-prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検査、③台帳照合、④evaluate_dayと同日比較。③では適用済みDの日付昇順、既存skipped_sessionsの日付昇順、新規Dの中間区間の日付昇順の順に検査する。各select_decisionの例外はその時点で伝え、正常に選択された値についてのみledger_mismatch／late_observationを判定する。新規中間区間では全Sを検査後にintermediate_session_unprocessedを判定する。同日比較はinput_hash、transition_result、state_afterの順で不一致を判定する。
+prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検査、③台帳照合、④evaluate_dayと同日比較。③では適用済みDの日付昇順、既存skipped_sessionsの日付昇順、新規Dの中間区間の日付昇順の順に検査する。適用済み各Dでは必要セッションの有無、保存範囲の投影一致、select_decision、保存指紋との一致の順とする。各select_decisionの例外はその時点で伝え、正常に選択された値についてのみledger_mismatch／late_observationを判定する。新規中間区間では全Sを検査後にintermediate_session_unprocessedを判定する。同日比較はinput_hash、transition_result、state_afterの順で不一致を判定する。
 
 注入入力をコアが拒否した場合と、保存済みSnapshotの内部不整合は区別する。後者でstate_invalid等をsnapshot_invalidへ包むことは、前者のcodeを上書きする規則ではない。台帳照合を先に行うため、コア単体ならrerun_decision_missing等となる入力もS1ではledger_mismatchになる場合がある。
 
@@ -210,13 +215,15 @@ prepare_dayの優先順位は、①Snapshot検査、②Dと必要sessionsの検�
 
 今回ユーザーに求める判断は、別途実装を依頼する際の「S1の範囲・停止契約・受入条件を採用するか」の1組だけに絞る。文書作成の指示を実装承認へ読み替えない。
 
-担当モデルは固定仕様の実装としてSonnet 5.5を推奨。実際のモデルは開始時に環境情報で確認し、確認できなければ不明と記録する。利用量・所要時間は未計測。新しい全面レビューや戦略比較をこの工程へ追加しない。
+担当モデルは固定仕様の実装としてSonnet 5.5、エフォートhighを推奨（未採用）。実際のモデルは開始時に環境情報で確認し、確認できなければ不明と記録する。利用量・所要時間は未計測。新しい全面レビューや戦略比較をこの工程へ追加しない。
 
 S1完了後の結果により、S2の保存単位・復旧ポイント・実機検証を具体化する。S3のACK／復元は上位第4版の順序・参照関係を維持する。S4へ進む前にU-01／U-11／U-13と通知の送信権・再送契約をまとめて決める。
 
-保護対象はmain 31144d9、候補920e695、資料正本647aeac、旧コア1a54a85、今回の実装基準b616b4e。完全SHAは依頼書§1に記す。今回変更するのは本書と依頼書の既存2文書だけ。実装・試験実行・本番操作・PR作成は行わない。
+保護対象はmain 31144d9、候補920e695、資料正本647aeac、旧コア1a54a85、今回の実装基準b616b4e。完全SHAは依頼書§1に記す。第3版では本書・依頼書を更新し、受領したレビュー原文1本を追加する。実装・試験実行・本番操作・PR作成は行わない。
 
 ## 11. 第2版の修正記録
+
+本節は第2版保存時の履歴。第3版での全文受領と残り提案への対応は§12を参照。
 
 対象初版：97bdd98324098422ed034d87d5521ecc29dc2689。ユーザーから貼り付けられた2026-10-28のレビュー報告（重大0・通常2・提案8、試験未実施・リポジトリ変更なし）を受領した。リンク先のレビュー全文は取得できていない。以下は本文にある2指摘と、明記された2提案への対応であり、残り6提案を確認・採用した意味ではない。
 
@@ -228,3 +235,27 @@ S1完了後の結果により、S2の保存単位・復旧ポイント・実機�
 | GENESIS境界の提案 | §5.1に明示・確認済みの除外下限、as_of_d=null、初回Dとの関係を記述。依頼書A-02／A-05 |
 
 b616b4eのobservations.py、engine.py、sessions.pyを読み、2指摘の根拠を確認した。今回行ったのは文書の補正と整合性確認であり、実装・試験実行はしていない。S1の範囲、保護5参照、実装未承認、ユーザーPCでの全181件保留は変えていない。
+
+## 12. 全文受領・第3版の対応記録
+
+開始SHA：faff0800b5d2c78cefb3dae37e04491760df0cc9。2026-10-28、ユーザーが貼り付けた[レビュー全文](../reviews/V2_PERSISTENCE_DOMAIN_S1_REVIEW_20261028.md)を受領した。原文のレビュー対象は初版97bdd98であり、第2版／第3版への再レビュー結果に置き換えない。以下は文書案への対応であり、ユーザーによるS1実装承認ではない。
+
+| ID | 文書案での扱い |
+|---|---|
+| N-01／N-02 | 第2版で修正した全中間区間検査・正常確定後の再実行契約・入力投影を維持。実装での合格はまだ確認していない |
+| P-01 | §9のcode／優先順位と依頼§3.2の台帳事象別表で明示。旧行なしの置換と、旧新併存を分ける |
+| P-02 | §7.1で必要窓の「どちらか」が欠ければ停止。保存セッション投影の相違はsession_context_mismatch。next(D)の未使用2項目を除く。sessions供給の運用設計はS2／S4へ |
+| P-03 | 第2版の境界条件を維持し、§5.2の不要な「前方へ広げる」を除去 |
+| P-04 | §8に親hashを求めるS1限定の厳しさとS3での再検討を明記 |
+| P-05 | §7.2でPREPAREDの前に候補Snapshotの全検査・再計算を追加。先頭・計画が不変で、障害注入等がなければcommitの同じ検査にも通ることを依頼A-03で確認 |
+| P-06 | 依頼A-03で通常経路のengine側の束縛名と、再計算経路の新パッケージ側の束縛名を別々にspy／差替えし、どちらが検証できたかを記録 |
+| P-07 | Sonnet 5.5・highを推奨値に追記。選択・確認済みとは書かない |
+| P-08 | 依頼§1で上位設計の資料ブランチも読取専用の確認対象に追加。依頼のdisplay.pyをv2_core/display.pyと記載 |
+
+### 後工程へ残す3点
+
+- 市場値は引き続き厳密比較する。調整価格改訂や浮動小数の差でも停止するため、S2／S4で市場データの取得版固定とU-07を一緒に決める。S1へ許容誤差や再取得を追加しない。
+- core_shaは版を示す定数であり、実行中のv2_coreの真正性を自己検査しない。依頼A-01でb616b4eとの既存ファイル差分0を確認する前提を結果文書へ残す。
+- S1のreconcileは自分と他実行の同一内容を区別しない。S2以降で上位§3.8の自分の保存への到達性を扱う場合、保存方式に応じた計画識別子とスキーマの版上げを別途設計する。送信権の意味を付けない。
+
+今回も文書のみ。本文・コアの読解による整合性確認であり、試験・再現スクリプトは実行していない。ユーザーPCでの全181件は後日実施、S1実装は未承認・未着手のままである。
