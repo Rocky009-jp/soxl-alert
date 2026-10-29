@@ -1,6 +1,6 @@
 # V2 S3 復旧操作設計案・S3-A限定契約
 
-作成：2026-10-29、第2版：2026-10-29（日本時間）。状態：**設計・限定依頼書の作成のみ承認済み。設計案はレビュー待ち、実装は未承認・未着手。**
+作成：2026-10-29、第3版：2026-10-29（日本時間）。状態：**設計・限定依頼書の作成のみ承認済み。第2版の再レビューで通常4件の解消を確認済み。第3版は任意提案の文書補正を反映した採用判断待ちの案で、実装は未承認・未着手。**
 本書を保存したこと、レビューで問題なしとされたことを実装承認に置き換えない。
 
 ## 1. 固定版と現在地
@@ -47,7 +47,7 @@ U-01／U-11／U-13は未決。本番・口座・通知・取得・自動対象�
 | prepare_resolved_day(snapshot, resolutions, d, series, sessions, raw_observations) | 解決記録と観測を検査した後、既存v2_persistence.runner.prepare_dayへ1回委譲し、S3-A専用SimulationDayResultへ変換する。AppendPlanは公開しない |
 | encode_resolutions／decode_resolutions | メモリ上のJSON文字列との厳密な変換のみ。ファイルI/Oなし |
 
-check_dは呼出側が明示する処理対象日。注入SessionListに存在しconfirmed=true、次セッションが必要。GENESIS.start_afterより後、かつ現在Snapshotの最新APPLY日以上（APPLYなしなら下限だけ）とする。等しい日はS1の再実行経路を認める。新規commandsのDECLARE_MISSING対象Dはcheck_d以下。既存Setにcheck_dより先の宣言があることだけで最新APPLYの再実行を拒否しないが、その宣言窓の検査は省略しない。時計から最新日を決めない。prepare_resolved_dayではdをcheck_dに使い、S1と同じ過去日拒否・中間セッション検査を保持する。過去記録のrequest_basis.check_dは作成時source_headのprefixに対して検査し、後のAPPLY延長で失効させない。
+check_dは呼出側が明示する処理対象日。注入SessionListに存在しconfirmed=true、次セッションが必要。GENESIS.start_afterより後、かつ現在Snapshotの最新APPLY日以上（APPLYなしなら下限だけ）とする。等しい日はS1の再実行経路を認める。新規commandsの対象Dは、DECLARE_MISSINGもACK（LATEを含む）もcheck_d以下とする。この上限は作成時request_basis.check_dに対して検査し、既存記録の対象Dが今回のcheck_dより後であることだけでは失効させない。既存Setにcheck_dより先の宣言があることだけで最新APPLYの再実行を拒否しないが、その宣言窓の検査は省略しない。時計から最新日を決めない。prepare_resolved_dayではdをcheck_dに使い、S1と同じ過去日拒否・中間セッション検査を保持する。過去記録のrequest_basis.check_dは作成時source_headのprefixに対して検査し、後のAPPLY延長で失効させない。
 
 SimulationDayResultの公開項目はstatus、core_result、candidate_event_text（正規化JSON文字列またはnull）、candidate_event_hash（文字列またはnull）、committable=False、committed=Falseに固定。S1のPREPARED／NO_COMMIT／ALREADY_APPLIEDという状態名とコアのstate_updatedの意味は保持するが、S1 PrepareResult、AppendPlan、そのサブクラス、planプロパティを公開しない。空のSetでもこの専用型を使う。S1との「計画一致」はイベントの正規化テキストとevent_hashで比較する。
 
@@ -79,7 +79,7 @@ S3-Aの解決記録通番はS1のevent seqではない。上位のmissing_ref_se
 
 ## 4. 解決指示の受入条件
 
-commandsは順序付き非空list。指示の形はkind／variant／d／record_fingerprints／applied_ref／missing_refで固定する（不使用値null）。欠測宣言のfrontierとcontextは呼出側の任意値を採用せず、検査済みprefix・既存／先行する宣言・注入sessionsから計算して記録する。新規指示の証拠は**今回の台帳と検査済み保存入力**から確認する。ADDEDの補完権限だけは下表のとおり既存Set／同じバッチの適合するROW_REMOVED・CHANGEDも参照し、指示順に依存させない。一方、既に確認した古い除外行が後で台帳から消えても、そのことだけでは古い解決記録を不正にしない。prepare_resolution_planでは既存Setの構造・参照を先に検査し、現在台帳との最終一致は候補バッチを合わせて検査する。既存Setだけでresolve_observationsの最終検査を一度通ることを、新規計画の前提にしない。
+commandsは順序付き非空list。指示の形はkind／variant／d／record_fingerprints／applied_ref／missing_refで固定する（不使用値null）。欠測宣言のfrontierとcontextは呼出側の任意値を採用せず、検査済みprefix・既存／先行する宣言・注入sessionsから計算して記録する。新規指示の証拠は**今回の台帳と検査済み保存入力**から確認する。ADDEDの証拠（元行の代わりに使える根拠）としては、下表のとおり既存Set／同じバッチの適合するROW_REMOVED・CHANGEDも参照し、指示順に依存させない。一方、既に確認した古い除外行が後で台帳から消えても、そのことだけでは古い解決記録を不正にしない。prepare_resolution_planでは既存Setの構造・参照を先に検査し、現在台帳との最終一致は候補バッチを合わせて検査する。既存Setだけでresolve_observationsの最終検査を一度通ることを、新規計画の前提にしない。
 
 | 指示 | 必要な証拠・効果 |
 |---|---|
@@ -115,7 +115,7 @@ frontierは、対象記録の作成時prefixの最新APPLY日（無ければGENE
 
 1. S1 SnapshotとResolutionSetを検査。必要なsessionsとcheck_dを検査し、6列だけの台帳の写しを取る。
 2. **全行をparse_observationで個別に解析**。解析できない行は除外対象にもできず停止。ここでは同じrecord_idの異なる版を先に全体衝突として拒否しない（正しいCHANGED／欠測宣言が作用する前に止めない）。
-3. 解決記録の参照を全て検査。新規計画では§4の今回台帳の証拠も検査する。ADDEDのROW_REMOVED／CHANGEDによる補完権限は候補バッチ全体で検証し、ADDEDを先に並べても同じ最終観測集合・補完件数にする。commandsの順序はrequest_hashと記録順に保持するため、指示順を入れ替えた別依頼のplan_hash／記録hashまで同一であることは要求しない。
+3. 解決記録の参照を全て検査。新規計画では§4の今回台帳の証拠も検査する。ADDEDの証拠となるROW_REMOVED／CHANGEDは候補バッチ全体で検証し、ADDEDを先に並べても同じ最終観測集合・補完件数にする。commandsの順序はrequest_hashと記録順に保持するため、指示順を入れ替えた別依頼のplan_hash／記録hashまで同一であることは要求しない。
 4. 指紋が一致する行だけを除外。同じ指紋の再提出は全て除く。自由文やrecord_idだけで除外しない。
 5. ROW_REMOVEDまたはCHANGEDを根拠に、保存済み固定decisionが最終集合に無ければその6列を1件だけ補う。元行があれば補わない。ADDED／LATE／DECLARE_MISSINGを補完権限にしない。
 6. **版の選択禁止と最終集合を検査**。§4.1のversion_selection検査を補完後の集合に対して行い、未処理版の選択が残れば拒否する。その後、同一指紋はコアと同じ再提出として一つに正規化。各APPLYに保存と一致するdecisionが一つあり、他のdecisionが無いこと。skipped_sessionsとDECLARE_MISSINGにはdecisionが無いこと。既存select_decisionを保存窓・今回窓とcheck_dについて使い、最終集合の全record_id衝突もコアに検査させる。不正な行を取り除くために解析検査を省略しない。
@@ -159,9 +159,9 @@ request_idが既にResolutionSetにあり、正規化したrequest_hashが違え
 | S1保存内容不正 | 既存snapshot_invalid／unsupported_schema等を保持 |
 | 生の観測・check_d・sessions不正 | 既存InputError／ConflictErrorを保持 |
 | 解決形式・鎖・参照・状態の不正 | resolution_invalid／resolutions、固定ruleを付ける |
-| 新規ACKの対象・指紋・証拠が不適合 | resolution_invalid／commands、rule=ack_evidence |
+| 新規ACKの対象（D > check_dを含む）・指紋・証拠が不適合 | resolution_invalid／commands、rule=ack_evidence |
 | 適用済み固定行を除外する指示 | resolution_invalid／commands、rule=exclude_applied |
-| 宣言が直後の1日でない／適用済み | resolution_invalid／commands、rule=declare_frontierまたはdeclare_applied |
+| 宣言が直後の1日でない・D > check_d／適用済み | resolution_invalid／commands、rule=declare_frontierまたはdeclare_applied |
 | 宣言の名指し不足・余分な指紋 | resolution_invalid／commands、rule=declare_incomplete |
 | 宣言のD・必要な中間セッションが未確定 | resolution_invalid／commands、rule=declare_unconfirmed |
 | LATEの欠測参照が不適合 | resolution_invalid／commands、rule=late_missing_ref |
@@ -241,3 +241,15 @@ S3-C前に未決のもの：全ライターの列挙・停止の証拠と責任�
 | P-07 | 全Snapshotを1回検査した結果からprefixを参照する最適化を許容。任意事項で、検査の省略は不可 |
 
 保留：宣言取消はS3-Bで検討。上位の「decision行」は今回observed/decisionとしてコアに合わせ、not_checkedも入力・版の検査は受ける。S3-A実装、試験実行、実ファイル復旧、本番接続は引き続き未着手・未承認。
+
+## 13. 第3版の任意補正と採用判断（2026-10-29）
+
+[第2版の再レビュー本文](../reviews/V2_RECOVERY_S3_S3A_V2_REREVIEW_20261029.md)を受領。対象3f978cc13577bba80801f30b01133a3b2e1f1c30について、通常N-01〜N-04は解消、提案P-01〜P-07は反映済み、新しい重大・通常の指摘なしとの報告である。再レビュー担当はコード・文書の読解のみで、S3-Aの実行試験はしていない。レビュー本文は取得テキストを末尾改行付きで保管し、元ファイルのバイト単位照合は未実施。第2版のレビュー原文との一致・保護19参照不変も、再レビュー担当の確認として区別する。
+
+| ID | 第3版の文書補正 |
+|---|---|
+| Q-01 | ADDEDの受入れ根拠を「証拠」と呼ぶ。補完を行う根拠は引き続きROW_REMOVED／CHANGEDだけ |
+| Q-02 | 依頼C-14は未初期化の空の一時rootでの型拒否、またはfile_sync_onlyで初期化したストアでの不変性確認とする。Windows strictで試験準備しない |
+| Q-03 | 新規ACKはLATEを含めD ≤ check_d。作成時の上限として検査し、既存記録へ今回のcheck_dを遡って適用しない。上限超過の新規ACKはack_evidence、宣言はdeclare_frontier |
+
+N-04の「有効decision1件だけの欠測宣言は拒否」は引き続き主担当の推奨案で、ユーザー採用ではない。今回も文書だけの補正であり、コード変更・試験実行・新市場計算は0。通常問題は解消したとの再レビューを受けて、追加の全面レビューを必須にせず、依頼§7のS3-A一組とN-04の方針の採否をユーザーへ提示する。S3-B／Cや本番はこの判断に含めない。
