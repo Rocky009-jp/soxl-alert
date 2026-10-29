@@ -1,6 +1,6 @@
 # V2 S3-A ACK・欠測宣言の入力解決／計画 限定実装依頼案
 
-作成2026-10-29、第2版2026-10-29（日本時間）。状態：**レビュー待ち・実装未承認。**
+作成2026-10-29、第3版2026-10-29（日本時間）。状態：**第2版の再レビューで通常4件は解消確認済み。任意補正を反映し、採用判断待ち・実装未承認。**
 ユーザーが今回承認したのはS3の設計・限定依頼書作成まで。本書を受け取った担当者は、採用・着手の明示指示があるまでコード・試験へ着手しない。本番保存先やS3-B／Cを一括で承認する文書ではない。
 
 ## 1. 固定版・担当
@@ -40,7 +40,7 @@ CLAUDE／STATUS／MODEL_POLICY／ROADMAPを確認する。STATUSの古い承認�
 9. prepare_resolved_dayは既存S1 prepare_dayへ委譲後、専用SimulationDayResultへ変換する。解決Setの有無を問わずAppendPlan／S1 PrepareResult／planプロパティを公開しない。イベント文字列／hashでS1と比較し、committable=False、committed=False。state_updatedのコアの意味を変えない。解決記録を確認しただけで市場状態更新・保存済み・通知可能と表示しない。
 10. ADDEDは、元の保存行が台帳にあるか、同じapplied_refのROW_REMOVED／元行なしCHANGEDが既存Setまたは同じ候補バッチにあるときだけ許す。後者の根拠はバッチ全体で検査し、指示の前後で結果を変えない。既存Setだけで現在台帳の最終投影が通ることを、新規計画の前提にしない。
 11. 全指示にversion_selection禁止を適用。生台帳で同じrecord_idの複数版の一部を除外し、未固定の版を最終集合へ残してはならない。残る版がS1の固定decisionならCHANGED元行併存等の例外を維持。全版を除く場合もそれぞれの適法な指示・対象が必要。
-12. check_dはGENESIS境界より後かつ最新APPLY日以上、等日は再実行可。新規宣言のDはcheck_d以下。範囲外の衝突は台帳修正で直し、包括的除外へ広げない。過去のrequest_basisのcheck_dは作成時prefixに対して検査。
+12. check_dはGENESIS境界より後かつ最新APPLY日以上、等日は再実行可。新規宣言と新規ACK（LATEを含む）のDはcheck_d以下。新規ACKの上限超過はack_evidence、宣言はdeclare_frontier。作成時request_basis.check_dの上限であり、既存記録へ今回のcheck_dを遡って適用しない。範囲外の衝突は台帳修正で直し、包括的除外へ広げない。過去のrequest_basisのcheck_dは作成時prefixに対して検査。
 13. 戻り値は独立した写し／再帰的な不変値。repr・エラーは固定code／field／ruleと安全な件数・hashだけ。raw値・URL・note・source_url・パスを自動表示しない。
 
 ## 4. 受入条件C-01〜C-14
@@ -54,15 +54,15 @@ IDは受入項目でありテスト関数件数ではない。新規Nは実測�
 | C-03 ADDED | 保存行＋別ID追加をACKすると追加行だけが除外される。保存行／状態不変。元行が無く適合するROW_REMOVED／CHANGEDも無い場合や、別APPLYの固定行を隠す指示は拒否。A削除＋別IDのB追加を{ROW_REMOVED,ADDED}の両指示順で解決し、A補完1件・B除外を確認。CHANGED＋ADDEDも確認。ACKした行をさらに変更すると再び停止。 |
 | C-04 CHANGED | 元行なしの置換は変更版を除外→保存入力を1件補完して通る。元行併存では補完0。別オフセットの同じ行は同一。元role/statusが変わったケースも指紋で束縛し、新版を採用しない。 |
 | C-05 ROW_REMOVED | 行なし・空一覧で確認→補完→最終検査の順で通る。元行が再出現したら二重補完しない。APPLYが無い、applied_ref相違、非空一覧、同じIDの未確認変更版は拒否。ROW_REMOVED＋ADDEDの同一バッチを許し、ADDED単独は拒否。 |
-| C-06 LATE | skipped_sessionsを持つAPPLY参照と、DECLARE_MISSING参照の両方で通る。対象DのAPPLYは不要、補完0。参照違い、APPLYあり、空一覧、誤ったapplied_ref、指紋の変更は拒否。上位X-17b/c/dを区別する。LATEの除外で同IDの未固定の別日版が残る場合はversion_selectionで拒否。 |
+| C-06 LATE | skipped_sessionsを持つAPPLY参照と、DECLARE_MISSING参照の両方で通る。対象DのAPPLYは不要、補完0。参照違い、APPLYあり、空一覧、誤ったapplied_ref、指紋の変更は拒否。上位X-17b/c/dを区別する。新規LATEは適法な欠測参照があってもD > check_dならack_evidenceで拒否し、D = check_dは他の条件を満たせば受理。LATEの除外で同IDの未固定の別日版が残る場合はversion_selectionで拒否。 |
 | C-07 欠測宣言 | 0件とDに関係する衝突2件の宣言は通り、有効1件はdeclare_valid_decisionで拒否。別日だけの無関係な衝突があっても有効1件を宣言できない。名指し不足／余分はdeclare_incomplete、対象等の未確定はdeclare_unconfirmed（check_d自体の違反は先に既存エラー）。2日連続を1バッチで宣言でき、逆順はdeclare_frontier。同IDの別日版を一方だけ残す宣言はversion_selection。DECLARE後の新指紋はLATEで停止。 |
 | C-08 日次接続 | DECLARE済みDはS1が許す日付ならNO_COMMIT、次のAPPLYが既存欠測規則で進む。F&G≥30、<25、25〜30未満の3帯を固定し、≥30のstreak=1を確認。別に用意したS1試験fixtureのAPPLYでSnapshotを延長しても解決記録が有効で、宣言DへAPPLYした不正な組合せは拒否。S3-AのSimulationDayResultからAppendPlanを取り出す経路は使わない。 |
 | C-09 参照と状態 | hash鎖、source_head prefix、applied／missing参照の名前空間、記録順・要求バッチの欠け、state_after改変を拒否。記録作成時prefixと現在Snapshotを混同しない。ACK後も保存されたbaseは変わらない。ledger_digestが各記録に残り、現在台帳の変更だけでは過去記録を失効させない。 |
-| C-10 計画の確認 | plan改変・確認hash違い、計画後のSnapshot／Set／台帳／sessions変更が停止。候補途中で1件失敗しても何も変更しない。異なるrequestの自動マージなし。同じIDの異内容は拒否し、同じ候補全体への再確認はNO_CHANGE。同じID・指示でrequested_atだけを変えるとNO_CHANGEで元時刻を保持し、指示の変更はresolution_request_conflictとなる。check_dの境界・最新APPLY再実行・宣言Dの上限も確認。 |
+| C-10 計画の確認 | plan改変・確認hash違い、計画後のSnapshot／Set／台帳／sessions変更が停止。候補途中で1件失敗しても何も変更しない。異なるrequestの自動マージなし。同じIDの異内容は拒否し、同じ候補全体への再確認はNO_CHANGE。同じID・指示でrequested_atだけを変えるとNO_CHANGEで元時刻を保持し、指示の変更はresolution_request_conflictとなる。check_dの境界・最新APPLY再実行・新規宣言と新規ACKのDの上限も確認。既存記録の対象Dが今回のcheck_dより後であることだけでは拒否せず、必要な投影検査は維持。 |
 | C-11 セッションと同一性 | 適用済み窓／宣言窓で必要列不足や時刻改訂を拒否。通常実行でnext(D)のconfirmed／close_atだけを変えても受け付け、open_at変更は停止。計画確認の全列sessions_digestは意図どおりstaleを返す。台帳の順番・同一UTC表記と、同一行の個数の扱いを設計どおり区別。 |
 | C-12 委譲と一致 | S1正常ケースのPREPARED／NO_COMMIT／ALREADY_APPLIEDで判定・イベントの正規化テキスト／hash・状態が一致し、戻り値は専用SimulationDayResult。空SetでもAppendPlanでなくplanプロパティも無い。新ラッパーが実際に参照するprepare_dayをspy／差し替えして委譲を確認。ルール式・閾値・apply_transitionの別実装なし。 |
 | C-13 不変性と秘匿 | 入力／戻り値の入れ子を変更しても元Set・Snapshot・計画が変わらない。複数箇所を一括確認し、未解決箇所があればREADYを返さない。既存指紋の行が消えても古いSetの構造検査は通り、新しい不一致は最終検査で止まる。未処理D/Eを対象とする同ID2版でDECLARE(D)、LATE、ADDEDによる一方の選択が拒否され、CHANGEDの固定旧版併存は通る。URLや自由文をrepr／エラー／計画表示へ出さない。 |
-| C-14 範囲と停止 | 実ランタイムにI/O・解錠・復元・再初期化・保存・通知・実時計・自動リトライ・依存追加なし。ResolutionSetをS1の保存形式へ混入させない。NO_CHANGE／CONFIRMED_IN_MEMORYがcommitted=False、日次SimulationDayResultがcommittable=Falseかつcommitted=Falseである。専用日次結果と候補イベント文字列をMemoryStore.commit／LocalFileStore.commitへ直接渡すと、既存snapshot_invalid（rule=plan_type）で拒否され、保存内容・seq・先頭・残留物が不変。新規試験はOS依存機能を不要とする。 |
+| C-14 範囲と停止 | 実ランタイムにI/O・解錠・復元・再初期化・保存・通知・実時計・自動リトライ・依存追加なし。ResolutionSetをS1の保存形式へ混入させない。NO_CHANGE／CONFIRMED_IN_MEMORYがcommitted=False、日次SimulationDayResultがcommittable=Falseかつcommitted=Falseである。専用日次結果と候補イベント文字列をMemoryStore.commit／LocalFileStore.commitへ直接渡すと、既存snapshot_invalid（rule=plan_type）で拒否され、保存内容・seq・先頭・残留物が不変。LocalFileStoreは未初期化の空の一時rootで型拒否を確認し、rootが空のままであることを確かめるか、durability="file_sync_only"で初期化した上で保存内容・seq・先頭・残留物の不変を確認する。Windowsで既定strictのinitializeを試験準備に使わない。新規試験はOS依存機能を不要とする。 |
 
 追加回帰は上位設計のX-14／X-15／X-16、X-17a〜d、K-11〜K-14のうちAの範囲と対応させる。K-14の実復元やRT系を、Aの試験で達成済みと書かない。
 
@@ -125,7 +125,7 @@ Python3.10／3.11／3.12／3.13で確認し、完全版を記録。既存隔離�
 - C-01〜C-14、既存固定版・回帰不変、Sonnet 5.5・high、隔離Pythonと通信禁止。
 - S3-B／C、新保存形式、実解錠・復元・再初期化、本番は含めない。
 
-今回のユーザー発言は「S3の設計・限定依頼書作成へ進めることを承認」であり、この一組の実装採用はまだ得ていない。本書はその判断を代替しない。まず文書をレビューし、指摘があれば本範囲の最小補正を行う。
+今回のユーザー発言は「S3の設計・限定依頼書作成へ進めることを承認」であり、この一組の実装採用はまだ得ていない。本書はその判断を代替しない。第2版の再レビューで通常4件はすべて解消と報告され、第3版で任意提案3件も文書補正した。追加の全面レビューを必須にせず、この一組とN-04の方針（有効decision1件の欠測宣言を拒否）の採否をユーザーが判断する。
 
 
 ## 8. 第2版の補正とレビューの状態
@@ -133,3 +133,9 @@ Python3.10／3.11／3.12／3.13で確認し、完全版を記録。既存隔離�
 [レビュー本文](../reviews/V2_RECOVERY_S3_S3A_REVIEW_20261029.md)の通常N-01〜N-04を設計§3〜§7と本書§3・C-02〜C-14へ反映した。提案P-01〜P-07も文書補正として取り込み、対応は設計§12に記した。C-01〜C-14という受入IDは維持し、S3-B／C、依存、既存コードの範囲は広げていない。
 
 有効なdecision1件の欠測宣言は拒否する主担当案へ絞った。これはユーザーが実装を採用した記録ではない。修正は文書だけで、実装・試験実行・新市場計算は0。再レビュー後に本書§7の一組の採否を判断する。今回のレビューを承認回答に置き換えない。
+
+## 9. 第3版の任意補正と再レビュー受領
+
+[第2版の再レビュー](../reviews/V2_RECOVERY_S3_S3A_V2_REREVIEW_20261029.md)は重大・通常の新規指摘なし、通常4件解消・提案7件反映済みとの報告。Q-01は設計の「補完権限」をADDEDの「証拠」へ変更、Q-02はC-14のWindows共通の準備方法、Q-03は新規ACKを含むD ≤ check_dの作成時上限として反映した。C-01〜C-14のIDと既存コード不変・S3-A限定の範囲を維持する。
+
+再レビューは実行による検証ではなく、第3版の補正も文書のみ。S3-A実装とN-04の採用は未承認のままで、ユーザーの採用回答後だけ着手する。S3-B／C・本番の承認を含めない。
