@@ -1,6 +1,6 @@
 # V2 S3-B 監査履歴・明示移行・復元・再初期化 設計案
 
-作成：2026-10-29（日本時間）、初版。状態：**設計案・レビュー待ち。限定実装は未承認・未着手。**
+作成：2026-10-29（日本時間）、初版588c841。第2版：2026-10-29（初版レビューの通常N-01／N-02と提案P-01／P-02を反映、§16）。状態：**設計案・補正後の採否判断待ち。限定実装は未承認・未着手。**
 本書を保存したこと、レビューで問題なしとされたことを、S3-B実装・新保存形式の採用・S3-C・本番接続の承認に置き換えない。作成担当はClaude Opus 5.5、effort high（セッション情報で configured_model `claude-opus-5-5[1m]`、last_served_model `claude-opus-5-5`、effort_level `high` を確認）。
 
 ## 0. 要約
@@ -213,7 +213,7 @@ v1のイベントs=0..nを順に出力し、各イベントの直後に、`sourc
 
 - SCHEMA_MIGRATIONは高々1件。ある場合、それより前の記録はGENESIS／APPLY／ACK／DECLARE_MISSINGだけで、その前のACK／DECLARE_MISSINGはすべてoriginを持つ。それより後の記録はoriginを持たない。無い場合、どの記録もoriginを持たない（v2で新規に作った履歴。§7のmake_history_genesisによる）。
 - 移行した解決記録のorigin.source_head_seqは、それより前で最も近いv1イベント（GENESIS／APPLY）のv1_seqと一致する。source_head_hashは、そのv1_event_hashと一致する。
-- **復元点はSCHEMA_MIGRATION以後の記録に限る**（本書の推奨。§14のD-2）。移行した範囲はv1の原本を表すので、退避・再生の対象にしない。これにより、originを持つ記録の再生は起きない。
+- **復元点の下限**（§14のD-2、第2版で条件を明記）：SCHEMA_MIGRATIONがある履歴（移行履歴）では、復元点はそのSCHEMA_MIGRATION自身か、それより後の記録に限る。移行した範囲はv1の原本を表すので、退避・再生の対象にしない。これにより、originを持つ記録の再生は起きない。SCHEMA_MIGRATIONの無い新規v2履歴では、GENESISが下限になる（GENESISへの復元も、§8.1の他の条件を満たせば受理する）。新規履歴に意味のない移行記録を必須にはしない。
 
 ### 5.4 写像規則
 
@@ -242,7 +242,13 @@ SCHEMA_MIGRATIONがある履歴では、検査器が次を行う（§4.5の7）�
 
 basisは次の項目：operation（"soxl-v2-history-migration-plan/1"）、status、source_snapshot_digest、source_head_seq、source_head_hash、source_resolutions_digest、request_id、request_hash、requested_at、check_d、ledger_digest、sessions_digest、effective_digest（S3-Aの投影結果）、candidate_history（dict）、candidate_digest、expected_state_digest。
 
-`confirm_migration_plan(plan, confirmed_plan_hash, snapshot_v1, resolutions, sessions, raw_observations)` は、計画の形とhashを先に検査し、入力を再検査し、全digestが一致することを確かめ、候補を作り直して完全一致を確かめる。結果は`CONFIRMED_IN_MEMORY`、committed=False、候補Historyの写し。入力が一つでも変われば`migration_plan_stale`、計画の改変・確認hashの違いは`migration_plan_mismatch`とする。表示は許可リスト方式で、件数・seq・hash・日付だけを出す。
+`confirm_migration_plan(plan, confirmed_plan_hash, snapshot_v1, resolutions, sessions, raw_observations)` は、次の順で検査する（第2版で優先順を明記、P-02）。
+1. 計画の形とhashを先に検査する。改変・確認hashの違いは`migration_plan_mismatch`。
+2. 入力を§5.1の1〜2と同じく再検査する。入力そのものが不正なら（壊れたv1、不正なSet、不正なsessions・台帳行・check_dなど）、その既存エラーのまま止め、staleへ変換しない。
+3. 有効な入力について、digest（snapshot・resolutions・ledger・sessions）と期待先頭がbasisと一つでも違えば`migration_plan_stale`。現在の台帳で投影が通らなくなった場合も、digestが違うのでstaleになる。
+4. 候補を作り直し、basisと完全一致を確かめる。全digestが一致しているのに違えば`migration_plan_mismatch`。
+
+結果は`CONFIRMED_IN_MEMORY`、committed=False、候補Historyの写し。表示は許可リスト方式で、件数・seq・hash・日付だけを出す。
 
 計画を確認しても、v1ファイルは変わらず、v2は保存されていない。実際の置き換え（v1→v2）はS3-Cの公開値と、新しいアダプタの責任とする（§9）。
 
@@ -332,7 +338,8 @@ floorは作成時の鎖ビュー（親まで）から計算する。
 
 - seq=kのRECOVERY_RESTOREの復元点Pは、seq=k−1から有効親をたどって到達できること（その時点で有効）。到達できない（既に退避した記録への再接続）は`restore_point_not_effective`。
 - P＝k−1は退避が空になるので`restore_noop`。
-- PはSCHEMA_MIGRATION以後（§5.3）。前なら`restore_before_migration`。
+- 下限（§5.3、第2版）：移行履歴ではP ≥ SCHEMA_MIGRATIONのseq（SCHEMA_MIGRATION自身は可）。それより前なら`restore_before_migration`。SCHEMA_MIGRATIONの無い新規v2履歴ではGENESIS（seq=0）が下限で、P=0も受理する。
+- 「その時点で有効」「k−1でない」「requestバッチの途中でない」の各条件は、移行履歴と新規v2履歴の両方で同じに適用する。
 - Pが複数記録のrequestバッチの途中（command_index＜command_count−1）なら`restore_point_in_batch`。復元バッチで作られた記録（REAPPLYの列など）の途中は、ここでいうrequestバッチではないので、復元点にしてよい。
 - state_after＝Pのstate_after。
 - request_basis.restore_pointは`{P, Pのevent_hash}`と一致し、request_basis.opsはreplayの`{op, from_seq}`（CONSUMEでは`{op, d}`）と同じ列であること。request_basis.check_dは、直前の有効鎖の区間の境界より後で、その鎖の最新APPLY日以上とする。
@@ -367,10 +374,13 @@ RECOVERY_RESTOREの直後には、REAPPLY／REPLAY（／CONSUME）の数だけ�
 
 写像m_k（seq=kのRECOVERY_RESTOREについて）：参照先tについて、tがP以前の有効記録なら変えない。tがREAPPLY／REPLAYされたなら、作られた記録のseq／hashへ写す。tがDROP／RETIREされたなら写像は無く、`restore_ref_unmapped`とする。計画（B-4）では、その記録もDROPに含めるよう求めて止める。黙って落とさない。
 
-REPLAYで作る記録は、元記録とseq・parent・event_hash・参照・replay_of以外が同じ。ただし次は新しい鎖で計算し直す。
+REPLAYで作る記録は、元記録とseq・parent・event_hash・参照・replay_of・**state_after**以外が同じ。request_id／request_hash／request_basis、command_index／command_count、reason_code、requested_at、ledger_digest、origin、record_fingerprints、variant、dは元のまま保つ。次の項目は新しい鎖で計算し直す（第2版でstate_afterを明示）。
+- **state_after（全種別）**：種別の規則（§3.2・I-15）に従い、新しい鎖で決める。ACK・DECLARE_MISSINGは**新しい有効親のstate_after**と一致する。RESTART_UNKNOWNは初期状態とする。元記録のstate_afterをコピーしない。復元点より後で基点が変わると（例：RESTART_UNKNOWNのDROP）、親のstate_afterが変わるので、再生した記録のstate_afterも元と異なる。I-15を弱めたり、state_afterを記録から外したりはしない。
 - DECLARE_MISSING：frontier_before・session_contextを新しい鎖で計算し直す。§6の規則を満たさなければ不正（例えば、前の宣言をDROPしたためにfrontierの次でなくなった場合）。
 - RESTART_UNKNOWN：floorを新しい鎖で計算し直し、§7.1を満たすこと。
 - ACK：applied_ref／missing_refをm_kで写す。fingerprintは同じ（REAPPLYでdecisionが変わらないため）。
+
+§4.5の手順4（復元バッチの対応）では、元のまま保つ項目と参照写像・replay_ofを比べる。計算し直す項目（state_after、DECLAREのfrontier_before／session_context、RESTARTのfloor）は、手順6の通常規則で検査する。元のstate_afterをコピーした再生記録は、hashを付け直しても`state_after`で拒否される。退避した元記録は変更しない。
 
 replay_of＝`{from_seqのseq, event_hash}`。作られた記録は、最終ビュー（または後のRESTOREの直前ビュー）で通常の§6／§7の規則も満たすこと。
 
@@ -414,7 +424,7 @@ D0〜D6は連続した確定セッション。q1〜q3は依頼ID。
 | 6 | APPLY D4 | 5 | |
 | 7 | **RESTORE#1**(prev=6, 復元点=2, superseded=[3,4,5,6]) | 2 | ops：3 DROP(q1)、4 REAPPLY、5 REPLAY、6 REAPPLY。再初期化の取消 |
 | 8 | APPLY D3（4の再適用、same=false） | 7 | 基点がD2の状態に変わる |
-| 9 | ACK/ADDED(D3, applied_ref=8, replay_of=5) q2 | 8 | 参照4→8へ写像 |
+| 9 | ACK/ADDED(D3, applied_ref=8, replay_of=5) q2 | 8 | 参照4→8へ写像。state_after＝#8のstate_after（旧#5とは異なる。旧#4はRESTART直後からの計算でbase.as_of_d=null、新#8はD2からの計算でbase.as_of_d=D2） |
 | 10 | APPLY D4（6の再適用、same=false） | 9 | |
 | 11 | APPLY D5 | 10 | 通常の日次 |
 | 12 | RESTART_UNKNOWN(resume_after=D5) q3 | 11 | floor={D5, null, D0} |
@@ -434,6 +444,11 @@ D0〜D6は連続した確定セッション。q1〜q3は依頼ID。
 - 9の再生でapplied_refを4のまま残す → `restore_ref_unmapped`／`restore_replay_mismatch`。
 - 退避した4を処分REPLAYやDROPにする（APPLYはREAPPLYだけ） → `restore_op_kind`。
 - 退避したqの2記録のうち1件だけDROP → `restore_partial_batch`。
+
+**再生のstate_afterの対照（第2版で追加）**：
+- 例Rの#9：state_after＝#8のstate_after≠旧#5のstate_after。旧#5の値をコピーし、hashを付け直した履歴は`state_after`で拒否する。
+- 例R-b（親状態が変わるDECLAREの再生）：0 GENESIS(D0) ／ 1 APPLY D1 ／ 2 RESTART_UNKNOWN(resume_after=D1) q1 ／ 3 APPLY D2（新区間、base.as_of_d=null） ／ 4 DECLARE_MISSING(D3) q2（frontier=D2） ／ 5 APPLY D4（skipped=[D3]） ／ 6 RESTORE(prev=5, 復元点=1, superseded=[2,3,4,5]；ops 2 DROP、3 REAPPLY、4 REPLAY、5 REAPPLY) ／ 7 APPLY D2（same=false、base.as_of_d=D1） ／ 8 DECLARE_MISSING(D3, replay_of=4)：state_after＝#7≠旧#4、frontier=D2はAPPLY #7のcontext[−2]から計算し直す ／ 9 APPLY D4。
+- RESTARTの再生（対照）：例RのRESTORE#2で、12をDROPでなくREPLAYにした場合、作られるRESTART_UNKNOWNのstate_afterは、新しい親の状態に関係なく初期状態で、floorは新しい鎖から{D5, null, D0}と計算し直す。続くD6のREAPPLYはsame=trueとなる。
 
 例Rの各操作が実際に何の役に立つか（台帳がどうなっていればB-4の計画が通るか）は、B-4の受入条件で別に固定する。B-1では、構造と再計算の正しさだけを検査する。
 
@@ -501,7 +516,7 @@ S1のreconcileは「同じ親hash」を要求する厳しい形であり、S1設
 | 移行計画の入力（v1・Set・台帳・sessions・check_d） | 既存のsnapshot_invalid／unsupported_schema、resolution_invalid、InputError／ConflictError、ledger_mismatch、late_observation 等をそのまま |
 | 移行のrequest_idの衝突 | migration_request_conflict／request_id |
 | 計画の改変・確認hashの違い | migration_plan_mismatch／plan |
-| 確認時の入力変更 | migration_plan_stale／plan |
+| 確認時の入力変更（入力は有効でdigestが違う） | migration_plan_stale／plan。入力そのものが不正なら既存エラーを優先（§5.6） |
 
 優先順は§4.5、移行計画では§5.1の順とする。エラー文は固定のcode／field／ruleと安全な件数・seqだけを持ち、raw値・F&G値・URL・note・source_url・パス・例外文を出さない。例外連鎖は抑える。
 
@@ -518,14 +533,14 @@ S1のreconcileは「同じ親hash」を要求する厳しい形であり、S1設
 
 ## 14. 未決事項
 
-「本書の推奨」は設計担当（Claude Opus 5.5）の推奨で、未採用。主担当の判断欄は空けてある。
+「本書の推奨」は設計担当（Claude Opus 5.5）の推奨で、未採用。主担当の判断欄には、初版レビュー（d776a22、補正依頼fd66a6d）で示された主担当の推奨を記録した。いずれもユーザーの採用ではなく、B-1の着手承認でもない。
 
 | ID | 内容 | 本書の推奨 | 主担当の判断 | B-1に必要か |
 |---|---|---|---|---|
-| D-1 | §3〜§8の形式（単一履歴、監査鎖と有効親、鎖ビュー＋S1射影、移行で記録を挟み対応表で逆検証）とB-1の範囲を採用するか | 採用 | （未記入） | 必要 |
-| D-2 | 復元点をSCHEMA_MIGRATION以後に限るか | 限る。移行範囲は原本を表す。必要になれば後で緩める | （未記入） | 必要 |
+| D-1 | §3〜§8の形式（単一履歴、監査鎖と有効親、鎖ビュー＋S1射影、移行で記録を挟み対応表で逆検証）とB-1の範囲を採用するか | 採用 | 推奨：通常2件の補正後に、この形式とB-1の限定範囲を採用（初版レビュー§5。ユーザー採用ではない） | 必要 |
+| D-2 | 復元点の下限 | 移行履歴ではSCHEMA_MIGRATION自身かそれ以後に限り、新規v2履歴ではGENESISを下限とする（§5.3・§8.1）。有効な点だけ・k−1不可・requestバッチ途中不可は両方で維持。必要になれば後で緩める | 推奨：移行履歴はMIGRATION以後、新規v2はGENESISを下限（初版レビュー§5。ユーザー採用ではない） | 必要 |
 | D-3 | 復元でCONSUMEを許すか（宣言・再初期化の取消のあとで新たに消費する） | B-1では拒否。B-4の依頼前に、市場入力・台帳・差の表示の条件とあわせて決める | （未記入） | 不要（B-1は拒否で固定） |
-| D-4 | B-1の実装担当のモデル・effort | Sonnet 5.5・high（仕様を固定した純粋な検査・変換の実装）。新形式の不変条件の実装に不安があればOpus 5.5・high | （未記入） | 必要 |
+| D-4 | B-1の実装担当のモデル・effort | Sonnet 5.5・high（仕様を固定した純粋な検査・変換の実装）。新形式の不変条件の実装に不安があればOpus 5.5・high | 推奨：Sonnet 5.5・high。範囲内の矛盾は主担当へ返す（初版レビュー§5。ユーザー採用ではない） | 必要 |
 | D-5 | 効果のない復元（全REAPPLYがtrueでDROPも無い）を計画で拒否するか | B-4で拒否する案。検査器では受け付ける | （未記入） | 不要 |
 | D-6 | v1の破損ファイルを採用する経路（prefixを移行してから採用するか） | S3-Cの前にB-5で決める | （未記入） | 不要 |
 | D-7 | v2での照合（§9.4）の条件 | S3-Cで決める。S1の親hash条件は維持しない案 | （未記入） | 不要 |
@@ -537,3 +552,17 @@ S1のreconcileは「同じ親hash」を要求する厳しい形であり、S1設
 - 開始時に、作成依頼§5の24参照を`git ls-remote`の完全SHAで照合し、24件とも一致した（2026-10-29T05:33Z）。受領確認の資料ブランチ（docs/v2-recovery-s3a-fix-receipt-20261029＝abb2e73）も一致し、読取だけとした。
 - 本書と依頼書の2文書だけを、コード基準e68d702から作った新しい資料ブランチdocs/v2-recovery-s3b-20261029に追加した。コード変更、試験実行、新しい市場計算、実ファイル復旧、PR、Actions、送信は0。終了時の照合結果と完全SHAは完了報告に記す（本書はその値を含められない）。
 - モデル別の利用量は未計測。
+- 第2版（2026-10-29）：初版レビューの補正依頼（fd66a6d）に従い、この2文書だけを、588c841から作った新しい資料ブランチdocs/v2-recovery-s3b-revision-20261029で改訂した。開始時に、依頼§7の25参照と588c841、レビュー資料ブランチ（fd66a6d、読取専用）の計27件が一致した。コード変更、試験実行、新しい市場計算、PR、Actions、送信は0。作成担当はClaude Opus 5.5、effort high（セッション情報で確認済み）。
+
+## 16. 第2版の改訂（初版レビューへの対応）
+
+根拠：[初版レビュー](https://github.com/Rocky009-jp/soxl-alert/blob/fd66a6dc0c04365633a0a497dced4f8ace08167e/docs/reviews/V2_RECOVERY_S3B_INITIAL_REVIEW_20261029.md)（対象588c841、重大0・通常2・提案2）と[補正依頼](https://github.com/Rocky009-jp/soxl-alert/blob/fd66a6dc0c04365633a0a497dced4f8ace08167e/docs/tasks/V2_RECOVERY_S3B_DESIGN_CORRECTION_REQUEST.md)。レビューは読取りによるもので、実行による再現ではない。以下は文書の補正であり、コードの試験合格を意味しない。
+
+| ID | 対応箇所 | 内容 |
+|---|---|---|
+| N-01 | §8.5、§8.9（例Rの#9、例R-b、RESTARTの再生の対照）、依頼§3の7・H-06・H-07・欠陥注入20 | REPLAYの「元と同じ」からstate_afterを外し、新しい鎖で種別規則に従って計算し直す（ACK・DECLAREは新しい有効親と同じ、RESTARTは初期状態）。request系の項目・指紋・参照写像・旧記録の不変は従来どおり。元のstate_afterのコピーは`state_after`で拒否 |
+| N-02 | §5.3、§8.1、§14のD-2、依頼§3の7・H-04〜H-06・§8・欠陥注入21 | 復元点の下限を、移行履歴ではSCHEMA_MIGRATION自身かそれ以後、新規v2履歴ではGENESISと明記。有効な点だけ・k−1不可・requestバッチ途中不可は両方で維持。例RはMIGRATIONなしで、現在のseqのまま受理 |
+| P-01 | 依頼H-02 | 取り込み。schemaの拒否は、History.from_dict(v1.to_dict())をvalidate_historyへ、Snapshot.from_dict(v2.to_dict())を既存validate_snapshotへ渡して確認する。異なるクラスをそのまま渡すと型の拒否になるので、別の試験として分ける。既存検査器は変更しない |
+| P-02 | §5.6、§12、依頼§3の9・H-12 | 取り込み。確認時に入力そのものが不正なら既存エラーを優先し、有効な入力のdigest差はmigration_plan_stale、全digest一致での作り直しの不一致はmigration_plan_mismatch。正常な変更と不正な変更を別の受入例にする |
+
+H-01〜H-14のIDは維持した。B-1の範囲（7種の検査、計画は移行だけ、メモリ上、既存コード非変更）は広げていない。D-3、D-5〜D-7の判断は増やしていない。補正の中で、他の矛盾は見つからなかった。

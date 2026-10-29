@@ -1,6 +1,6 @@
 # V2 S3-B-1 v2履歴の形式・検査器・明示移行 限定実装依頼案
 
-作成：2026-10-29（日本時間）、初版。状態：**設計案・レビュー待ち。限定実装は未承認。**
+作成：2026-10-29（日本時間）、初版588c841。第2版：2026-10-29（初版レビューの通常N-01／N-02と提案P-01／P-02を反映、§9）。状態：**設計案・補正後の採否判断待ち。限定実装は未承認。**
 ユーザーが今回承認したのは、S3-Bの設計・限定依頼書の**作成**まで。本書を受け取った担当者は、採用・着手の明示指示があるまで、コード・試験へ着手しない。S3-Bの全体、新保存形式の本番採用、S3-C、本番接続を一括で承認する文書ではない。
 
 ## 1. 固定版・担当
@@ -8,7 +8,7 @@
 | 用途 | 固定版 |
 |---|---|
 | 実装基準（コード） | e68d702de7fa80f141e14b63cf88082c15493994（fix/v2-recovery-resolution-s3a-review-20261029）。コード・試験は885f545と同一 |
-| 設計 | [V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md](../specs/V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md)（資料ブランチdocs/v2-recovery-s3b-20261029）。着手時に、渡されたパーマリンクの完全SHAと両文書のblob SHAを記録し、作業中に更新へ追従しない |
+| 設計 | [V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md](../specs/V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md)（第2版の資料ブランチdocs/v2-recovery-s3b-revision-20261029。初版はdocs/v2-recovery-s3b-20261029＝588c841）。着手時に、渡されたパーマリンクの完全SHAと両文書のblob SHAを記録し、作業中に更新へ追従しない |
 | 上位・S3境界 | 上位第4版e3e9094、S3第3版2d504de、S3-A採用記録d215193、S3-A受領abb2e73 |
 
 - **実装対象は設計のB-1だけ**：§3（形式。ただしRECOVERY_PREFIX_ADOPTIONは除く）、§4（監査鎖・有効履歴・鎖ビュー・S1射影・開始境界・検査順）、§5（明示移行）、§6のうち履歴の検査部分、§7.1、§8.1〜§8.6の**検査**、§12。§7.2・§8.7〜§8.9の計画作成、§9〜§11は後続の境界であり、実装の根拠にしない。
@@ -56,9 +56,9 @@ CLAUDE／STATUS／MODEL_POLICY／ROADMAPを確認する。STATUSの古い承認�
 4. 鎖ビュー：最終の有効鎖と各RESTOREの直前の有効鎖を、それぞれ線形に検査する。ビュー内でRESTOREは透過とする。区間（GENESIS／RESTART）ごとに、既存のmake_genesis_event／make_apply_eventでseq・親hashだけを付け直してS1 Snapshotを作り、**既存validate_snapshot**に通す。付け直したイベントの内容項目とv2の記録が一致することも確かめる。遷移・閾値・状態式を新たに書かない。
 5. 制御記録：設計§6の規則（祖先への参照、v2名前空間、LATE、ROW_REMOVED、exclude_applied、check_d、区間内のfrontierとsession_contextの出どころ、バッチ、request_hash、I-15、ビュー内のrequest_idの一意）。台帳に依存する証拠は検査しない。
 6. RESTART_UNKNOWN：floorを作成時のビューから計算して完全一致させ、resume_after ≥ floor、≤ check_d、restart_noop、state_afterは初期状態。次の区間の最初のAPPLYは、S1射影で境界からの文脈・skipped_sessionsを検査する。ビュー全体でAPPLY・宣言のDが重複しない（d_unique）。
-7. RECOVERY_RESTORE：設計§8.1〜§8.6。復元点の条件（有効、k−1でない、MIGRATION以後、requestバッチの途中でない）、ops・replayとsuperseded_seqsの対応、種別ごとに許す処分、DROPはrequestバッチ単位、直後に途切れず続く作られた記録、REAPPLYの入力の一致（decision／row／prev_row／prev_session_date、共通する文脈）とsame_as_supersededの真偽、REPLAYの参照写像（P以前は不変、REAPPLY／REPLAY先へ写す、DROP／RETIRE先はrestore_ref_unmapped）、DECLAREのfrontier／文脈とRESTARTのfloorの再計算、replay_of、state_after＝復元点。
+7. RECOVERY_RESTORE：設計§8.1〜§8.6。復元点の条件（有効、k−1でない、requestバッチの途中でない。下限は、移行履歴ではSCHEMA_MIGRATION自身かそれ以後、SCHEMA_MIGRATIONの無い新規v2履歴ではGENESIS）、ops・replayとsuperseded_seqsの対応、種別ごとに許す処分、DROPはrequestバッチ単位、直後に途切れず続く作られた記録、REAPPLYの入力の一致（decision／row／prev_row／prev_session_date、共通する文脈）とsame_as_supersededの真偽、REPLAYの参照写像（P以前は不変、REAPPLY／REPLAY先へ写す、DROP／RETIRE先はrestore_ref_unmapped）、再生した記録のstate_afterは新しい鎖で計算し直す（ACK・DECLAREは新しい有効親のstate_after、RESTARTは初期状態。元記録の値をコピーしない）、DECLAREのfrontier／文脈とRESTARTのfloorの再計算、replay_of、RECOVERY_RESTORE自身のstate_after＝復元点。
 8. 移行：§5.2の並べ方、§5.3の位置規則、§5.4の写像、§5.5の逆検証（再構成したv1を既存validate_snapshotへ、再構成したSetを既存record_hash_of・validate_resolutionsへ通し、digestを比べる）。移行計画では、既存resolve_observationsで現在の台帳・sessionsに対する投影を再検査してから候補を作る。request_idの衝突はmigration_request_conflict。
-9. 計画：basisに設計§5.6の全項目を入れ、plan_hashはbasisのSHA-256。記録はplan_hashを持たない。確認は、形・hash→入力の再検査とdigestの照合→作り直して完全一致、の順。入力が一つでも変わればmigration_plan_stale、改変はmigration_plan_mismatch。committed=False。候補Historyはどのストアにも渡せる型ではない。
+9. 計画：basisに設計§5.6の全項目を入れ、plan_hashはbasisのSHA-256。記録はplan_hashを持たない。確認は、形・hash（改変はmigration_plan_mismatch）→入力の再検査（入力そのものが不正なら既存エラーのまま）→有効な入力のdigestと期待先頭の照合（違えばmigration_plan_stale）→作り直して完全一致（全digest一致で違えばmigration_plan_mismatch）、の順（設計§5.6）。committed=False。候補Historyはどのストアにも渡せる型ではない。
 10. 戻り値は独立した写しか、再帰的に不変な値。repr・エラーは、固定のcode／field／ruleと安全な件数・seq・hashだけ。raw値・F&G値・URL・note・source_url・パス・例外文を出さない。例外連鎖は抑える。
 
 ## 4. 受入条件H-01〜H-14
@@ -68,17 +68,17 @@ IDは受入項目であり、テスト関数の件数ではない。新規Nは�
 | ID | 必須の確認 |
 |---|---|
 | H-01 既存回帰 | 完全クローンで、既存コア197＋保存ドメイン170＋S3-A 176を無編集で合格。S2の113件はOS別の契約どおり（Linuxは109合格・Windows専用4件は非対象）。新規Nは別に集計する。既存ファイル・fixturesの差分0 |
-| H-02 値とcodec | 不変・写しの取り出し。重複キー、NaN、boolを整数として、未知キー・未知種別、深さ超過、巨大整数を固定エラーで拒否。schema_version=1のSnapshotをvalidate_historyへ渡すとunsupported_schema（自動変換しない）。既存validate_snapshotはv2をunsupported_schemaで拒否する（既存の挙動であり、変更していないこと） |
+| H-02 値とcodec | 不変・写しの取り出し。重複キー、NaN、boolを整数として、未知キー・未知種別、深さ超過、巨大整数を固定エラーで拒否。schemaの拒否は、`History.from_dict(v1_snapshot.to_dict())`をvalidate_historyへ渡してunsupported_schema（自動変換しない）、`Snapshot.from_dict(v2_history.to_dict())`を既存validate_snapshotへ渡してunsupported_schema（既存の挙動であり、変更していないこと）で確認する。異なるクラスをそのまま渡す場合（Snapshotをvalidate_historyへ、Historyをvalidate_snapshotへ）は型の拒否（それぞれhistory_invalid／type、既存のsnapshot_invalid／type）として別の試験に分ける |
 | H-03 監査鎖 | seqの欠け・重複、監査上の前のhashの違い、event_hashの改変、headの違いを拒否。例Rで、退避した記録（例：4、11）の削除・変更・並べ替えを検出する |
-| H-04 有効鎖と退避 | 例Rの最終有効鎖が0、1、2、18〜22で、退避の和集合が{3..17}。RESTOREの有効親がk−1（restore_noop）、退避済みの記録（5、12）（restore_point_not_effective）、MIGRATIONより前（restore_before_migration）、requestバッチの途中（restore_point_in_batch）をそれぞれ拒否 |
+| H-04 有効鎖と退避 | 例Rの最終有効鎖が0、1、2、18〜22で、退避の和集合が{3..17}。例RはSCHEMA_MIGRATIONの無い新規v2履歴として、現在のseqのまま受理する。新規v2履歴でGENESIS（seq=0）への復元を、他の条件を満たせば受理する。移行履歴（例Mの後に記録を足したもの）では、SCHEMA_MIGRATION自身とそれ以後の適法な点への復元を受理し、それより前（restore_before_migration）を拒否する。RESTOREの有効親がk−1（restore_noop）、退避済みの記録（5、12）（restore_point_not_effective）、requestバッチの途中（restore_point_in_batch）の拒否を、新規v2履歴と移行履歴の両方で確認する |
 | H-05 退避一覧 | RESTORE#3のsuperseded=[7,8,9,14,15,16,17]を受理し、物理区間[3..17]や過不足・順序違いをsuperseded_mismatchで拒否 |
-| H-06 復元バッチ | 作られた記録の途中で終わる履歴（restore_incomplete）、作られた記録の間に別の記録を挟む、APPLYにREPLAY／DROP（restore_op_kind）、requestバッチの一部だけDROP（restore_partial_batch）、REAPPLYでdecisionかrowを変える（restore_reapply_input）、same_as_supersededの偽り・replayのseqの違い（restore_replay_mismatch）、REPLAYで参照を写さない・DROP先を指す（restore_ref_unmapped）、RETIRE以外のRESTORE処分、CONSUME（restore_op_unsupported）。RESTORE#1でRESTARTをDROPした後のREAPPLYがsame=falseで受理され、例RのREPLAY（5→9の参照写像）が受理される |
-| H-07 S1射影 | 各区間を既存validate_snapshotで検査していることを、実際に参照する名前のspy／差し替えで確認する。APPLYのtransition_result・state_after・input_hash・skipped_sessions・session_contextの改変は"s1:"付きのruleで拒否。APPLYの後にACK・DECLAREを挟んでもIB-04が通る。制御記録のstate_afterの改変はstate_after。RESTOREのstate_afterの改変はrestore_state |
+| H-06 復元バッチ | 作られた記録の途中で終わる履歴（restore_incomplete）、作られた記録の間に別の記録を挟む、APPLYにREPLAY／DROP（restore_op_kind）、requestバッチの一部だけDROP（restore_partial_batch）、REAPPLYでdecisionかrowを変える（restore_reapply_input）、same_as_supersededの偽り・replayのseqの違い（restore_replay_mismatch）、REPLAYで参照を写さない・DROP先を指す（restore_ref_unmapped）、RETIRE以外のRESTORE処分、CONSUME（restore_op_unsupported）。RESTORE#1でRESTARTをDROPした後のREAPPLYがsame=falseで受理され、例RのREPLAY（5→9の参照写像）が受理される。再生した#9のstate_afterが#8のstate_afterと一致し、旧#5のstate_afterとは異なることを確認する。旧#5のstate_afterをコピーした#9は、hashを付け直してもstate_afterで拒否する。例R-b（設計§8.9）で、親状態が変わるDECLAREの再生（#8のstate_after＝#7≠旧#4、frontierの計算し直し）を受理し、元の値のコピーを拒否する。RESTARTの再生（例RのRESTORE#2で12をREPLAYにした場合）では、state_afterが初期状態、floorが新しい鎖の値となることを受理し、初期状態でない値を拒否する |
+| H-07 S1射影 | 各区間を既存validate_snapshotで検査していることを、実際に参照する名前のspy／差し替えで確認する。APPLYのtransition_result・state_after・input_hash・skipped_sessions・session_contextの改変は"s1:"付きのruleで拒否。APPLYの後にACK・DECLAREを挟んでもIB-04が通る。制御記録のstate_afterの改変はstate_after（再生した記録で、元記録のstate_afterをコピーした場合を含む）。RESTOREのstate_afterの改変はrestore_state |
 | H-08 制御記録 | v2名前空間の参照（祖先のみ、後の記録を根拠にしない）、applied_ref／missing_ref（APPLY型・宣言型）の各不一致、LATEのビュー内APPLY、ROW_REMOVEDの非空一覧、exclude_applied、check_dの境界（区間の境界より後・最新APPLY日以上・d ≤ check_d、作成時の値で判定）、区間内のfrontierと3種類の出どころ、バッチの欠け・順序、request_hash、reason_code、ビュー内のrequest_idの重複を拒否。正常な延長で古い記録が失効しない |
 | H-09 再初期化 | 例Uの履歴を受理。floorの3値がそれぞれ効く（最後のAPPLY日・宣言日・前の境界を下回るとrestart_floor）、floorの値の偽り、resume_after > check_d、restart_noop、state_afterが初期状態でない、boundary_sessionの日付違い・未確定を拒否。境界以前のDのAPPLYを足した履歴はS1射影で拒否。再初期化の後のACK・DECLAREで、HistoryCheckのprocessing_afterとcurrent_boundaryが動かない |
 | H-10 移行の変換 | 例M（ADDED、DECLARE、LATEの宣言参照）に、ROW_REMOVED・CHANGED・APPLY参照のLATEを加えた例と、空のSetの例で、記録の並び、event_map／resolution_map、v2名前空間の参照、request_basisが元のままであること、APPLYの内容項目が元と1バイトも違わないこと、GENESISと例Mのv1 seq1のhashがv1と同じことを確認。migrated_sourcesで取り戻したv1 SnapshotとSetのdigestが元と一致し、既存validate_snapshot／validate_resolutionsが実際に呼ばれる（spy） |
 | H-11 移行の拒否 | 不正なv1・不正なSet・現在の台帳で投影が通らない（既存のcodeのまま）・request_idの衝突・check_dの範囲外では候補を作らない。履歴側では、MIGRATIONの対応表・source・source_resolutionsの改変、originの改変、MIGRATIONより後のorigin、MIGRATIONが2件、移行範囲にRESTART／RESTORE、移行した記録の位置（source_head）の違いを、それぞれ固定ruleで拒否 |
-| H-12 計画と確認 | plan_hashはbasis全体に結び付く。snapshot・Set・台帳・sessionsのどれを変えてもmigration_plan_stale。計画の改変・確認hashの違いはmigration_plan_mismatch。確認結果はcommitted=False。候補・計画・確認結果は、MemoryStore.commit／LocalFileStore.commitへ直接渡すと既存のplan_typeで拒否される。v2の正規化テキストを専用の一時rootのsnapshot.jsonに置くと、既存LocalFileStore（durability="file_sync_only"）のread・initializeがunsupported_schemaで止まり、ファイルのバイト列とディレクトリの中身が変わらない。Windowsで既定のstrictを試験準備に使わない |
+| H-12 計画と確認 | plan_hashはbasis全体に結び付く。有効なまま変えたsnapshot・Set・台帳・sessionsは、どれもmigration_plan_stale。確認時に入力そのものを不正にした場合（壊れたv1、不正なSet・台帳行・sessions）は、staleでなく既存のエラーになる（正常な変更と不正な変更を別の受入例にする）。計画の改変・確認hashの違いはmigration_plan_mismatch。確認結果はcommitted=False。候補・計画・確認結果は、MemoryStore.commit／LocalFileStore.commitへ直接渡すと既存のplan_typeで拒否される。v2の正規化テキストを専用の一時rootのsnapshot.jsonに置くと、既存LocalFileStore（durability="file_sync_only"）のread・initializeがunsupported_schemaで止まり、ファイルのバイト列とディレクトリの中身が変わらない。Windowsで既定のstrictを試験準備に使わない |
 | H-13 不変性と秘匿 | 入力・戻り値の入れ子を変えても、元のHistory・Snapshot・Set・計画が変わらない。repr・エラー・計画の表示に、raw行・F&G値・URL・自由文・パスが出ない |
 | H-14 範囲と停止 | ランタイムにI/O・時計・ネット・プロセス・スレッド・乱数・環境変数・依存追加が無い。解錠・公開・通知・日次処理・台帳投影・復元／再初期化の計画を作っていない。既存パッケージのファイル差分0 |
 
@@ -107,6 +107,9 @@ IDは受入項目であり、テスト関数の件数ではない。新規Nは�
 17. 移行計画でresolve_observationsの再検査を省く
 18. plan_hashかいずれかの入力digestを確認で無視する
 19. 戻り値で入れ子の参照を共有する
+20. 再生した制御記録のstate_afterとして、元記録の値をコピーする（N-01）
+21. 復元点の下限をSCHEMA_MIGRATIONだけで判定し、新規v2履歴の復元を全部拒否するか、移行履歴でMIGRATION前を受け付ける（N-02）
+22. 確認時の不正な入力をmigration_plan_staleへ変換する（P-02）
 
 ## 6. 環境・結果の保存
 
@@ -161,14 +164,24 @@ Python 3.10／3.11／3.12／3.13で確認し、完全な版を記録する。既
 | fix/v2-recovery-resolution-s3a-review-20261029 | e68d702de7fa80f141e14b63cf88082c15493994 |
 | docs/v2-recovery-s3a-fix-receipt-20261029 | abb2e73a4980c635f0f471d1819b6b1734661fa1 |
 
-上の24件は作成依頼§5の24参照で、25件目はS3-Aの受領確認を保存した資料ブランチ（読取専用）。本書を保存した資料ブランチdocs/v2-recovery-s3b-20261029も、着手時に渡された完全SHAで固定し、書き換えない。
+上の24件は作成依頼§5の24参照で、25件目はS3-Aの受領確認を保存した資料ブランチ（読取専用）。本書を保存した資料ブランチ（第2版はdocs/v2-recovery-s3b-revision-20261029）も、着手時に渡された完全SHAで固定し、書き換えない。初版とレビューの資料ブランチは§9のとおり読取専用。
 
 ## 8. レビュー後に採用する単位（未採用）
 
 採用する場合の対象は、次の一組とする。
 - B-1だけ：v2履歴の値・codec・全7種の検査器（復元バッチ・再初期化を含む、CONSUMEとprefix採用は拒否）、make_history_genesis、migrated_sources、明示移行の計画・確認。§2の追加場所だけ。
-- 設計§14のD-1（形式とB-1の範囲）、D-2（復元点はMIGRATION以後）、D-4（担当モデル・effort）。
+- 設計§14のD-1（形式とB-1の範囲）、D-2（復元点の下限：移行履歴はSCHEMA_MIGRATION自身かそれ以後、新規v2履歴はGENESIS）、D-4（担当モデル・effort）。初版レビューでの主担当の推奨は、通常2件の補正後にD-1を採用、D-2を上記の条件付きで採用、D-4をSonnet 5.5・highとするもの。これはユーザーの採用・B-1の着手承認ではない。
 - H-01〜H-14、既存の固定版・回帰の不変、隔離したPythonと通信禁止。
 - B-2〜B-5、S3-C、公開値、v2用ストア、ファイル上の移行の実行、実解錠・復元・再初期化の実行、本番は含めない。
 
 今回のユーザーの発言は「S3-Bの設計・限定依頼書の作成へ進める」であり、この一組の実装採用はまだ得ていない。本書はその判断を代わりに行わない。レビューで重大・通常の指摘があれば文書を補正し、その後にユーザーが採否を判断する。
+
+## 9. 第2版の改訂
+
+[初版レビュー](https://github.com/Rocky009-jp/soxl-alert/blob/fd66a6dc0c04365633a0a497dced4f8ace08167e/docs/reviews/V2_RECOVERY_S3B_INITIAL_REVIEW_20261029.md)（重大0・通常2・提案2）と[補正依頼](https://github.com/Rocky009-jp/soxl-alert/blob/fd66a6dc0c04365633a0a497dced4f8ace08167e/docs/tasks/V2_RECOVERY_S3B_DESIGN_CORRECTION_REQUEST.md)に従い、文書だけを補正した。対応の一覧は設計§16。
+
+- N-01：§3の7、H-06、H-07、欠陥注入20。再生した記録のstate_afterは新しい鎖で計算し直す。
+- N-02：§3の7、H-04（H-05・H-06の例Rは新規v2履歴のまま）、§8、欠陥注入21。復元点の下限は条件付き。
+- P-01：H-02に取り込み。P-02：§3の9、H-12、欠陥注入22に取り込み。
+
+H-01〜H-14のIDとB-1の範囲は変えていない。資料ブランチはdocs/v2-recovery-s3b-revision-20261029。着手時は、渡された第2版の完全SHAと両blobを記録する。§7の保護参照に、初版の資料ブランチdocs/v2-recovery-s3b-20261029（588c84102ab8d55793a6e9bb38e5a8cba3ff36af）と、レビュー資料ブランチdocs/v2-recovery-s3b-review-20261029（fd66a6dc0c04365633a0a497dced4f8ace08167e）を加え、どちらも読取専用とする。
