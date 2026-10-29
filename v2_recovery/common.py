@@ -67,9 +67,9 @@ def is_requested_text(text):
         return False
     try:
         dt = parse_aware_datetime(text, "requested_at")
+        return utc_text(dt, "requested_at") == text
     except InputError:
         return False
-    return utc_text(dt, "requested_at") == text
 
 
 def normalize_command(cmd, field):

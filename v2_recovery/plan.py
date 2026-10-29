@@ -13,8 +13,8 @@ from typing import Any
 from v2_core.errors import CoreError
 from v2_persistence.codec import canonical_json, encode_snapshot, sha256_text
 
-from .common import (is_date, is_hex64, is_requested_text, normalize_command, reason_for_commands, request_hash_of,
-                     requested_text, same, valid_request_id)
+from .common import (KIND_ACK, KIND_DECLARE, VARIANTS, is_date, is_hex64, is_requested_text, normalize_command,
+                     reason_for_commands, request_hash_of, requested_text, same, valid_request_id)
 from .commands import make_records, set_dict
 from .errors import plan_mismatch, plan_stale, request_conflict, resolution_invalid
 from .project import Ctx, resolve_core
@@ -47,10 +47,16 @@ class ResolutionPlan:
     @classmethod
     def _from_view(cls, view):
         check_json(view, "plan")
-        text = canonical_json(view)
+        try:
+            text = canonical_json(view)
+            loaded = json.loads(text)
+        except RecursionError:
+            raise resolution_invalid("plan", "json_depth") from None
+        except (ValueError, OverflowError):                     # e.g. an integer too long to be written as text
+            raise resolution_invalid("plan", "json_number") from None
         obj = object.__new__(cls)
         object.__setattr__(obj, "_text", text)
-        object.__setattr__(obj, "_view", json.loads(text))
+        object.__setattr__(obj, "_view", loaded)
         return obj
 
     @classmethod
@@ -58,6 +64,7 @@ class ResolutionPlan:
         """Rebuild a plan from its dict (for storing in a test or a message). The hash is checked when confirming."""
         if not isinstance(data, dict) or set(data) != {"basis", "plan_hash"}:
             raise resolution_invalid("plan", "plan_shape")
+        check_json(data, "plan")                       # depth and types first: only then is copying the input safe
         return cls._from_view(copy.deepcopy(data))
 
     def __setattr__(self, name, value):
@@ -86,7 +93,31 @@ class ResolutionPlan:
     @property
     def status(self):
         b = self._view["basis"]
-        return b.get("status") if isinstance(b, dict) else None
+        status = b.get("status") if isinstance(b, dict) else None
+        return status if status in (READY, NO_CHANGE) else None
+
+    def _display(self):
+        """The few values that may be shown, each re-checked against its own form; None when anything is off.
+
+        A plan made by from_dict is unverified until it is confirmed, so nothing it carries is printed as it is.
+        """
+        try:
+            b, h = self._view["basis"], self._view["plan_hash"]
+            cmds = []
+            for c in b["commands"]:
+                if (c["kind"] not in (KIND_ACK, KIND_DECLARE) or c["variant"] not in (None,) + VARIANTS
+                        or not is_date(c["d"]) or not isinstance(c["record_fingerprints"], list)):
+                    return None
+                cmds.append({"kind": c["kind"], "variant": c["variant"], "d": c["d"],
+                             "fingerprints": len(c["record_fingerprints"])})
+            if (b["status"] not in (READY, NO_CHANGE) or not valid_request_id(b["request_id"])
+                    or not is_date(b["check_d"]) or not is_hex64(h) or not isinstance(b["excluded_fingerprints"], list)
+                    or not isinstance(b["supplemented"], list)):
+                return None
+            return b["status"], b["request_id"], b["check_d"], cmds, len(b["excluded_fingerprints"]), \
+                len(b["supplemented"]), h
+        except (KeyError, TypeError):
+            return None
 
     @property
     def committed(self):
@@ -94,20 +125,19 @@ class ResolutionPlan:
 
     def summary(self):
         """Whitelist only: kinds, days, counts, reference numbers and the plan hash."""
-        b = self._view["basis"]
-        cmds = [{"kind": c["kind"], "variant": c["variant"], "d": c["d"], "fingerprints": len(c["record_fingerprints"])}
-                for c in b["commands"]]
-        return {"status": b["status"], "request_id": b["request_id"], "check_d": b["check_d"], "commands": cmds,
-                "excluded": len(b["excluded_fingerprints"]), "supplemented": len(b["supplemented"]),
-                "state_unchanged": True, "committed": False, "plan_hash": self._view["plan_hash"]}
+        shown = self._display()
+        if shown is None:
+            raise resolution_invalid("plan", "plan_shape")
+        status, request_id, check_d, cmds, excluded, supplemented, plan_hash = shown
+        return {"status": status, "request_id": request_id, "check_d": check_d, "commands": cmds,
+                "excluded": excluded, "supplemented": supplemented,
+                "state_unchanged": True, "committed": False, "plan_hash": plan_hash}
 
     def __repr__(self):
-        try:
-            b = self._view["basis"]
-            return "ResolutionPlan(status=%s, commands=%d, plan_hash=%s)" % (
-                b["status"], len(b["commands"]), self._view["plan_hash"][:12])
-        except (KeyError, TypeError):
+        shown = self._display()
+        if shown is None:
             return "ResolutionPlan(?)"
+        return "ResolutionPlan(status=%s, commands=%d, plan_hash=%s)" % (shown[0], len(shown[3]), shown[6][:12])
 
 
 @dataclass(frozen=True)
