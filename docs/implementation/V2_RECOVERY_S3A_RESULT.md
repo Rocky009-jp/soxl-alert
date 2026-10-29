@@ -182,3 +182,79 @@ S3-A は**メモリ上の候補確認のみ**。次は実装していない：AC
 - 物理電源断、autocrlf=true：未実施。
 - 欠陥注入53件以外：未実行。未依頼の全期間照合や耐久性証明は追加していない。
 - ライブの保存先・入力／通知接続、S3-B／C：後工程で未着手。
+
+---
+
+## 13. 追記：レビュー指摘 R-01／R-02 の限定修正（2026-10-29）
+
+§1〜§12 は修正前（試験対象 3b71816、保存最終 2c246e3）の記録で、**消さずに残す**。本節は、Rockyのレビュー（重大0・通常2・提案2）と[限定修正依頼](https://github.com/Rocky009-jp/soxl-alert/blob/a5109e2d000b43dee96ab7019d6db92d0345ff69/docs/tasks/V2_RECOVERY_S3A_REVIEW_FIX_REQUEST.md)（a5109e2）に基づく修正の結果。担当は Sonnet 5.5・high（get_session で configured_model `claude-sonnet-5-5[1m]`、last_served_model `claude-sonnet-5-5`、effort_level `high` を確認）。
+
+### 13.1 固定した版
+
+| 項目 | 内容 |
+|---|---|
+| 開始点 | `2c246e3e485d9dcb90fb35ab1628040b484fb7c2`（コード・試験は 3b71816 と同一） |
+| 資料（依頼書・レビュー・再現コード） | `a5109e2d000b43dee96ab7019d6db92d0345ff69`（docs/v2-recovery-s3a-receipt-20261029。読取のみ） |
+| 修正ブランチ | fix/v2-recovery-resolution-s3a-review-20261029（新規。元の feat・資料・レビューのブランチは更新していない） |
+| **試験対象（修正コード＋試験）** | **`885f545c9b0a0da3f210ba601fd8b7dbf4f08848`** |
+| 保存最終 | 試験対象に本書の追記だけを加えたコミット（完全SHAは完了報告に記載。差分は本書1ファイルのみ） |
+
+### 13.2 変更ファイル（開始点との差分）
+
+| 種別 | ファイル |
+|---|---|
+| 修正 | `v2_recovery/plan.py`、`v2_recovery/common.py`（P-01） |
+| 試験 | `tests/v2_recovery/test_r_review_fix.py`（新規・21件）、`tests/v2_recovery/sensitivity_check.py`（M15の整理と変異M46〜M55の追加） |
+| 文書 | 本書（追記のみ） |
+
+コア、S1、S2、既存197＋170＋S2 113、fixtures、依存、workflow、設定、研究原本、既存の155件の試験は変更していない。キー、正常値のcanonical JSON・hash、公開API、委譲は不変。
+
+### 13.3 修正内容
+
+- **R-01（未検証計画の表示）**：`ResolutionPlan.from_dict` で作った値は確認前でも構築できる。`summary()`／`repr` は、表示する各値（status、request_id、check_d、各commandのkind・variant・日付、件数に使う配列、plan_hash）を表示前に**それぞれの形で再検査**する（statusは READY／NO_CHANGE、request_idは既存の record_id 形式、日付は `YYYY-MM-DD`、hashは小文字hex64）。どれか一つでも外れると、`repr` は固定表現 `ResolutionPlan(?)`、`summary()` は固定の `PersistenceError`（code `resolution_invalid`、field `plan`、rule `plan_shape`）。欠落キー・誤型でも生の KeyError／TypeError や入力文字列は出ない。`status` プロパティも READY／NO_CHANGE 以外は None。確認前の表示のために confirm を要求する設計にはしていない。**表示の安全化は確認の可否に影響しない**（改変した計画は引き続き `resolution_plan_mismatch`。再計算したhash付きでも同じ）。正常計画の `summary()` は従来の許可リストのまま。
+- **R-02（計画読込みの Python 例外）**：`from_dict` は**コピーより前**に既存の `check_json`（深さ40・型・数値の検査）を適用し、深い入力は `deepcopy` に届く前に `resolution_invalid`／field `plan`／rule `json_depth` で止まる。JSON変換（`canonical_json`／`json.loads`）の `ValueError`／`OverflowError`（整数の文字列変換上限など）は rule `json_number`、`RecursionError` は rule `json_depth` の固定エラーへ変換し、`from None` で例外連鎖を抑える。`sys.setrecursionlimit` や整数変換上限の変更はしていない。
+- **P-01（取り込み）**：`is_requested_text` の UTC 変換を try 内へ移動。`0001-01-01T00:00:00+23:00` のような時刻は、保存済み記録では `resolution_invalid`（rule `request_basis`）、計画の確認では `resolution_plan_mismatch`。
+- **P-02（取り込み）**：request_hash を、`hashlib`＋`json.dumps` で別に書いた独立の期待値と照合する試験を追加。これにより M15（request_hash の入力に項目を足す変異）は検出される。**§8 の「M15は等価」は誤りで、本節で訂正する**。
+
+### 13.4 再現コードと回帰（修正前後）
+
+- **修正前**（3b71816、Python 3.13.17）：再現コード（`docs/reviews/V2_RECOVERY_S3A_REVIEW_REPRODUCE_20261029.py`）の元の5観測を確認。R1_repr／R1_summary／R1_missing_keys（KeyError）／R2_deep_input（RecursionError）／R2_numeric_serialization（ValueError）が全て欠陥あり、control OK、exit 0。
+- **修正後**：試験対象 885f545 の別クリーンクローンで `--expect-fixed` が全版で成功（control OK、exit 0）。Python 3.10.20／3.11.17／3.12.3／3.13.17 のいずれも整数変換上限は4300桁で、R2_numeric_serialization は4版とも**適用あり**（not_applicable なし）。
+- **新規回帰21件**：修正前のソースに戻して実行すると、subTestを含めて **18 FAIL＋19 ERROR**（修正前は失敗）。修正後は21件全合格。範囲内の値（深さ30の入れ子、変換上限直前の整数）は従来どおり受理し、正常計画の plan_hash は独立計算と一致する。整数変換上限のない環境では数値の試験が分岐し（skip せず「確認で mismatch」を検査）、本環境の4版は上限あり。
+
+### 13.5 件数（別クリーンクローン 885f545、`unshare -rn` で通信遮断、`core.autocrlf=false`、`-B -W error::ResourceWarning`、実行後 git status clean）
+
+| Python | コア | 保存ドメイン | S2 | 新規 S3-A（155＋21） | 終了コード |
+|---|---|---|---|---|---|
+| 3.10.20 | 197 OK | 170 OK | 113（4 skip＝Windows専用、Linuxでは未実施） | **176 OK** | 全て0 |
+| 3.11.17 | 197 OK | 170 OK | 113（4 skip） | **176 OK** | 全て0 |
+| 3.12.3 | 197 OK | 170 OK | 113（4 skip） | **176 OK** | 全て0 |
+| 3.13.17 | 197 OK | 170 OK | 113（4 skip） | **176 OK** | 全て0 |
+
+失敗0・error0。OS は Ubuntu 24.04.5 LTS（クラウドVM）。既存367件は無編集で合格。主担当のWindows／Python 3.12.14 の526件合格は、本作業の実行結果で置き換えていない。実Windows、ユーザーPCは未実施。
+
+### 13.6 限定した欠陥再現（Python 3.13、10件）
+
+| ID | 内容 | 結果 |
+|---|---|---|
+| M15 | request_hash の入力を一貫して変更（P-02） | 検出（旧：等価と誤判定） |
+| M46〜M49 | R-01：status／request_id／commandの日付／check_d を検査なしで表示 | 全て検出 |
+| M50 | R-01：未検査計画の `summary()` を拒否しない | 検出 |
+| M51 | R-02：深さ検査の前にコピー | 検出 |
+| M52 | R-02：変換時の RecursionError 変換を除去 | **等価として整理**：深さ検査の後は到達不能の防御的写像。他の変異で代替できないため試験では検出できない |
+| M53 | R-02：整数→文字列の ValueError 変換を除去 | 検出 |
+| M54 | R-02：例外連鎖を抑えない | 検出 |
+| M55 | P-01：UTC変換を try の外へ戻す | 検出 |
+
+R-01とR-02を別々に戻すと、対応する回帰が検出する（M46〜M51、M53、M54）。過去53件の再実行はしていない。**累計の整理**：53件のうち、M15を検出へ訂正すると検出50・等価3（M02、M18、M31）。本節の新規10件のうち9件検出・1件等価（M52）。
+
+### 13.7 保護参照・範囲
+
+- 開始時と終了時（結果文書のpush後）に、依頼書第3版§6の19参照、資料2参照、元実装 feat/v2-recovery-resolution-s3a-20261029（2c246e3）、レビュー保存ブランチ docs/v2-recovery-s3a-receipt-20261029（a5109e2）の**計23参照**を `git ls-remote` の完全SHAで照合した。コード＋試験のpush後の照合は23件・不一致0（結果文書のpush後の照合は完了報告に記載）。レビュー保存ブランチは読取のみ。
+- PR作成、Actions、S3-B／C、新保存形式、解錠・復元、本番、通知：**なし**。S3-Aは引き続きメモリ上の候補確認のみ。
+
+### 13.8 未実施・保留
+
+- 実Windows、ユーザーPCでの実行、物理電源断、autocrlf=true：未実施。
+- 過去53件の欠陥注入の再実行：未実施（依頼どおり）。
+- S3-B以降：未着手・未承認。
