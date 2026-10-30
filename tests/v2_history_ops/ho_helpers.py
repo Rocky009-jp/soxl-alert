@@ -65,3 +65,103 @@ def outcome(fn, *args, **kwargs):
         return ("ok", fn(*args, **kwargs))
     except (PersistenceError, InputError, ConflictError) as e:
         return ("err", e.code, e.field, getattr(e, "rule", None))
+
+
+# --- v2 commands, plans and batches ------------------------------------------------------------------------------
+import v2_history as V  # noqa: E402
+import v2_history_ops as O  # noqa: E402
+
+ACK_REASON, DECL_REASON, BATCH_REASON = RH.ACK_REASON, RH.DECL_REASON, RH.BATCH_REASON
+CHECK_D = H.CHECK_D
+
+
+def applies_of(history):
+    return {a["seq"]: a for a in O.read_effective(history).applies}
+
+
+def aref(history, seq):
+    a = applies_of(history)[seq]
+    return {"seq": a["seq"], "event_hash": a["event_hash"], "fingerprint": a["fingerprint"]}
+
+
+def mref_apply(history, seq):
+    return {"kind": "APPLY", "seq": seq, "event_hash": history.events[seq]["event_hash"]}
+
+
+def mref_decl(history, seq):
+    return {"kind": "DECLARE_MISSING", "seq": seq, "event_hash": history.events[seq]["event_hash"]}
+
+
+def cmd(kind, variant, d, fps=(), applied=None, missing=None):
+    return {"kind": kind, "variant": variant, "d": d, "record_fingerprints": list(fps), "applied_ref": applied,
+            "missing_ref": missing}
+
+
+def ack_cmd(history, variant, d, fps, applied_seq):
+    return cmd("ACK", variant, d, fps, applied=aref(history, applied_seq))
+
+
+def late_cmd(d, fps, missing):
+    return cmd("ACK", "LATE", d, fps, missing=missing)
+
+
+def decl_cmd(d, fps=()):
+    return cmd("DECLARE_MISSING", None, d, fps)
+
+
+def reason_for(cmds):
+    kinds = {c["kind"] for c in cmds}
+    return ACK_REASON if kinds == {"ACK"} else DECL_REASON if kinds == {"DECLARE_MISSING"} else BATCH_REASON
+
+
+def plan_for(history, cmds, sessions, ledger, check_d, rid, reason=None, when=WHEN):
+    return O.prepare_history_resolution_plan(history, cmds, sessions, ledger, check_d, rid,
+                                             reason or reason_for(cmds), when)
+
+
+def run_plan(history, cmds, sessions, ledger, check_d, rid, reason=None):
+    """prepare + confirm. Returns (plan, ConfirmResult)."""
+    plan = plan_for(history, cmds, sessions, ledger, check_d, rid, reason)
+    return plan, O.confirm_history_resolution_plan(plan, plan.plan_hash, history, sessions, ledger)
+
+
+def extend(history, result):
+    """The history after the batch of a confirm result / day result is accepted."""
+    return O.check_append_batch(history, result.batch)
+
+
+def fp(row):
+    return RH.fp(row)
+
+
+def row(record_id, d, value, hour=20):
+    return P.obs(record_id, d, value, hour=hour)
+
+
+def err(fn, *args, **kwargs):
+    """('code', 'field', 'rule') of the refusal of fn."""
+    out = outcome(fn, *args, **kwargs)
+    assert out[0] == "err", "expected a refusal, got %r" % (out,)
+    return out[1:]
+
+
+def day(history, d, w, ledger=None):
+    return O.prepare_history_day(history, d, w.series, w.sessions, w.ledger if ledger is None else ledger)
+
+
+def refusal(fn, *args, **kwargs):
+    """The refusal exception itself (code, field, rule and detail are fixed identifiers)."""
+    try:
+        fn(*args, **kwargs)
+    except (PersistenceError, InputError, ConflictError) as e:
+        return e
+    raise AssertionError("expected a refusal")
+
+
+def example_v():
+    """Design 12.3: 0 GENESIS(D0), 1 APPLY D1, 2 DECLARE_MISSING D2 (q1), 3 RESTART_UNKNOWN(resume_after=D3) (q2)."""
+    b = H.HB()
+    b.apply(D[1], 27.0)
+    b.declare(D[2], "q1")
+    b.restart(D[3], "q2")
+    return b
