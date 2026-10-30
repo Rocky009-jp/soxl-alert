@@ -1,6 +1,6 @@
 # V2 S3-B-2 台帳投影・日次処理・新規ACK／欠測宣言 設計案
 
-作成：2026-10-30（日本時間）。状態：**設計案・レビュー待ち。B-2の限定実装は未承認・未着手。**
+作成：2026-10-30（日本時間）。第2版：2026-10-30（主担当レビューN-01の補正と任意提案P-01〜P-03の明確化、§17）。状態：**第2版・レビュー待ち。B-2の限定実装は未承認・未着手。**
 本書を保存したこと、レビューで問題なしとされたことを、B-2の実装、既存パッケージの変更（§3.3の提案）、新保存形式の採用、S3-C、本番接続の承認に置き換えない。作成担当はClaude Opus 5.5、effort high（セッション情報で指定モデル・effort highを確認）。
 
 ## 0. 要約
@@ -21,6 +21,8 @@
 |---|---|
 | コード基準（将来の実装開始点） | adfdf765aeca0d01c8f10b596a6fac59d7c1a07e（fix/v2-history-s3b1-review-20261030）。コード・試験は2b5fa2d079e2fe86b98b0e6d5be5431c5b4988ceと同一で、差は結果文書§13の追記だけ |
 | 作成依頼 | fee48e944172950b7e58581c000f0750319a9fd7（docs/v2-history-s3b2-design-request-20261030）の docs/tasks/V2_RECOVERY_S3B2_DESIGN_PREPARATION_REQUEST.md |
+| 初版（本書の補正前） | 62861137a28e96a361f198f5601e0f5ae77a6910（docs/v2-history-s3b2-20261030）、本書blob 7c84758219be620083742cbb804ef541f630d578 |
+| 主担当レビュー・補正依頼 | ce07dbd0b2e587eb8c4cd77b847f9b53fcdb8d3e（docs/v2-history-s3b2-review-20261030）の docs/reviews/V2_RECOVERY_S3B2_DESIGN_REVIEW_20261030.md と docs/tasks/V2_RECOVERY_S3B2_DESIGN_CORRECTION_REQUEST.md（重大0・通常1・提案3） |
 | B-1修正受領 | e8a94e5d415fce28f0ba7744b72a3d3dc390279b |
 | S3-B設計第2版 | 361904b1618ae9f9d3a672875c437a388826c253、blob 838761207b060ca8c844bf7ed0f15a9e990ad6b7（§2、§3.5、§4、§6、§7.2、§9〜§10を主に参照） |
 | B-1採用・開始指示書 | 98e05e426b99154e7a5941c718b2b220f048e2a2。D-1・D-2・D-4は採用済みとして扱い、再質問しない |
@@ -303,7 +305,7 @@ request_idは**物理履歴全体**（退避記録を含む）と照合する（
 | 有効鎖のNATIVEの解決依頼で、request_hashが同じ（requested_atだけが違う場合を含む） | NO_CHANGE。現在の有効解決記録での投影（§5.1の4）を検査してから返す |
 | 有効鎖のREPLAYEDの解決依頼で、request_hashが同じ（元のコマンドを同じまま再提出した場合） | NO_CHANGE（同上） |
 | 有効鎖のNATIVE／REPLAYEDの解決依頼で、request_hashが違う | `history_request_conflict`／request_id |
-| MIGRATEDの解決依頼 | 内容にかかわらず `history_request_conflict`。保存したrequest_basisはS3-Aの名前空間で、v2のコマンドから同じhashは作れないため |
+| MIGRATEDの解決依頼 | 内容にかかわらず `history_request_conflict`。保存したrequest_basisはS3-Aの名前空間で作られている。例Mの最初のAPPLYのようにv1とv2でseq・event_hashが同じ記録を指す場合は、元と同じbasisをv2のコマンドで作るとrequest_hashが一致し得る。それでも、名前空間をまたぐ同じ依頼の再提出を、B-2では保証も受理もしない（保守的にconflictとする。hashの一致・不一致で結果を変えない） |
 | 退避記録だけにある（DROPした依頼など） | `history_request_conflict`。取り消した依頼を同じIDで作り直さず、新しいIDを使う |
 | RESTART_UNKNOWN・RECOVERY_RESTORE・SCHEMA_MIGRATIONのrequest_id | `history_request_conflict` |
 
@@ -315,7 +317,7 @@ basisの全キー：`operation`（"soxl-v2-history-resolution-plan/1"）、`stat
 
 plan_hash＝basisの正規化JSONのSHA-256。記録はplan_hashを持たない（循環させない）。NO_CHANGEでは candidate_history＝現在の履歴、candidate_digest＝history_digest。
 
-`HistoryResolutionPlan` は不変で、`from_dict`／`to_dict`／`basis`（写し）／`plan_hash`（写し）／`status`／`committed`（False）／`summary()`／reprを持つ。表示は許可リスト（status、request_id、check_d、コマンドごとのkind・variant・d・指紋の件数、新しい記録の件数、除外・補完の件数、plan_hash）で、各値を表示の前に形で再検査し、不正なら固定表現にする（S3-A R-01、B-1と同じ）。from_dictは、コピーの前にJSONの深さ・型を検査し、深さ超過・巨大整数は固定のrule（history_invalid／plan_shape・json_depth・json_number）にする。
+`HistoryResolutionPlan` は不変で、`from_dict`／`to_dict`／`basis`（写し）／`plan_hash`（写し）／`status`／`committed`（False）／`summary()`／reprを持つ。表示は許可リスト（status、request_id、check_d、コマンドごとのkind・variant・d・指紋の件数、新しい記録の件数、除外・補完の件数、plan_hash）で、各値を表示の前に形で再検査し、不正なら固定表現にする（S3-A R-01、B-1と同じ）。from_dictは、コピーの前にJSONの深さとJSONで表せる型かを検査し（整数欄のbool・floatなど意味の検査は確認の手順1で行う。§12.8の2）、深さ超過・巨大整数は固定のrule（history_invalid／plan_shape・json_depth・json_number）にする。
 
 ### 6.7 確認の順序とエラー
 
@@ -325,8 +327,8 @@ plan_hash＝basisの正規化JSONのSHA-256。記録はplan_hashを持たない�
 |---|---|---|
 | 1 | planの型、`{basis, plan_hash}`の形、plan_hash＝SHA-256(basis)、confirmed_plan_hash＝plan_hash、basisのキー、operation、status、check_d・request_id・requested_atの形 | `history_plan_mismatch`／plan |
 | 2 | 入力そのもの：`validate_history(history)`、`copy_sessions`、`parse_ledger` | 既存のエラーのまま（history_invalid、unsupported_schema、sessions_invalid、行のInputError等）。staleへ変換しない |
-| 3 | 有効な入力の差：history.digestがbasis.history_digestと同じか（同じでなければ、READYでかつbasis.candidate_digestと同じか）、先頭seq／hash、ledger_digest、sessions_digest | どれにも当たらなければ `history_plan_stale`／plan |
-| 4 | §6.2の2〜7で作り直し、期待するbasisと完全一致。全digestが一致しているので、作り直しでCoreErrorが出たら計画自身の誤り | `history_plan_mismatch`／plan |
+| 3 | 有効な入力の差。次の枝A・枝Bのどちらかに当たるか。**枝A（元の履歴）**：history.digest＝basis.history_digest、かつhistory.head_seq／head_hash＝basis.expected_head_seq／expected_head_hash。**枝B（候補の履歴）**：basis.status＝READY、history.digest＝basis.candidate_digest、かつhistory.head_seq／head_hash＝basis.candidate_historyの先頭（最後の記録のseq／event_hash）。枝Bでは元のexpected_head_*との一致を求めない。どちらの枝でも、ledger_digest・sessions_digestはbasisと同じ | どちらにも当たらなければ `history_plan_stale`／plan |
+| 4 | §6.2の2〜7で作り直し、期待するbasisと完全一致。枝Aの期待basisは元のbasisそのもの。枝Bの期待basisは下の結果表の3行目のとおり。全digestが一致しているので、作り直しでCoreErrorが出たら計画自身の誤り | `history_plan_mismatch`／plan |
 
 結果：
 
@@ -334,7 +336,7 @@ plan_hash＝basisの正規化JSONのSHA-256。記録はplan_hashを持たない�
 |---|---|---|
 | 計画時と同じ履歴（READY） | CONFIRMED_IN_MEMORY | committed=False、候補History、HistoryLedger（候補の投影）、HistoryAppendBatch（U-2がR-aの場合）、plan_hash |
 | 計画時と同じ履歴（計画がNO_CHANGE） | NO_CHANGE | batchはnull |
-| 計画の候補そのものが今の履歴（同じ計画の再確認） | NO_CHANGE | 期待するbasisは、元のbasisのstatusをNO_CHANGEに、history_digest・expected_head_*を今の値にしたもの。batchはnull |
+| 計画の候補そのものが今の履歴（同じ計画の再確認、手順3の枝B） | NO_CHANGE | 期待するbasisは、元のbasisのうち次の4項目だけを変えたもの：status→NO_CHANGE、history_digest→basis.candidate_digest、expected_head_seq／expected_head_hash→候補の先頭。candidate_history・candidate_digestは元の値のまま（NO_CHANGEの規則「candidate_history＝現在の履歴」と一致する）。request_*・check_d・reason_code・commands・ledger_digest・sessions_digest・expected_state_digest・excluded_fingerprints・supplemented・effective_digestも元のまま（元の値は候補の投影から作っているため）。作り直したbasisのplan_hashは元のplan_hashと違うので、比べるのはbasisの各項目で、plan_hashではない。batchはnull |
 | 候補の後にさらに記録が足された履歴 | `history_plan_stale` | 候補が今の履歴の前半であっても、照合（ALREADY_PUBLISHED等）はS3-Cの責任なので、B-2はstaleとする |
 
 S3-Aの確認との違い：S3-Aは手順2で`Ctx`を作るので、有効だが変わったsessionsで範囲が合わない場合に、staleでなく`session_context_mismatch`になることがある。B-2は、B-1の移行確認（P-02採用の順）と同じく、手順2では入力の形と正しさだけを見て、範囲の照合は手順4に回す。digestが一致しない正常な変更はstaleになり、不正な入力は既存エラーになる（§13）。
@@ -547,7 +549,7 @@ H0＝`make_history_genesis(D0)`。台帳L1＝D1の決定a1。
 例R（S3-B§8.9）の台帳L_Rは、D3に別IDの決定行z3を含む。z3は#5のACK/ADDED q2が除外していた。
 1. RESTORE#2の後（有効鎖は0、1、2、7、8、9、14〜17）：q2は#9（replay_of=5）として有効で、`project_history_ledger`はz3を除外して通る。applied_refは#8（写像済み）で、#4ではない。
 2. RESTORE#3の後（有効鎖は0、1、2、18〜22）：q2はDROPされ、有効解決記録は無い。`project_history_ledger`はz3を除外しないので、D3（#19）の照合で `decision_conflict` になる。退避した#5・#9は使わない。
-3. 新しい依頼 ACK/ADDED(D3, applied_ref={seq:19,…}) q4 → READY。applied_refに#4・#8（退避）を指定 → `ack_evidence`。q2を新しい依頼IDとして再利用 → `history_request_conflict`。
+3. 新しい依頼 ACK/ADDED(D3, applied_ref={seq:19,…}) を、例Rで未使用のq7で出す → READY（新しい記録はseq23、親は#22）。例Rで使用済みの依頼IDはq1〜q6（q1・q3はRESTART_UNKNOWN、q2はACK、q4〜q6はRESTORE#1〜#3）で、§6.5により物理履歴全体と照合する。依頼IDの対照：同じコマンドをq4で出す → `history_request_conflict`（q4はRESTORE#1＝#7の依頼IDで、退避後も物理履歴に残る）。q2で出す → `history_request_conflict`（RESTORE#3でDROPされた解決依頼のID）。q7のままapplied_refに#4・#8（退避）を指定 → `ack_evidence`。fixtureの依頼IDとID検査は変えない。
 4. 日次 D7 → PREPARED、親は#22（または足したACK）。
 
 例R-b（S3-B§8.9）：有効鎖は0、1、6、7、8、9で、宣言は#8（replay_of=4）。
@@ -583,7 +585,9 @@ H2：0 GENESIS(D0) ／ 1 APPLY D1（context＝[D0, D1, D2]）。
 ### 12.8 流れ8：不変性・型・秘匿
 
 1. 入力のdict／list、戻り値（EffectiveView、HistoryLedger、計画、確認結果、batch）の入れ子を書き換えても、元の値・History・計画・batchのテキスト・digest・等値・hashは変わらない。
-2. 計画・batchのfrom_dictで、整数欄（expected_head_seq、records内のseq、command_index等）にTrue・1.0を入れる → `history_plan_mismatch`／`batch_invalid`（boolやfloatを整数として扱わない）。深さ超過・巨大整数 → 固定のrule。
+2. 型の検査は2段階に分け、混ぜない（B-1と同じ役割分担。意味の検査を読込口へ移さない）。
+   - **読込口で拒否**：計画・batchの`from_dict`は、JSONの深さ超過・巨大整数（数値の限界）・JSONで表せない型を、コピーの前に§6.6／§8.3の固定のrule（json_depth・json_number等）で拒否する。
+   - **読込みは通り、意味の検査で拒否**：整数欄（expected_head_seq、records内のseq、command_index等）にTrue・1.0を入れた値はJSONとして正しいので、`from_dict`は値を保持して返す。その値を`confirm_history_resolution_plan`に渡すと手順1で`history_plan_mismatch`、`check_append_batch`に渡すと手順1で`batch_invalid`（rule＝type等）になる。boolやfloatを整数として扱わない。
 3. 台帳行に生URL・自由文・note・source_urlを入れても、repr・summary・例外の文字列に現れない。F&G値も現れない。
 
 ## 13. 上位設計・S3-A・B-1との差
@@ -615,9 +619,9 @@ B-1の形式（schema_version=2、7種のキー、hash、検査器、復元点�
 
 | ID | 内容 | 本書の推奨 | 主担当の判断 | ユーザーの採否 |
 |---|---|---|---|---|
-| U-1 | S3-A規則の再利用の方法 | API-1：v2_recoveryに新規`facts.py`、`commands.py`の切り出しとLATE宣言参照の分岐（§3.3）。既存176件・目印の数え上げ・commands.pyの変異の再実行で回帰を示す | （未記入） | 未採用 |
-| U-2 | バッチ値の境界（上位§2と§9.1の記述差） | R-a：`HistoryAppendBatch`と`check_append_batch`はB-2、I/Oと実行はS3-C（§8.2） | （未記入） | 未採用 |
-| U-3 | B-2の実装担当 | Sonnet 5.5・high（作成依頼の既定。仕様を固定した純粋な投影・計画の実装）。U-1でAPI-1を採る場合も同じ | （未記入） | 未採用 |
+| U-1 | S3-A規則の再利用の方法 | API-1：v2_recoveryに新規`facts.py`、`commands.py`の切り出しとLATE宣言参照の分岐（§3.3）。既存176件・目印の数え上げ・commands.pyの変異の再実行で回帰を示す | 推奨（主担当レビューce07dbd。ユーザーの採用ではない） | 未採用 |
+| U-2 | バッチ値の境界（上位§2と§9.1の記述差） | R-a：`HistoryAppendBatch`と`check_append_batch`はB-2、I/Oと実行はS3-C（§8.2） | 推奨（主担当レビューce07dbd。ユーザーの採用ではない） | 未採用 |
+| U-3 | B-2の実装担当 | Sonnet 5.5・high（作成依頼の既定。仕様を固定した純粋な投影・計画の実装）。U-1でAPI-1を採る場合も同じ | 推奨（主担当レビューce07dbd。ユーザーの採用ではない） | 未採用 |
 
 設計上の留保（ユーザーの判断ではない）：
 - S3-Cが、RESOLUTIONのバッチを公開する直前に確認を作り直すか、`check_append_batch`だけでよいか（S3-Cで決める）。
@@ -630,3 +634,15 @@ B-1の形式（schema_version=2、7種のキー、hash、検査器、復元点�
 - 開始時に、作成依頼§6の34参照と、作成依頼の資料ブランチ（docs/v2-history-s3b2-design-request-20261030＝fee48e9）の計35参照を、`git ls-remote`の完全SHAで照合し、35件とも一致した（2026-10-30T04:04Z）。同名の新規資料ブランチ（docs/v2-history-s3b2-20261030）はリモートに無かった。
 - コード基準adfdf765から新しい資料ブランチ docs/v2-history-s3b2-20261030 を作り、本書と限定実装依頼書の2文書だけを追加した。コード変更、試験実行、試験コード・再現スクリプトの作成、新しい市場計算、PR、Actions、外部送信は0。終了時の照合結果と完全SHAは完了報告に記す（本書はその値を含められない）。
 - 作成担当はClaude Opus 5.5、effort high（セッション情報で確認）。モデル別の利用量は未計測。
+- 第2版（文書補正依頼ce07dbdに従う）：開始時に、依頼§8の35参照、初版の資料ブランチ（docs/v2-history-s3b2-20261030＝6286113）、レビューの資料ブランチ（docs/v2-history-s3b2-review-20261030＝ce07dbd）の計37参照を完全SHAで照合し、37件とも一致した（2026-10-30T05:00Z）。初版6286113から新しい資料ブランチ docs/v2-history-s3b2-revision-20261030 を作り、既存2文書だけを補正した。初版の資料ブランチ・レビューの資料ブランチ・コード・試験は変更していない。コード変更・試験実行・再現コード・市場計算・PR・Actions・外部送信は0。作成担当はClaude Opus 5.5、effort high（セッション情報で確認）。終了時の照合と完全SHAは完了報告に記す。
+
+## 17. 第2版の改訂表
+
+| ID | 区分 | 指摘 | 本書の対応 | 依頼書の対応 |
+|---|---|---|---|---|
+| N-01 | 通常 | §12.4の3で成功させる新しいACKのq4が、例RのRESTORE#1（#7）で使用済み。§6.5ではconflictになる | 成功例を未使用のq7に変更。q4（RESTOREのID）とq2（DROPされた解決依頼）を同じコマンドで出すとconflictになる対照を追加。#4・#8を指す拒否は維持。fixtureとID検査は変えない | B2-10・B2-13に対応を明記 |
+| P-01 | 提案 | MIGRATEDのrequest_hashが一致し得る | §6.5の理由を「一致し得ても、名前空間をまたぐ再提出をB-2では保証・受理しない」に修正。常にconflictとする方針は維持 | B2-13に、hashが一致する場合もconflictとする受入を追記 |
+| P-02 | 提案 | from_dictと意味検査の段階が§12.8の2で曖昧 | §12.8の2を、読込口で拒否する場合（深さ・数値の限界）と、読込みは通り確認／check_append_batchで拒否する場合（bool・floatの整数欄）に分けた | B2-16に段階の区別を追記 |
+| P-03 | 提案 | 候補での再確認で比べるhead／digestが曖昧 | §6.7の手順3を枝A（元の履歴）・枝B（候補の履歴）に分け、それぞれで比べるdigest・先頭を明記。枝Bの期待basisで変える4項目を列挙。再確認NO_CHANGEは維持 | B2-14に枝A・枝Bの受入を追記 |
+
+上位形式、API-1の範囲、R-a、受入ID B2-01〜B2-17、コード基準adfdf765、既存回帰の不変は変えていない。U-1〜U-3は未採用のまま（§15の「主担当の判断」欄にだけ、レビューの推奨を記入した）。新しい採否や後工程は追加していない。

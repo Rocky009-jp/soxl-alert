@@ -1,6 +1,6 @@
 # V2 S3-B-2 台帳投影・日次処理・新規ACK／欠測宣言 限定実装依頼案
 
-作成：2026-10-30（日本時間）。状態：**設計案・レビュー待ち。限定実装は未承認。**
+作成：2026-10-30（日本時間）。第2版：2026-10-30（主担当レビューN-01の補正と任意提案P-01〜P-03の反映、§10）。状態：**第2版・レビュー待ち。限定実装は未承認。**
 ユーザーが今回承認したのは、B-2の設計・限定実装依頼書の**作成**まで。本書を受け取った担当者は、採用・着手の明示指示があるまで、コード・試験へ着手しない。本書は、B-2全体の本番採用、既存v2_recoveryの変更（設計§3.3のAPI-1）、新保存形式の採用、S3-C、本番接続を承認する文書ではない。
 
 ## 1. 固定版・担当
@@ -8,7 +8,8 @@
 | 用途 | 固定版 |
 |---|---|
 | 実装の開始点（コード） | **adfdf765aeca0d01c8f10b596a6fac59d7c1a07e**（fix/v2-history-s3b1-review-20261030）。コード・試験は2b5fa2dと同一で、差はB-1結果文書§13の追記だけ |
-| 設計 | [V2_RECOVERY_S3B2_PROJECTION_DAILY_DESIGN_DRAFT.md](../specs/V2_RECOVERY_S3B2_PROJECTION_DAILY_DESIGN_DRAFT.md)（資料ブランチ docs/v2-history-s3b2-20261030） |
+| 設計 | [V2_RECOVERY_S3B2_PROJECTION_DAILY_DESIGN_DRAFT.md](../specs/V2_RECOVERY_S3B2_PROJECTION_DAILY_DESIGN_DRAFT.md) の第2版（資料ブランチ docs/v2-history-s3b2-revision-20261030）。初版は62861137a28e96a361f198f5601e0f5ae77a6910（docs/v2-history-s3b2-20261030）で、実装の根拠にしない |
+| 主担当レビュー・補正依頼 | ce07dbd0b2e587eb8c4cd77b847f9b53fcdb8d3e（docs/v2-history-s3b2-review-20261030）。重大0・通常1（N-01）・提案3（P-01〜P-03） |
 | 上位・境界 | S3-B第2版361904b（設計blob 838761207b060ca8c844bf7ed0f15a9e990ad6b7）、B-1採用98e05e4、B-1修正受領e8a94e5、S3第3版2d504de、上位第4版e3e9094、S3-A採用d215193 |
 
 - **実装対象は設計のB-2だけ**：§3.3（U-1でAPI-1が採用された場合だけ）、§4〜§7、§8（U-2でR-aが採用された場合）、§9〜§11。B-3〜B-5、S3-Cは実装の根拠にしない。
@@ -88,13 +89,13 @@ IDは受入項目であり、テスト関数の件数ではない。新規Nは�
 | B2-07 日次の結果 | 設計§7.3の各行と§12.1。`prepare_day`がちょうど1回、現在区間のSnapshotと最終台帳で呼ばれること（spy）。返したAPPLYの内容6項目がS1のeventと1バイトも違わず、seq・parent_seq・parent_hashだけがv2の先頭に付け直されている。親がACK・DECLARE・RESTORE・SCHEMA_MIGRATIONの場合も受理される。S1の`AppendPlan`・`PrepareResult`を返さない。core_result.state_updatedの意味を変えない |
 | B2-08 再実行の不変条件 | 設計§7.4。GENESISだけ・移行後・再開始後・復元後の各履歴で、PREPAREDの候補を`check_append_batch`で新しい履歴にし、同じ入力で同じDを準備するとALREADY_APPLIED。同じ入力の2回の準備で同じbatch_hash。候補の検査（validate_historyと全区間の投影）を準備時に行っていること（spy） |
 | B2-09 再開始後の日次 | 例Uの表（S3-B§7.3）のうち日次の行と、設計§12.3の5。D≤境界、前の区間の最終APPLY日の再処理は`target_not_after_boundary` |
-| B2-10 復元後 | 設計§12.4の1〜6。RESTORE#2後に通る投影が、RESTORE#3後には退避したACKを使わないので止まり、新しい依頼で解ける。退避した記録を指すコマンドは`ack_evidence`／`late_missing_ref`。例R-bの宣言は#8の値 |
+| B2-10 復元後 | 設計§12.4の1〜6。RESTORE#2後に通る投影が、RESTORE#3後には退避したACKを使わないので止まり、例Rで未使用の依頼ID **q7** の新しい依頼（ACK/ADDED(D3, applied_ref=#19)）でREADYになる。同じコマンドをq4（RESTORE#1のID）・q2（DROPされた解決依頼のID）で出すと`history_request_conflict`。退避した記録（#4・#8）を指すコマンドは`ack_evidence`／`late_missing_ref`。例R-bの宣言は#8の値。h_helpersの例Rの依頼IDとID検査を、試験を通すために変えたり弱めたりしない |
 | B2-11 移行済み履歴 | 設計§12.2の1〜5。候補の`migrated_sources`が元のv1 SnapshotとSetのdigestを返す |
 | B2-12 新規解決の証拠 | 設計§12.5の1〜6。ROW_REMOVED＋ADDED、CHANGED＋ADDEDの両方の順。採用済みN-04（`declare_valid_decision`）。version_selectionの迂回の拒否。LATEの2つの参照形。exclude_applied。ACKのD＞check_d。同じバッチ内の宣言参照の拒否と、連続宣言のfrontier。証拠の判定が`check_commands`を通ること（spy） |
-| B2-13 request_id | 設計§6.5の各行（同じID・同内容でNO_CHANGE、requested_atだけの違いでNO_CHANGE、内容違い、複数コマンドの依頼、MIGRATED、REPLAYEDの同内容と内容違い、退避記録だけにあるID、RESTART・RESTORE・MIGRATIONのID） |
-| B2-14 計画と確認 | 設計§6.6・§6.7・§12.7。plan_hashがbasis全体に結び付く。改変・確認hashの違いは`history_plan_mismatch`。有効なまま変えた履歴・台帳・sessionsは`history_plan_stale`。確認時の不正な入力は既存エラー（正常な変更と不正な変更を別の受入例にする）。同じ計画の再確認はNO_CHANGE、さらに先頭が進んだ履歴は`history_plan_stale`。§12.7の6の対照で、候補の投影を省いた場合にREADYになることを欠陥注入で示す。既存の未解消の衝突があっても、それを解くACKの計画は作れる |
+| B2-13 request_id | 設計§6.5の各行（同じID・同内容でNO_CHANGE、requested_atだけの違いでNO_CHANGE、内容違い、複数コマンドの依頼、MIGRATED、REPLAYEDの同内容と内容違い、退避記録だけにあるID、RESTART・RESTORE・MIGRATIONのID）。MIGRATEDは、request_hashが一致する場合（例Mの最初のAPPLYを指す、元と同じbasisのADDED）も一致しない場合も`history_request_conflict`。退避記録だけにあるIDと、RESTOREのIDは、例Rのq2・q4で確かめる（設計§12.4の3） |
+| B2-14 計画と確認 | 設計§6.6・§6.7・§12.7。plan_hashがbasis全体に結び付く。改変・確認hashの違いは`history_plan_mismatch`。有効なまま変えた履歴・台帳・sessionsは`history_plan_stale`。確認時の不正な入力は既存エラー（正常な変更と不正な変更を別の受入例にする）。同じ計画の再確認はNO_CHANGE、さらに先頭が進んだ履歴は`history_plan_stale`。確認の手順3は枝A（元の履歴：元のhistory_digestとexpected_head_*）と枝B（候補の履歴：candidate_digestと候補の先頭。元のexpected_head_*は求めない）を別の受入例にし、枝Bの期待basisが設計§6.7の結果表3行目の4項目だけ変わることを示す。§12.7の6の対照で、候補の投影を省いた場合にREADYになることを欠陥注入で示す。既存の未解消の衝突があっても、それを解くACKの計画は作れる |
 | B2-15 バッチ値 | 設計§8.3。生成経路が2つだけで、未確認の計画・NO_COMMIT・ALREADY_APPLIED・NO_CHANGEからは作られない。`check_append_batch`の表の1〜6の各拒否（空records、seqの欠け、DAILYで2件、RESOLUTIONで別のrequest_id、候補digestの違い、先頭の違い＝`batch_stale`、batch_hashの改変）。成功時の候補が`validate_history`を通る |
-| B2-16 型・不変性・秘匿 | 設計§12.8の1〜3。全戻り値と候補を`MemoryStore.commit`・`LocalFileStore.commit`へ直接渡すと`plan_type`で拒否。LocalFileStoreの試験用一時rootは`durability="file_sync_only"`とし、Windowsで既定のstrictを試験準備に使わない |
+| B2-16 型・不変性・秘匿 | 設計§12.8の1〜3。§12.8の2は、`from_dict`が拒否する例（JSONの深さ超過・巨大整数）と、`from_dict`は値を保持し、確認の手順1／`check_append_batch`の手順1が拒否する例（整数欄のTrue・1.0）を別の受入例にする。全戻り値と候補を`MemoryStore.commit`・`LocalFileStore.commit`へ直接渡すと`plan_type`で拒否。LocalFileStoreの試験用一時rootは`durability="file_sync_only"`とし、Windowsで既定のstrictを試験準備に使わない |
 | B2-17 範囲と停止 | ランタイムにI/O・時計・ネット・プロセス・スレッド・乱数・環境変数・依存追加が無い（ASTの走査）。新パッケージが使う既存の名前が§3の一覧の中だけ。新パッケージが`Ctx`・`SnapshotView`・`make_records`・private名を参照しない。B-3〜B-5・S3-Cの機能を作っていない。§3で許した以外の既存ファイルの差分0 |
 
 上位設計の受入（I-08〜I-10、I-15、IB-04、RT-02、RT-06、RT-08、RT-09）のうち、B-2で判定できる部分を対応させる。RT-03・RT-05・RT-07の公開・実行は、B-2で達成済みと書かない。
@@ -191,14 +192,25 @@ Python 3.10／3.11／3.12／3.13で確認し、完全な版を記録する。既
 | docs/v2-history-s3b1-fix-receipt-20261030 | e8a94e5d415fce28f0ba7744b72a3d3dc390279b |
 | docs/v2-history-s3b2-design-request-20261030 | fee48e944172950b7e58581c000f0750319a9fd7 |
 
-上の34件は作成依頼§6の一覧、35件目は作成依頼を保存した資料ブランチ（読取専用）。本書と設計を保存した資料ブランチ（docs/v2-history-s3b2-20261030）と、採用・着手を記録する資料ブランチも、着手時に渡された完全SHAで固定し、書き換えない。v2_recoveryの差分は、自分の新しい実装ブランチの上でだけ行い、上の参照（特にS3-Aの各ブランチ）を更新しない。
+上の34件は作成依頼§6の一覧、35件目は作成依頼を保存した資料ブランチ（読取専用）。このほか、初版の資料ブランチ docs/v2-history-s3b2-20261030（62861137a28e96a361f198f5601e0f5ae77a6910）とレビューの資料ブランチ docs/v2-history-s3b2-review-20261030（ce07dbd0b2e587eb8c4cd77b847f9b53fcdb8d3e）も書き換えない。本書第2版と設計第2版を保存した資料ブランチ（docs/v2-history-s3b2-revision-20261030）と、採用・着手を記録する資料ブランチも、着手時に渡された完全SHAで固定し、書き換えない。v2_recoveryの差分は、自分の新しい実装ブランチの上でだけ行い、上の参照（特にS3-Aの各ブランチ）を更新しない。
 
 ## 9. 採用する単位と停止位置（未採用）
 
 採用する場合の対象は、次の一組とする。
 - B-2だけ：§3の追加・変更の場所、§4の公開API、B2-01〜B2-17、§6の欠陥注入。
-- 設計§15のU-1（推奨API-1）、U-2（推奨R-a）、U-3（推奨Sonnet 5.5・high）。いずれも作成担当の推奨で、主担当の判断・ユーザーの採用ではない。
+- 設計§15のU-1（推奨API-1）、U-2（推奨R-a）、U-3（推奨Sonnet 5.5・high）。いずれも作成担当と主担当レビュー（ce07dbd）の推奨で、ユーザーの採用ではない。
 - 既存の固定版・回帰の不変、隔離したPythonと通信禁止。
 - B-3〜B-5、S3-C、HistoryReplacement、v2用ストア、公開・CAS実行・解錠、ファイル上の移行の実行、本番は含めない。
 
-今回のユーザーの発言は「B-2の設計・限定実装依頼書の作成へ進んでください」であり、この一組の実装採用はまだ得ていない。本書はその判断を代わりに行わない。主担当のレビューで重大・通常の指摘があれば文書を補正し、その後にユーザーが採否を判断する。
+今回のユーザーの発言は「B-2の設計・限定実装依頼書の作成へ進んでください」であり、この一組の実装採用はまだ得ていない。本書はその判断を代わりに行わない。主担当のレビュー（ce07dbd、重大0・通常1・提案3）を受けて、本第2版で文書を補正した（§10）。補正版を固定SHAで確認した後に、ユーザーが採否を判断する。主担当がU-1＝API-1、U-2＝R-a、U-3＝Sonnet 5.5・highを推奨していることは、ユーザーの採用ではない。
+
+## 10. 第2版の改訂表
+
+| ID | 区分 | 本書の対応 | 設計の対応 |
+|---|---|---|---|
+| N-01 | 通常 | B2-10の成功例を未使用のq7とし、q4・q2のconflictの対照と、fixture・ID検査を変えないことを明記。B2-13に例Rのq2・q4での確認を追記 | §12.4の3 |
+| P-01 | 提案 | B2-13に、MIGRATEDのrequest_hashが一致する場合もconflictとする受入を追記 | §6.5のMIGRATEDの行 |
+| P-02 | 提案 | B2-16に、from_dictで拒否する例と、確認／check_append_batchで拒否する例の区別を追記 | §12.8の2 |
+| P-03 | 提案 | B2-14に、確認の手順3の枝A・枝Bを別の受入例にすることを追記 | §6.7の手順3・4と結果表3行目 |
+
+§1に第2版の設計と主担当レビューの固定版を、§8に初版とレビューの資料ブランチを追加した。受入ID B2-01〜B2-17、欠陥注入の22件、コード基準adfdf765、既存回帰の不変、変更を許す場所（§3）、公開API（§4）、U-1〜U-3（未採用）は変えていない。
