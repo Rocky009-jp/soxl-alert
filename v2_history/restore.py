@@ -105,7 +105,8 @@ def _check_one(events, parents, migration_seq, k, rec, replayed):
     if not same(rec["state_after"], p_rec["state_after"]):
         raise _bad("restore_state")
     superseded = chain[pos[point] + 1:]
-    if not isinstance(rec["superseded_seqs"], list) or rec["superseded_seqs"] != superseded:
+    listed = rec["superseded_seqs"]
+    if not isinstance(listed, list) or not all(is_int(s) for s in listed) or listed != superseded:
         raise _bad("superseded_mismatch")
     _check_basis(events, rec, point, p_rec, chain)
     ops = rec["request_basis"]["ops"]

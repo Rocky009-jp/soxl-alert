@@ -138,15 +138,15 @@ class History:
 
     @property
     def head_seq(self):
-        return self._view.get("head_seq") if isinstance(self._view, dict) else None
+        return copy.deepcopy(self._view.get("head_seq")) if isinstance(self._view, dict) else None
 
     @property
     def head_hash(self):
-        return self._view.get("head_hash") if isinstance(self._view, dict) else None
+        return copy.deepcopy(self._view.get("head_hash")) if isinstance(self._view, dict) else None
 
     @property
     def schema_version(self):
-        return self._view.get("schema_version") if isinstance(self._view, dict) else None
+        return copy.deepcopy(self._view.get("schema_version")) if isinstance(self._view, dict) else None
 
     @property
     def digest(self):

@@ -107,7 +107,8 @@ def reconstruct(events, m):
         raise _bad("s1:%s" % (e.rule or e.code)) from None
     source = mig["source"]
     head = v1[-1]
-    if (source["schema_version"] != 1 or source["core_sha"] != CORE_SHA or source["head_seq"] != head["seq"]
+    if (not is_int(source["schema_version"]) or source["schema_version"] != 1 or source["core_sha"] != CORE_SHA
+            or not is_int(source["head_seq"]) or source["head_seq"] != head["seq"]
             or source["head_hash"] != head["event_hash"]
             or source["snapshot_digest"] != sha256_text(encode_snapshot(snapshot))):
         raise _bad("migration_source")
@@ -123,7 +124,8 @@ def reconstruct(events, m):
             raise _bad("origin")
         if origin["resolution_seq"] != len(recs) + 1 or not is_int(origin["resolution_seq"]):
             raise _bad("origin")
-        if last_v1 is None or origin["source_head_seq"] != last_v1[0] or origin["source_head_hash"] != last_v1[1]:
+        if (last_v1 is None or not is_int(origin["source_head_seq"]) or origin["source_head_seq"] != last_v1[0]
+                or origin["source_head_hash"] != last_v1[1]):
             raise _bad("origin")
         s3a = {
             "resolution_seq": origin["resolution_seq"],

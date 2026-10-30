@@ -91,7 +91,7 @@ class MigrationPlan:
 
     @property
     def plan_hash(self):
-        return self._view["plan_hash"]
+        return copy.deepcopy(self._view["plan_hash"])
 
     @property
     def status(self):
