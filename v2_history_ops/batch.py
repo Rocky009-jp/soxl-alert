@@ -65,7 +65,7 @@ class HistoryAppendBatch(_Frozen):
 
     @property
     def batch_hash(self):
-        return self._view["batch_hash"]
+        return copy.deepcopy(self._view["batch_hash"])        # a value from from_dict may be a dict or a list
 
     @property
     def committed(self):

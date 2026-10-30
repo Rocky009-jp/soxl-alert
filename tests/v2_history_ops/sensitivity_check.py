@@ -5,8 +5,9 @@ The real tree is never modified.
 
 The 22 defects of the request (section 6) are the numbered items; an item with several ways to break it has variants
 a / b. Mutants marked EQUIVALENT are listed with the reason that no test can tell them apart; they are not counted as
-undetected defects. The existing S3-A mutants of commands.py are re-run by tests/v2_recovery/sensitivity_check.py
-(result in the S3-B-2 result record); this script covers the new feature.
+undetected defects. (After the review R-03 no mutant of this list is marked EQUIVALENT: B03x was wrongly marked.)
+The existing S3-A mutants of commands.py are re-run by tests/v2_recovery/sensitivity_check.py (result in the S3-B-2
+result record); this script covers the new feature.
 """
 import os
 import shutil
@@ -38,9 +39,8 @@ MUTATIONS = [
     ("B03x", "v2_history_ops/chain.py",
      '                    for r in self.resolutions if r["kind"] == DECLARE_MISSING]',
      '                    for r in self.events if r["kind"] == DECLARE_MISSING and r["replay_of"] is None]',
-     "EQUIVALENT: 3 same, but only in FixedFacts.declares; those are used for the saved-range comparison alone, and a "
-     "replayed declaration has the same session context as its original and the same sessions are compared by the "
-     "APPLY records around it"),
+     "3 same, but only in FixedFacts.declares (the DROPped trailing declaration is compared with the sessions; "
+     "review R-03: NOT equivalent, detected by test_s3b2_review_fix.R03RetiredTrailingDeclaration)"),
     ("B04", "v2_history_ops/chain.py",
      '                ci = rec["confirmed_inputs"]\n'
      '                applies.append({"seq": rec["seq"], "event_hash": rec["event_hash"], "d": rec["d"],',
@@ -56,8 +56,8 @@ MUTATIONS = [
      "        if False:",
      "6 from_facts accepts check_d at or before the boundary"),
     ("B07", "v2_recovery/facts.py",
-     "        return max([self.boundary_day] + [ap.d for ap in self.applies if ap.seq <= upto_seq])",
-     "        return max([ap.d for ap in self.applies if ap.seq <= upto_seq] or [self.boundary_day])",
+     "        return max([self._boundary_day] + [ap.d for ap in self._applies if ap.seq <= upto_seq])",
+     "        return max([ap.d for ap in self._applies if ap.seq <= upto_seq] or [self._boundary_day])",
      "7 latest_apply_day ignores the current boundary"),
     ("B08", "v2_recovery/commands.py",
      '        if not any(rec["kind"] == KIND_DECLARE and rec["seq"] == ref["seq"]\n'

@@ -11,6 +11,7 @@ these names of it: applies, by_seq, apply_days, fixed_fps, decision_cols, latest
 Not re-exported by v2_recovery.__init__.
 """
 import copy
+from types import MappingProxyType
 
 from v2_core.errors import CoreError, InputError
 from v2_core.fixture import parse_iso_date
@@ -51,9 +52,10 @@ def _canonical_sessions(items, minimum):
 
 class FixedApply:
     """One saved APPLY as the rule functions read it. record_id and fingerprint are computed here from the saved
-    decision (parse_observation), never taken from the caller. Read-only by convention."""
+    decision (parse_observation), never taken from the caller. Immutable: attributes cannot be assigned or deleted, and
+    every structured accessor (context, stored_sessions, decision_cols) returns an independent copy."""
 
-    __slots__ = ("seq", "event_hash", "d", "context", "stored_sessions", "skipped", "record_id", "fingerprint",
+    __slots__ = ("_seq", "_event_hash", "_d", "_context", "_sessions", "_skipped", "_record_id", "_fingerprint",
                  "_decision")
 
     def __init__(self, part):
@@ -79,12 +81,33 @@ class FixedApply:
             raise _invalid() from None
         if obs.role != "decision" or obs.status != "observed" or obs.target_date != d:
             raise _invalid()
-        self.seq, self.event_hash, self.d = seq, event_hash, d
-        self.context = copy.deepcopy(context)
-        self.stored_sessions = sl
-        self.skipped = tuple(skipped)
-        self.record_id, self.fingerprint = obs.record_id, obs.fingerprint()
-        self._decision = copy.deepcopy(decision)
+        for name, value in (("_seq", seq), ("_event_hash", event_hash), ("_d", d),
+                            ("_context", copy.deepcopy(context)), ("_sessions", tuple(sl.sessions)),
+                            ("_skipped", tuple(skipped)), ("_record_id", obs.record_id),
+                            ("_fingerprint", obs.fingerprint()), ("_decision", copy.deepcopy(decision))):
+            object.__setattr__(self, name, value)
+
+    def __setattr__(self, name, value):
+        raise AttributeError("FixedApply is immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("FixedApply is immutable")
+
+    seq = property(lambda self: self._seq)
+    event_hash = property(lambda self: self._event_hash)
+    d = property(lambda self: self._d)
+    skipped = property(lambda self: self._skipped)
+    record_id = property(lambda self: self._record_id)
+    fingerprint = property(lambda self: self._fingerprint)
+
+    @property
+    def context(self):
+        return copy.deepcopy(self._context)
+
+    @property
+    def stored_sessions(self):
+        """A new SessionList of the saved range on every read (its sessions are immutable values)."""
+        return SessionList(self._sessions)
 
     def decision_cols(self):
         return copy.deepcopy(self._decision)
@@ -92,10 +115,22 @@ class FixedApply:
 
 class FixedFacts:
     """The checked facts of one effective history: every effective APPLY (all segments, in chain order), every
-    effective declaration, the boundary sessions of every segment and the head seq. Build only with from_parts."""
+    effective declaration, the boundary sessions of every segment and the head seq. Build only with from_parts.
+
+    Immutable: attributes cannot be assigned or deleted. applies is a tuple of immutable FixedApply, by_seq a read-only
+    mapping of them, apply_days / fixed_fps are frozensets, and declares / boundaries return independent copies."""
+
+    __slots__ = ("_applies", "_by_seq", "_apply_days", "_fixed_fps", "_declares", "_boundaries", "_boundary_day",
+                 "_head_seq", "_latest_day")
 
     def __init__(self, *_args, **_kwargs):
         raise TypeError("use FixedFacts.from_parts")
+
+    def __setattr__(self, name, value):
+        raise AttributeError("FixedFacts is immutable")
+
+    def __delattr__(self, name):
+        raise AttributeError("FixedFacts is immutable")
 
     @classmethod
     def from_parts(cls, applies, declares, boundaries, boundary_day, head_seq):
@@ -134,24 +169,31 @@ class FixedFacts:
         if bounds[-1]["date"] != boundary_day:
             raise _invalid()
         obj = object.__new__(cls)
-        obj.applies = fixed
-        obj.by_seq = {ap.seq: ap for ap in fixed}
-        obj.apply_days = {ap.d for ap in fixed}
-        obj.fixed_fps = {ap.fingerprint for ap in fixed}
-        obj.declares = decl
-        obj.boundaries = bounds
-        obj.boundary_day = boundary_day
-        obj.head_seq = head_seq
-        obj.latest_day = max(obj.apply_days) if obj.apply_days else None
+        days = frozenset(ap.d for ap in fixed)
+        for name, value in (("_applies", tuple(fixed)), ("_by_seq", {ap.seq: ap for ap in fixed}),
+                            ("_apply_days", days), ("_fixed_fps", frozenset(ap.fingerprint for ap in fixed)),
+                            ("_declares", decl), ("_boundaries", bounds), ("_boundary_day", boundary_day),
+                            ("_head_seq", head_seq), ("_latest_day", max(days) if days else None)):
+            object.__setattr__(obj, name, value)
         return obj
+
+    applies = property(lambda self: self._applies)
+    by_seq = property(lambda self: MappingProxyType(self._by_seq))
+    apply_days = property(lambda self: self._apply_days)
+    fixed_fps = property(lambda self: self._fixed_fps)
+    declares = property(lambda self: copy.deepcopy(self._declares))
+    boundaries = property(lambda self: copy.deepcopy(self._boundaries))
+    boundary_day = property(lambda self: self._boundary_day)
+    head_seq = property(lambda self: self._head_seq)
+    latest_day = property(lambda self: self._latest_day)
 
     def latest_apply_day(self, upto_seq):
         """The later of the current segment's boundary and the latest APPLY day with seq <= upto_seq. Older segments
         end at or before the current boundary (the restart floor), so they never raise the value."""
-        return max([self.boundary_day] + [ap.d for ap in self.applies if ap.seq <= upto_seq])
+        return max([self._boundary_day] + [ap.d for ap in self._applies if ap.seq <= upto_seq])
 
     def decision_cols(self, seq):
-        return self.by_seq[seq].decision_cols()
+        return self._by_seq[seq].decision_cols()
 
 
 class LedgerContext:
