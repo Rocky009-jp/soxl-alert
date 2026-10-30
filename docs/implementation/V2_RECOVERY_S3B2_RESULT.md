@@ -180,3 +180,82 @@ hashの全値は試験の中で再計算でき、本書の値は上記の合成�
 B-2はメモリ上の投影、日次の候補、解決計画、バッチ値であり、保存・公開（CAS）・ロック・解錠・本番接続・B-3（再開始の計画）・B-4（復元の計画、CONSUME）・B-5（破損診断）・S3-C・HistoryReplacement・v2用ストア・通知は実装していない。PR、マージ、Actions、本番の変更、通知・Discord・Sheets送信、口座・API契約は行っていない。受入IDのうち、S3-Cの公開・実行に関わるRT-03・RT-05・RT-07は達成済みと書かない。
 
 保護参照40件（作成依頼§6の34、資料ブランチ、設計・依頼の各版、採用記録）の照合は、開始時と終了時を別に行った。開始時＝2026-10-30T06:17:45Z に40/40一致。終了時の結果は完了報告に記す。結果を保存したので、B-3以降・S3-Cへは進まず、ここで停止する。
+
+---
+
+# 12. 受領レビュー（R-01〜R-03）への限定修正 追記
+
+追記日：2026-10-30。上の§1〜§11は元の記録として残す。訂正がある箇所は、この§12に訂正元と根拠を示す。
+
+## 12.1 版・設定
+
+| 項目 | 値 |
+|---|---|
+| 実行モデル・effort | `claude-sonnet-5-5[1m]`、effort `high`（セッション情報で確認。モデル別の利用量は未計測） |
+| 入力 | 修正依頼 `docs/tasks/V2_RECOVERY_S3B2_REVIEW_FIX_REQUEST.md`、レビュー `docs/reviews/V2_RECOVERY_S3B2_REVIEW_20261030.md`、再現コード `docs/reviews/s3b2_review_reproduce.py`（資料ブランチ `docs/v2-history-s3b2-receipt-20261030`＝`bd59d456cd33108e97428036a665664c04b802b5`）。修正指示はユーザー（Rocky）のレビュー報告と、これに従う旨のコーディネーター経由の依頼 |
+| 修正の開始SHA | `132a3392115e44105895ecea92e472b49107fed3`（コード・試験は `3b6c21c…` と同じ） |
+| 修正ブランチ | `fix/v2-history-s3b2-review-20261030`（元の `feat/v2-history-s3b2-20261030` は更新していない） |
+| 試験対象SHA（コード＋試験の最終） | `4ed0c364bcc1c63b44be07349880b741936d8b77` |
+| 保存最終SHA | 本節だけを足した最後のコミット（値は完了報告に記す） |
+
+試験対象SHAと保存最終SHAの差は、本書1ファイルの追記だけ。
+
+## 12.2 指摘への対応
+
+| ID | 対応 | 変更箇所 |
+|---|---|---|
+| R-01 | `HistoryAppendBatch.batch_hash` を常に独立した写し（`copy.deepcopy`）で返す。from_dictの受理範囲、`check_append_batch` の固定エラー（`batch_invalid`／`batch_hash`）、batch_hashの算出規則は不変 | `v2_history_ops/batch.py` 1行 |
+| R-02 | `FixedApply` を不変化：属性の代入・削除は `AttributeError`、`__slots__` で `__dict__` なし、`context` と `decision_cols()` は深いコピー、`stored_sessions` は読むたびに新しい `SessionList`（Sessionは凍結dataclass）、`skipped` は tuple。`FixedFacts` も同様：代入・削除は `AttributeError`、`applies` は不変なFixedApplyのtuple、`by_seq` は書込みのない読取専用ビュー（`_ReadOnlyMap`）、`apply_days`／`fixed_fps` は frozenset、`declares`／`boundaries` は読むたびに深いコピー。`from_parts` は入力を従来どおりコピー。公開名・正常値・`latest_apply_day`／`decision_cols` は従来どおり | `v2_recovery/facts.py`（212→292行） |
+| R-03 | B03xの「等価」は誤り。反例（0 GENESIS D0／1 APPLY D1／2 DECLARE D2 q1／3 RESTORE 復元点#1・#2 DROP q2／4 RESTART_UNKNOWN resume D4 q3、有効seq 0,1,3,4、D2のclose_atだけ変更、check_d＝D5）を回帰試験に固定し、`sensitivity_check.py` のB03xのEQUIVALENT指定と理由を訂正 | `tests/v2_history_ops/test_s3b2_review_fix.py`（R03RetiredTrailingDeclaration）、`sensitivity_check.py` |
+| P-01（提案） | 結果文書§4の訂正：`committable` を持つのは `HistoryDayResult` だけ。`HistoryResolutionConfirmResult` は `committed`（常にFalse）と `state_unchanged`（常にTrue）を持ち、`committable` はない（レビューのとおり。実装追加はしていない） | 本節の文言のみ |
+
+`v2_recovery/commands.py` の差分は追加0（`132a339` と同一）。S3-Aのgolden14点と目印63件は維持（`test_b02` 合格）。
+
+## 12.3 旧コードでの確認
+
+1. 同梱再現コード（旧コード `132a339`、通常実行）：R-01/R-02の7観測がすべてISSUE、対照5件OK、R-03反例はDISTINGUISHED（終了0）。
+2. 修正後（`--expect-fixed`、`4ed0c36` のクリーンクローンで実行）：7観測すべてFIXED、対照5件OK、R-03反例DISTINGUISHED、終了0。再現コードの私有属性には合わせていない。
+3. 新規回帰 `test_s3b2_review_fix.py`（17件）を旧コードの作業ツリーに当てると、28件が失敗（R-01の2サブテスト、FixedApply・FixedFactsの代入／削除／コンテナ／コピー、レビューの再現シナリオ）。R-03の3件は製品の挙動に対する試験なので旧コードでも合格し、変異側で失敗する（§12.4）。
+4. 正常な値は修正前と同じ：R・V・Mの例のplan_hash、batch_hash、投影digestの9個を修正前コードで取り、試験に固定した（`PinnedValuesDoNotChange`）。
+
+R-02の欠けた決定の再現（`facts.applies.clear()` 後の `resolve_core` が成功へ変わる）は、修正後は `clear()` が拒否され、`ledger_mismatch` のまま。
+
+## 12.4 限定感度確認
+
+| 範囲 | 結果 |
+|---|---|
+| R-01/R-02の修正を1件ずつ戻す（`review_fix_sensitivity.py`、F01〜F13） | **13件すべて検出**（未検出0、準備失敗0）。最初にF13が未検出だったため、`declares`／`boundaries` のコピーを実値で比べるよう試験を補強してから13/13にした |
+| B03x（実際の置換：`FixedFacts.declares` の元を物理配列の `replay_of` なしの宣言全部にする） | **検出**。失敗するのは新規回帰のR03の2件だけ（`session_context_mismatch`＝試験側ではERROR、declaresの空の検査＝FAIL）。文字列・ASTの違いではなく実行結果で検出 |
+| 実装差分で目印が変わるB-2の既存変異を再実行：B05、B06、B07（`facts.py`）、B04、B08、B22（同じ機能の近傍） | すべて検出（B07は`facts.py`の私有名への変更に合わせてパターンを更新。変異の意味は同じ） |
+
+**26変異全体の新しい合計**：実行範囲を区別する。再実行したのは上の B03x、B04、B05、B06、B07、B08、B22 の7件で、すべて検出。B03xの区分を「等価」から「検出」へ訂正したので、元の26件の内訳は**検出26・等価0**（元の記録の「検出25・等価1」のうち、B03xだけを訂正）。**再実行していない19件（B01、B02、B03、B09〜B21b）は元の結果（§9の検出）のまま**で、今回の実行済みとは数えない。`commands.py` に追加差分がないため、過去の16変異の全再実行はしていない。
+
+## 12.5 回帰件数・環境
+
+core.autocrlf=falseの別クリーンクローン（HEAD＝`4ed0c364…`）、`-B -W error::ResourceWarning`。Linux 6.18。
+
+| 区分 | Python | コア197 | 保存ドメイン170 | S2 113 | S3-A 176 | B-1 230 | 新規N 173 |
+|---|---|---|---|---|---|---|---|
+| unshare -rn＋プロセス内socket禁止 | 3.10.20（uv単体） | OK | OK | OK（skip 4） | OK | OK | OK |
+| 同上 | 3.11.17 | OK | OK | OK（skip 4） | OK | OK | OK |
+| 同上 | 3.12.3 | OK | OK | OK（skip 4） | OK | OK | OK |
+| 同上 | 3.13.17 | OK | OK | OK（skip 4） | OK | OK | OK |
+| プロセス内socket禁止のみ | 3.13.17 | OK | OK | OK（skip 4） | OK | OK | OK |
+
+failures=0、errors=0、終了コード0（5構成×6スイート）。新規Nは156→173件（R-01/R-02/R-03の回帰17件を追加）。既存スイートは1行も編集していない。
+
+**途中の失敗（記録）**：最初の修正案は `types.MappingProxyType` を使ったため、既存S3-Aの `test_c14_scope_and_stop.test_imports_are_limited`（v2_recoveryのstdlib import許可リスト）が全5構成で1件失敗した（コミット `d80df8c`）。既存の試験は編集せず、自前の読取専用ビューへ変更して `import types` をなくし、`4ed0c36` で全合格にした。この失敗は新規Nだけの実行では見つからず、既存スイートを含む全マトリクスで見つかった。
+
+未実施：Windows（実機なし。レビュー側のWindows/Python 3.12.14での566件合格は主担当の確認であり、この表に含めていない）、ユーザーのPC、物理電源断、`core.autocrlf=true`。
+
+## 12.6 解釈した点
+
+- 「再帰的に不変な値」は、`FixedApply` を不変クラス、構造化アクセサをコピーとして実現した。`applies` と `by_seq` が返す `FixedApply` は同じ不変オブジェクトを共有する（書き換えられないため）。
+- `LedgerContext` 自体の属性（`sv`、`rows`、`sl` など）は依頼の範囲外（FixedApply／FixedFacts）なので、不変化していない。投影・計画のAPIは毎回内部で事実とコンテキストを作り直すので、外から保持される経路は公開APIにはない。`LedgerContext` の不変化が必要なら、別の限定依頼にする。
+- 元の§9／§10の「B03xは等価」、§4の `HistoryResolutionConfirmResult` の `committable` の記述は、元の記録として残し、上記の訂正を正とする。
+
+## 12.7 範囲・保護参照・停止
+
+`commands.py`、既存コア／保存／S2／S3-A／B-1の試験、旧欠陥注入スクリプト、fixtures、依存、設定、workflow、既存資料は変更していない。B-3以降、S3-C、保存・CAS・解錠・CLI・通知・本番は追加していない。PR・マージ・Actions・本番反映・通知はない。
+
+保護参照42件（開始指示書§5の40件＋元の実装ブランチ `feat/v2-history-s3b2-20261030`＝`132a3392…`＋本依頼を保存した資料ブランチ `docs/v2-history-s3b2-receipt-20261030`＝`bd59d456…`）を読取専用に保った。開始時は2026-10-30T07:30:03Zに40/40一致、元の実装ブランチと資料ブランチも固定SHAと一致。終了時の結果は完了報告に記す。自分の新規修正ブランチだけをpushした。結果を保存したら止め、次の工程には進まない。
