@@ -1,7 +1,7 @@
 # V2 S3-B-3 UNKNOWN再開始の計画・確認 設計案
 
-作成日：2026-10-30（日本時間）。版：第1版。
-状態：**設計案・レビュー待ち。B-3限定実装は未承認。**
+作成日：2026-10-30（日本時間）。版：第2版（同日のレビューN-01〜N-03と提案P-01〜P-05を反映、§13）。
+状態：**第2版・レビュー待ち。B-3限定実装は未承認。**
 今回のユーザー指示は設計書と限定実装依頼書の作成までである。実装への移行、保存・公開・本番の採用は別の判断とする。
 
 ## 1. 目的・固定入力
@@ -11,6 +11,8 @@ B-3は、検証済みschema_version=2履歴にRESTART_UNKNOWNを1件足す計画
 | 用途 | 固定版 |
 |---|---|
 | コード開始点 | **b328844fdeda235cf95bf7851ba9e3d7d55aa7bb**（fix/v2-history-s3b2-review-20261030）。コード・試験は4ed0c364bcc1c63b44be07349880b741936d8b77と同じ |
+| 本書初版 | f90c2e6a2219dfac6adc2ed65f1560c1c2f87a3c、設計blob fdf9a995957acc9b4e442fad83e85cbb9ddc755b |
+| 初版レビュー原文 | 同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B3_REVIEW_20261030.md。重大0・通常3・提案5。N-01の実行による確認はレビュー担当の報告 |
 | B-2修正受領 | 5743732781523ab60f1025037d99410a41285de8、docs/reviews/V2_RECOVERY_S3B2_FIX_RECEIPT_20261030.md |
 | B-2設計第2版 | e083cd3187f17692cb081fcc1031b09551fb8cb7、docs/specs/V2_RECOVERY_S3B2_PROJECTION_DAILY_DESIGN_DRAFT.md、blob 988258c798ee2d867c86238db1c4f426a360dda2 |
 | S3-B設計第2版 | 361904b1618ae9f9d3a672875c437a388826c253、docs/specs/V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md、blob 838761207b060ca8c844bf7ed0f15a9e990ad6b7。特に§3.3、§7、§9 |
@@ -40,15 +42,20 @@ LedgerContext自体の不変化はB-2受領判断どおり追加しない。
 
 B-3の確認結果は、B-1の移行確認と同様に**候補Historyだけ**を持つ。batch属性を持たず、committed／committableは常にFalse。上位§2のB-3の「計画・確認」は満たし、上位§9の保存用バッチの統合は未達として明記する。B-2のR-a採用を取り消す提案ではない。
 
+S3-Cは、確認済み計画のexpected_head_seq／hash、candidate_digest、plan_hashと、候補末尾のRESTARTから公開用バッチを組み立てられる。バッチ化のためだけにprepareを再実行する必要はない。ただし、公開時のロック下での期待先頭・計画・候補の再検査や成否照合はS3-Cで別途設計し、B-3の確認だけで保存権限や保存成功を与えない。
+
 ### 2.4 既存の範囲試験に必要な最小補正
 
-B-2のtests/v2_history_ops/test_b17_scope.pyは、adfdf765からHEADのGit差分をB-2の場所だけに限る。このままでは、正当な新規B-3ファイルも失敗になる。
-D-1の採用後に限り、この1ファイルのFilesChanged内で次の2点だけを変える。
+B-2のtests/v2_history_ops/test_b17_scope.pyは、adfdf765からHEADのGit差分をB-2の場所だけに限り、末尾ではB-2以外の__init__.pyの追加も禁止している。このままでは正当な新規B-3ファイルも失敗になる。
+D-1の採用後に限り、この1ファイルのFilesChanged内で次の**3点だけ**を変える。
 
-1. test_only_the_allowed_paths_differ：新規v2_history_restart/、tests/v2_history_restart/、新結果文書docs/implementation/V2_RECOVERY_S3B3_RESULT.mdだけを許可リストに足す。
+1. test_only_the_allowed_paths_differの許可リスト：新規v2_history_restart/、tests/v2_history_restart/、新結果文書docs/implementation/V2_RECOVERY_S3B3_RESULT.mdだけを足す。
 2. test_existing_tests_and_fixtures_are_untouched：Git検索から新規tests/v2_history_restart/も除外する。
+3. test_only_the_allowed_paths_differ末尾の__init__.py検査：**v2_history_restart/__init__.pyという単一パスだけ**を追加例外にする。既存パッケージの__init__.pyの変更や、それ以外の新規__init__.pyは従来どおり拒否する。tests/v2_history_restart/には__init__.pyを作らない。
 
-それ以外の行、B-2ランタイムの後工程禁止・公開名・importの試験、既存の機能試験・期待値は変更しない。B-3側の新規範囲試験でこの補正の差分を厳密に照合し、新規B-3ランタイム全体をASTで検査する。旧試験をskipしたり、GitのHEADを偽って合格させたりしない。
+それ以外の行、B-2ランタイムの後工程禁止・公開名・importの試験、既存の機能試験・期待値は変更しない。B-3側の新規範囲試験でこの3点の差分を厳密に照合し、新規B-3ランタイム全体をASTで検査する。旧試験をskipしたり、GitのHEADを偽って合格させたりしない。
+
+将来のB-4／B-5／S3-Cで新規ディレクトリを足すと、B-2とB-3のHEAD差分の範囲検査には再度見直しが必要になる（P-02の留保）。今回は後工程を先回りして許可リストへ入れず、共通一覧への再編も実装しない。各段階で変更対象を明示する。
 
 ## 3. 公開APIと再利用
 
@@ -84,7 +91,18 @@ prepare_restart_planは次の順序を固定する。
 6. RESTART_UNKNOWNを1件組み立てる。candidate=History.from_dict(history_dict(元events+[新記録]))。
 7. validate_history(candidate)と§8の保存内容の不変検査を通す。basisを作りplan_hashを計算し、READYを返す。
 
-不正な台帳行は依頼IDの判定より前に止まる。既存IDの拒否はfloor・元履歴の最終照合より前なので、既存の再開始日＝check_dの場合でも、ID再利用はhistory_request_conflictとなる。壊れた履歴や不正なsessions等はその前に止まる。
+上の順序を維持し、エラーの優先順位を次の表で固定する。sessions自体の構造検査と、保存済みセッション文脈との差の検査は別の段階である。
+
+| 優先順 | 検査 | 主な拒否 |
+|---|---|---|
+| 1 | 元履歴そのもの→copy_sessions→check_dとresume_afterの日付解析→台帳各行の解析 | 既存history_invalid／unsupported_schema、sessions_invalid等、日付・台帳行のInputError |
+| 2 | check_dの存在→confirmed→next→previous、その後resume_afterの存在→confirmed | check_dの既存InputError、resumeのrestart_invalid／resume_after／restart_boundary |
+| 3 | requested_at→IDの形→物理履歴全体のID照合 | 日時の既存InputError、restart_invalid／request_id／request_id、history_request_conflict |
+| 4 | floorの下限→resume_after<=check_d→無効果 | restart_invalid。field／ruleは§5・§10 |
+| 5 | 元履歴のB-2投影。元境界・旧APPLY／宣言の保存文脈と現在のsessionsの照合、除外・補完後の版と台帳の最終照合 | session_context_missing／mismatch、ledger_mismatch、late_observation、resolution_invalid／version_selection等の既存エラー |
+
+不正な台帳行やsessionsの構造の不正はID照合より前に止まる。一方、形は正しいsessionsと旧境界・旧APPLY文脈のずれは手順5なので、使用済みIDと重なれば**history_request_conflictを優先する**。同じsessionsで未使用ID・有効なfloorを指定した対照はsession_context_mismatch等で止まる。
+既存の再開始日＝check_dの場合も、ID再利用はfloor／元履歴投影より前にhistory_request_conflictとなる。B-2は文脈照合がIDより前であり、この重複エラー時の優先順位はB-2と異なる。
 
 ## 5. floor・開始位置・無効果
 
@@ -96,10 +114,13 @@ floorは**現在の有効履歴全体**（退避記録を含めない）から�
 | last_declared_d | read_effective(history).resolutionsの有効DECLARE_MISSINGの最大d、無ければnull |
 | prev_boundary | HistoryCheck.current_boundary.after |
 
-resume_after ≥ floorの非null値の最大、resume_after ≤ check_dを要求する。下限未満はhistory_invalid／restart_floor、上限超過はhistory_invalid／check_d。
-親のcurrent_stateが初期状態そのもので、resume_after==prev_boundaryならhistory_invalid／restart_noop。状態が初期でも境界を前進させる再開始は許す。比較は正規化した値で行う。
+resume_after ≥ floorの非null値の最大、resume_after ≤ check_dを要求する。下限未満はrestart_invalid／resume_after／restart_floor、上限超過はrestart_invalid／check_d／check_d。
+親のcurrent_stateが初期状態そのもので、resume_after==prev_boundaryならrestart_invalid／resume_after／restart_noop。状態が初期でも境界を前進させる再開始は許す。比較は正規化した値で行う。
 
 過去の宣言やAPPLYを有効履歴に残す。旧区間の台帳照合も続く。resume_after以前の未適用・無所属の日を自動で消費せず、明示指定した境界より後から処理する。台帳行を削除・除外する操作ではなく、ACKや欠測宣言を暗黙に作らない。
+
+利用者へ説明する意味として、旧区間のledger_mismatch／late_observation等が未解消なら、先にB-2のACK等で解決する必要がある。最後のAPPLYとresume_afterの間に無所属のdecisionがあっても、その日を自動適用しない（解析と衝突の検査は続ける）。
+またresume_after==check_dで再開始した後は、そのcheck_dで新しいACK／DECLAREは作れずtarget_not_after_boundaryになる。境界より後でconfirmed=Trueのセッションを新たなcheck_dとして明示し、前後のセッション等の条件も満たしてから、新しいACK／DECLAREを作る。B-3がcheck_dを自動で進めることはない。
 
 ## 6. 記録・hash・計画の全キー
 
@@ -133,6 +154,9 @@ ledger_digest／sessions_digest／effective_digestは§4手順5の**元履歴の
 
 B-2の同ID同内容で新しいNO_CHANGE計画を作る契約とは異なる。状態を初期化するB-3は、**元の計画と確認hashを保持して再確認する経路**に限定する案である。同じ計画を候補そのものに対して確認すれば§9のNO_CHANGEになる。新しいprepare呼出しの同ID再提出と、既存計画の再確認を混同しない。
 この厳しい方針は上位に未指定の詳細なので、未採用の提案としてD-2で判断する。採用前にB-2へ合わせて独断で変更しない。
+
+保存の成否が不明な場合の計画保持と、ALREADY_PUBLISHED等に相当する照合は**S3-Cの責任**として留保する。同じIDのprepareがconflictになったこと、または保持した計画でも候補の後に日次記録等が増えてstaleになったことだけで、「保存されていない」と断定しない。B-3は自動でIDを替えて再実行しない。
+P-01の追加案であるconflictのrule細分化は、S3-Cの案内・照合契約と合わせて再検討する。今回はhistory_request_conflict／request_idを維持し、新しいruleや照合実装は足さない。
 
 ## 8. 候補の全体検査とresume_after==check_d
 
@@ -182,10 +206,15 @@ URL、note、source_url、F&G値、台帳行、パス、例外の自由文を表
 | 正常な入力のdigest・head差 | history_plan_stale／plan |
 | prepareで既存ID | history_request_conflict／request_id |
 | request_idの形が不正 | restart_invalid／request_id／request_id |
-| resume_afterのセッションが無い・未確定 | history_invalid／history／restart_boundary |
-| floor未満・無効果・resume_after>check_d | history_invalid／history／restart_floor・restart_noop・check_d |
+| resume_afterのセッションが無い・未確定 | restart_invalid／resume_after／restart_boundary |
+| floor未満 | restart_invalid／resume_after／restart_floor |
+| 無効果 | restart_invalid／resume_after／restart_noop |
+| resume_after>check_d | restart_invalid／check_d／check_d |
 | check_dの不存在・未確定・前後不足 | 既存InputErrorのtarget_not_in_sessions／target_unconfirmed／previous_session_missing／next_session_missing、field=sessions（前後両方不足時はnextを先に検査） |
 | 元履歴の投影・入力の不正 | 既存の履歴・sessions・台帳・範囲照合のエラーのまま |
+| 元履歴または候補のvalidate_history失敗 | 既存history_invalid／history等のまま。正常履歴への依頼の指定ミスと区別する |
+
+prepareの指定ミスはrestart_invalid、入力履歴そのものの検査失敗はhistory_invalid等と分類する。候補のvalidate_history失敗は計画を返さず、実装内部の不整合として既存エラーを保つ。確認時の未検証plan内の候補の不正は§9手順1のhistory_plan_mismatchであり、今回の入力履歴の破損とは区別する。B-1の検査器やそのruleは変更しない。
 
 ## 11. 具体例・対照
 
@@ -219,8 +248,25 @@ B-2 R-03のDROPした末尾宣言の反例も使い、退避した宣言からfl
 
 | 判断 | 推奨案 | 状態 |
 |---|---|---|
-| D-1 | 本書のB-3限定範囲を採用。候補Historyまで、新規パッケージ、旧範囲試験1ファイルの明記した2箇所だけを補正 | 未採用 |
+| D-1 | 本書のB-3限定範囲を採用。候補Historyまで、新規パッケージ、旧範囲試験1ファイルの明記した3箇所だけを補正 | 未採用 |
 | D-2 | prepareの既存IDは一律conflict。同じ元計画の再確認だけがNO_CHANGE | 未採用 |
 | D-3 | 実装はClaude Sonnet 5.5、effort high。固定した純粋な計画・確認・回帰の実装として推奨 | 未採用 |
 
 この3点の採用とB-3限定実装の明示指示を得た後だけ着手する。モデル実設定はセッション情報で確認し、プロンプトに書いたことで設定できたと断言しない。現時点で実装・試験は未着手。
+
+## 13. 第2版の改訂とレビュー記録
+
+初版f90c2e6へのClaudeレビュー（重大0・通常3・提案5）を受領した。原文をdocs/reviews/V2_RECOVERY_S3B3_REVIEW_20261030.mdへ取得した本文のまま保存する。N-01の一時作業ツリーでの実行はレビュー担当の報告であり、本補正の作成担当が実行した試験へ置き換えない。本補正も文書だけで、コード・試験実行・再現コード作成は0。
+
+| ID | 対応 |
+|---|---|
+| N-01 | §2.4・D-1を3点の補正へ修正。3点目は新ランタイムの__init__.pyの単一パスだけを例外にする。tests側には__init__.pyを置かない |
+| N-02 | §5・§10でprepareの指定ミスをrestart_invalidへ分離し、fieldとruleを固定。B-1検査器のhistory_invalidは変更しない |
+| N-03 | §4へ5段階の優先順位と、旧文脈差＋使用済みIDのconflict／未使用IDの文脈エラーの対照を追加。検査順は変えない |
+| P-01 | §7へ成否不明時の計画保持・公開後照合をS3-Cへ留保する旨を追加。任意のrule細分化は留保 |
+| P-02 | §2.4へ後工程で旧範囲検査の見直しが再び必要になる点を記録。後工程の自動許可・一覧の再編はしない |
+| P-03 | §5へ旧台帳問題の事前解決、無所属decisionの非消費、等号再開始後のACK／DECLAREと新check_dの条件を明記 |
+| P-04 | 依頼§5にB-3自身の検出と既存検査器の防護による検出の区別を追加 |
+| P-05 | 依頼§2・§6で新規試験をtest_r3_*.py、ヘルパーをr3_helpers.pyとする |
+
+レビューはD-1（N-01解消を条件）・D-2・D-3に賛成している。これはユーザーの採用・B-3限定実装の承認ではない。§12の3点は引き続き未採用。本書第2版を固定SHAで確認した後に採否判断する。
