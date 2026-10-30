@@ -101,9 +101,13 @@ def _check_late(ctx, cmd, existing):
         ap = ctx.sv.by_seq.get(ref["seq"])
         if ap is None or ref["event_hash"] != ap.event_hash or d not in ap.skipped:
             raise _fail("late_missing_ref")
-    else:
+    elif "resolution_seq" in ref:                   # S3-A reference: resolution_seq / resolution_hash
         if not any(rec["kind"] == KIND_DECLARE and rec["resolution_seq"] == ref["resolution_seq"]
                    and rec["resolution_hash"] == ref["resolution_hash"] and rec["d"] == d for rec in existing):
+            raise _fail("late_missing_ref")
+    else:                                           # v2 reference: seq / event_hash of an effective declaration
+        if not any(rec["kind"] == KIND_DECLARE and rec["seq"] == ref["seq"]
+                   and rec["event_hash"] == ref["event_hash"] and rec["d"] == d for rec in existing):
             raise _fail("late_missing_ref")
     rows = _rows_of(ctx, cmd)
     if not rows:
@@ -146,8 +150,10 @@ def _check_declare(ctx, cmd, declared_dates, rem0):
     return frontier, [session_dict(fs), session_dict(ds), session_dict(nd)]
 
 
-def make_records(ctx, existing, commands, basis, request_hash):
-    """Evidence for all commands, then the new records (not yet hashed into a set)."""
+def check_commands(ctx, existing, commands):
+    """Evidence for all commands. Returns one (frontier, session_context) per command ((None, None) for an ACK).
+
+    ctx is a project.Ctx or a facts.LedgerContext; existing are the records already in effect."""
     sv = ctx.sv
     for cmd in commands:
         if cmd["kind"] == KIND_ACK and cmd["d"] > ctx.check_d:
@@ -186,7 +192,13 @@ def make_records(ctx, existing, commands, basis, request_hash):
             extra = _check_declare(ctx, cmd, declared, rem0)
             declared.append(cmd["d"])
         extras.append(extra)
+    return extras
 
+
+def make_records(ctx, existing, commands, basis, request_hash):
+    """Evidence for all commands, then the new records (not yet hashed into a set)."""
+    sv = ctx.sv
+    extras = check_commands(ctx, existing, commands)
     prev_hash = existing[-1]["resolution_hash"] if existing else None
     out = []
     for i, (cmd, (frontier, context)) in enumerate(zip(commands, extras)):
