@@ -219,3 +219,83 @@ H-12のLocalFileStore確認は、依頼書の指定どおり一時rootを `durab
 - ユーザーのPCでの実行：未実施。物理電源断：未実施。`autocrlf=true`：未実施。
 - 欠陥注入の最終全実行は、試験対象34cf8dbのクリーンクローンで実施した。結果は§8の表と同じ（実行ログの要約は完了報告）。
 - 設計の採用判断（B-2以降、S3-C）は本実装の範囲外。レビューや本書の合格は本番変更の承認ではない。
+
+## 13. 追記：受領レビュー R-01／R-02 の限定修正（2026-10-30）
+
+§1〜§12は修正前の実績の記録であり、書き換えていない。以下は修正後の追記。
+
+### 13.1 固定した版
+
+| 項目 | 内容 |
+|---|---|
+| 依頼 | docs/tasks/V2_RECOVERY_S3B1_REVIEW_FIX_REQUEST.md、レビュー docs/reviews/V2_RECOVERY_S3B1_IMPLEMENTATION_REVIEW_20261030.md、再現コード docs/reviews/V2_RECOVERY_S3B1_REVIEW_REPRODUCE_20261030.py。すべてコミット `6e7f756544f9dc6f1a17f94d4f4dbcaf35def4e3`（ブランチ docs/v2-history-s3b1-receipt-20261030）の版 |
+| 修正開始点 | `0fbba6c46f62a5765cf1ffb8e3646325c1787373`（コードは34cf8dbと同一）。元の実装ブランチは更新していない |
+| 修正ブランチ | `fix/v2-history-s3b1-review-20261030`（新規。リモートに同名なし） |
+| **試験対象（修正コード＋回帰）** | **`2b5fa2d079e2fe86b98b0e6d5be5431c5b4988ce`** |
+| 保存最終 | 試験対象に本節の追記だけを加えたコミット。完全SHAは完了報告に記載。差分は本書1ファイルのみ |
+| モデル・エフォート | get_sessionで configured_model `claude-sonnet-5-5[1m]`、last_served_model `claude-sonnet-5-5`、effort_level `high`（指定と一致） |
+| 環境 | Ubuntu 24.04.5 LTS。Python 3.10.20／3.11.17／3.12.3／3.13.17。別クリーンクローン（`core.autocrlf=false`）で `unshare -rn` により通信を遮断、`-B -W error::ResourceWarning` |
+| Windows | **未実施**。レビュー担当のWindows217件を自分の結果にしていない |
+
+### 13.2 修正点（開始点との差分：変更4ファイル＋追加2ファイル）
+
+| 指摘 | 場所 | 修正 | 拒否時の結果 |
+|---|---|---|---|
+| R-01 | `v2_history/restore.py` | `superseded_seqs` の全要素を `type(x) is int` で要求した上で期待する有効鎖のsuffixと比較 | `history_invalid`／`superseded_mismatch` |
+| R-01 | `v2_history/migration.py` | `source.schema_version`・`source.head_seq` を厳密な整数として要求 | `migration_source` |
+| R-01（点検で見つけた同種） | 同上 | `origin.source_head_seq` も厳密な整数を要求（防御。§13.5） | `origin` |
+| R-02 | `v2_history/values.py` | `History.head_seq`／`head_hash`／`schema_version` を常にdeepcopyして返す | － |
+| R-02 | `v2_history/migrate.py` | `MigrationPlan.plan_hash` を常にdeepcopyして返す | － |
+
+- **API互換**：公開名・引数・戻り値の型は不変（正常なint／strはこれまでと同じ値）。`same`・hash・schema version・`from_dict` の受理範囲は変えていない。意味検査を `from_dict` に移していない。
+- 同モジュール内の整数欄を限定点検した。`is_int` で守られているもの（`parent_seq`、`head_seq`、`command_index`／`command_count`、参照の `seq`、`resolution_seq`、`from_seq`／`seq`）と、`same`（正規化JSON）で比べているもの（`event_map`、`resolution_map`、`restore_point` 等）は型を区別する。値の等しさだけの比較は上の3か所だけだった。`migrate.py` の計画 basis の `source_head_seq` の比較は偽造計画の分岐が `migration_plan_mismatch`（正しい）になるため変更していない。
+- 既存S1 Snapshotの同形アクセサ、他パッケージ、既存の217件の期待値は変更していない（既存試験ファイルの差分0）。
+
+### 13.3 受領再現コードでの確認（`<python> -B …REPRODUCE….py --repo <チェックアウト>`）
+
+| 版 | 結果 |
+|---|---|
+| 修正前（0fbba6c） | 通常モード：10観測すべて `fixed:false`（R-01の6、R-02の4）。対照2件は合格 |
+| 修正後（2b5fa2d） | `--expect-fixed` で **10観測すべて解消、対照2件合格、終了0**（4つのPythonすべて、通信遮断下） |
+
+### 13.4 追加回帰（`tests/v2_history/test_h15_review_fix.py`、13件。元の217件とは別掲）
+
+| 試験 | 内容 | 修正前 |
+|---|---|---|
+| R01SupersededEntries（3） | `[True]`／`[1.0]`、例Rの長い一覧のfloat要素4種、正しい一覧と他の誤りの対照 | 失敗 |
+| R01MigrationSource（4） | `schema_version` に True／1.0／"1"／2／0、`head_seq` に True／float／文字列／±1、`head_seq=0` の境界（False／0.0を拒否・0は受理）、`origin.source_head_seq`（True／1.0 → `origin`） | origin以外は失敗 |
+| R02PublicAccessors（4） | 未検証の `head_seq`／`head_hash`／`schema_version`／`plan_hash` にdict・list（入れ子）を置き、取得値の変更が `to_dict`・`encode_history`・`digest`・等値・`hash` を変えないこと。正常な履歴・計画は従来どおり。`events`／`current_state`／`to_dict` の独立性も維持 | 失敗 |
+| P02ExampleRSameFlag（2） | 例Rの #10 の `same_as_superseded` は、合成F&GのD2＝28で True、D2＝30で False（#8は両方False）。どちらの入力でも検査を通り、逆の値を書くと `restore_replay_mismatch` | 合格（修正と無関係の対照） |
+
+- 修正前は、この13件のうち11件（R-01／R-02部）の実行で**18の失敗サブケース**。修正後は13件すべて合格。
+- 新規は計 **230件（元217＋回帰13）**。4版すべて失敗0・error0・skip0。既存は コア197／保存ドメイン170／S3-A 176／S2 113（109合格＋Windows専用4 skip）が無編集で全版合格。
+- H-01〜H-14の期待値は弱めていない。
+
+### 13.5 修正を個別に戻す感度確認（`tests/v2_history/review_fix_sensitivity.py`、Python 3.13）
+
+| 戻した修正 | 結果 |
+|---|---|
+| F01 `superseded_seqs` の整数要素検査 | 検出 |
+| F02 `source.schema_version` の整数検査 | 検出 |
+| F03 `source.head_seq` の整数検査 | 検出 |
+| F04 `origin.source_head_seq` の整数検査 | **等価**（S3-Aの `resolution_hash` を再計算するため、値に True／1.0 が入っても既存の検査が同じrule `origin` で拒否する。明示検査は防御） |
+| F05〜F07 `head_seq`／`head_hash`／`schema_version` のdeepcopy | 検出（各） |
+| F08 `plan_hash` のdeepcopy | 検出 |
+
+8変種中 **7検出・1等価・未検出0・未実施0**。元の欠陥注入35変種の再実行は必須とされておらず、実施していない（§8は修正前の実績のまま）。
+
+### 13.6 任意提案の取り込み
+
+- **P-01（H-04／H-05の表記）**：依頼書のIDでは、H-04は有効鎖・復元点、H-05は退避一覧（上書き一覧）。§4.2の表は H-04＝有効鎖と上書き、H-05＝復元点としていたため、**訂正する**。H-04 → `EffectiveChain`（復元点の有効性・バッチ内・移行下限・no-op・GENESISを含む11件）。H-05 → `SupersededList`（3件）、`test_the_three_restores_have_the_designs_superseded_lists`、`test_final_chain_and_superseded_union_of_example_r`。試験名・件数は変えていない。
+- **P-02（例Rのsameフラグ）**：設計§8.9の #10＝False に対し、実測の例R（D2＝28）では #10＝True（§6.1）。ランタイムは入力から計算した事実を検査しており、設計表に合わせて偽装していない。D2を30以上にすると #10もFalseになる対照をP02ExampleRSameFlagに追加した。構造の期待値（再適用の順序・写像）は入力に依存しない。
+
+### 13.7 保護参照・範囲
+
+- 保護参照は開始指示書の29参照＋採用ブランチ98e05e4＋元実装ブランチ0fbba6c＋レビュー資料ブランチ（6e7f756、読取専用）。**開始時：32／32 一致**。push後の再確認は完了報告に記載する。更新したのは新規の修正ブランチだけ。
+- B-2以降・S3-C・日次・台帳投影・実保存・解錠・復元・PR・Actions・本番・通知・口座接続はなし。
+
+### 13.8 未実施・保留
+
+- 実Windows、ユーザーPC（3.10.6）、物理電源断、`autocrlf=true`：未実施。
+- 元の欠陥注入35変種の再実行：未実施（必須でない）。
+- S1 Snapshot側の同形アクセサ：変更していない（範囲外）。
