@@ -38,7 +38,7 @@ MUTATIONS = [
      '    def __delattr__(self, name):\n        object.__delattr__(self, name)',
      "R-02 FixedFacts attributes can be deleted"),
     ("F08", F, '("_applies", tuple(fixed))', '("_applies", list(fixed))', "R-02 FixedFacts.applies is a shared list"),
-    ("F09", F, '    by_seq = property(lambda self: MappingProxyType(self._by_seq))',
+    ("F09", F, '    by_seq = property(lambda self: _ReadOnlyMap(self._by_seq))',
      '    by_seq = property(lambda self: self._by_seq)', "R-02 FixedFacts.by_seq is the shared dict"),
     ("F10", F, '("_apply_days", days)', '("_apply_days", set(days))', "R-02 FixedFacts.apply_days is a shared set"),
     ("F11", F, '("_fixed_fps", frozenset(ap.fingerprint for ap in fixed))',

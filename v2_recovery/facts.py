@@ -11,7 +11,6 @@ these names of it: applies, by_seq, apply_days, fixed_fps, decision_cols, latest
 Not re-exported by v2_recovery.__init__.
 """
 import copy
-from types import MappingProxyType
 
 from v2_core.errors import CoreError, InputError
 from v2_core.fixture import parse_iso_date
@@ -48,6 +47,45 @@ def _canonical_sessions(items, minimum):
     if not same([session_dict(s) for s in sl.sessions], items):
         raise _invalid()
     return sl
+
+
+class _ReadOnlyMap:
+    """A read-only view of a dict (no assignment, deletion, pop or clear). Values are immutable FixedApply objects."""
+
+    __slots__ = ("_d",)
+
+    def __init__(self, d):
+        object.__setattr__(self, "_d", d)
+
+    def __setattr__(self, name, value):
+        raise AttributeError("read-only mapping")
+
+    def __delattr__(self, name):
+        raise AttributeError("read-only mapping")
+
+    def __getitem__(self, key):
+        return self._d[key]
+
+    def get(self, key, default=None):
+        return self._d.get(key, default)
+
+    def __contains__(self, key):
+        return key in self._d
+
+    def __iter__(self):
+        return iter(self._d)
+
+    def __len__(self):
+        return len(self._d)
+
+    def keys(self):
+        return tuple(self._d)
+
+    def values(self):
+        return tuple(self._d.values())
+
+    def items(self):
+        return tuple(self._d.items())
 
 
 class FixedApply:
@@ -178,7 +216,7 @@ class FixedFacts:
         return obj
 
     applies = property(lambda self: self._applies)
-    by_seq = property(lambda self: MappingProxyType(self._by_seq))
+    by_seq = property(lambda self: _ReadOnlyMap(self._by_seq))
     apply_days = property(lambda self: self._apply_days)
     fixed_fps = property(lambda self: self._fixed_fps)
     declares = property(lambda self: copy.deepcopy(self._declares))
