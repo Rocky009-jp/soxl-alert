@@ -80,12 +80,16 @@ B17_REMOVED = ['                                        "v2_history_restart/", "
  '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md"))',
  '                       ":(exclude)tests/v2_history_restart")']
 B17_ADDED = ['                                        "v2_history_restart/", "tests/v2_history_restart/",',
- '                                        "v2_history_restore/", "tests/v2_history_restore/"))',
+ '                                        "v2_history_restore/", "tests/v2_history_restore/",',
+ '                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))',
  '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",',
- '                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md"))',
+ '                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+ '                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))',
  '                             and path != "v2_history_restore/__init__.py"',
- '                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore")']
-B17_HUNKS = ['@@ -185 +185,2', '@@ -188 +189,2', '@@ -199,0 +202', '@@ -216 +219']
+ '                             and path != "v2_history_diagnose/__init__.py"',
+ '                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",',
+ '                       ":(exclude)tests/v2_history_diagnose")']
+B17_HUNKS = ['@@ -185 +185,3', '@@ -188 +190,3', '@@ -199,0 +204,2', '@@ -216 +222,2']
 R307_REMOVED = ['            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/")) or path in (',
  '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",)',
  '        self.assertEqual({p for p in paths if p.endswith("__init__.py")}, {"v2_history_restart/__init__.py"})',
@@ -94,27 +98,26 @@ R307_REMOVED = ['            allowed = path.startswith(("v2_history_restart/", "
  '            \'                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md"))\',',
  '            \'                       ":(exclude)tests/v2_history_restart")\'])']
 R307_ADDED = ['            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/",',
- '                                       "v2_history_restore/", "tests/v2_history_restore/")) or path in (',
- '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
- '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md")',
+ '                                       "v2_history_restore/", "tests/v2_history_restore/",',
+ '                                       "v2_history_diagnose/", "tests/v2_history_diagnose/")) or path in (',
+ '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+ '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md")',
  '        self.assertEqual({p for p in paths if p.endswith("__init__.py")},',
- '                         {"v2_history_restart/__init__.py", "v2_history_restore/__init__.py"})',
+ '                         {"v2_history_restart/__init__.py", "v2_history_restore/__init__.py",',
+ '                          "v2_history_diagnose/__init__.py"})',
  '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart",',
- '                       ":(exclude)tests/v2_history_restore")',
+ '                       ":(exclude)tests/v2_history_restore", ":(exclude)tests/v2_history_diagnose")',
  '            \'                                        "v2_history_restart/", "tests/v2_history_restart/",\',',
- '            \'                                        "v2_history_restore/", "tests/v2_history_restore/"))\',',
+ '            \'                                        "v2_history_restore/", "tests/v2_history_restore/",\',',
+ '            \'                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))\',',
  '            \'                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",\',',
- '            \'                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md"))\',',
+ '            \'                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\',',
+ '            \'                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))\',',
  '            \'                             and path != "v2_history_restore/__init__.py"\',',
- '            \'                       ":(exclude)tests/v2_history_restart", '
- '":(exclude)tests/v2_history_restore")\'])']
-R307_HUNKS = ['@@ -193,2 +193,3',
- '@@ -199 +200,2',
- '@@ -207 +209,2',
- '@@ -225 +228,2',
- '@@ -227 +231,2',
- '@@ -228,0 +234',
- '@@ -231 +237']
+ '            \'                             and path != "v2_history_diagnose/__init__.py"\',',
+ '            \'                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",\',',
+ '            \'                       ":(exclude)tests/v2_history_diagnose")\'])']
+R307_HUNKS = ['@@ -193,2 +193,5', '@@ -199 +202,3', '@@ -207 +212,2', '@@ -225 +231,3', '@@ -227 +235,3', '@@ -228,0 +239,2', '@@ -231 +243,2']
 
 
 class Runtime(unittest.TestCase):
@@ -347,11 +350,14 @@ class FilesChanged(unittest.TestCase):
         for status, path in changed:
             if path in SCOPE_TESTS:
                 continue
-            self.assertTrue(allowed_path(path), "unexpected change: %s %s" % (status, path))
+            new_b5a = path.startswith(("v2_history_diagnose/", "tests/v2_history_diagnose/")) or path == \
+                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"
+            self.assertTrue(allowed_path(path) or new_b5a, "unexpected change: %s %s" % (status, path))
             self.assertEqual(status, "A", path)                                      # new files only
         paths = {p for _s, p in changed}
         self.assertIn("v2_history_restore/__init__.py", paths)
-        self.assertEqual({p for p in paths if p.endswith("__init__.py")}, {"v2_history_restore/__init__.py"})
+        self.assertEqual({p for p in paths if p.endswith("__init__.py")},
+                         {"v2_history_restore/__init__.py", "v2_history_diagnose/__init__.py"})
 
     def test_the_b3_runtime_tests_and_result_are_the_same_as_the_code_start(self):
         # read directly: the blob of every file at the code start against the file that is there now
@@ -377,7 +383,8 @@ class FilesChanged(unittest.TestCase):
                        "research", "docs/STATUS.md", "docs/ROADMAP.md", "docs/MODEL_POLICY.md", "CLAUDE.md",
                        "docs/implementation/V2_RECOVERY_S3B2_RESULT.md", "docs/implementation/V2_RECOVERY_S3B3_RESULT.md")
         self.assertEqual(out.stdout.strip(), "")
-        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restore")
+        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restore",
+                       ":(exclude)tests/v2_history_diagnose")
         self.assertEqual(sorted(out.stdout.split()), sorted(SCOPE_TESTS))
 
     def diff_lines(self, path):
