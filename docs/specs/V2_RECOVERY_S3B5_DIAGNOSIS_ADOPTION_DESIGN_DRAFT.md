@@ -1,7 +1,7 @@
 # V2 S3-B-5 破損診断・prefix採用 設計案
 
-作成日：2026-11-02（日本時間）。版：初版。
-状態：**初版・設計案・レビュー待ち。B-5の限定実装は未承認。**
+作成日：2026-11-02（日本時間）。版：第2版（同日の初版レビューの通常N-01・N-02と提案P-01・P-02を反映、§15）。
+状態：**第2版・設計案・採否判断待ち。B-5の限定実装は未承認。**
 今回のユーザー指示は設計書・限定実装依頼書の作成まで。文書の保存・推奨・レビュー通過を実装承認に置き換えない。作成担当はClaude Opus 5.5、effort high（セッション情報で configured_model `claude-opus-5-5[1m]`、last_served_model `claude-opus-5-5`、effort_level `high` を確認）。
 
 ## 0. 要約
@@ -169,12 +169,12 @@ eventsが空でないlistで、段階4が失敗したとき、k＝n,n−1,…,1�
 
 既知の性質：
 
-- 移行済み履歴で、SCHEMA_MIGRATION自身かそれ以前が壊れている場合、移行前の範囲のACK／DECLAREは`origin`を持つため、MIGRATIONを欠いたprefixは`origin`規則で通らないことが多い。移行前にGENESIS／APPLYしか無い場合は、MIGRATIONを欠いたprefixが新規v2として通り得る。診断はそのとおり報告する（discardedにSCHEMA_MIGRATIONが現れる）。採用の可否はB-5bで扱う（§9.5）。
+- 移行済み履歴で、SCHEMA_MIGRATION自身が壊れている場合（第2版でN-02を反映）：移行前の範囲のACK／DECLAREは`origin`を持つので、**originつきの記録を含み、MIGRATIONを含まないk**は既存の`origin`規則で通らない。一方、**最初のoriginつき記録より短いk**（GENESIS・APPLYだけのprefix）は、新規v2（migrated=False）として通り得る。したがって移行前にACKがあっても、最長prefixは通常その最初のACKの直前までになり、NO_VALID_PREFIXにはならない。移行前がGENESIS・APPLYだけなら、MIGRATIONの直前までが通る。具体値は§11（レビュー担当の実行結果）。診断はそのとおり報告し、discardedにSCHEMA_MIGRATIONが現れる。migrated=Falseのprefixが通ったことを、移行が無かったこと、または採用できることの根拠にしない。採用はB-5bでmigration_discardedとして拒否する（§9.5）。
 - 記録を書き換えたうえでevent_hashと後続の監査hashまで計算し直されたものは検出できない。digestは整合性の検査であって署名ではない（S1から同じ）。
 
 ### 5.3 費用
 
-最悪（GENESISの直後が壊れている場合）、検査をn回行い、各回が最大n件を検査する。S1射影の再計算を含むため、件数が多いと時間がかかる。本書は上限・打ち切り・高速化を入れない。限定実装では、合成した1年分程度（APPLY約260件）の履歴で最悪位置の所要時間を実測し、結果文書に記録する。打ち切りが必要と判明したら、別判断とする。
+最悪（GENESISの直後が壊れている場合）、検査をn回行い、各回が最大n件を検査する。S1射影の再計算を含むため、件数が多いと時間がかかる。本書は上限・打ち切り・高速化を入れない。限定実装では、合成した1年分程度（APPLY約260件）のAPPLY中心の履歴で、最悪位置と通常位置の所要時間を実測し、結果文書に記録する。複数のRECOVERY_RESTOREを含む履歴では、validate_historyが各復元前の鎖ビューも検査するため、**この実測は指定した合成履歴での値であり、全入力の最悪時間の証明ではない**（第2版でP-02を反映）。打ち切りが必要と判明したら、別判断とする。
 
 ### 5.4 verifiedの形
 
@@ -194,7 +194,7 @@ VALIDのdocument_digestは元の文書の正規化テキストのdigestであり
 
 ## 6. 捨てる後半の表示（discarded）
 
-PREFIX_ONLYでは{from_index: k, count: n−k, items}、NO_VALID_PREFIXでeventsがlistなら{from_index: 0, count: n, items}、eventsがlistでなければnull。
+PREFIX_ONLYでは{from_index: k, count: n−k, items}、NO_VALID_PREFIXでeventsがlistなら{from_index: 0, count: n, items}、eventsがlistでなければnull。**eventsが空のlistなら{from_index: 0, count: 0, items: []}**であり、nullではない（第2版でN-01を反映。依頼D5-10と同じ値に固定）。
 
 itemsはindex k〜n−1の各要素について{index, kind, seq, d, request_id}。
 
@@ -256,7 +256,7 @@ kind, seq, parent_seq, parent_hash, evidence, request_id, request_hash, request_
 
 ### 9.5 計画・確認
 
-- `prepare_prefix_adoption(data, adopt_count, request_id, requested_at)`：B-5aの診断を呼び、statusがPREFIX_ONLY、版2、adopt_count＝verified.countであることを要求する。捨てる後半にSCHEMA_MIGRATIONが読める場合は拒否する（移行の事実を失うため）。候補＝prefix＋採用記録を変更しない`validate_history`へ通し、READYの計画を返す。
+- `prepare_prefix_adoption(data, adopt_count, request_id, requested_at)`：B-5aの診断を呼び、statusがPREFIX_ONLY、版2、adopt_count＝verified.countであることを要求する。捨てる後半にSCHEMA_MIGRATIONが読める場合は拒否する（移行の事実を失うため）。候補＝prefix＋採用記録を、**§9.2で採用記録に対応させた`validate_history`**へ通し、READYの計画を返す（それ以外の規則は緩めない。B-5aの検査器無変更とは別の段階の話である。第2版でP-01を反映）。
 - 計画のbasisには、operation、status、raw_sha256、raw_size、diagnosis_digest、adopt_count、prefixの head・state・document digest、discardedの要約、request_id、request_hash、reason_code、requested_at、candidate_history、candidate_digest、candidate_state_digest、candidate_recordを入れる案。キー数はB-5bの依頼で固定する。
 - `confirm_prefix_adoption(plan, confirmed_plan_hash, data)`：(a)同じ生バイト（raw_sha256とraw_sizeが一致）なら診断と計画を作り直して全basisを比較し、CONFIRMED_IN_MEMORYと候補を返す。(b)dataが候補の正規化バイトそのものならNO_CHANGE。他はhistory_plan_stale、改変やhash違いはhistory_plan_mismatch（B-2のerrorsを再利用）。
 - エラーの案：adoption_invalid/data/not_adoptable（VALID・NO_VALID_PREFIX・UNREADABLE）、adoption_invalid/adopt_count/count_mismatch、adoption_invalid/data/schema_1（D-4）、adoption_invalid/data/migration_discarded、history_request_conflict/request_id。
@@ -301,8 +301,10 @@ B-5bでは、v2_history・v2_history_ops・v2_history_restoreのランタイム�
 | 中ほどのAPPLYの値を変える（hashは変えない） | PREFIX_ONLY、count＝その位置。後ろの正しい記録も捨てる側に出る |
 | 復元バッチの途中で終わる履歴、requestバッチの途中で終わる履歴 | PREFIX_ONLY、countはバッチの開始位置。途中のkは`validate_history`が拒否したことをspyで確認 |
 | バッチの途中で切ったkより長いkが通る入力 | 上からの探索で最長が選ばれる（非単調の対照） |
-| GENESISを壊す | NO_VALID_PREFIX、discarded.from_index＝0 |
-| 移行済み履歴でMIGRATIONの記録を壊す（移行前にACKあり／GENESIS・APPLYだけの2種） | 前者はNO_VALID_PREFIXまたはMIGRATIONより前で通らない結果、後者はMIGRATIONを捨てるPREFIX_ONLY。どちらも実際の検査器の結果をそのまま記録し、itemsにSCHEMA_MIGRATIONが出ることを確認 |
+| GENESISを壊す（eventsは空でないlist） | NO_VALID_PREFIX、discarded＝{from_index:0, count:n, items:全件} |
+| eventsが空のlist／listでない（版・core_shaは正しくJSON段階を通る入力） | どちらもNO_VALID_PREFIX。discardedは空listなら{from_index:0, count:0, items:[]}、非listならnull（N-01） |
+| 既存ビルダーexample_m（移行前にACKあり、MIGRATIONはseq7、n=8）でMIGRATIONのevent_hashだけを0×64にする | PREFIX_ONLY、verified.count=2、head_seq=1、migrated=False、discarded＝{from_index:2, count:6, items:seq2〜7}。k=8はhistory_invalid/event_hash、k=7〜3はhistory_invalid/origin、k=2・1は通る（N-02。レビュー担当が固定ac21980の既存検査器で実行した結果） |
+| 既存ビルダーexample_m_empty_world（移行前はGENESIS＋APPLY2件）を移行してMIGRATIONだけ壊す | PREFIX_ONLY、verified.count=3、head_seq=2、discarded.count=1（itemsはSCHEMA_MIGRATION）。上と同じくレビュー担当の実行結果 |
 | v1（S2の`encode_snapshot`のバイト）：正常・末尾改ざん・ヘッダーだけ違う | VALID／PREFIX_ONLY（n−1）／PREFIX_ONLY（n）。schema_version=1、migrated=null |
 | 同じバイトを2回診断 | to_dictとdigestが完全一致。元のbytesは変更されない |
 | 型違いの引数 | diagnosis_invalid/data/type |
@@ -334,3 +336,17 @@ D-1〜D-5を一組で判断する。今回の文書作成は採用ではない�
 - 本書と依頼書の2文書だけを、コード開始点ac21980から作った新しい資料ブランチdocs/v2-history-s3b5-20261102に追加した。コード変更、試験実行、再現コード、新しい市場計算、PR、Actions、送信は0。終了時の照合結果と完全SHAは完了報告に記す（本書はその値を含められない）。
 - 既存コードの読取りで確認した事実（未知種別がview.recordを素通りすること、restoreの`_ALLOWED[kind]`がKeyErrorになること、check_positionsの移行前種別の制限、h02・h14の期待値）は、実行による確認ではない。
 - モデル別の利用量は未計測。
+- 第2版（2026-11-02）：初版9c50fcfへのレビュー（842d44b、docs/v2-history-s3b5-review-20261102）を受け、同じ資料ブランチをレビュー資料842d44bまで早送りしてから、この2文書だけを補正した。開始時（07:12Z）に、初版依頼§8の55参照＋初版9c50fcf＋レビュー842d44bの57参照が完全SHAで一致した。コード変更、試験実行、再現コード、市場計算は0。
+
+## 15. 第2版の改訂（初版レビューへの対応）
+
+初版レビューの原文（重大0・通常2・提案2）は、レビュー担当のコミット842d44bのまま、本第2版と同じ資料ブランチのdocs/reviews/V2_RECOVERY_S3B5_REVIEW_20261102.mdにある。同じコミットのdocs/reviews/s3b5_review_reproduce.pyとs3b5_scope_probe.pyはレビュー担当の確認用スクリプトで、本補正では再実行していない。§11と依頼§3・D5-10に引いた数値は、レビュー担当が固定ac21980で実行した結果の報告である。
+
+| ID | 反映 |
+|---|---|
+| N-01 | 空のeventsのdiscardedを、設計§6どおり{from_index:0, count:0, items:[]}に固定し、依頼D5-10を合わせた。非listはnull。空list・非list・GENESIS破損の非空listを§11と依頼で別のケースにした |
+| N-02 | §5.2の既知の性質を「originつきでMIGRATIONを含まないkは拒否、最初のoriginより短いkは通り得る」に訂正。§11と依頼D5-10の移行例を、example_m（count=2、head_seq=1、discarded 2〜7の6件）とexample_m_empty_world（count=3、head_seq=2、discarded 1件）の具体値に置き換えた。migrated=Falseのprefixを移行の不在や採用可能の根拠にしない境界、B-5bのmigration_discardedは維持 |
+| P-01 | §9.5の候補検査を「§9.2で採用記録に対応させたvalidate_history」と明記。B-5aの検査器無変更と区別 |
+| P-02 | §5.3と依頼D5-16で、実測はAPPLY中心の指定した合成履歴での値で、全入力の最悪時間の証明ではないと明記。性能試験・打ち切りは追加しない |
+
+B-5の範囲の解釈、B-5a／B-5bの分割、公開API、10キーの診断値、読込み段階、上からの全探索、B-5bの境界、v1は診断だけ、コード開始点ac21980は変えていない。D-1〜D-5は推奨のままで未採用、B-5aの限定実装は未承認。

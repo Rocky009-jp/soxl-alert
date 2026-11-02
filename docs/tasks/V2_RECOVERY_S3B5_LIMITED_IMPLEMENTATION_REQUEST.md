@@ -1,7 +1,7 @@
 # V2 S3-B-5a 破損診断 限定実装依頼書
 
-作成日：2026-11-02（日本時間）。版：初版。
-状態：**初版・レビュー待ち・未承認。本書の保存だけでは実装を始めない。**
+作成日：2026-11-02（日本時間）。版：第2版（同日の初版レビューの通常2件・提案2件を反映、§10）。
+状態：**第2版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
 本書はB-5のうちB-5a（診断）だけを対象とする。B-5b（RECOVERY_PREFIX_ADOPTION記録と採用の計画・確認）は対になる設計§9で境界だけを示し、ここでは依頼しない。
 
 ## 1. 固定入力と実装開始条件
@@ -36,7 +36,7 @@ B-5b（8種目の記録、検査器の変更、採用の計画・確認）、CON
 
 ## 3. 旧範囲試験3本の限定補正
 
-B-2のb17はadfdf765、B-3のr3_07はb328844、B-4のr4_09はd82a5ceからHEADまでを見るため、新しいB-5aの追加だけで3本とも失敗する見込みである（読取りによる見込み。本書作成では実行していない）。下記だけを変更する。既存機能試験/期待値、AST/公開名/禁止機能の検査、各test関数の件数は維持する。
+B-2のb17はadfdf765、B-3のr3_07はb328844、B-4のr4_09はd82a5ceからHEADまでを見るため、新しいB-5aの追加だけで3本とも失敗する。初版レビュー担当は、下記§3.1〜§3.3だけを使い捨てコピー（ac21980、空のプレースホルダー、pushしないローカルコミット）に適用し、b17 10件・r3_07 11件・r4_09 18件の計39件がWindows11/Python3.12.14で合格し、4本目の旧scope変更は不要と報告した（レビュー§5。本書の作成者は再実行していない）。下記だけを変更する。既存機能試験/期待値、AST/公開名/禁止機能の検査、各test関数の件数は維持する。
 
 ### 3.1 B-2 test_b17_scope.py：FilesChanged内の3点
 
@@ -105,13 +105,13 @@ B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイ�
 | D5-07 ヘッダーだけの違い | head_seq、head_hash、current_state、余分なヘッダーキーのそれぞれでPREFIX_ONLY、count＝n、discarded.count＝0、failureは全体検査のrule。元のヘッダーで検査する誤り（変異6）を検出 |
 | D5-08 後半の破損 | 末尾のevent_hash改変でcount＝n−1。中ほどのAPPLYの値改変でcount＝その位置、後ろの正しい記録もitemsへ。最後のkが通った後に下を試さない（spy） |
 | D5-09 バッチと非単調 | 復元バッチ途中・requestバッチ途中で終わる履歴は、バッチ開始位置がcount。途中のkをvalidate_historyが拒否したことをspyで確認。バッチ途中のkは通らないがより長いkは通る入力で、最長が選ばれる（下から/二分探索の変異を検出） |
-| D5-10 NO_VALID_PREFIXと移行 | GENESIS破損でNO_VALID_PREFIX、from_index＝0、itemsは全件。eventsが空/非listでdiscarded=null。移行済み履歴でMIGRATIONを壊した2種（移行前にACKあり、GENESIS/APPLYだけ）の実結果を固定し、itemsにSCHEMA_MIGRATIONが出ること。後者でMIGRATIONを捨てたprefixが通ることを「採用可能」とは表示しない |
+| D5-10 NO_VALID_PREFIXと移行 | 版・core_shaが正しくJSON段階を通る入力で、次を別ケースにする：GENESIS破損の非空listはNO_VALID_PREFIX、discarded＝{from_index:0, count:n, items:全件}。**空のlistはNO_VALID_PREFIX、discarded＝{from_index:0, count:0, items:[]}**。listでないeventsはNO_VALID_PREFIX、discarded=null。移行済み履歴でMIGRATIONのevent_hashだけを0×64にした2例を固定する：既存example_m（移行前にACKあり）はPREFIX_ONLY、count=2、head_seq=1、migrated=False、discarded＝{from_index:2, count:6, items:seq2〜7}で、k=7〜3がorigin、k=8がevent_hashで拒否されたことをspyで確認。example_m_empty_worldを移行したもの（移行前はGENESIS＋APPLY2件）はPREFIX_ONLY、count=3、head_seq=2、discarded.count=1。どちらもitemsにSCHEMA_MIGRATIONが出る。期待値はレビュー担当の実行結果（設計§11）と一致させ、B-1を変更して合わせない。migrated=Falseのprefixが通ったことを移行の不在や「採用可能」とは表示しない |
 | D5-11 v1 | S2のencode_snapshotバイトで、正常VALID、末尾改ざんPREFIX_ONLY（n−1）、ヘッダーだけ違うPREFIX_ONLY（n）、GENESIS破損NO_VALID_PREFIX。schema_version=1、verifiedのv1列（設計§5.4）、migrated=null。v1をvalidate_historyへ、v2をvalidate_snapshotへ渡さない |
 | D5-12 failureと例外 | {stage, code, field, rule}の4キー、固定識別子だけ。検査器内のKeyError等をmalformedへ（版ごとのcode）、CoreErrorはruleなし。例外文、生の値、パス、連鎖を出さない。prefix検査中の例外で診断全体が落ちない |
 | D5-13 discarded | itemsの5キー。未知の種別"?"、seq/d/request_idの型が不正ならnull、resume_afterや市場値・F&G・decision・自由文を出さない。summaryは件数と種別ごとの数、最初と最後のdだけ |
 | D5-14 claimedとverified | 宣言値の型規則（boolのhead_seqはnull等）。verifiedの版2列がHistoryCheck、版1列がValidatedSnapshotと一致。state_digest、document_digestを独立に計算して照合 |
 | D5-15 不変性・決定性・秘匿 | to_dictと全読取りが独立した写し。HistoryDiagnosisに元バイト・文字列・Historyを持たない（__slots__等で確認）。同じバイト2回でto_dict・digest完全一致、元bytesは不変。repr/summaryに生の値・URL・パス無し。旧MemoryStore/LocalFileStore（file_sync_onlyの一時root）が診断値・dictをplan_typeで拒否し、保存や残留物無し |
-| D5-16 費用の実測 | 合成した約260件のAPPLY（1年分程度）の履歴で、GENESIS直後を壊した最悪位置と、末尾を壊した通常位置の所要時間をLinuxで実測して結果文書に記録。閾値・打ち切りは入れない。試験の実行時間を不当に延ばす場合は、性能の実測を試験から分けた別スクリプトにしてよい |
+| D5-16 費用の実測 | 合成した約260件のAPPLY（1年分程度）のAPPLY中心の履歴で、GENESIS直後を壊した最悪位置と、末尾を壊した通常位置の所要時間をLinuxで実測して結果文書に記録。複数RESTOREの履歴では各復元前の鎖ビューも検査されるため、この値を全入力の最悪時間の証明と書かない。閾値・打ち切りは入れない。試験の実行時間を不当に延ばす場合は、性能の実測を試験から分けた別スクリプトにしてよい |
 | D5-17 範囲監査 | 新runtime全体のAST。公開依存は設計§12の名前だけ、__all__は6名。hashlibは生バイトのSHA-256の1か所だけ。I/O・時計・乱数・環境・外部private・戦略式・閾値なし。B-5bの記録種別名や採用計画の関数、ストア・公開・解錠・CONSUMEの語が無い（"diagnos"はB-5aの名のため禁止しない）。新規試験名はd5で一意、testsに__init__無し |
 
 委譲spyは新パッケージが実際に参照する名前を差し替える。v2_history.validate.validate_historyだけを差し替えて、別名importの呼出しを見たと主張しない。
@@ -159,7 +159,7 @@ PR・マージ・Actions・本番・通知、B-5b、CONSUME、S3-Cへ進まな�
 
 ## 8. 読取専用の保護参照
 
-次の55参照（B-4修正再レビュー§6の54参照＋再レビュー資料1f7d8c1）を開始時と保存/push後に完全SHAで照合する。本書と設計を保存した新資料ブランチdocs/v2-history-s3b5-20261102も、受け取った完全SHAを1本加える（本初版だけなら実装時は56参照）。追加のレビュー/採用参照を渡された場合もその固定値を記録する。元ブランチを更新しない。
+次の56参照（B-4修正再レビュー§6の54参照＋再レビュー資料1f7d8c1＋初版レビュー資料842d44b）を開始時と保存/push後に完全SHAで照合する。本書と設計を保存した資料ブランチdocs/v2-history-s3b5-20261102も、受け取った第2版の完全SHAを1本加える（本第2版だけなら実装時は57参照）。初版9c50fcfは同じブランチの祖先であり、別参照としては数えない。追加のレビュー/採用参照を渡された場合もその固定値を記録する。元ブランチを更新しない。
 
 | 参照 | 完全SHA |
 |---|---|
@@ -218,8 +218,23 @@ PR・マージ・Actions・本番・通知、B-5b、CONSUME、S3-Cへ進まな�
 | docs/v2-history-s3b4-review-20261102 | 814b86190562475286300d7e6df3a749a9140331 |
 | fix/v2-history-restore-plan-s3b4-review-20261102 | ac219801d290ebb59b720f37a086103b6e1251c9 |
 | docs/v2-history-s3b4-fix-rereview-20261102 | 1f7d8c13ee79aa41eb79bd612c4438355ae320ab |
+| docs/v2-history-s3b5-review-20261102 | 842d44b192a03531f6d3cb896d8281733814899f |
 
 ## 9. 採用単位
 
 設計§13のD-1（B-5の範囲の解釈、CONSUMEを含めないこと、B-5a／B-5bの分割と今回B-5aだけ）、D-2（厳格読込み・版違いでprefixを探さない・上からの全探索・値で返す）、D-3（B-5bの境界の固定。実装承認ではない）、D-4（v1は診断だけ）、D-5（Sonnet 5.5・high）と、本書の変更境界/受入/通信禁止/結果保存を一組として採否判断する。
 今回の文書作成はその採用ではない。B-4の受領をB-5の実装承認にしない。市場戦略、本番保存先、資格情報、旧工程の採用を再質問する依頼ではない。
+
+## 10. 第2版の改訂
+
+初版9c50fcfへのレビュー原文は、レビュー担当のコミット842d44bのまま、本第2版と同じ資料ブランチのdocs/reviews/V2_RECOVERY_S3B5_REVIEW_20261102.mdにある（確認用スクリプト2本も同じコミット）。今回の補正は文書のみで、実装/試験/再現コード/市場計算は0。レビュー担当の実行結果は、その担当者の報告として区別する。
+
+| ID | 反映 |
+|---|---|
+| N-01 | D5-10で空のeventsのdiscardedを{from_index:0, count:0, items:[]}に固定（設計§6と同じ）。非listはnull。3つのケースを分けた |
+| N-02 | D5-10の移行例を、example_m（count=2、head_seq=1、discarded 6件）とexample_m_empty_world（count=3、head_seq=2、discarded 1件）の具体値に置き換えた。originつきでMIGRATIONの無いkの拒否をspyで確認する |
+| P-01 | 設計§9.5（B-5b）の表記だけの補正。本依頼の範囲は変わらない |
+| P-02 | D5-16で、実測はAPPLY中心の指定した合成履歴での値と明記 |
+| 補足 | §3の旧scope補正について、レビュー担当の39件合格の報告を記録した。補正の範囲・方法は初版のまま |
+
+実装開始点ac21980、公開API、D5-01〜D5-17、欠陥注入17項目、既存ランタイム無変更、scope3本だけの限定補正は維持。D-1〜D-5は未採用、限定実装は未承認。
