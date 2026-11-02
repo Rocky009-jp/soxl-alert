@@ -190,13 +190,15 @@ class FilesChanged(unittest.TestCase):
             if path == "tests/v2_history_ops/test_b17_scope.py":
                 self.assertEqual(status, "M", path)
                 continue
-            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/")) or path in (
-                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",)
+            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/",
+                                       "v2_history_restore/", "tests/v2_history_restore/")) or path in (
+                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", "docs/implementation/V2_RECOVERY_S3B4_RESULT.md")
             self.assertTrue(allowed, "unexpected change: %s %s" % (status, path))
             self.assertEqual(status, "A", path)                          # new files only
         paths = {p for _s, p in changed}
         self.assertIn("v2_history_restart/__init__.py", paths)
-        self.assertEqual({p for p in paths if p.endswith("__init__.py")}, {"v2_history_restart/__init__.py"})
+        self.assertEqual({p for p in paths if p.endswith("__init__.py")},
+                         {"v2_history_restart/__init__.py", "v2_history_restore/__init__.py"})
 
     def test_no_existing_runtime_old_test_fixture_or_setting_differs(self):
         out = self.git("diff", "--name-only", START, "HEAD", "--", "v2_core", "v2_persistence", "v2_recovery",
@@ -204,7 +206,8 @@ class FilesChanged(unittest.TestCase):
                        "docs/STATUS.md", "docs/ROADMAP.md", "docs/MODEL_POLICY.md", "CLAUDE.md",
                        "docs/implementation/V2_RECOVERY_S3B2_RESULT.md")
         self.assertEqual(out.stdout.strip(), "")
-        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart")
+        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart",
+                       ":(exclude)tests/v2_history_restore")
         self.assertEqual(out.stdout.split(), ["tests/v2_history_ops/test_b17_scope.py"])
 
     def test_the_old_range_test_differs_in_exactly_the_three_allowed_places(self):
@@ -222,13 +225,16 @@ class FilesChanged(unittest.TestCase):
             '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops")'])
         self.assertEqual(added, [
             '            allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/",',
-            '                                        "v2_history_restart/", "tests/v2_history_restart/"))',
+            '                                        "v2_history_restart/", "tests/v2_history_restart/",',
+            '                                        "v2_history_restore/", "tests/v2_history_restore/"))',
             '                                   "docs/implementation/V2_RECOVERY_S3B2_RESULT.md",',
-            '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md"))',
+            '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",',
+            '                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md"))',
             '            self.assertFalse(path.endswith("__init__.py") and path != "v2_history_restart/__init__.py"',
+            '                             and path != "v2_history_restore/__init__.py"',
             '                             and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")), path)',
             '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops",',
-            '                       ":(exclude)tests/v2_history_restart")'])
+            '                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore")'])
 
 
 if __name__ == "__main__":
