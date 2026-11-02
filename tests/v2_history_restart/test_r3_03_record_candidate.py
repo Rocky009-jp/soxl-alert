@@ -1,4 +1,6 @@
 """B3-06 (record and candidate), B3-07 (physical head as the parent), B3-08 (request ids), B3-09 (plan binding)."""
+import dataclasses
+import types
 import unittest
 from unittest import mock
 
@@ -106,6 +108,91 @@ class RecordAndCandidate(unittest.TestCase):
     def test_the_plan_does_not_apply_anything_and_the_inputs_stay_as_they_were(self):
         self.assertFalse(self.plan.committed)
         self.assertEqual(self.h.digest, self.basis["history_digest"])
+
+
+class InternalInvariants(unittest.TestCase):
+    """The checks on the candidate that validate_history does not make by itself (design 8). A doubled validate_history
+    or read_effective lets a wrong candidate through the existing checker, so only the package's own checks can stop it."""
+
+    def setUp(self):
+        self.b = R.example_u()
+        self.h, self.w = self.b.history(), self.b.w
+        self.good = R.confirm(R.prep(self.h, self.w, D[3], D[4], "r1"), self.h, self.w).history
+        self.real_check = V.validate_history(self.good)
+        self.real_view = O.read_effective(self.good)
+
+    def prepare_with(self, check_changes=None, view_changes=None, events_fn=None):
+        real_validate, real_read = V.validate_history, O.read_effective
+
+        def validate(history):
+            check = real_validate(history)
+            if history.head_seq == 3 and check_changes:
+                return dataclasses.replace(check, **check_changes)
+            return check
+
+        def read(history):
+            view = real_read(history)
+            if history.head_seq == 3 and view_changes:
+                fields = {k: getattr(view, k) for k in ("migration_seq", "applies", "resolutions", "segments")}
+                fields.update(view_changes)
+                return types.SimpleNamespace(**fields)
+            return view
+
+        def history_dict(events):
+            if events_fn:
+                events_fn(events)
+            return real_dict(events)
+
+        from v2_history.values import history_dict as real_dict
+        with mock.patch("v2_history_restart.build.validate_history", side_effect=validate), \
+                mock.patch("v2_history_restart.build.read_effective", side_effect=read), \
+                mock.patch("v2_history_restart.build.history_dict", side_effect=history_dict):
+            return T.outcome(R.prep, self.h, self.w, D[3], D[4], "r2")
+
+    def assertCandidateInvalid(self, out):
+        self.assertEqual(out[:4], ("err", "history_invalid", "history", "restart_candidate"), out)
+
+    def test_without_doubles_the_candidate_passes(self):
+        self.assertEqual(self.prepare_with()[0], "ok")
+
+    def test_the_effective_and_the_superseded_seqs_are_compared(self):
+        self.assertCandidateInvalid(self.prepare_with({"effective_seqs": (0, 1, 3)}))
+        self.assertCandidateInvalid(self.prepare_with({"superseded_seqs": (1,)}))
+
+    def test_the_new_boundary_and_the_state_are_compared(self):
+        boundary = V.Boundary("GENESIS", 0, D[0])
+        self.assertCandidateInvalid(self.prepare_with({"current_boundary": boundary}))
+        self.assertCandidateInvalid(self.prepare_with({"current_boundary": V.Boundary("RESTART_UNKNOWN", 3, D[4])}))
+        self.assertCandidateInvalid(self.prepare_with({"state_digest": "0" * 64}))
+        self.assertCandidateInvalid(self.prepare_with({"migrated": True}))
+
+    def test_the_past_events_and_the_new_record_are_compared(self):
+        def past(events):
+            events[1]["d"] = D[9]
+
+        def last(events):
+            events[-1]["floor"]["last_apply_d"] = D[1]
+
+        def extra(events):
+            events.append(dict(events[-1]))
+
+        # validate_history would stop an altered event, so double it with the real answer for the right candidate
+        for fn in (past, last, extra):
+            out = self.prepare_with_events(fn)
+            self.assertCandidateInvalid(out)
+
+    def prepare_with_events(self, fn):
+        from v2_history.values import history_dict as real_dict
+        with mock.patch("v2_history_restart.build.validate_history", return_value=self.real_check), \
+                mock.patch("v2_history_restart.build.history_dict", side_effect=lambda ev: (fn(ev), real_dict(ev))[1]):
+            return T.outcome(R.prep, self.h, self.w, D[3], D[4], "r2")
+
+    def test_the_effective_facts_are_compared(self):
+        v = self.real_view
+        self.assertCandidateInvalid(self.prepare_with(None, {"applies": v.applies[:-1]}))
+        self.assertCandidateInvalid(self.prepare_with(None, {"resolutions": [{"x": 1}]}))
+        self.assertCandidateInvalid(self.prepare_with(None, {"segments": v.segments[:-1]}))
+        self.assertCandidateInvalid(self.prepare_with(None, {"migration_seq": 1}))
 
 
 class ParentIsThePhysicalHead(unittest.TestCase):
@@ -276,6 +363,12 @@ class PlanBinding(unittest.TestCase):
                          ("err", "history_plan_mismatch", "plan"))
         self.assertEqual(T.outcome(R.confirm, self.plan, self.h, self.w, None, None, "xyz")[:3],
                          ("err", "history_plan_mismatch", "plan"))
+
+    def test_a_plan_hash_that_is_not_the_hash_of_the_basis_is_refused_even_when_confirmed_with_itself(self):
+        forged = R.with_plan_dict(self.plan, lambda d: d.__setitem__("plan_hash", "a" * 64))
+        self.assertEqual(forged.plan_hash, "a" * 64)
+        out = T.outcome(R.confirm, forged, self.h, self.w, None, None, "a" * 64)
+        self.assertEqual(out[:3], ("err", "history_plan_mismatch", "plan"))
 
     def test_same_input_same_time_same_hash_and_only_the_time_changes_the_hashes(self):
         again = R.prep(self.h, self.w, D[3], D[4], "r1")

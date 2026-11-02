@@ -120,6 +120,21 @@ class ConfirmAgainstItsOwnCandidate(unittest.TestCase):
                                                                     "prev_boundary": D[0]}))
         self.assertEqual(T.outcome(R.confirm, bad, res.history, self.w)[:3], MISMATCH)
 
+    def test_the_prefix_mismatch_is_found_before_anything_is_rebuilt(self):
+        plan, res = R.run(self.h, self.w, D[3], D[3], "r1")
+        hexs = "f" * 64
+        from v2_history_restart import confirm as confirm_module
+        real = confirm_module.build_restart
+        for key in ("history_digest", "expected_head_hash", "expected_state_digest"):
+            bad = R.refreshed(plan, lambda bs, key=key: bs.__setitem__(key, hexs))
+            with mock.patch("v2_history_restart.confirm.build_restart", wraps=real) as spy:
+                out = T.outcome(R.confirm, bad, res.history, self.w)
+            self.assertEqual(out[:3], MISMATCH, key)
+            self.assertEqual(spy.call_count, 0, key)                 # the comparison with the plan comes first
+        with mock.patch("v2_history_restart.confirm.build_restart", wraps=real) as spy:
+            self.assertEqual(R.confirm(plan, res.history, self.w).status, "NO_CHANGE")
+        self.assertEqual(spy.call_count, 1)
+
     def test_a_history_that_moved_beyond_the_candidate_is_stale(self):
         plan, res = R.run(self.h, self.w, D[3], D[3], "r1")
         b = H.HB(world=self.w, events=res.history.events)
