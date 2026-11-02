@@ -1,0 +1,1230 @@
+diff --git a/tests/v2_history/test_h02_values_codec.py b/tests/v2_history/test_h02_values_codec.py
+index 816d7fb..83b8526 100644
+--- a/tests/v2_history/test_h02_values_codec.py
++++ b/tests/v2_history/test_h02_values_codec.py
+@@ -140,7 +140,7 @@ class FormRefusals(unittest.TestCase):
+         H.expect_rule(self, "record_keys", H.rebuild(ev))
+ 
+     def test_unknown_kind_and_the_b5_kind(self):
+-        for kind in ("BOGUS", "RECOVERY_PREFIX_ADOPTION", None, 7):
++        for kind in ("BOGUS", "CONSUME", None, 7):
+             with self.subTest(kind):
+                 ev = H.deep(self.ev)
+                 ev[2]["kind"] = kind
+diff --git a/tests/v2_history/test_h14_scope_and_stop.py b/tests/v2_history/test_h14_scope_and_stop.py
+index e7719a2..c19f90a 100644
+--- a/tests/v2_history/test_h14_scope_and_stop.py
++++ b/tests/v2_history/test_h14_scope_and_stop.py
+@@ -102,17 +102,17 @@ class RuntimeIsPure(unittest.TestCase):
+             "History", "encode_history", "decode_history", "validate_history", "make_history_genesis",
+             "migrated_sources", "prepare_migration_plan", "confirm_migration_plan", "HistoryCheck", "Boundary",
+             "MigrationPlan", "MigrationConfirmResult", "SCHEMA_VERSION_V2", "KINDS", "GENESIS", "APPLY", "ACK",
+-            "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "READY",
+-            "CONFIRMED_IN_MEMORY"]))
++            "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION",
++            "READY", "CONFIRMED_IN_MEMORY"]))
+         for name in v2_history.__all__:
+             self.assertTrue(hasattr(v2_history, name))
+         self.assertEqual(v2_history.SCHEMA_VERSION_V2, 2)
+-        self.assertEqual(len(v2_history.KINDS), 7)
++        self.assertEqual(len(v2_history.KINDS), 8)
+         self.assertEqual((v2_history.READY, v2_history.CONFIRMED_IN_MEMORY), ("READY", "CONFIRMED_IN_MEMORY"))
+ 
+     def test_consume_and_the_b5_kind_are_refused(self):
+         import v2_history.values as values
+-        self.assertNotIn("RECOVERY_PREFIX_ADOPTION", values.KINDS)
++        self.assertEqual(values.KINDS[-1], "RECOVERY_PREFIX_ADOPTION")              # added by B-5b
+         self.assertNotIn("CONSUME", sources()["restore.py"].split("_ALLOWED")[1].split("\n\n")[0])
+ 
+ 
+diff --git a/tests/v2_history_diagnose/test_d5_08_scope.py b/tests/v2_history_diagnose/test_d5_08_scope.py
+index ad03e10..10bcf8e 100644
+--- a/tests/v2_history_diagnose/test_d5_08_scope.py
++++ b/tests/v2_history_diagnose/test_d5_08_scope.py
+@@ -59,34 +59,69 @@ UNCHANGED_DOCS = ("docs/implementation/V2_RECOVERY_S3B2_RESULT.md", "docs/implem
+                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md")
+ 
+ # --- pinned against the code start ac21980: the removed lines, added lines and hunk headers of each corrected test ---
+-PINNED = {'tests/v2_history_ops/test_b17_scope.py': (['                                        "v2_history_restore/", '
++PINNED = {'tests/v2_history_ops/test_b17_scope.py': (['                  "SCHEMA_MIGRATION"}',
++                                             '                                        "v2_history_restore/", '
+                                              '"tests/v2_history_restore/"))',
+                                              '                                   '
+                                              '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md"))',
++                                             '                if path != "v2_recovery/commands.py":',
+                                              '                       ":(exclude)tests/v2_history_restart", '
+                                              '":(exclude)tests/v2_history_restore")'],
+-                                            ['                                        "v2_history_restore/", '
++                                            ['                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}',
++                                             '        b5b = ("v2_history/__init__.py", "v2_history/values.py", '
++                                             '"v2_history/view.py", "v2_history/restore.py",',
++                                             '               "tests/v2_history/test_h02_values_codec.py", '
++                                             '"tests/v2_history/test_h14_scope_and_stop.py")',
++                                             '                                        "v2_history_restore/", '
+                                              '"tests/v2_history_restore/",',
+                                              '                                        "v2_history_diagnose/", '
+-                                             '"tests/v2_history_diagnose/"))',
++                                             '"tests/v2_history_diagnose/",',
++                                             '                                        "v2_history_adopt/", '
++                                             '"tests/v2_history_adopt/"))',
++                                             '                       or path in b5b',
+                                              '                                   '
+                                              '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+                                              '                                   '
+-                                             '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))',
++                                             '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md",',
++                                             '                                   '
++                                             '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))',
++                                             '                if path != "v2_recovery/commands.py" and path not in '
++                                             'b5b:',
+                                              '                             and path != '
+                                              '"v2_history_diagnose/__init__.py"',
++                                             '                             and path not in '
++                                             '("v2_history_adopt/__init__.py", "v2_history/__init__.py")',
+                                              '                       ":(exclude)tests/v2_history_restart", '
+                                              '":(exclude)tests/v2_history_restore",',
+-                                             '                       ":(exclude)tests/v2_history_diagnose")'],
+-                                            ['@@ -186 +186,2', '@@ -190 +191,2', '@@ -202,0 +205', '@@ -219 +222,2']),
+- 'tests/v2_history_restart/test_r3_07_scope.py': (['                                       "v2_history_restore/", '
++                                             '                       ":(exclude)tests/v2_history_diagnose", '
++                                             '":(exclude)tests/v2_history_adopt",',
++                                             '                       '
++                                             '":(exclude)tests/v2_history/test_h02_values_codec.py",',
++                                             '                       '
++                                             '":(exclude)tests/v2_history/test_h14_scope_and_stop.py")'],
++                                            ['@@ -39 +39',
++                                             '@@ -182,0 +183,2',
++                                             '@@ -186 +188,4',
++                                             '@@ -190 +195,3',
++                                             '@@ -193 +200',
++                                             '@@ -202,0 +210,2',
++                                             '@@ -219 +228,4']),
++ 'tests/v2_history_restart/test_r3_07_scope.py': (['            if path == "tests/v2_history_ops/test_b17_scope.py":',
++                                                   '                                       "v2_history_restore/", '
+                                                    '"tests/v2_history_restore/")) or path in (',
+-                                                   '                '
+-                                                   '"docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
++                                                   '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md")',
+                                                    '                         {"v2_history_restart/__init__.py", '
+                                                    '"v2_history_restore/__init__.py"})',
++                                                   '                       '
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md")',
+                                                    '                       ":(exclude)tests/v2_history_restore")',
++                                                   '        self.assertEqual(out.stdout.split(), '
++                                                   '["tests/v2_history_ops/test_b17_scope.py"])',
++                                                   '        # point 1 touches two separate lines of the allowed list, '
++                                                   'so git shows four hunks for the three points',
++                                                   '        self.assertEqual(sum(1 for l in lines if '
++                                                   'l.startswith("@@")), 4)',
+                                                    "            '                                        "
+                                                    '"v2_history_restore/", "tests/v2_history_restore/"))\',',
+                                                    "            '                                   "
+@@ -94,50 +129,121 @@ PINNED = {'tests/v2_history_ops/test_b17_scope.py': (['
+                                                    "            '                       "
+                                                    '":(exclude)tests/v2_history_restart", '
+                                                    '":(exclude)tests/v2_history_restore")\'])'],
+-                                                  ['                                       "v2_history_restore/", '
++                                                  ['        b5b = ("v2_history/__init__.py", "v2_history/values.py", '
++                                                   '"v2_history/view.py", "v2_history/restore.py",',
++                                                   '               "v2_history_ops/chain.py", '
++                                                   '"tests/v2_history/test_h02_values_codec.py",',
++                                                   '               "tests/v2_history/test_h14_scope_and_stop.py")',
++                                                   '            if path == "tests/v2_history_ops/test_b17_scope.py" or '
++                                                   'path in b5b:',
++                                                   '                                       "v2_history_restore/", '
+                                                    '"tests/v2_history_restore/",',
+                                                    '                                       "v2_history_diagnose/", '
+-                                                   '"tests/v2_history_diagnose/")) or path in (',
+-                                                   '                '
+-                                                   '"docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
++                                                   '"tests/v2_history_diagnose/",',
++                                                   '                                       "v2_history_adopt/", '
++                                                   '"tests/v2_history_adopt/")) or path in (',
++                                                   '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+-                                                   '                '
+-                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md")',
++                                                   '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md", '
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")',
+                                                    '                         {"v2_history_restart/__init__.py", '
+                                                    '"v2_history_restore/__init__.py",',
+-                                                   '                          "v2_history_diagnose/__init__.py"})',
++                                                   '                          "v2_history_diagnose/__init__.py", '
++                                                   '"v2_history_adopt/__init__.py",',
++                                                   '                          "v2_history/__init__.py"})',
++                                                   '                       '
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md", '
++                                                   '":(exclude)v2_history/__init__.py",',
++                                                   '                       ":(exclude)v2_history/values.py", '
++                                                   '":(exclude)v2_history/view.py",',
++                                                   '                       ":(exclude)v2_history/restore.py", '
++                                                   '":(exclude)v2_history_ops/chain.py")',
+                                                    '                       ":(exclude)tests/v2_history_restore", '
+-                                                   '":(exclude)tests/v2_history_diagnose")',
++                                                   '":(exclude)tests/v2_history_diagnose",',
++                                                   '                       ":(exclude)tests/v2_history_adopt")',
++                                                   '        self.assertEqual(out.stdout.split(), '
++                                                   '["tests/v2_history/test_h02_values_codec.py",',
++                                                   '                                              '
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py",',
++                                                   '                                              '
++                                                   '"tests/v2_history_ops/test_b17_scope.py"])',
++                                                   '        # four hunks for the three points of B-3; B-5b adds the '
++                                                   'kind constant and its edits of the two methods',
++                                                   '        self.assertEqual(sum(1 for l in lines if '
++                                                   'l.startswith("@@")), 7)',
++                                                   '            \'                  "SCHEMA_MIGRATION"}\',',
++                                                   "            '                if path != "
++                                                   '"v2_recovery/commands.py":\',',
++                                                   '            \'                  "SCHEMA_MIGRATION", '
++                                                   '"RECOVERY_PREFIX_ADOPTION"}\',',
++                                                   '            \'        b5b = ("v2_history/__init__.py", '
++                                                   '"v2_history/values.py", "v2_history/view.py", '
++                                                   '"v2_history/restore.py",\',',
++                                                   "            '               "
++                                                   '"tests/v2_history/test_h02_values_codec.py", '
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py")\',',
+                                                    "            '                                        "
+                                                    '"v2_history_restore/", "tests/v2_history_restore/",\',',
+                                                    "            '                                        "
+-                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/"))\',',
++                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/",\',',
++                                                   "            '                                        "
++                                                   '"v2_history_adopt/", "tests/v2_history_adopt/"))\',',
++                                                   "            '                       or path in b5b',",
+                                                    "            '                                   "
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\',',
+                                                    "            '                                   "
+-                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))\',',
++                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md",\',',
++                                                   "            '                                   "
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))\',',
++                                                   '            \'                if path != "v2_recovery/commands.py" '
++                                                   "and path not in b5b:',",
+                                                    "            '                             and path != "
+                                                    '"v2_history_diagnose/__init__.py"\',',
++                                                   "            '                             and path not in "
++                                                   '("v2_history_adopt/__init__.py", "v2_history/__init__.py")\',',
+                                                    "            '                       "
+                                                    '":(exclude)tests/v2_history_restart", '
+                                                    '":(exclude)tests/v2_history_restore",\',',
+                                                    "            '                       "
+-                                                   '":(exclude)tests/v2_history_diagnose")\'])'],
+-                                                  ['@@ -194,2 +194,4',
+-                                                   '@@ -201 +203,2',
+-                                                   '@@ -210 +213',
+-                                                   '@@ -229 +232,2',
+-                                                   '@@ -232 +236,2',
+-                                                   '@@ -234,0 +240',
+-                                                   '@@ -237 +243,2']),
+- 'tests/v2_history_restore/test_r4_09_scope.py': ([" '                                        "
+-                                                   '"v2_history_restore/", "tests/v2_history_restore/"))\',',
++                                                   '":(exclude)tests/v2_history_diagnose", '
++                                                   '":(exclude)tests/v2_history_adopt",\',',
++                                                   "            '                       "
++                                                   '":(exclude)tests/v2_history/test_h02_values_codec.py",\',',
++                                                   "            '                       "
++                                                   '":(exclude)tests/v2_history/test_h14_scope_and_stop.py")\'])'],
++                                                  ['@@ -188,0 +189,3',
++                                                   '@@ -190 +193',
++                                                   '@@ -194,2 +197,5',
++                                                   '@@ -201 +207,3',
++                                                   '@@ -207 +215,3',
++                                                   '@@ -210,2 +220,5',
++                                                   '@@ -218,2 +231,2',
++                                                   '@@ -220,0 +234',
++                                                   '@@ -222,0 +237',
++                                                   '@@ -226,0 +242,3',
++                                                   '@@ -229 +247,4',
++                                                   '@@ -232 +253,4',
++                                                   '@@ -234,0 +259,2',
++                                                   '@@ -237 +263,4']),
++ 'tests/v2_history_restore/test_r4_09_scope.py': (['                  "SCHEMA_MIGRATION"}',
++                                                   "B17_REMOVED = ['                                        "
++                                                   '"v2_history_restart/", "tests/v2_history_restart/"))\',',
++                                                   "B17_ADDED = ['                                        "
++                                                   '"v2_history_restart/", "tests/v2_history_restart/",\',',
++                                                   ' \'                                        "v2_history_restore/", '
++                                                   '"tests/v2_history_restore/"))\',',
+                                                    " '                                   "
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md"))\',',
+                                                    ' \'                       ":(exclude)tests/v2_history_restart", '
+                                                    '":(exclude)tests/v2_history_restore")\']',
+-                                                   "B17_HUNKS = ['@@ -185 +185,2', '@@ -188 +189,2', '@@ -199,0 "
+-                                                   "+202', '@@ -216 +219']",
++                                                   "B17_HUNKS = ['@@ -185 +185,2', '@@ -188 +189,2', '@@ -199,0 +202', "
++                                                   "'@@ -216 +219']",
++                                                   "R307_REMOVED = ['            allowed = "
++                                                   'path.startswith(("v2_history_restart/", '
++                                                   '"tests/v2_history_restart/")) or path in (\',',
++                                                   "R307_ADDED = ['            allowed = "
++                                                   'path.startswith(("v2_history_restart/", '
++                                                   '"tests/v2_history_restart/",\',',
+                                                    ' \'                                       "v2_history_restore/", '
+                                                    '"tests/v2_history_restore/")) or path in (\',',
+                                                    " '                "
+@@ -145,8 +251,7 @@ PINNED = {'tests/v2_history_ops/test_b17_scope.py': (['
+                                                    ' \'"docs/implementation/V2_RECOVERY_S3B4_RESULT.md")\',',
+                                                    ' \'                         {"v2_history_restart/__init__.py", '
+                                                    '"v2_history_restore/__init__.py"})\',',
+-                                                   " '                       "
+-                                                   '":(exclude)tests/v2_history_restore")\',',
++                                                   ' \'                       ":(exclude)tests/v2_history_restore")\',',
+                                                    " '            \\'                                        "
+                                                    '"v2_history_restore/", "tests/v2_history_restore/"))\\\',\',',
+                                                    " '            \\'                                   "
+@@ -161,86 +266,246 @@ PINNED = {'tests/v2_history_ops/test_b17_scope.py': (['
+                                                    " '@@ -227 +231,2',",
+                                                    " '@@ -228,0 +234',",
+                                                    " '@@ -231 +237']",
++                                                   '                    if v in KIND_CONSTANTS:',
++                                                   '        self.assertEqual(modified, '
++                                                   'sorted(SCOPE_TESTS))                            # the only files '
++                                                   'that are modified',
++                                                   '            if path in SCOPE_TESTS:',
+                                                    '            self.assertTrue(allowed_path(path), "unexpected '
+                                                    'change: %s %s" % (status, path))',
+                                                    '        self.assertEqual({p for p in paths if '
+                                                    'p.endswith("__init__.py")}, {"v2_history_restore/__init__.py"})',
+-                                                   '        out = self.git("diff", "--name-only", START, "HEAD", '
+-                                                   '"--", "tests", ":(exclude)tests/v2_history_restore")'],
+-                                                  [" '                                        "
+-                                                   '"v2_history_restore/", "tests/v2_history_restore/",\',',
+-                                                   " '                                        "
+-                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/"))\',',
++                                                   '                       '
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md", '
++                                                   '"docs/implementation/V2_RECOVERY_S3B3_RESULT.md")',
++                                                   '        out = self.git("diff", "--name-only", START, "HEAD", "--", '
++                                                   '"tests", ":(exclude)tests/v2_history_restore")',
++                                                   '        self.assertEqual(sorted(out.stdout.split()), '
++                                                   'sorted(SCOPE_TESTS))'],
++                                                  ['                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}',
++                                                   'B17_REMOVED = [\'                  "SCHEMA_MIGRATION"}\',',
++                                                   ' \'                                        "v2_history_restart/", '
++                                                   '"tests/v2_history_restart/"))\',',
++                                                   ' \'                if path != "v2_recovery/commands.py":\',',
++                                                   'B17_ADDED = [\'                  "SCHEMA_MIGRATION", '
++                                                   '"RECOVERY_PREFIX_ADOPTION"}\',',
++                                                   ' \'        b5b = ("v2_history/__init__.py", '
++                                                   '"v2_history/values.py", "v2_history/view.py", '
++                                                   '"v2_history/restore.py",\',',
++                                                   ' \'               "tests/v2_history/test_h02_values_codec.py", '
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py")\',',
++                                                   ' \'                                        "v2_history_restart/", '
++                                                   '"tests/v2_history_restart/",\',',
++                                                   ' \'                                        "v2_history_restore/", '
++                                                   '"tests/v2_history_restore/",\',',
++                                                   ' \'                                        "v2_history_diagnose/", '
++                                                   '"tests/v2_history_diagnose/",\',',
++                                                   ' \'                                        "v2_history_adopt/", '
++                                                   '"tests/v2_history_adopt/"))\',',
++                                                   " '                       or path in b5b',",
+                                                    " '                                   "
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\',',
+                                                    " '                                   "
+-                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))\',',
++                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md",\',',
++                                                   " '                                   "
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))\',',
++                                                   ' \'                if path != "v2_recovery/commands.py" and path '
++                                                   "not in b5b:',",
+                                                    " '                             and path != "
+                                                    '"v2_history_diagnose/__init__.py"\',',
++                                                   " '                             and path not in "
++                                                   '("v2_history_adopt/__init__.py", "v2_history/__init__.py")\',',
+                                                    ' \'                       ":(exclude)tests/v2_history_restart", '
+                                                    '":(exclude)tests/v2_history_restore",\',',
++                                                   ' \'                       ":(exclude)tests/v2_history_diagnose", '
++                                                   '":(exclude)tests/v2_history_adopt",\',',
++                                                   " '                       "
++                                                   '":(exclude)tests/v2_history/test_h02_values_codec.py",\',',
++                                                   " '                       "
++                                                   '":(exclude)tests/v2_history/test_h14_scope_and_stop.py")\']',
++                                                   "B17_HUNKS = ['@@ -39 +39',",
++                                                   " '@@ -182,0 +183,2',",
++                                                   " '@@ -185 +187,5',",
++                                                   " '@@ -188 +194,4',",
++                                                   " '@@ -191 +200',",
++                                                   " '@@ -199,0 +209,3',",
++                                                   " '@@ -216 +228,4']",
++                                                   "R307_REMOVED = ['            if path == "
++                                                   '"tests/v2_history_ops/test_b17_scope.py":\',',
++                                                   ' \'            allowed = path.startswith(("v2_history_restart/", '
++                                                   '"tests/v2_history_restart/")) or path in (\',',
+                                                    " '                       "
+-                                                   '":(exclude)tests/v2_history_diagnose")\']',
+-                                                   "B17_HUNKS = ['@@ -185 +185,3', '@@ -188 +190,3', '@@ -199,0 "
+-                                                   "+204,2', '@@ -216 +222,2']",
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md")\',',
++                                                   " '        self.assertEqual(out.stdout.split(), "
++                                                   '["tests/v2_history_ops/test_b17_scope.py"])\',',
++                                                   " '        # point 1 touches two separate lines of the allowed "
++                                                   "list, so git shows four hunks for the three points',",
++                                                   " '        self.assertEqual(sum(1 for l in lines if "
++                                                   'l.startswith("@@")), 4)\',',
++                                                   'R307_ADDED = [\'        b5b = ("v2_history/__init__.py", '
++                                                   '"v2_history/values.py", "v2_history/view.py", '
++                                                   '"v2_history/restore.py",\',',
++                                                   ' \'               "v2_history_ops/chain.py", '
++                                                   '"tests/v2_history/test_h02_values_codec.py",\',',
++                                                   " '               "
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py")\',',
++                                                   ' \'            if path == "tests/v2_history_ops/test_b17_scope.py" '
++                                                   "or path in b5b:',",
++                                                   ' \'            allowed = path.startswith(("v2_history_restart/", '
++                                                   '"tests/v2_history_restart/",\',',
+                                                    ' \'                                       "v2_history_restore/", '
+                                                    '"tests/v2_history_restore/",\',',
+-                                                   " '                                       "
+-                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/")) or path '
+-                                                   "in (',",
++                                                   ' \'                                       "v2_history_diagnose/", '
++                                                   '"tests/v2_history_diagnose/",\',',
++                                                   ' \'                                       "v2_history_adopt/", '
++                                                   '"tests/v2_history_adopt/")) or path in (\',',
+                                                    " '                "
+                                                    '"docs/implementation/V2_RECOVERY_S3B3_RESULT.md", '
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\',',
+                                                    " '                "
+-                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md")\',',
++                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md", '
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")\',',
+                                                    ' \'                         {"v2_history_restart/__init__.py", '
+                                                    '"v2_history_restore/__init__.py",\',',
+-                                                   " '                          "
+-                                                   '"v2_history_diagnose/__init__.py"})\',',
++                                                   ' \'                          "v2_history_diagnose/__init__.py", '
++                                                   '"v2_history_adopt/__init__.py",\',',
++                                                   ' \'                          "v2_history/__init__.py"})\',',
++                                                   " '                       "
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md", '
++                                                   '":(exclude)v2_history/__init__.py",\',',
++                                                   ' \'                       ":(exclude)v2_history/values.py", '
++                                                   '":(exclude)v2_history/view.py",\',',
++                                                   ' \'                       ":(exclude)v2_history/restore.py", '
++                                                   '":(exclude)v2_history_ops/chain.py")\',',
+                                                    ' \'                       ":(exclude)tests/v2_history_restore", '
+-                                                   '":(exclude)tests/v2_history_diagnose")\',',
++                                                   '":(exclude)tests/v2_history_diagnose",\',',
++                                                   ' \'                       ":(exclude)tests/v2_history_adopt")\',',
++                                                   " '        self.assertEqual(out.stdout.split(), "
++                                                   '["tests/v2_history/test_h02_values_codec.py",\',',
++                                                   " '                                              "
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py",\',',
++                                                   " '                                              "
++                                                   '"tests/v2_history_ops/test_b17_scope.py"])\',',
++                                                   " '        # four hunks for the three points of B-3; B-5b adds the "
++                                                   "kind constant and its edits of the two methods',",
++                                                   " '        self.assertEqual(sum(1 for l in lines if "
++                                                   'l.startswith("@@")), 7)\',',
++                                                   ' \'            \\\'                  "SCHEMA_MIGRATION"}\\\',\',',
++                                                   " '            \\'                if path != "
++                                                   '"v2_recovery/commands.py":\\\',\',',
++                                                   ' \'            \\\'                  "SCHEMA_MIGRATION", '
++                                                   '"RECOVERY_PREFIX_ADOPTION"}\\\',\',',
++                                                   ' \'            \\\'        b5b = ("v2_history/__init__.py", '
++                                                   '"v2_history/values.py", "v2_history/view.py", \'',
++                                                   ' \'"v2_history/restore.py",\\\',\',',
++                                                   " '            \\'               "
++                                                   '"tests/v2_history/test_h02_values_codec.py", \'',
++                                                   ' \'"tests/v2_history/test_h14_scope_and_stop.py")\\\',\',',
+                                                    " '            \\'                                        "
+                                                    '"v2_history_restore/", "tests/v2_history_restore/",\\\',\',',
+                                                    " '            \\'                                        "
+-                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/"))\\\',\',',
++                                                   '"v2_history_diagnose/", "tests/v2_history_diagnose/",\\\',\',',
++                                                   " '            \\'                                        "
++                                                   '"v2_history_adopt/", "tests/v2_history_adopt/"))\\\',\',',
++                                                   ' "            \'                       or path in b5b\',",',
+                                                    " '            \\'                                   "
+                                                    '"docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\\\',\',',
+                                                    " '            \\'                                   "
+-                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))\\\',\',',
++                                                   '"docs/implementation/V2_RECOVERY_S3B5_RESULT.md",\\\',\',',
++                                                   " '            \\'                                   "
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))\\\',\',',
++                                                   " '            \\'                if path != "
++                                                   '"v2_recovery/commands.py" and path not in b5b:\\\',\',',
+                                                    " '            \\'                             and path != "
+                                                    '"v2_history_diagnose/__init__.py"\\\',\',',
++                                                   " '            \\'                             and path not in "
++                                                   '("v2_history_adopt/__init__.py", \'',
++                                                   ' \'"v2_history/__init__.py")\\\',\',',
+                                                    " '            \\'                       "
+                                                    '":(exclude)tests/v2_history_restart", '
+                                                    '":(exclude)tests/v2_history_restore",\\\',\',',
+                                                    " '            \\'                       "
+-                                                   '":(exclude)tests/v2_history_diagnose")\\\'])\']',
+-                                                   "R307_HUNKS = ['@@ -193,2 +193,5', '@@ -199 +202,3', '@@ -207 "
+-                                                   "+212,2', '@@ -225 +231,3', '@@ -227 +235,3', '@@ -228,0 +239,2', "
+-                                                   "'@@ -231 +243,2']",
++                                                   '":(exclude)tests/v2_history_diagnose", '
++                                                   '":(exclude)tests/v2_history_adopt",\\\',\',',
++                                                   " '            \\'                       "
++                                                   '":(exclude)tests/v2_history/test_h02_values_codec.py",\\\',\',',
++                                                   " '            \\'                       "
++                                                   '":(exclude)tests/v2_history/test_h14_scope_and_stop.py")\\\'])\']',
++                                                   "R307_HUNKS = ['@@ -188,0 +189,3',",
++                                                   " '@@ -190 +193',",
++                                                   " '@@ -193,2 +196,6',",
++                                                   " '@@ -199 +206,4',",
++                                                   " '@@ -205 +215,3',",
++                                                   " '@@ -207,2 +219,6',",
++                                                   " '@@ -215,2 +231,2',",
++                                                   " '@@ -217,0 +234',",
++                                                   " '@@ -219,0 +237',",
++                                                   " '@@ -223,0 +242,3',",
++                                                   " '@@ -225 +246,5',",
++                                                   " '@@ -227 +252,5',",
++                                                   " '@@ -228,0 +258,3',",
++                                                   " '@@ -231 +263,4']",
++                                                   '                    if v in KIND_CONSTANTS or v == '
++                                                   '"restore_before_adoption":      # the B-5b refusal code',
++                                                   '        b5b = ("v2_history/__init__.py", "v2_history/values.py", '
++                                                   '"v2_history/view.py", "v2_history/restore.py",',
++                                                   '               "v2_history_ops/chain.py", '
++                                                   '"tests/v2_history/test_h02_values_codec.py",',
++                                                   '               "tests/v2_history/test_h14_scope_and_stop.py")',
++                                                   '        self.assertEqual(modified, sorted(SCOPE_TESTS + '
++                                                   'b5b))                      # the only files that are modified',
++                                                   '            if path in SCOPE_TESTS or path in b5b:',
+                                                    '            new_b5a = path.startswith(("v2_history_diagnose/", '
+-                                                   '"tests/v2_history_diagnose/")) or path == \\',
+-                                                   '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"',
++                                                   '"tests/v2_history_diagnose/",',
++                                                   '                                       "v2_history_adopt/", '
++                                                   '"tests/v2_history_adopt/")) or path in (',
++                                                   '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md", '
++                                                   '"docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")',
+                                                    '            self.assertTrue(allowed_path(path) or new_b5a, '
+                                                    '"unexpected change: %s %s" % (status, path))',
+                                                    '        self.assertEqual({p for p in paths if '
+                                                    'p.endswith("__init__.py")},',
+                                                    '                         {"v2_history_restore/__init__.py", '
+-                                                   '"v2_history_diagnose/__init__.py"})',
+-                                                   '        out = self.git("diff", "--name-only", START, "HEAD", '
+-                                                   '"--", "tests", ":(exclude)tests/v2_history_restore",',
+-                                                   '                       ":(exclude)tests/v2_history_diagnose")'],
+-                                                  ['@@ -83 +83,2',
+-                                                   '@@ -85 +86,2',
+-                                                   '@@ -87,2 +89,4',
+-                                                   '@@ -97,3 +101,4',
+-                                                   '@@ -101 +106,2',
+-                                                   '@@ -103 +109',
+-                                                   '@@ -105 +111,2',
+-                                                   '@@ -107 +114,2',
+-                                                   '@@ -109,9 +117,4',
+-                                                   '@@ -350 +353,3',
+-                                                   '@@ -354 +359,2',
+-                                                   '@@ -380 +386,2'])}
++                                                   '"v2_history_diagnose/__init__.py",',
++                                                   '                          "v2_history_adopt/__init__.py", '
++                                                   '"v2_history/__init__.py"})',
++                                                   '                       '
++                                                   '"docs/implementation/V2_RECOVERY_S3B2_RESULT.md", '
++                                                   '"docs/implementation/V2_RECOVERY_S3B3_RESULT.md",',
++                                                   '                       ":(exclude)v2_history/__init__.py", '
++                                                   '":(exclude)v2_history/values.py",',
++                                                   '                       ":(exclude)v2_history/view.py", '
++                                                   '":(exclude)v2_history/restore.py",',
++                                                   '                       ":(exclude)v2_history_ops/chain.py")',
++                                                   '        out = self.git("diff", "--name-only", START, "HEAD", "--", '
++                                                   '"tests", ":(exclude)tests/v2_history_restore",',
++                                                   '                       ":(exclude)tests/v2_history_diagnose", '
++                                                   '":(exclude)tests/v2_history_adopt")',
++                                                   '        self.assertEqual(sorted(out.stdout.split()), '
++                                                   'sorted(SCOPE_TESTS + ("tests/v2_history/test_h02_values_codec.py",',
++                                                   '                                                                           '
++                                                   '"tests/v2_history/test_h14_scope_and_stop.py")))'],
++                                                  ['@@ -38 +38',
++                                                   '@@ -79 +79,2',
++                                                   '@@ -80,0 +82',
++                                                   '@@ -82,2 +84,8',
++                                                   '@@ -85 +93,4',
++                                                   '@@ -87,3 +98,15',
++                                                   '@@ -91,0 +115',
++                                                   '@@ -92,0 +117,3',
++                                                   '@@ -96,4 +123,10',
++                                                   '@@ -101 +134,6',
++                                                   '@@ -103 +141,14',
++                                                   '@@ -105 +156,4',
++                                                   '@@ -107 +161,4',
++                                                   '@@ -109,9 +166,21',
++                                                   '@@ -195 +264',
++                                                   '@@ -346 +415,4',
++                                                   '@@ -348 +420',
++                                                   '@@ -350 +422,4',
++                                                   '@@ -354 +429,3',
++                                                   '@@ -378 +455,4',
++                                                   '@@ -380,2 +460,4'])}
+ 
+ 
+ def allowed_new_path(path):
+@@ -409,7 +674,7 @@ class Runtime(unittest.TestCase):
+         for banned in ("prepare_prefix_adoption", "confirm_prefix_adoption", "RECOVERY_PREFIX_ADOPTION"):
+             self.assertNotIn(banned, defined)
+         import v2_history
+-        self.assertNotIn("RECOVERY_PREFIX_ADOPTION", v2_history.KINDS)
++        self.assertEqual(v2_history.KINDS[-1], "RECOVERY_PREFIX_ADOPTION")              # the kind is added by B-5b
+ 
+     def test_the_new_tests_use_unique_names_and_no_init_file(self):
+         self.assertFalse(os.path.exists(os.path.join(TESTS, "__init__.py")))
+@@ -471,25 +736,36 @@ class FilesChanged(unittest.TestCase):
+ 
+     def test_modified_files_are_exactly_the_three_scope_tests_and_every_other_change_is_a_new_allowed_file(self):
+         rows = self.changed()
+-        self.assertEqual(sorted(p for s, p in rows if s == "M"), sorted(SCOPE_TESTS))
++        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
++               "v2_history_ops/chain.py", "v2_history_restore/points.py",
++               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")
++        self.assertEqual(sorted(p for s, p in rows if s == "M"), sorted(SCOPE_TESTS + b5b))
+         for status, path in rows:
+             if status == "M":
+                 continue
+             self.assertEqual(status, "A", "%s %s" % (status, path))                 # no deletion, no mode change
+-            self.assertTrue(allowed_new_path(path), "unexpected change: %s %s" % (status, path))
++            new_b5b = path.startswith(("v2_history_adopt/", "tests/v2_history_adopt/")) or \
++                path == "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"
++            self.assertTrue(allowed_new_path(path) or new_b5b, "unexpected change: %s %s" % (status, path))
+         paths = {p for _s, p in rows}
+-        self.assertEqual({p for p in paths if p.endswith("__init__.py")}, {"v2_history_diagnose/__init__.py"})
++        self.assertEqual({p for p in paths if p.endswith("__init__.py")},
++                         {"v2_history_diagnose/__init__.py", "v2_history_adopt/__init__.py", "v2_history/__init__.py"})
+         self.assertIn("v2_history_diagnose/diagnose.py", paths)
+         self.assertEqual({p for p in paths if p.startswith("v2_history_diagnose/")},
+                          {"v2_history_diagnose/" + f for f in FILES})
+ 
+     def test_everything_else_is_identical_to_the_code_start(self):
+-        out = self.git("diff", "--name-only", START, "HEAD", "--", *UNCHANGED_ROOTS, *UNCHANGED_DOCS)
++        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
++               "v2_history_ops/chain.py", "v2_history_restore/points.py",
++               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")
++        out = self.git("diff", "--name-only", START, "HEAD", "--", *UNCHANGED_ROOTS, *UNCHANGED_DOCS,
++                       *[":(exclude)%s" % p for p in b5b])
+         self.assertEqual(out.stdout.strip(), "")
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_diagnose",
+-                       *[":(exclude)%s" % p for p in SCOPE_TESTS])
++                       ":(exclude)tests/v2_history_adopt", *[":(exclude)%s" % p for p in SCOPE_TESTS + b5b])
+         self.assertEqual(out.stdout.strip(), "")
+-        out = self.git("diff", "--name-only", START, "HEAD", "--", "docs", ":(exclude)%s" % RESULT_DOC)
++        out = self.git("diff", "--name-only", START, "HEAD", "--", "docs", ":(exclude)%s" % RESULT_DOC,
++                       ":(exclude)docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")
+         self.assertEqual(out.stdout.strip(), "")
+ 
+     def test_the_b4_runtime_tests_and_result_are_blob_identical_to_the_code_start(self):
+@@ -503,6 +779,9 @@ class FilesChanged(unittest.TestCase):
+         for _mode, kind, blob, path in rows:
+             self.assertEqual(kind, "blob")
+             here = subprocess.run(("git", "-C", ROOT, "hash-object", path), capture_output=True, text=True, timeout=60)
++            if path == "v2_history_restore/points.py":                         # changed by B-5b
++                self.assertNotEqual(here.stdout.strip(), blob, path)
++                continue
+             if path == corrected:
+                 seen_corrected = True
+                 self.assertNotEqual(here.stdout.strip(), blob, path)
+@@ -520,7 +799,10 @@ class FilesChanged(unittest.TestCase):
+         self.assertEqual(listing.returncode, 0, listing.stderr)
+         rows = [line.split() for line in listing.stdout.splitlines()]
+         self.assertGreater(len(rows), 150)
+-        corrected = set(SCOPE_TESTS)
++        corrected = set(SCOPE_TESTS) | {"v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py",
++                                        "v2_history/restore.py", "v2_history_ops/chain.py",
++                                        "tests/v2_history/test_h02_values_codec.py",
++                                        "tests/v2_history/test_h14_scope_and_stop.py"}
+         for _mode, kind, blob, path in rows:
+             if path in corrected:
+                 continue
+@@ -550,7 +832,10 @@ class FilesChanged(unittest.TestCase):
+                 new = f.read()
+             names = lambda text: [n.name for n in ast.walk(ast.parse(text)) if isinstance(n, ast.FunctionDef)]  # noqa: E731
+             self.assertEqual(names(old), names(new), path)
+-            self.assertEqual(len(re.findall(r"self\.assert\w*\(", new)), len(re.findall(r"self\.assert\w*\(", old)), path)
++            # counted as calls (B-5b): the pinned text of the r4_09 lists quotes assert calls of the older tests
++            asserts = lambda text: sum(1 for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Call)  # noqa: E731
++                                       and isinstance(n.func, ast.Attribute) and n.func.attr.startswith("assert"))
++            self.assertEqual(asserts(new), asserts(old), path)
+             for word in ("skip", "expectedFailure", "@unittest", "pass\n", "return\n"):
+                 self.assertEqual(new.count(word), old.count(word), "%s: %r" % (path, word))
+             self.assertEqual(new.count("START"), old.count("START"), path)
+@@ -587,18 +872,20 @@ class FilesChanged(unittest.TestCase):
+             self.assertTrue(any(a <= ln <= b for a, b in spans), "%s: line %d is outside the allowed places" % (path, ln))
+ 
+     def test_each_edit_lies_in_the_allowed_places(self):
+-        funcs, _ = self.spans(SCOPE_TESTS[0])
++        funcs, assigns = self.spans(SCOPE_TESTS[0])
+         self.assert_inside(SCOPE_TESTS[0], [funcs["test_only_the_allowed_paths_differ"],
+-                                             funcs["test_existing_tests_and_fixtures_are_untouched"]])
++                                             funcs["test_existing_tests_and_fixtures_are_untouched"],
++                                             assigns["KIND_CONSTANTS"]])
+         funcs, _ = self.spans(SCOPE_TESTS[1])
+         self.assert_inside(SCOPE_TESTS[1], [funcs[n] for n in (
+             "test_only_the_allowed_paths_differ", "test_no_existing_runtime_old_test_fixture_or_setting_differs",
+             "test_the_old_range_test_differs_in_exactly_the_three_allowed_places")])
+         funcs, assigns = self.spans(SCOPE_TESTS[2])
+         self.assert_inside(SCOPE_TESTS[2], [assigns[n] for n in (
+-            "B17_REMOVED", "B17_ADDED", "B17_HUNKS", "R307_REMOVED", "R307_ADDED", "R307_HUNKS")] + [
++            "B17_REMOVED", "B17_ADDED", "B17_HUNKS", "R307_REMOVED", "R307_ADDED", "R307_HUNKS", "KIND_CONSTANTS")] + [
+             funcs["test_only_the_allowed_paths_differ"],
+-            funcs["test_no_existing_runtime_old_test_fixture_or_setting_differs"]])
++            funcs["test_no_existing_runtime_old_test_fixture_or_setting_differs"],
++            funcs["test_nothing_of_the_later_stages"]])
+ 
+     def test_the_module_functions_of_the_b4_judgement_are_untouched(self):
+         old = self.git("show", "%s:%s" % (START, SCOPE_TESTS[2])).stdout
+diff --git a/tests/v2_history_ops/test_b17_scope.py b/tests/v2_history_ops/test_b17_scope.py
+index c6b0ee1..600e184 100644
+--- a/tests/v2_history_ops/test_b17_scope.py
++++ b/tests/v2_history_ops/test_b17_scope.py
+@@ -36,7 +36,7 @@ ALLOWED_NAMES = {
+     "v2_core": {"SessionList", "MarketState", "parse_iso_date"},
+ }
+ KIND_CONSTANTS = {"ACK", "APPLY", "DECLARE_MISSING", "GENESIS", "RECOVERY_RESTORE", "RESTART_UNKNOWN",
+-                  "SCHEMA_MIGRATION"}
++                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}
+ FORBIDDEN_IMPORTS = {"os", "sys", "socket", "subprocess", "threading", "multiprocessing", "time", "random", "secrets",
+                      "pathlib", "io", "shutil", "tempfile", "urllib", "http", "asyncio", "logging", "signal", "ssl",
+                      "ctypes", "sqlite3", "glob", "fcntl", "msvcrt", "hashlib", "uuid", "webbrowser", "smtplib",
+@@ -180,19 +180,24 @@ class FilesChanged(unittest.TestCase):
+         out = self.git("diff", "--name-status", START, "HEAD")
+         self.assertEqual(out.returncode, 0, out.stderr)
+         changed = [line.split("\t") for line in out.stdout.splitlines()]
++        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
++               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")
+         for status, path in changed:
+             allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/",
+                                         "v2_history_restart/", "tests/v2_history_restart/",
+                                         "v2_history_restore/", "tests/v2_history_restore/",
+-                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))
++                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",
++                                        "v2_history_adopt/", "tests/v2_history_adopt/"))
++                       or path in b5b
+                        or path in ("v2_recovery/facts.py", "v2_recovery/commands.py",
+                                    "docs/implementation/V2_RECOVERY_S3B2_RESULT.md",
+                                    "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",
+                                    "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",
+-                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))
++                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",
++                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))
+             self.assertTrue(allowed, "unexpected change: %s %s" % (status, path))
+             if not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")):
+-                if path != "v2_recovery/commands.py":
++                if path != "v2_recovery/commands.py" and path not in b5b:
+                     self.assertEqual(status, "A", path)                       # new files only
+                 else:
+                     self.assertEqual(status, "M", path)
+@@ -203,6 +208,7 @@ class FilesChanged(unittest.TestCase):
+             self.assertFalse(path.endswith("__init__.py") and path != "v2_history_restart/__init__.py"
+                              and path != "v2_history_restore/__init__.py"
+                              and path != "v2_history_diagnose/__init__.py"
++                             and path not in ("v2_history_adopt/__init__.py", "v2_history/__init__.py")
+                              and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")), path)
+ 
+     def test_commands_py_changes_are_the_two_allowed_ones_only(self):
+@@ -220,7 +226,9 @@ class FilesChanged(unittest.TestCase):
+     def test_existing_tests_and_fixtures_are_untouched(self):
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops",
+                        ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",
+-                       ":(exclude)tests/v2_history_diagnose")
++                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",
++                       ":(exclude)tests/v2_history/test_h02_values_codec.py",
++                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")
+         self.assertEqual(out.stdout.strip(), "")
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "main.py", "requirements.txt", ".github", "research",
+                        "docs/STATUS.md", "docs/ROADMAP.md", "CLAUDE.md")
+diff --git a/tests/v2_history_restart/test_r3_07_scope.py b/tests/v2_history_restart/test_r3_07_scope.py
+index f3eedcc..49d432b 100644
+--- a/tests/v2_history_restart/test_r3_07_scope.py
++++ b/tests/v2_history_restart/test_r3_07_scope.py
+@@ -186,62 +186,84 @@ class FilesChanged(unittest.TestCase):
+         out = self.git("diff", "--name-status", START, "HEAD")
+         self.assertEqual(out.returncode, 0, out.stderr)
+         changed = [line.split("\t") for line in out.stdout.splitlines()]
++        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
++               "v2_history_ops/chain.py", "tests/v2_history/test_h02_values_codec.py",
++               "tests/v2_history/test_h14_scope_and_stop.py")
+         for status, path in changed:
+-            if path == "tests/v2_history_ops/test_b17_scope.py":
++            if path == "tests/v2_history_ops/test_b17_scope.py" or path in b5b:
+                 self.assertEqual(status, "M", path)
+                 continue
+             allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/",
+                                        "v2_history_restore/", "tests/v2_history_restore/",
+-                                       "v2_history_diagnose/", "tests/v2_history_diagnose/")) or path in (
++                                       "v2_history_diagnose/", "tests/v2_history_diagnose/",
++                                       "v2_history_adopt/", "tests/v2_history_adopt/")) or path in (
+                 "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",
+-                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md")
++                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md", "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")
+             self.assertTrue(allowed, "unexpected change: %s %s" % (status, path))
+             self.assertEqual(status, "A", path)                          # new files only
+         paths = {p for _s, p in changed}
+         self.assertIn("v2_history_restart/__init__.py", paths)
+         self.assertEqual({p for p in paths if p.endswith("__init__.py")},
+                          {"v2_history_restart/__init__.py", "v2_history_restore/__init__.py",
+-                          "v2_history_diagnose/__init__.py"})
++                          "v2_history_diagnose/__init__.py", "v2_history_adopt/__init__.py",
++                          "v2_history/__init__.py"})
+ 
+     def test_no_existing_runtime_old_test_fixture_or_setting_differs(self):
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "v2_core", "v2_persistence", "v2_recovery",
+                        "v2_history", "v2_history_ops", "main.py", "requirements.txt", ".github", "research",
+                        "docs/STATUS.md", "docs/ROADMAP.md", "docs/MODEL_POLICY.md", "CLAUDE.md",
+-                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md")
++                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md", ":(exclude)v2_history/__init__.py",
++                       ":(exclude)v2_history/values.py", ":(exclude)v2_history/view.py",
++                       ":(exclude)v2_history/restore.py", ":(exclude)v2_history_ops/chain.py")
+         self.assertEqual(out.stdout.strip(), "")
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart",
+-                       ":(exclude)tests/v2_history_restore", ":(exclude)tests/v2_history_diagnose")
+-        self.assertEqual(out.stdout.split(), ["tests/v2_history_ops/test_b17_scope.py"])
++                       ":(exclude)tests/v2_history_restore", ":(exclude)tests/v2_history_diagnose",
++                       ":(exclude)tests/v2_history_adopt")
++        self.assertEqual(out.stdout.split(), ["tests/v2_history/test_h02_values_codec.py",
++                                              "tests/v2_history/test_h14_scope_and_stop.py",
++                                              "tests/v2_history_ops/test_b17_scope.py"])
+ 
+     def test_the_old_range_test_differs_in_exactly_the_three_allowed_places(self):
+         out = self.git("diff", "-U0", START, "HEAD", "--", "tests/v2_history_ops/test_b17_scope.py")
+         lines = out.stdout.splitlines()
+         removed = [l[1:] for l in lines if l.startswith("-") and not l.startswith("---")]
+         added = [l[1:] for l in lines if l.startswith("+") and not l.startswith("+++")]
+-        # point 1 touches two separate lines of the allowed list, so git shows four hunks for the three points
+-        self.assertEqual(sum(1 for l in lines if l.startswith("@@")), 4)
++        # four hunks for the three points of B-3; B-5b adds the kind constant and its edits of the two methods
++        self.assertEqual(sum(1 for l in lines if l.startswith("@@")), 7)
+         self.assertEqual(removed, [
++            '                  "SCHEMA_MIGRATION"}',
+             '            allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/"))',
+             '                                   "docs/implementation/V2_RECOVERY_S3B2_RESULT.md"))',
++            '                if path != "v2_recovery/commands.py":',
+             '            self.assertFalse(path.endswith("__init__.py") and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")),',
+             '                             path)',
+             '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops")'])
+         self.assertEqual(added, [
++            '                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}',
++            '        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",',
++            '               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")',
+             '            allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/",',
+             '                                        "v2_history_restart/", "tests/v2_history_restart/",',
+             '                                        "v2_history_restore/", "tests/v2_history_restore/",',
+-            '                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))',
++            '                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",',
++            '                                        "v2_history_adopt/", "tests/v2_history_adopt/"))',
++            '                       or path in b5b',
+             '                                   "docs/implementation/V2_RECOVERY_S3B2_RESULT.md",',
+             '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",',
+             '                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+-            '                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))',
++            '                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",',
++            '                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))',
++            '                if path != "v2_recovery/commands.py" and path not in b5b:',
+             '            self.assertFalse(path.endswith("__init__.py") and path != "v2_history_restart/__init__.py"',
+             '                             and path != "v2_history_restore/__init__.py"',
+             '                             and path != "v2_history_diagnose/__init__.py"',
++            '                             and path not in ("v2_history_adopt/__init__.py", "v2_history/__init__.py")',
+             '                             and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")), path)',
+             '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops",',
+             '                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",',
+-            '                       ":(exclude)tests/v2_history_diagnose")'])
++            '                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",',
++            '                       ":(exclude)tests/v2_history/test_h02_values_codec.py",',
++            '                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")'])
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/tests/v2_history_restore/test_r4_09_scope.py b/tests/v2_history_restore/test_r4_09_scope.py
+index c5e8508..92bc2ee 100644
+--- a/tests/v2_history_restore/test_r4_09_scope.py
++++ b/tests/v2_history_restore/test_r4_09_scope.py
+@@ -35,7 +35,7 @@ ALLOWED_NAMES = {
+     "v2_core.engine": {"evaluate_day"},
+ }
+ KIND_CONSTANTS = {"ACK", "APPLY", "DECLARE_MISSING", "GENESIS", "RECOVERY_RESTORE", "RESTART_UNKNOWN",
+-                  "SCHEMA_MIGRATION"}
++                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}
+ FORBIDDEN_IMPORTS = {"os", "sys", "socket", "subprocess", "threading", "multiprocessing", "time", "random", "secrets",
+                      "pathlib", "io", "shutil", "tempfile", "urllib", "http", "asyncio", "logging", "signal", "ssl",
+                      "ctypes", "sqlite3", "glob", "fcntl", "msvcrt", "hashlib", "uuid", "webbrowser", "smtplib",
+@@ -76,48 +76,114 @@ def allowed_path(path):
+ 
+ 
+ # --- generated from the committed diff of the code start (d82a5ce) to the corrected files; pinned as text ---
+-B17_REMOVED = ['                                        "v2_history_restart/", "tests/v2_history_restart/"))',
++B17_REMOVED = ['                  "SCHEMA_MIGRATION"}',
++ '                                        "v2_history_restart/", "tests/v2_history_restart/"))',
+  '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md"))',
++ '                if path != "v2_recovery/commands.py":',
+  '                       ":(exclude)tests/v2_history_restart")']
+-B17_ADDED = ['                                        "v2_history_restart/", "tests/v2_history_restart/",',
++B17_ADDED = ['                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}',
++ '        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",',
++ '               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")',
++ '                                        "v2_history_restart/", "tests/v2_history_restart/",',
+  '                                        "v2_history_restore/", "tests/v2_history_restore/",',
+- '                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))',
++ '                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",',
++ '                                        "v2_history_adopt/", "tests/v2_history_adopt/"))',
++ '                       or path in b5b',
+  '                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",',
+  '                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+- '                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))',
++ '                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",',
++ '                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))',
++ '                if path != "v2_recovery/commands.py" and path not in b5b:',
+  '                             and path != "v2_history_restore/__init__.py"',
+  '                             and path != "v2_history_diagnose/__init__.py"',
++ '                             and path not in ("v2_history_adopt/__init__.py", "v2_history/__init__.py")',
+  '                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",',
+- '                       ":(exclude)tests/v2_history_diagnose")']
+-B17_HUNKS = ['@@ -185 +185,3', '@@ -188 +190,3', '@@ -199,0 +204,2', '@@ -216 +222,2']
+-R307_REMOVED = ['            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/")) or path in (',
++ '                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",',
++ '                       ":(exclude)tests/v2_history/test_h02_values_codec.py",',
++ '                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")']
++B17_HUNKS = ['@@ -39 +39',
++ '@@ -182,0 +183,2',
++ '@@ -185 +187,5',
++ '@@ -188 +194,4',
++ '@@ -191 +200',
++ '@@ -199,0 +209,3',
++ '@@ -216 +228,4']
++R307_REMOVED = ['            if path == "tests/v2_history_ops/test_b17_scope.py":',
++ '            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/")) or path in (',
+  '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",)',
+  '        self.assertEqual({p for p in paths if p.endswith("__init__.py")}, {"v2_history_restart/__init__.py"})',
++ '                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md")',
+  '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart")',
++ '        self.assertEqual(out.stdout.split(), ["tests/v2_history_ops/test_b17_scope.py"])',
++ '        # point 1 touches two separate lines of the allowed list, so git shows four hunks for the three points',
++ '        self.assertEqual(sum(1 for l in lines if l.startswith("@@")), 4)',
+  '            \'                                        "v2_history_restart/", "tests/v2_history_restart/"))\',',
+  '            \'                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md"))\',',
+  '            \'                       ":(exclude)tests/v2_history_restart")\'])']
+-R307_ADDED = ['            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/",',
++R307_ADDED = ['        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",',
++ '               "v2_history_ops/chain.py", "tests/v2_history/test_h02_values_codec.py",',
++ '               "tests/v2_history/test_h14_scope_and_stop.py")',
++ '            if path == "tests/v2_history_ops/test_b17_scope.py" or path in b5b:',
++ '            allowed = path.startswith(("v2_history_restart/", "tests/v2_history_restart/",',
+  '                                       "v2_history_restore/", "tests/v2_history_restore/",',
+- '                                       "v2_history_diagnose/", "tests/v2_history_diagnose/")) or path in (',
++ '                                       "v2_history_diagnose/", "tests/v2_history_diagnose/",',
++ '                                       "v2_history_adopt/", "tests/v2_history_adopt/")) or path in (',
+  '                "docs/implementation/V2_RECOVERY_S3B3_RESULT.md", "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",',
+- '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md")',
++ '                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md", "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")',
+  '        self.assertEqual({p for p in paths if p.endswith("__init__.py")},',
+  '                         {"v2_history_restart/__init__.py", "v2_history_restore/__init__.py",',
+- '                          "v2_history_diagnose/__init__.py"})',
++ '                          "v2_history_diagnose/__init__.py", "v2_history_adopt/__init__.py",',
++ '                          "v2_history/__init__.py"})',
++ '                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md", ":(exclude)v2_history/__init__.py",',
++ '                       ":(exclude)v2_history/values.py", ":(exclude)v2_history/view.py",',
++ '                       ":(exclude)v2_history/restore.py", ":(exclude)v2_history_ops/chain.py")',
+  '        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restart",',
+- '                       ":(exclude)tests/v2_history_restore", ":(exclude)tests/v2_history_diagnose")',
++ '                       ":(exclude)tests/v2_history_restore", ":(exclude)tests/v2_history_diagnose",',
++ '                       ":(exclude)tests/v2_history_adopt")',
++ '        self.assertEqual(out.stdout.split(), ["tests/v2_history/test_h02_values_codec.py",',
++ '                                              "tests/v2_history/test_h14_scope_and_stop.py",',
++ '                                              "tests/v2_history_ops/test_b17_scope.py"])',
++ '        # four hunks for the three points of B-3; B-5b adds the kind constant and its edits of the two methods',
++ '        self.assertEqual(sum(1 for l in lines if l.startswith("@@")), 7)',
++ '            \'                  "SCHEMA_MIGRATION"}\',',
++ '            \'                if path != "v2_recovery/commands.py":\',',
++ '            \'                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}\',',
++ '            \'        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", '
++ '"v2_history/restore.py",\',',
++ '            \'               "tests/v2_history/test_h02_values_codec.py", '
++ '"tests/v2_history/test_h14_scope_and_stop.py")\',',
+  '            \'                                        "v2_history_restart/", "tests/v2_history_restart/",\',',
+  '            \'                                        "v2_history_restore/", "tests/v2_history_restore/",\',',
+- '            \'                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))\',',
++ '            \'                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",\',',
++ '            \'                                        "v2_history_adopt/", "tests/v2_history_adopt/"))\',',
++ "            '                       or path in b5b',",
+  '            \'                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",\',',
+  '            \'                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",\',',
+- '            \'                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))\',',
++ '            \'                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",\',',
++ '            \'                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))\',',
++ '            \'                if path != "v2_recovery/commands.py" and path not in b5b:\',',
+  '            \'                             and path != "v2_history_restore/__init__.py"\',',
+  '            \'                             and path != "v2_history_diagnose/__init__.py"\',',
++ '            \'                             and path not in ("v2_history_adopt/__init__.py", '
++ '"v2_history/__init__.py")\',',
+  '            \'                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",\',',
+- '            \'                       ":(exclude)tests/v2_history_diagnose")\'])']
+-R307_HUNKS = ['@@ -193,2 +193,5', '@@ -199 +202,3', '@@ -207 +212,2', '@@ -225 +231,3', '@@ -227 +235,3', '@@ -228,0 +239,2', '@@ -231 +243,2']
++ '            \'                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",\',',
++ '            \'                       ":(exclude)tests/v2_history/test_h02_values_codec.py",\',',
++ '            \'                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")\'])']
++R307_HUNKS = ['@@ -188,0 +189,3',
++ '@@ -190 +193',
++ '@@ -193,2 +196,6',
++ '@@ -199 +206,4',
++ '@@ -205 +215,3',
++ '@@ -207,2 +219,6',
++ '@@ -215,2 +231,2',
++ '@@ -217,0 +234',
++ '@@ -219,0 +237',
++ '@@ -223,0 +242,3',
++ '@@ -225 +246,5',
++ '@@ -227 +252,5',
++ '@@ -228,0 +258,3',
++ '@@ -231 +263,4']
+ 
+ 
+ class Runtime(unittest.TestCase):
+@@ -195,7 +261,7 @@ class Runtime(unittest.TestCase):
+                     values.append(node.value)
+                 for v in values:
+                     checked += 1
+-                    if v in KIND_CONSTANTS:
++                    if v in KIND_CONSTANTS or v == "restore_before_adoption":      # the B-5b refusal code
+                         continue
+                     for word in LATER_STAGE_WORDS:
+                         self.assertNotIn(word, v.lower(), "%s: %s" % (fname, v))
+@@ -346,18 +412,23 @@ class FilesChanged(unittest.TestCase):
+         self.assertEqual(out.returncode, 0, out.stderr)
+         changed = [line.split("\t") for line in out.stdout.splitlines()]
+         modified = sorted(p for s, p in changed if s == "M")
+-        self.assertEqual(modified, sorted(SCOPE_TESTS))                            # the only files that are modified
++        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
++               "v2_history_ops/chain.py", "tests/v2_history/test_h02_values_codec.py",
++               "tests/v2_history/test_h14_scope_and_stop.py")
++        self.assertEqual(modified, sorted(SCOPE_TESTS + b5b))                      # the only files that are modified
+         for status, path in changed:
+-            if path in SCOPE_TESTS:
++            if path in SCOPE_TESTS or path in b5b:
+                 continue
+-            new_b5a = path.startswith(("v2_history_diagnose/", "tests/v2_history_diagnose/")) or path == \
+-                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"
++            new_b5a = path.startswith(("v2_history_diagnose/", "tests/v2_history_diagnose/",
++                                       "v2_history_adopt/", "tests/v2_history_adopt/")) or path in (
++                "docs/implementation/V2_RECOVERY_S3B5_RESULT.md", "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md")
+             self.assertTrue(allowed_path(path) or new_b5a, "unexpected change: %s %s" % (status, path))
+             self.assertEqual(status, "A", path)                                      # new files only
+         paths = {p for _s, p in changed}
+         self.assertIn("v2_history_restore/__init__.py", paths)
+         self.assertEqual({p for p in paths if p.endswith("__init__.py")},
+-                         {"v2_history_restore/__init__.py", "v2_history_diagnose/__init__.py"})
++                         {"v2_history_restore/__init__.py", "v2_history_diagnose/__init__.py",
++                          "v2_history_adopt/__init__.py", "v2_history/__init__.py"})
+ 
+     def test_the_b3_runtime_tests_and_result_are_the_same_as_the_code_start(self):
+         # read directly: the blob of every file at the code start against the file that is there now
+@@ -381,11 +452,15 @@ class FilesChanged(unittest.TestCase):
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "v2_core", "v2_persistence", "v2_recovery",
+                        "v2_history", "v2_history_ops", "v2_history_restart", "main.py", "requirements.txt", ".github",
+                        "research", "docs/STATUS.md", "docs/ROADMAP.md", "docs/MODEL_POLICY.md", "CLAUDE.md",
+-                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md", "docs/implementation/V2_RECOVERY_S3B3_RESULT.md")
++                       "docs/implementation/V2_RECOVERY_S3B2_RESULT.md", "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",
++                       ":(exclude)v2_history/__init__.py", ":(exclude)v2_history/values.py",
++                       ":(exclude)v2_history/view.py", ":(exclude)v2_history/restore.py",
++                       ":(exclude)v2_history_ops/chain.py")
+         self.assertEqual(out.stdout.strip(), "")
+         out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_restore",
+-                       ":(exclude)tests/v2_history_diagnose")
+-        self.assertEqual(sorted(out.stdout.split()), sorted(SCOPE_TESTS))
++                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt")
++        self.assertEqual(sorted(out.stdout.split()), sorted(SCOPE_TESTS + ("tests/v2_history/test_h02_values_codec.py",
++                                                                           "tests/v2_history/test_h14_scope_and_stop.py")))
+ 
+     def diff_lines(self, path):
+         out = self.git("diff", "-U0", START, "HEAD", "--", path)
+diff --git a/v2_history/__init__.py b/v2_history/__init__.py
+index 8201d67..0dda426 100644
+--- a/v2_history/__init__.py
++++ b/v2_history/__init__.py
+@@ -10,11 +10,11 @@ from .genesis import make_history_genesis
+ from .migrate import (CONFIRMED_IN_MEMORY, READY, MigrationConfirmResult, MigrationPlan, confirm_migration_plan,
+                       migrated_sources, prepare_migration_plan)
+ from .validate import Boundary, HistoryCheck, validate_history
+-from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, KINDS, RECOVERY_RESTORE, RESTART_UNKNOWN,
+-                     SCHEMA_MIGRATION, SCHEMA_VERSION_V2, History, decode_history, encode_history)
++from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, KINDS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
++                     RESTART_UNKNOWN, SCHEMA_MIGRATION, SCHEMA_VERSION_V2, History, decode_history, encode_history)
+ 
+ __all__ = ["History", "encode_history", "decode_history", "validate_history", "make_history_genesis",
+            "migrated_sources", "prepare_migration_plan", "confirm_migration_plan", "HistoryCheck", "Boundary",
+            "MigrationPlan", "MigrationConfirmResult", "SCHEMA_VERSION_V2", "KINDS", "GENESIS", "APPLY", "ACK",
+-           "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "READY",
+-           "CONFIRMED_IN_MEMORY"]
++           "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION",
++           "READY", "CONFIRMED_IN_MEMORY"]
+diff --git a/v2_history/restore.py b/v2_history/restore.py
+index ce85957..2953753 100644
+--- a/v2_history/restore.py
++++ b/v2_history/restore.py
+@@ -8,7 +8,8 @@ from v2_recovery.common import is_requested_text, valid_request_id
+ 
+ from .common import basis_request_hash, is_date, is_hex64, is_int, same
+ from .errors import history_invalid
+-from .values import ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN, SCHEMA_MIGRATION
++from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
++                     RESTART_UNKNOWN, SCHEMA_MIGRATION)
+ 
+ REASON_RESTORE = "RESTORE_VERIFIED_RECORD"
+ BASIS_KEYS = frozenset(["request_id", "restore_point", "ops", "check_d", "reason_code", "requested_at"])
+@@ -98,6 +99,9 @@ def _check_one(events, parents, migration_seq, k, rec, replayed):
+         raise _bad("restore_point_not_effective")
+     if migration_seq is not None and point < migration_seq:
+         raise _bad("restore_before_migration")
++    adoptions = [s for s in chain if events[s]["kind"] == RECOVERY_PREFIX_ADOPTION]
++    if adoptions and point < adoptions[-1]:
++        raise _bad("restore_before_adoption")
+     p_rec = events[point]
+     if (p_rec["kind"] in (ACK, DECLARE_MISSING) and is_int(p_rec["command_index"])
+             and is_int(p_rec["command_count"]) and p_rec["command_index"] < p_rec["command_count"] - 1):
+diff --git a/v2_history/values.py b/v2_history/values.py
+index 6d9216a..7e30df0 100644
+--- a/v2_history/values.py
++++ b/v2_history/values.py
+@@ -21,9 +21,9 @@ DECLARE_MISSING = "DECLARE_MISSING"
+ RESTART_UNKNOWN = "RESTART_UNKNOWN"
+ RECOVERY_RESTORE = "RECOVERY_RESTORE"
+ SCHEMA_MIGRATION = "SCHEMA_MIGRATION"
+-KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION)
+-# Designed for B-5 and refused here (unsupported_event).
+ RECOVERY_PREFIX_ADOPTION = "RECOVERY_PREFIX_ADOPTION"
++KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION,
++         RECOVERY_PREFIX_ADOPTION)
+ 
+ HEADER_KEYS = frozenset(["schema_version", "core_sha", "head_seq", "head_hash", "current_state", "events"])
+ _RESOLUTION_KEYS = frozenset([
+@@ -41,10 +41,13 @@ MIGRATION_KEYS = frozenset([
+     "kind", "seq", "parent_seq", "parent_hash", "source", "source_resolutions", "event_map", "resolution_map",
+     "request_id", "request_hash", "request_basis", "reason_code", "requested_at", "ledger_digest", "state_after",
+     "event_hash"])
++ADOPTION_KEYS = frozenset([
++    "kind", "seq", "parent_seq", "parent_hash", "evidence", "request_id", "request_hash", "request_basis",
++    "reason_code", "requested_at", "state_after", "event_hash"])
+ RECORD_KEYS = {
+     GENESIS: frozenset(GENESIS_KEYS), APPLY: frozenset(APPLY_KEYS), ACK: _RESOLUTION_KEYS,
+     DECLARE_MISSING: _RESOLUTION_KEYS, RESTART_UNKNOWN: RESTART_KEYS, RECOVERY_RESTORE: RESTORE_KEYS,
+-    SCHEMA_MIGRATION: MIGRATION_KEYS}
++    SCHEMA_MIGRATION: MIGRATION_KEYS, RECOVERY_PREFIX_ADOPTION: ADOPTION_KEYS}
+ 
+ _MAX_DEPTH = 40
+ 
+diff --git a/v2_history/view.py b/v2_history/view.py
+index 2622caf..44e759c 100644
+--- a/v2_history/view.py
++++ b/v2_history/view.py
+@@ -17,18 +17,23 @@ from v2_recovery.common import is_requested_text, valid_request_id
+ 
+ from .common import basis_request_hash, is_date, is_hex64, is_int, same
+ from .errors import history_invalid
+-from .values import ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN, SCHEMA_MIGRATION
++from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
++                     RESTART_UNKNOWN, SCHEMA_MIGRATION)
+ 
+ VARIANTS = ("ADDED", "CHANGED", "ROW_REMOVED", "LATE")
+ REASON_ACK = "ACKNOWLEDGE_LEDGER_CHANGE"
+ REASON_DECLARE = "MARK_SESSION_MISSING"
+ REASON_BATCH = "RESOLUTION_BATCH"
+ REASON_RESTART = "RESTART_UNKNOWN"
++REASON_ADOPT = "ADOPT_VERIFIED_PREFIX"
+ 
+ COMMAND_KEYS = frozenset(["kind", "variant", "d", "record_fingerprints", "applied_ref", "missing_ref"])
+ BASIS_KEYS = frozenset(["request_id", "commands", "check_d", "reason_code", "requested_at"])
+ RESTART_BASIS_KEYS = frozenset(["request_id", "resume_after", "check_d", "reason_code", "requested_at"])
+ FLOOR_KEYS = frozenset(["last_apply_d", "last_declared_d", "prev_boundary"])
++EVIDENCE_KEYS = frozenset(["raw_sha256", "raw_size", "claimed_schema_version", "claimed_head_seq",
++                           "claimed_head_hash", "discarded_from_seq"])
++ADOPTION_BASIS_KEYS = frozenset(["request_id", "evidence", "reason_code", "requested_at"])
+ _CONFIRMED_INPUT_KEYS = frozenset(["decision", "row", "prev_row", "prev_session_date", "session_context"])
+ _REQUEST_LEVEL = ("request_id", "request_hash", "request_basis", "command_count", "ledger_digest", "requested_at")
+ 
+@@ -322,6 +327,9 @@ class _Walk:
+                 raise _bad("state_after")
+             self.claim_request(rec["request_id"])
+             return
++        if kind == RECOVERY_PREFIX_ADOPTION:
++            self.adoption_record(rec, parent_state)
++            return
+ 
+     def resolution_record(self, idx, rec, parent_state):
+         cmd = self.commands[idx - self.group_start]
+@@ -448,6 +456,31 @@ class _Walk:
+         self.seg_applies = []
+         self.seg_declares = []
+ 
++    def adoption_record(self, rec, parent_state):
++        """S3-B-5b: a control record that keeps the state and names the raw bytes whose verified prefix was adopted."""
++        self.claim_request(rec["request_id"])
++        if not same(rec["state_after"], parent_state):
++            raise _bad("state_after")
++        ev = rec["evidence"]
++        if (not isinstance(ev, dict) or set(ev) != EVIDENCE_KEYS or not is_hex64(ev["raw_sha256"])
++                or not is_int(ev["raw_size"]) or ev["raw_size"] < 1
++                or not is_int(ev["claimed_schema_version"]) or ev["claimed_schema_version"] != 2
++                or not (ev["claimed_head_seq"] is None or is_int(ev["claimed_head_seq"]))
++                or not (ev["claimed_head_hash"] is None or is_hex64(ev["claimed_head_hash"]))
++                or not is_int(ev["discarded_from_seq"]) or ev["discarded_from_seq"] != rec["seq"]):
++            raise _bad("adoption_evidence")
++        basis = rec["request_basis"]
++        if not isinstance(basis, dict) or set(basis) != ADOPTION_BASIS_KEYS:
++            raise _bad("request_basis")
++        if basis["request_id"] != rec["request_id"] or not same(basis["evidence"], ev):
++            raise _bad("request_basis")
++        if not is_requested_text(basis["requested_at"]) or basis["requested_at"] != rec["requested_at"]:
++            raise _bad("requested_at")
++        if basis["reason_code"] != REASON_ADOPT or rec["reason_code"] != REASON_ADOPT:
++            raise _bad("reason_code")
++        if not is_hex64(rec["request_hash"]) or rec["request_hash"] != basis_request_hash(basis):
++            raise _bad("request_hash")
++
+ 
+ def check_view(recs):
+     """Check one chain view (a list of record dicts, GENESIS first). Returns a ViewSummary."""
+diff --git a/v2_history_ops/chain.py b/v2_history_ops/chain.py
+index f94c26c..14e62ea 100644
+--- a/v2_history_ops/chain.py
++++ b/v2_history_ops/chain.py
+@@ -7,8 +7,8 @@ S1 projection of the current segment gives are used inside prepare_day only and
+ No rule, threshold or state formula is written here: S1 recalculates (project_segment, prepare_day), the S3-A rule
+ functions judge the ledger.
+ """
+-from v2_history.values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN,
+-                               SCHEMA_MIGRATION)
++from v2_history.values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
++                               RESTART_UNKNOWN, SCHEMA_MIGRATION)
+ from v2_history.view import Segment, project_segment
+ from v2_persistence.codec import canonical_json, sha256_text
+ from v2_persistence.events import make_apply_event, make_genesis_event, snapshot_of
+@@ -19,7 +19,8 @@ from .values import EffectiveView
+ NATIVE, MIGRATED, REPLAYED = "NATIVE", "MIGRATED", "REPLAYED"
+ RESOLUTION = "RESOLUTION"
+ _REQUEST_KINDS = {ACK: RESOLUTION, DECLARE_MISSING: RESOLUTION, RESTART_UNKNOWN: RESTART_UNKNOWN,
+-                  RECOVERY_RESTORE: RECOVERY_RESTORE, SCHEMA_MIGRATION: SCHEMA_MIGRATION}
++                  RECOVERY_RESTORE: RECOVERY_RESTORE, SCHEMA_MIGRATION: SCHEMA_MIGRATION,
++                  RECOVERY_PREFIX_ADOPTION: RECOVERY_PREFIX_ADOPTION}
+ 
+ 
+ def source_of(rec):
+diff --git a/v2_history_restore/points.py b/v2_history_restore/points.py
+index 1116545..eebdbdf 100644
+--- a/v2_history_restore/points.py
++++ b/v2_history_restore/points.py
+@@ -1,6 +1,6 @@
+ """The restore point and the operation list (design 4): the checks of the caller's request, in a fixed order."""
+ from v2_history.common import is_hex64, is_int
+-from v2_history.values import ACK, APPLY, DECLARE_MISSING, RECOVERY_RESTORE, RESTART_UNKNOWN
++from v2_history.values import ACK, APPLY, DECLARE_MISSING, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE, RESTART_UNKNOWN
+ 
+ from .errors import restore_invalid
+ from .values import DROP, OP_KEYS, OPS, POINT_KEYS, REAPPLY, REPLAY, RETIRE
+@@ -26,6 +26,9 @@ def check_point(check, view, events, point):
+     migration = view.migration_seq
+     if migration is not None and seq < migration:
+         raise restore_invalid("restore_point", "restore_before_migration")
++    taken = [s for s in effective if events[s]["kind"] == RECOVERY_PREFIX_ADOPTION]
++    if taken and seq < taken[-1]:
++        raise restore_invalid("restore_point", "restore_before_adoption")
+     rec = events[seq]
+     if rec["kind"] in (ACK, DECLARE_MISSING) and rec["command_index"] < rec["command_count"] - 1:
+         raise restore_invalid("restore_point", "restore_point_in_batch")
