@@ -296,3 +296,66 @@ B-2の173件とB-3の109件は、scope試験1本ずつの限定補正を含む�
 - 後工程でさらに新規ディレクトリを足すと、旧範囲試験（B-2・B-3・B-4のscope）の見直しが再び必要になる。先回りの許可や共通一覧への再編はしていない。
 - 未実施：Windows（実機・環境なし）、ユーザーのPC、物理電源断、`core.autocrlf=true`。Windowsでの新規N＋B-3＋B-2＋S3-A＋B-1＋S2専用4件の実行は未実施で、上の表に含めていない。他者の結果で代用していない。
 - B-5（破損診断・prefix採用）、S3-C、CONSUME、PR、マージ、Actions、本番、通知には進んでいない。
+
+## 10. レビュー指摘R-01〜R-03の限定修正（追記。§1〜§9は修正前の記録として変更しない）
+
+作成日：2026-11-02。Rockyが限定修正を承認（レビュー保存SHA 814b861、修正依頼書どおり）。担当：Claude Sonnet 5.5。
+ブランチ：`fix/v2-history-restore-plan-s3b4-review-20261102`（開始 5eede119b6729e288d188c67de900bcdfcb27cb1）。**試験対象SHA＝`00ae4b6a69e358fd868ce1f2e9b24b14519b507e`**（修正・試験・r4_sensitivity.py）。本文書だけを足した最終SHAは別に報告する（試験対象とは区別する）。PR・マージ・CONSUME・B-5・S3-Cには進んでいない。
+
+### 10.1 変更したファイル
+| ファイル | 内容 |
+|---|---|
+| `v2_history_restore/records.py` | 再生ACKの`changed_fields`を仮計算から外し、新関数`settle_changes`で最終記録と直接の元記録を比べて確定（比較項目は applied_ref／missing_ref／state_after のみ） |
+| `v2_history_restore/build.py` | `_chain_after`（参照hash確定）の直後に`settle_changes`を呼ぶ（1行＋import） |
+| `v2_history_restore/values.py` | `_display`内の行検査を`change_ok`として取り出し（動作は同じ）、`series_item_ok`を追加 |
+| `v2_history_restore/confirm.py` | `_form_ok`にchanges各行・series_inputs各項目・opsのfrom_seq下限・restore_pointのseq下限を追加。`_plan_basis`（段階1）で`_reapply_olds`を呼び、REAPPLYが指す記録の取得をstale/現在入力より前へ |
+| `tests/v2_history_restore/test_r4_10_review_fixes.py` | 新規21件（R-01 5、R-02 8、R-03 8） |
+| `tests/v2_history_restore/r4_sensitivity.py` | 4件の等価判断を訂正、M16aの根拠を狭め、修正を1つずつ戻す10変異（F01a〜F02h）を追加 |
+
+既存の144件の試験本体、scope試験、既存パッケージ、フィクスチャ、スキーマ、公開名・引数、依存・設定・workflowは変更していない。新しいランタイムファイルも作っていない。
+
+### 10.2 R-01（差の誤表示）
+- 原因：`_replay_resolution`が参照hashを確定する前（`_chain_after`の前）に`applied_ref`／`missing_ref`を旧記録と比べていた。
+- 修正：hash確定後の最終記録と元記録を、許された3項目だけで比べる。seq/parent/event_hash等の連結上の差は足していない。
+- 結果：Pに残すAPPLYを指すADDED ACK・LATE ACKは`['state_after']`だけになる（修正前は`applied_ref`／`missing_ref`も表示）。REAPPLYされた日を指す参照（`ex_ack_between`）は`['applied_ref','state_after']`のまま表示される。
+- 候補Historyは変わらない：3ケースの候補digestが修正前（5eede11で同じ入力を実行）と修正後で完全一致（applied_ref `79fec801…`、missing_ref `eda9b04e…`、写像あり `cfa1d1e3…`）。独立ビルダ（oracle）の記録とも一致。changesが正しくなるため`plan_hash`は変わる（変わるのは誤表示が消えた2ケース。写像ありは変わらない）。
+
+### 10.3 R-02（検査順序）
+- 原因：changes／series_inputsはlistかどうかだけを見ており、REAPPLYのfrom_seq抽出（`_reapply_olds`）は現在履歴・sessions・台帳の検査の後だった。
+- 修正：plan自身の形（changes行の鍵・op列挙・厳密整数・非負・日付・bool/None・変更項目名、series_inputs項目の鍵・日付・行、opsとrestore_pointのseq下限、REAPPLYが指す記録）を段階1で検査し、失敗は`history_plan_mismatch`/`plan`に固定。確認Aと再確認Bで共通。正しいplan＋不正入力では従来の入力固有エラー（`sessions_invalid`、`record_id_invalid`）のまま。JSON深さ・コピー・表示の防護は変更していない。
+- 結果：レビューの再現10観測（changes 3形×A/B、負のfrom_seq×A/B）はすべて`history_plan_mismatch`。生の`KeyError`／`IndexError`／`TypeError`は出ない（`CoreError`のみを許す試験ヘルパで確認）。
+
+### 10.4 R-03（等価判断の訂正）
+- **旧§7の「等価」とした4件（M09c／M12b／M16d／M17c）の判断は誤りだった。** 現在のカレンダー（注入sessions）が元の履歴作成時から変わる入力を考えていなかった。旧144件がこれらを検出したとは数え直さない（47eb7c5の実行では未検出のまま「等価」と記録した）。
+- 設計§10/P-01の「DROPなしなら必ずsame=true」という説明も誤りで、撤回する。実装の条件「DROPなし、かつ全REAPPLYがsame=true」は変更していない。DROPなしを一律に拒否する変更もしていない。
+- 4反例を新回帰に固定（合成入力。実取引所のカレンダー変更の主張ではない）：
+  - M09c：現在sessionsに新しいD1とD1の有効decisionを足し、D3をREAPPLY・RESTARTをDROP → `restore_requires_consume`（変異では`late_observation`）。
+  - M12b：宣言D1・D2、現在sessionsからD1を除き、D1 DROP・D2 REPLAY → READY、新frontier＝D0（変異では`history_invalid/declare_frontier`）。確認A・BもCONFIRMED_IN_MEMORY→NO_CHANGE。
+  - M16d：`candidate_records=[{}]`＋hash付け直し＋`sessions=None` → `history_plan_mismatch`（変異では`sessions_invalid`）。
+  - M17c：現在sessionsにD1を足し（decisionなし）、D3をREAPPLYのみ → READY、same=false、changed_fields＝`['input_hash','skipped_sessions']`、確認A＝CONFIRMED_IN_MEMORY・B＝NO_CHANGE（変異では`restore_no_effect`）。
+
+### 10.5 実行結果（試験対象 00ae4b6、core.autocrlf=falseの別クリーンクローン、作業ツリー差分0、Linux 6.18）
+| 区分 | Python | core 197 | 保存170 | S2 113 | S3-A 176 | B-1 230 | B-2 173 | B-3 109 | B-4 165 |
+|---|---|---|---|---|---|---|---|---|---|
+| unshare -rn＋プロセス内socket禁止 | 3.10.20 | OK | OK | OK(skip 4) | OK | OK | OK | OK | OK |
+| 同上 | 3.11.18 | OK | OK | OK(skip 4) | OK | OK | OK | OK | OK |
+| 同上 | 3.12.3 | OK | OK | OK(skip 4) | OK | OK | OK | OK | OK |
+| 同上 | 3.13.18 | OK | OK | OK(skip 4) | OK | OK | OK | OK | OK |
+| プロセス内socket禁止のみ | 3.13.18 | OK | OK | OK(skip 4) | OK | OK | OK | OK | OK |
+
+`-B -W error::ResourceWarning`、5構成×8スイート＝40実行でfailures=0、errors=0、終了コード0。既存7スイートは1168件（1164合格＋Windows専用4 skip）で件数・結果とも変化なし。B-4は旧144件が無変更のまま全合格し、新規21件を加えて165件。Linux合計は1168＋165＝1333（Windows専用4 skip）。
+**実Windows・ユーザーPC・物理電源断・autocrlf=trueは実行していない（未実施）。** Windowsで比較する場合の期待値は836＋新規21＝857件（レビューのWindows 836件は修正前の標準試験）。
+レビュー付属の再現スクリプトを読み取り専用で、クリーンクローン（Python 3.12.3）に対し`--expect-fixed --mutations`で実行：**10観測すべて解消（unresolved 0）**、終了コード0。4つの単一変異（M09c／M12b／M16d／M17c）は元の正常動作と区別できた（DISTINGUISHED）。
+
+### 10.6 欠陥注入（修正後の全件再実行）
+修正後のクリーンクローンで`r4_sensitivity.py --control`を**全件**実行した（旧61変異＋修正を戻す10変異＋対照）。
+- 対照（欠陥なし）は全合格。
+- 旧61変異：**検出60、等価1（M16a）、未検出0、準備失敗0**。M09c／M12b／M16d／M17cは新しい`test_r4_10_review_fixes.py`が検出する（IDは旧と同じ。旧144件が検出したのではない）。
+- 修正を1つずつ戻す10変異（F01a／F01b／F02a〜F02h）：**10件すべて検出**。R-01は`test_kept_applied_ref_is_not_listed`ほか、R-02は`test_negative_or_wrong_from_seq_of_an_op`（F02a）、`test_bad_changes_rows_with_missing_sessions`／`test_other_bad_changes_rows`（F02b）、`test_bad_series_inputs_with_missing_sessions`（F02c・F02h）、`test_a_negative_restore_point_is_the_plans_own_error`（F02e）ほかが検出。
+- 合計：対照を除く71変異中、検出70・等価1。
+- M16aの根拠は「生成器を変えない単一変異に対し、独立ガード（validate_history）が残る」へ狭めた。**M16aを非等価と主張も、等価と証明もしていない**（分離する入力は見つからなかった、という記録に留める）。
+
+### 10.7 留保・未実施
+- 案a（DECLARE＋後のLATE ACK、ROW_REMOVED＋後のCHANGED ACKの同時再生拒否）、CONSUME保留、候補Historyまで、B-1〜B-3のランタイム固定は変更していない。
+- B-5・S3-C・保存・バッチ・耐久性・公開後の照合は未着手。PR・マージ・Actions・本番反映・送信なし。
+- 旧§7の「等価（argued）」の表記は修正前の記録として残してあり、正しい扱いは本§10.4・§10.6による。
