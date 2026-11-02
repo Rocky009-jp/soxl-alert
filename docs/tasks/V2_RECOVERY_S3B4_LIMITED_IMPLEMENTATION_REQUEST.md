@@ -1,7 +1,7 @@
 # V2 S3-B-4 復元計画・確認 限定実装依頼書
 
-作成日：2026-11-02（日本時間）。版：第1版。
-状態：**レビュー待ち・未承認。本書の保存だけでは実装を始めない。**
+作成日：2026-11-02（日本時間）。版：第2版（初版レビューの通常3件・提案5件を反映、§10）。
+状態：**第2版・レビュー待ち・未承認。本書の保存だけでは実装を始めない。**
 
 ## 1. 固定入力と実装開始条件
 
@@ -10,6 +10,8 @@
 | 実装開始点 | **d82a5ced64658c2e736b82b1a2f1925636055417**（feat/v2-history-restart-s3b3-20261102） |
 | コード・試験の同値版 | 7d75ea5dbee1f6cef9912fceced2c2be2e48fad9。d82との差はB-3結果文書1本 |
 | 対になる設計 | docs/specs/V2_RECOVERY_S3B4_RESTORE_PLAN_DESIGN_DRAFT.md。本依頼と同じ資料コミットを固定し、SHA・両blobを開始報告に記録 |
+| 本書初版 | f94220856c849f4a7dd91deac04b9b5a820a6239。設計blob 83202d84c565aa70f3b62aefe39bfa0bd4c7b323、依頼blob aad20dbfda8ae5d8c44c8ecc65ede205235c04d3 |
+| レビュー原文 | 本第2版と同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B4_REVIEW_20261102.md |
 | B-3受領 | 78b9b405cebfb37283bf59f35d7774ad6910b331、docs/reviews/V2_RECOVERY_S3B3_IMPLEMENTATION_RECEIPT_20261102.md |
 | 上位S3-B第2版 | 361904b1618ae9f9d3a672875c437a388826c253、docs/specs/V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md |
 
@@ -45,12 +47,13 @@ B-2はadfdf765、B-3はb328844からHEADまでを見るため、新B-4の追加�
 
 | メソッド | 許可する補正 |
 |---|---|
-| test_only_the_allowed_paths_differ | 既存B-17のM例外に加え、このB-3範囲試験自身の1パスをMとして認める。新規B-4の2ディレクトリ/結果文書をAとして追加。累積差分の__init__.py集合は従来B-3の1パスと新B-4の1パスの**2つだけ**にする |
-| test_no_existing_runtime_old_test_fixture_or_setting_differs | 旧ランタイム・設定の差分0を維持。testsの検索から新規B-4 testsも除外し、残る旧試験の差分をB-17と本ファイルの**2パスだけ**に固定 |
-| test_the_old_range_test_differs_in_exactly_the_three_allowed_places | b328844→HEADのB-17累積差分の期待リテラルを、B-3の既存3点＋今回§3.1のB-4分に更新。許可する意味上の箇所は同じ3点。削除/追加行の厳密照合とハンク数の照合を維持する。期待値を現在のB-17から動的生成して一致させない |
+| test_only_the_allowed_paths_differ | 既存B-17のM例外は変更しない。r3_07自身はb328844から見てAなので既存のtests/v2_history_restart/許可に含まれ、追加のM例外は不要。新規B-4の2ディレクトリ/結果文書をAとして追加。累積差分の__init__.py集合は従来B-3と新B-4の**2パスだけ**にする |
+| test_no_existing_runtime_old_test_fixture_or_setting_differs | 旧ランタイム・設定の差分0を維持。tests検索の既存:(exclude)tests/v2_history_restartはそのまま、新規:(exclude)tests/v2_history_restoreだけを追加。除外後の期待値は従来のB-17の**1パスだけ**を維持する。r3_07自身は検索結果に出ない |
+| test_the_old_range_test_differs_in_exactly_the_three_allowed_places | b328844→HEADのB-17累積差分の期待リテラルを、B-3の既存3点＋今回§3.1のB-4分に更新。許可する意味上の箇所は同じ3点。削除/追加行の厳密照合とハンク数の照合を維持する（最小補正では4ハンクのまま、レビュー担当の実行報告）。期待値を現在のB-17から動的生成して一致させない |
 
-B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイル構成の検査、r3_helpersは変えない。B-3自身のscope変更を新B-4のscopeが厳密に監査する。
+B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイル構成の検査、r3_helpersは変えない。r3_07自身のscope変更（今回許可した3メソッドだけ）は、d82a5ce起点の新B-4 scopeが厳密に監査する。旧2本の比較元では、r3_07はAまたは検索から除外されるため、この監査を代用できない。
 具体的な行折り返しは上記意味を変えない範囲でよいが、結果文書には2ファイルの差分全文を載せる。新B-4 scopeには基準d82a5ceに対する期待差分を静的に固定し、既存assertの削除やskip/START変更・HEAD偽装を検出する。実装者が変更後ファイルを丸ごと期待値として読んで自己承認する試験にしない。
+B-3ランタイムv2_history_restart/、r3_07以外のtests/v2_history_restart/、既存V2_RECOVERY_S3B3_RESULT.mdがd82a5ceから差分0であることも、新B-4 scopeだけが直接監査する。旧scopeではこれらは比較元からAとして許可されるため、旧scope成功だけで固定を証明しない。
 パス判定の対照として、tests/v2_history_restore/__init__.py、既存パッケージの__init__.py変更、3本目の旧試験変更、範囲外の新規ファイルを拒否することも新規試験で確認する。B-5/S3-Cを先に許可リストへ入れない。
 
 ## 4. 固定する振る舞い
@@ -61,7 +64,8 @@ B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイ�
 - 二段階で意味内容/replayを決めてからhashを結ぶ。過去物理eventsを完全保持し、1件のRESTOREと全生成記録をまとめた候補だけを返す。
 - 新stateは既存apply_transition、現在seriesとの検証は既存evaluate_dayを使う。戦略式/閾値/状態式をコピーしない。保存値の自動置換・許容差を入れない。
 - REPLAYのstate_after、DECLARE frontier/context、RESTART floorを新鎖で計算し直す。参照は直接の元記録から1回写し、依存先をDROP/RETIREした場合は自動で落とさない。
-- 設計§7の実物のFixedFacts/LedgerContext/check_commands/apply_records/check_versionsだけを橋渡しに使い、最後は変更しないB-2 project_history_ledgerへ委譲する。事前集合と最終照合済み結果を混同しない。
+- 設計§7の実物のFixedFacts/LedgerContext/check_commands/apply_records/check_versionsだけを橋渡しに使う。順序はreleased_days→現在decision比較→市場値比較→変更しないB-2全区間照合/事前集合との一致→evaluate_day照合→無効果→basis。独自の旧skip後発検査を複製しない。
+- 設計§7.1案aの既知の制限を維持する。DECLARE+後発LATE ACK、ROW_REMOVED+後のCHANGED ACKをともにREPLAYすると、正常な履歴でもprefix証拠再検査が拒否し得る。後の解決記録/除外指紋を先に混ぜる案bや、証拠を省く案cへ独断で変更しない。既存のresolution_invalid/commandsとruleをそのまま返し、元履歴の破損とは断定しない。
 - 元履歴の**内部検査**は必須。元履歴への**現在台帳の最終投影**を先行必須にせず、DROPすべき旧制御記録が計画を妨げないようにする。候補で残る全事実の照合は省かない。
 - 新IDは物理全体で未使用だけ。NO_CHANGEは保持した同計画を完全一致candidateへ再確認する場合だけ。無効果は計画で拒否する案（D-2採用後）。
 - 不変性・安全な表示・23キーbasis・15キー記録・入力digest・エラー優先順位・確認の完全再構築は設計どおり。batch/ledger属性は作らず、committed/committable=False。
@@ -72,26 +76,26 @@ B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイ�
 
 | ID | 必須確認 |
 |---|---|
-| B4-01 回帰・変更境界 | 既存コア197、保存170、S2 113、S3-A176、B-1 230、B-2 173、B-3 109の計1168件をOS契約どおり維持。既存機能試験無編集、scope2本の限定補正は別掲。既存ランタイム等差分0 |
+| B4-01 回帰・変更境界 | 既存コア197、保存170、S2 113、S3-A176、B-1 230、B-2 173、B-3 109の計1168件をOS契約どおり維持。機能試験無編集、scope2本の限定補正は別掲。d82a5ce起点の新B-4 scopeがB-3 runtime/tests/結果を含む既存差分0を直接検査する（r3_07は§3.2の3メソッドだけ例外） |
 | B4-02 復元点 | 新規GENESIS/移行MIGRATION自身を受理可能、移行より前・head・退避済み・hash違い・request途中を拒否。厳密intでbool/floatを拒否 |
 | B4-03 有効suffix | 2回/3回復元後のsuffixが物理区間と異なる例で完全一致。既退避点の重複退避を拒否。旧復元バッチ途中の有効APPLYをPにする正常例 |
 | B4-04 ops | 過不足/順序/重複/未知キー、種別違反、request部分DROP/REPLAYを拒否。CONSUMEと未知opはrestore_op_unsupported。自動ソート/補完無し |
 | B4-05 同一入力のREAPPLY | 元decision/row/prev_row/prev_session_date完全保持。新baseからapply_transition。現在seriesによるevaluate_dayと一致。元state/transitionのコピーを検出 |
 | B4-06 現在入力の相違 | 市場値だけの変更は判定が同じでもrestore_market_input_changed。decision不存在/別ID/指紋違いはrestore_decision_changed。選択の衝突は既存コード。CHANGED/ROW_REMOVED補完による保存decisionの選択は成功例 |
 | B4-07 セッション | 全中間confirmed、prev日、共通context、境界の実注入列一致。next(D)のclose/confirmedだけの差は新計画の文脈/input_hashに無害、open/日付/中間未確定は停止。check_dのnextのみ未確定は成功 |
-| B4-08 新規消費の停止 | DROP宣言、DROP再開始の免除区間、新skippedの各released_daysで有効decisionを検出。APPLYが後に無い場合・base.as_of_d=nullも停止。無関係な未適用日は勝手に消費せず、旧skip後発は既存late_observationになる対照 |
+| B4-08 新規消費の停止 | DROP宣言、DROP再開始の免除区間、新skippedのreleased_daysを検査。後続APPLY無し/null基点も停止。無関係な未適用日を消費しない。旧skipへの後発はREAPPLY親が非nullのAPPLYでも初期状態でもB-2がlate_observationで拒否し、その前にevaluate_dayを呼ばない。DROPしたLATE ACKで戻る旧skip後発も対照にする（別の先行拒否が無い入力） |
 | B4-09 REPLAY参照 | retained/REAPPLY/REPLAYへの写像、DROP/RETIRE依存の拒否。移行・既再生記録で二重写像しない。元request系、origin/旧ledger_digest維持 |
 | B4-10 REPLAY再計算 | 新親state_after、DECLARE frontier/context、RESTART floor/初期状態。R-bとRESTART再生の対照。元stateコピー+hash付け直しを拒否 |
-| B4-11 証拠と版 | 各REPLAY requestグループの直前有効prefixを実FixedFactsにし、check_commands実呼出し。ROW_REMOVED+ADDEDの一括証拠、欠測宣言有効1件拒否、LATE、version_selectionの既存規則。未来APPLYをprefixへ混ぜない |
+| B4-11 証拠と版 | 各REPLAY requestグループ直前prefixの実FixedFacts/check_commandsを使う。ROW_REMOVED+ADDEDの一括証拠、欠測宣言有効1件拒否、LATE/version_selectionを維持。未来APPLY/後の解決記録をprefixに混ぜない。設計§7.1の2例は元validate/投影成功を対照に、REPLAYでdeclare_valid_decision/ack_evidenceになる拒否を固定。Pを組の最後にして保持し、さらに後のRESTARTをDROPする成功対照を分ける |
 | B4-12 候補完全検査 | 旧events不変、RESTORE15キー/request_basis6キー/replay5キー、正しい監査prevと有効親、有効/退避列、新header。バッチ途中候補はvalidate_historyで拒否。完全candidateはB-2の全区間投影を実呼出し。事前行集合/digestとの一致 |
-| B4-13 失敗の優先順位 | 不正履歴/sessions形/行はIDより前、P/opsはIDより前、IDは候補文脈より前。元現在投影は失敗しても、正当なDROPで整合するcandidateなら成功できる対照。plan不正は現在入力より前、入力不正はstaleより前 |
-| B4-14 ID/無効果 | 物理全体の有効/退避/移行/再生/他種別ID、同内容/時刻変更をすべて拒否。未使用IDのみREADY。全REAPPLY trueかつDROP無しはrestore_no_effect、DROPありで市場state同一の正常例も固定 |
+| B4-13 失敗の優先順位 | 入力の形/P/opsはIDより前、残す文脈は段階4・候補全体は段階6で双方IDより後。released_days/decision/市場値→B-2全区間照合/集合一致→evaluate_dayの順をspyと旧skip後発で確認。source投影失敗→DROP成功は、残る文脈へ影響しない宣言context差等、released_daysにdecision無しで作る。plan不正は入力より前、入力不正はstaleより前 |
+| B4-14 ID/無効果 | 物理全体の有効/退避/移行/再生/他種別ID、同内容/時刻変更を拒否。未使用IDのみREADY。全REAPPLY trueかつDROP無しはrestore_no_effect（今回の前提ではDROP無しと同値）。DROPありで市場state同一の正常例も固定。再計算/入力照合を省かない |
 | B4-15 plan/hash/差 | 23キーbasis全項目を結合、candidate_recordsと末尾一致、series_inputsの範囲と正規化、changesの項目とsameの実値。改変/hash付け直し/確認hash違い拒否。時刻変更はrequest_hashのみ同じ |
 | B4-16 確認A/B | 元履歴でCONFIRMED_IN_MEMORY、同じ完全candidateでNO_CHANGE・追加0。元物理headまでのprefix全検査と全basis再構築。別candidate/先に進んだ履歴/正常な入力変更はstale。digest一致後の再構築差はmismatch |
 | B4-17 入力の範囲 | series.through(D)より後を見ない。前史改訂で対象rowが変われば停止。D後だけ/表示SOXL/descriptionだけの変更はseries_digest不変。REAPPLYが0ならseries=Noneを参照しない |
 | B4-18 不変性/秘匿/型境界 | 未検証planの全アクセサ・コンテナhashに共有無し。JSON深さ/巨大整数/非有限/非str鍵を固定エラー。repr/summaryにURL/市場値/F&G/自由文/パス無し。旧Memory/LocalFileStore(file_sync_onlyの一時root)はplan/result/History/dictをplan_typeで拒否し、保存や残留物無し |
-| B4-19 統合例 | 設計§13の各例を実際の台帳/seriesで実行。上位例R/R-bの3回復元、退避内の旧RESTORE RETIRE、元ID保持、sameの入力依存を示す。候補を既存B-2日次へ渡し、再実行ALREADY_APPLIED/後発停止を確認。数値は旧実測を無条件コピーしない |
-| B4-20 範囲監査 | 新runtime全体AST、公開依存と__all__7、I/O/時計/乱数/外部private/戦略式/CONSUME実装/B-5/S3-C不存在。scope2本の差分厳密照合と禁止パスの対照、test_r4名の一意性、testsに__init__.py無し |
+| B4-19 統合例 | 設計§13を実台帳/seriesで実行し、成功/期待拒否を分ける。例R/R-bの複数回復元、旧RESTORE RETIRE、元ID保持、sameの入力依存。§7.1の2組は既知の拒否であり全復元対応とは主張しない。正常候補を既存B-2日次へ渡してALREADY_APPLIED/後発停止を確認。元投影失敗→取消成功例で、DECLARE後発decisionのDROPを誤って成功例にしない |
+| B4-20 範囲監査 | 新runtime全体AST、公開依存/__all__7、I/O/時計/乱数/外部private/戦略式/B-5/S3-C不存在。restore語はB-4のため禁止しない。CONSUMEは入力の拒否比較/固定拒否エラー用途だけにし、新DのAPPLY生成経路が無いことをops許可集合/元D維持/拒否試験でも検証。d82a5ce起点でB-3 runtime/tests/結果を固定しscope2本だけ限定差分、禁止パスの対照、r4名一意・testsにinit無し |
 
 委譲spyは実際に新パッケージが参照する名前を差し替える。v2_core.transition.apply_transitionだけを差し替えて、別名importの呼出しを見たと主張しない。B-1等による内部再計算回数と、新B-4自身が行う委譲の観測を分ける。
 既存の構造ビルダーは試験だけで読取再利用できるが、実装の期待値を同じ新実装で生成しない。例Rのq1〜q6等は既使用の意味を維持し、新外側IDだけ未使用にする。
@@ -112,11 +116,11 @@ B-3のSTART、Runtime全メソッド、import/公開名/禁止機能/ファイ�
 10. 元現在投影を必須にし、取消で解決するケースを拒否する。
 11. 参照を写さない/二重に写す/DROP依存を黙って落とす。
 12. REPLAYの親state/DECLARE frontier/RESTART floorを元からコピーする。
-13. REPLAYの証拠検査を省く/グループを分断する/prefixへ未来APPLYを混ぜる。
+13. REPLAYの証拠検査を省く/グループを分断する/prefixへ未来APPLYや後の解決記録を混ぜる。設計§7.1の期待拒否を通してしまう変種も検出する。
 14. version_selectionまたは除外→補完の順序を崩す。
-15. 最終validate_historyまたはB-2全区間投影を省く。
+15. 最終validate_historyまたはB-2全区間投影を省く、あるいはevaluate_dayをB-2最終照合より前へ戻す。後者は非null親の旧skip後発がintermediate_session_unprocessedへ変わることで検出する。
 16. 旧events・有効/退避列・candidate_recordsの保存不変検査を省く。
-17. 無効果拒否を省く、またはDROPありの正常例まで拒否する。
+17. 無効果拒否を省く、またはDROPありの正常例まで拒否する。同じDROP無し条件を残し、全REAPPLY trueの条件だけを削る変種は今回の前提では等価（P-01）。再計算/入力照合を省いてよい意味ではなく、無根拠なspyで検出扱いにしない。
 18. IDを有効列だけで検査する/既存同内容を新prepareで通す。
 19. plan/入力いずれかのhash/digestを無視する、seriesに未来/表示だけの値を混ぜる。
 20. 再確認をstaleにする/2件目を作る/元prefix検査や全basis再構築を省く。
@@ -143,7 +147,7 @@ PR・マージ・Actions・本番・通知、CONSUME実装、B-5/S3-Cへ進ま�
 
 ## 8. 読取専用の保護参照
 
-次の48参照を開始時と保存/push後に完全SHAで照合する。本設計・依頼を保存した新資料ブランチも、受け取った完全SHAを1本加える（初版だけなら実装時は49参照）。追加のレビュー/採用参照を渡された場合もその固定値を記録する。元ブランチを更新しない。
+次の49参照（初版資料ブランチまで）を開始時と保存/push後に完全SHAで照合する。本第2版・レビュー原文を保存した新資料ブランチも、受け取った完全SHAを1本加える（本第2版だけなら実装時は50参照）。追加のレビュー/採用参照を渡された場合もその固定値を記録する。元ブランチを更新しない。
 
 | 参照 | 完全SHA |
 |---|---|
@@ -195,8 +199,26 @@ PR・マージ・Actions・本番・通知、CONSUME実装、B-5/S3-Cへ進ま�
 | docs/v2-history-s3b3-revision-20261030 | d0e11d9d5158deb6bfdc11e4224fe1f77a9dedba |
 | feat/v2-history-restart-s3b3-20261102 | d82a5ced64658c2e736b82b1a2f1925636055417 |
 | docs/v2-history-s3b3-receipt-20261102 | 78b9b405cebfb37283bf59f35d7774ad6910b331 |
+| docs/v2-history-s3b4-20261102 | f94220856c849f4a7dd91deac04b9b5a820a6239 |
 
 ## 9. 採用単位
 
-設計§14のD-1（CONSUME保留の限定範囲・公開API委譲・候補まで・ID方針・scope2本の補正）、D-2（計画での無効果拒否）、D-3（Sonnet 5.5・high）と、本書の変更境界/受入/通信禁止/結果保存を一組として採否判断する。
+設計§14のD-1（CONSUME保留の限定範囲・**§7.1案aの既知の拒否制限**・公開API委譲・候補まで・ID方針・scope2本の補正）、D-2（計画での無効果拒否）、D-3（Sonnet 5.5・high）と、本書の変更境界/受入/通信禁止/結果保存を一組として採否判断する。
 今回の文書作成はその採用ではない。B-3の受領をB-4の実装承認にしない。市場戦略、本番保存先、資格情報、旧工程の採用を再質問する依頼ではない。
+
+## 10. 第2版の改訂
+
+初版レビュー原文を本第2版と同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B4_REVIEW_20261102.mdに保存する。今回の補正は文書のみで、実装/試験/再現コード/市場計算は0。レビューのスクラッチ実行はその担当者の報告として区別する。
+
+| ID | 反映 |
+|---|---|
+| N-01 | §3.2の2行を、r3_07自身はb328844起点でA、検索除外後はB-17の1パス、と補正。d82a5ce起点の新B-4 scopeだけで今回のr3_07変更を監査 |
+| N-02 | §4・B4-08/B4-13・変異15でB-2最終照合→evaluate_dayを固定。非null/初期親で旧skip後発はlate_observation |
+| N-03 | §4・B4-11/B4-19・変異13・採用単位に案aの既知制限、拒否2例、組を保持し後の操作をDROPする成功対照を追加 |
+| P-01 | B4-14・変異17でDROP無し拒否との同値と等価変異の扱いを明記 |
+| P-02 | B4-13/B4-19に元投影失敗→DROP成功の具体的な入力条件を指定 |
+| P-03 | §3・B4-01/B4-20でB-3 runtime/tests/結果の固定を新B-4 scopeの責務に明記 |
+| P-04 | B4-20でrestore語禁止を流用せず、CONSUME拒否と新規消費経路の不存在を検査 |
+| P-05 | B4-13で残す文脈は段階4、候補全体は段階6、どちらもIDより後と明記 |
+
+コード開始点d82a5ce、公開API、B4-01〜B4-20、欠陥注入22項目、既存ランタイム無変更、scope2本だけの限定補正、候補Historyまで・CONSUME保留は維持。D-1〜D-3は未採用、限定実装は未承認。
