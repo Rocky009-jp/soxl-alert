@@ -3,6 +3,10 @@ v2_history_restore, run the v2_history_restore suite there and require it to fai
 (run it by hand: <python> -B tests/v2_history_restore/r4_sensitivity.py [--control] [--jobs N] [ids]). The real tree is
 never modified.
 
+Review fixes (R-01/R-02, 5eede11 -> fix branch): the mutations F01a..F02h take each fix out again on its own. The four
+mutations M09c, M12b, M16d and M17c were called EQUIVALENT in the 47eb7c5 run; the review (R-03) found a counterexample for
+each, and they are separated by tests/v2_history_restore/test_r4_10_review_fixes.py. Their ids are kept.
+
 The 22 items of the request (section 6) are the numbered mutations M01..M22; an item with several ways to break it has
 variants a / b / c. For every mutant the output says whether it is DETECTED (and by which tests), EQUIVALENT (the defect
 cannot change any answer; the reason is in `what`), NOT DETECTED (no test tells it apart) or SETUP-ERROR (a pattern of the
@@ -184,7 +188,7 @@ MUTATIONS = [
                "            pass")],
      "9 the sessions a dropped restart had passed over are not released days", PROBE_CONSUME),
     ("M09c", [(BUILD, '        days.update(set(new["skipped_sessions"]) - set(old["skipped_sessions"]))', "        pass")],
-     "EQUIVALENT (argued) the sessions a re-applied day newly skips are not released days: the base of a re-applied APPLY changes only when a restart is dropped (its passed-over sessions are released by the restart term) and a day declared before it is either dropped (released by the declaration term) or replayed (its decision-free evidence is checked again), so the term adds no day the other two lack; no input was found that separates them", PROBE_CONSUME),
+     "9 the sessions a re-applied day newly skips are not released days (R-03: the 47eb7c5 run called this EQUIVALENT by argument; that was wrong - a day the current calendar adds between the saved previous day and the re-applied day, with a valid decision, is newly skipped and needs a consume; separated by test_r4_10 R03CounterExamples)", PROBE_CONSUME),
     ("M09d", [(BUILD, "            out[seq] = frontier_of(last_segment([events[s] for s in effective[:i]]))[0]",
                "            seg = last_segment([events[s] for s in effective[:i]])\n"
                "            out[seq] = frontier_of(seg)[0] if seg[\"applies\"] else \"9999-99-99\"")],
@@ -205,7 +209,7 @@ MUTATIONS = [
                '                "state_after": copy.deepcopy(old["state_after"])})')],
      "12 a replayed acknowledgement or declaration copies the state from the superseded record", None),
     ("M12b", [(RECORDS, '        new["frontier_before"] = frontier', '        new["frontier_before"] = old["frontier_before"]')],
-     "EQUIVALENT (argued) a replayed declaration copies its frontier from the superseded record: the check that next(frontier) is the declared day fixes the frontier as the session before that day, which is what the superseded record also holds", None),
+     "12 a replayed declaration copies its frontier from the superseded record (R-03: the 47eb7c5 run called this EQUIVALENT by argument; that was wrong - when the current calendar has lost the day between, the new frontier differs; separated by test_r4_10 R03CounterExamples)", None),
     ("M12c", [(RECORDS, '"parent_hash": None, "floor": floor,', '"parent_hash": None, "floor": old["floor"],')],
      "12 a replayed restart copies its floor from the superseded record", None),
     ("M13a", [(BUILD, "    _replay_evidence(chain, draft.replayed, sl, raw_observations, check_d)                       # 6",
@@ -240,7 +244,7 @@ MUTATIONS = [
     ("M16a", [(BUILD, "    if (len(events) != len(old) + len(new) or canonical_json(events[:len(old)]) != canonical_json(old)\n"
                "            or canonical_json(events[len(old):]) != canonical_json(new)):\n        raise candidate_invalid()",
                "    if False:\n        raise candidate_invalid()")],
-     "EQUIVALENT (redundant guard) the old events and the new records are not compared with the candidate: the candidate is built by joining them, and the unchanged validate_history over the whole candidate (hash chain) is the independent guard that remains", None),
+     "EQUIVALENT (redundant guard, single mutation of this check with the generator unchanged) the old events and the new records are not compared with the candidate: the candidate is built by joining them, and the unchanged validate_history over the whole candidate (hash chain) is the independent guard that remains. No separating input was found; this is not a proof that none exists (review P-01)", None),
     ("M16b", [(BUILD, "    if (list(cand_check.effective_seqs) != list(kept) + [r[\"seq\"] for r in new]",
                "    if (False")],
      "16 the effective seqs of the candidate are not compared", None),
@@ -249,7 +253,7 @@ MUTATIONS = [
      "16 the superseded seqs of the candidate are not compared", None),
     ("M16d", [(CONFIRM, "                or canonical_json(events[cut:]) != canonical_json(basis[\"candidate_records\"])):",
                "                ):")],
-     "EQUIVALENT (redundant guard) the candidate_records of a plan are not compared with the tail of its candidate: the whole basis, which holds candidate_records, is rebuilt and compared afterwards (history_plan_mismatch, the same code)", None),
+     "16 the candidate_records of a plan are not compared with the tail of its candidate before the inputs are read (R-03: the 47eb7c5 run called this EQUIVALENT by argument; that was wrong - with this check gone a bad plan and bad sessions answer sessions_invalid, not history_plan_mismatch; separated by test_r4_10 R03CounterExamples)", None),
     ("M17a", [(BUILD, "    if not any(e[\"op\"] == DROP for e in plan_ops) and all(e[\"same_as_superseded\"] is not False\n"
                "                                                           for e in draft.entries if e[\"op\"] == REAPPLY):\n        raise no_effect()",
                "    if False:\n        raise no_effect()")],
@@ -260,9 +264,9 @@ MUTATIONS = [
     ("M17c", [(BUILD, "    if not any(e[\"op\"] == DROP for e in plan_ops) and all(e[\"same_as_superseded\"] is not False\n"
                "                                                           for e in draft.entries if e[\"op\"] == REAPPLY):",
                "    if not any(e[\"op\"] == DROP for e in plan_ops):")],
-     "EQUIVALENT (P-01) the all-same condition is removed and the no-DROP condition stays: in this stage a plan without a "
-     "drop only re-applies and replays, so it changes nothing exactly when it is the same; the recalculation and the input "
-     "checks remain before it", PROBE_NOEFFECT),
+     "17 the all-same condition is removed and the no-DROP condition stays (R-03: the 47eb7c5 run called this EQUIVALENT "
+     "by argument; that was wrong - a plan without a DROP can change a re-applied day when the current calendar added a "
+     "day; separated by test_r4_10 R03CounterExamples)", PROBE_NOEFFECT),
     ("M18", [(BUILD, '    if any(g["request_id"] == request_id for g in view.requests):',
               '    if any(g["request_id"] == request_id and g["effective"] for g in view.requests):')],
      "18 the request id is compared against the effective chain only", PROBE_ID),
@@ -312,6 +316,35 @@ MUTATIONS = [
     ("M22d", [(VALUES, '        return "RestorePlan(status=%s, plan_hash=%s)" % (shown[0], shown[7][:12])',
                '        return "RestorePlan(%s)" % (self._text,)')],
      "22 the representation shows the whole plan (market values, rows)", None),
+    # ---- the fixes of the review (R-01, R-02): each fix taken out again on its own -----------------------------------
+    ("F01a", [(BUILD, "    settle_changes(draft, events, created)\n", "")],
+     "R-01 the changed fields of a replayed acknowledgement are not settled from the finished records", None),
+    ("F01b", [(BUILD, "    settle_changes(draft, events, created)\n", ""),
+              (RECORDS, '    changed = [] if old["kind"] == ACK else sorted(name for name in names if not same(new[name], old[name]))',
+               '    changed = sorted(name for name in names if not same(new[name], old[name]))')],
+     "R-01 the version before the fix: the fields are compared before the hashes inside the references are filled in", None),
+    ("F02a", [(CONFIRM, "    _reapply_olds(basis, events)      # the saved APPLY records of the REAPPLY operations: a refusal is still the plan's\n",
+               "")],
+     "R-02 the records named by the REAPPLY operations are read only after the current inputs", None),
+    ("F02b", [(CONFIRM, 'and isinstance(basis["changes"], list) and all(change_ok(c) for c in basis["changes"])',
+               'and isinstance(basis["changes"], list)')],
+     "R-02 the rows of changes are not checked in the plan's own form", None),
+    ("F02c", [(CONFIRM, 'and isinstance(basis["series_inputs"], list) and all(series_item_ok(i) for i in basis["series_inputs"])',
+               'and isinstance(basis["series_inputs"], list)')],
+     "R-02 the items of series_inputs are not checked in the plan's own form", None),
+    ("F02d", [(CONFIRM, 'and is_int(o["from_seq"]) and o["from_seq"] >= 0 for o in ops)', 'and is_int(o["from_seq"]) for o in ops)')],
+     "R-02 a negative from_seq of an operation is not refused in the plan's own form", None),
+    ("F02e", [(CONFIRM, '            and point["seq"] >= 0 and is_hex64(point["event_hash"])', '            and is_hex64(point["event_hash"])')],
+     "R-02 a negative restore point of the plan is not refused in the plan's own form", None),
+    ("F02f", [(VALUES, 'and is_int(c["from_seq"]) and c["from_seq"] >= 0 and c["kind"] in RECORD_KINDS',
+               'and is_int(c["from_seq"]) and c["kind"] in RECORD_KINDS')],
+     "R-02 a negative from_seq in a row of changes is not refused", None),
+    ("F02g", [(VALUES, '            and isinstance(c["changed_fields"], list) and all(f in CHANGED_NAMES for f in c["changed_fields"]))',
+               '            and isinstance(c["changed_fields"], list))')],
+     "R-02 the field names of a row of changes are not checked", None),
+    ("F02h", [(VALUES, 'and _row_ok(item["row"]) and (item["prev_row"] is None or _row_ok(item["prev_row"])))',
+               'and (item["prev_row"] is None or _row_ok(item["prev_row"])))')],
+     "R-02 the row of a series input is not checked in the plan's own form", None),
 ]
 
 

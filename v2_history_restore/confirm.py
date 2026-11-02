@@ -18,7 +18,7 @@ from v2_recovery.ledger import copy_sessions, ledger_digest, parse_ledger, sessi
 from .build import build_restore
 from .market import digest_of, series_inputs
 from .values import (BASIS_KEYS, CONFIRMED_IN_MEMORY, NO_CHANGE, OP_KEYS, OPERATION, OPS, POINT_KEYS, READY, REAPPLY,
-                     REASON, RestoreConfirmResult, RestorePlan)
+                     REASON, RestoreConfirmResult, RestorePlan, change_ok, series_item_ok)
 
 _HASH_KEYS = ("history_digest", "expected_head_hash", "expected_state_digest", "request_hash", "ledger_digest",
               "sessions_digest", "series_digest", "effective_digest", "candidate_digest", "candidate_state_digest")
@@ -32,10 +32,11 @@ def _form_ok(basis):
             and is_date(basis["check_d"]) and is_int(basis["expected_head_seq"]) and basis["expected_head_seq"] >= 0
             and all(is_hex64(basis[k]) for k in _HASH_KEYS)
             and isinstance(point, dict) and set(point) == POINT_KEYS and is_int(point["seq"])
-            and is_hex64(point["event_hash"])
+            and point["seq"] >= 0 and is_hex64(point["event_hash"])
             and isinstance(ops, list) and all(isinstance(o, dict) and set(o) == OP_KEYS and o["op"] in OPS
-                                              and is_int(o["from_seq"]) for o in ops)
-            and isinstance(basis["series_inputs"], list) and isinstance(basis["changes"], list)
+                                              and is_int(o["from_seq"]) and o["from_seq"] >= 0 for o in ops)
+            and isinstance(basis["series_inputs"], list) and all(series_item_ok(i) for i in basis["series_inputs"])
+            and isinstance(basis["changes"], list) and all(change_ok(c) for c in basis["changes"])
             and isinstance(basis["candidate_records"], list) and basis["candidate_records"]
             and isinstance(basis["candidate_history"], dict))
 
@@ -81,7 +82,8 @@ def _reapply_olds(basis, events):
 
 
 def _plan_basis(plan, confirmed_plan_hash):
-    """Step 1: the plan's own form and hash, and its candidate. Nothing here looks at the inputs."""
+    """Step 1: the plan's own form and hash, its candidate and the records its REAPPLY operations name. Nothing here
+    looks at the inputs."""
     if not isinstance(plan, RestorePlan) or not is_hex64(confirmed_plan_hash):
         raise history_plan_mismatch()
     view = plan.to_dict()
@@ -90,6 +92,7 @@ def _plan_basis(plan, confirmed_plan_hash):
             or confirmed_plan_hash != view["plan_hash"] or not _form_ok(basis)):
         raise history_plan_mismatch()
     candidate, cand_check, events, original = _candidate_of(basis)
+    _reapply_olds(basis, events)      # the saved APPLY records of the REAPPLY operations: a refusal is still the plan's
     return basis, candidate, cand_check, events, original
 
 

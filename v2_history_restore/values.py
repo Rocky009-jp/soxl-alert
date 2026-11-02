@@ -43,6 +43,33 @@ BASIS_KEYS = frozenset([
 _JSON_RULES = ("json_depth", "json_number", "json_key", "json_type")
 
 
+def change_ok(c):
+    """One row of a plan's `changes` in its safe form: the fixed keys, an operation and a record kind of the fixed lists,
+    strict non-negative integers, a real day or None, a real bool or None, and field names of the fixed list only."""
+    return (isinstance(c, dict) and set(c) == CHANGE_KEYS and c["op"] in OPS
+            and is_int(c["from_seq"]) and c["from_seq"] >= 0 and c["kind"] in RECORD_KINDS
+            and (c["d"] is None or is_date(c["d"]))
+            and (c["to_seq"] is None or (is_int(c["to_seq"]) and c["to_seq"] >= 0))
+            and (c["same_as_superseded"] is None or type(c["same_as_superseded"]) is bool)
+            and isinstance(c["changed_fields"], list) and all(f in CHANGED_NAMES for f in c["changed_fields"]))
+
+
+def _number(x):
+    return type(x) in (int, float)
+
+
+def _row_ok(r):
+    return (isinstance(r, dict) and set(r) == ROW_KEYS and is_date(r["date"])
+            and all(_number(r[k]) for k in ROW_KEYS if k != "date"))
+
+
+def series_item_ok(item):
+    """One fixed series input of a plan in its safe form (the keys of series_inputs, days, a row or None)."""
+    return (isinstance(item, dict) and set(item) == SERIES_KEYS and is_int(item["from_seq"]) and item["from_seq"] >= 0
+            and is_date(item["d"]) and is_date(item["prev_session_date"]) and is_date(item["series_previous_date"])
+            and _row_ok(item["row"]) and (item["prev_row"] is None or _row_ok(item["prev_row"])))
+
+
 class RestorePlan:
     """An immutable {basis, plan_hash}. plan_hash is the SHA-256 of the canonical basis; a record never carries it.
 
@@ -131,13 +158,7 @@ class RestorePlan:
                 return None
             shown = []
             for c in changes:
-                if (not isinstance(c, dict) or set(c) != CHANGE_KEYS or c["op"] not in OPS
-                        or not is_int(c["from_seq"]) or c["from_seq"] < 0 or c["kind"] not in RECORD_KINDS
-                        or not (c["d"] is None or is_date(c["d"]))
-                        or not (c["to_seq"] is None or (is_int(c["to_seq"]) and c["to_seq"] >= 0))
-                        or not (c["same_as_superseded"] is None or type(c["same_as_superseded"]) is bool)
-                        or not isinstance(c["changed_fields"], list)
-                        or any(f not in CHANGED_NAMES for f in c["changed_fields"])):
+                if not change_ok(c):
                     return None
                 shown.append({k: copy.deepcopy(c[k]) for k in ("op", "from_seq", "kind", "d", "to_seq",
                                                                "same_as_superseded", "changed_fields")})

@@ -114,6 +114,8 @@ def _replay_resolution(work, old, new_seq, sl, mapped, fixups):
             new["missing_ref"] = {"kind": missing["kind"], "seq": target, "event_hash": None}
             fix.append(("missing_ref", target))
         names = ("applied_ref", "missing_ref", "state_after")
+        # the hashes inside the references are not known yet: the fields of an acknowledgement are listed by
+        # settle_changes, from the finished records
     else:
         frontier, saved_session = frontier_of(last_segment(work))
         d = old["d"]
@@ -131,7 +133,7 @@ def _replay_resolution(work, old, new_seq, sl, mapped, fixups):
         new["frontier_before"] = frontier
         new["session_context"] = [session_dict(fs), session_dict(ds), session_dict(nd)]
         names = ("frontier_before", "session_context", "state_after")
-    changed = sorted(name for name in names if not same(new[name], old[name]))
+    changed = [] if old["kind"] == ACK else sorted(name for name in names if not same(new[name], old[name]))
     return new, changed
 
 
@@ -151,6 +153,20 @@ def _replay_restart(work, old, new_seq):
                 "state_after": _initial_state()})
     changed = sorted(name for name in ("floor", "state_after") if not same(new[name], old[name]))
     return new, changed
+
+
+_ACK_FIELDS = ("applied_ref", "missing_ref", "state_after")
+
+
+def settle_changes(draft, events, created):
+    """The changed fields of every replayed acknowledgement, from the finished records (hashes inside the references
+    filled in) against the superseded ones, over the same named items only. A reference that still names the same
+    record - a kept one, which keeps its own hash - is not listed; one that follows a re-applied day is."""
+    by_seq = {rec["seq"]: rec for rec in created}
+    for change in draft.changes:
+        if change["op"] == REPLAY and change["kind"] == ACK:
+            old, new = events[change["from_seq"]], by_seq[change["to_seq"]]
+            change["changed_fields"] = sorted(name for name in _ACK_FIELDS if not same(new[name], old[name]))
 
 
 def plan_records(events, kept, superseded, plan_ops, sl):

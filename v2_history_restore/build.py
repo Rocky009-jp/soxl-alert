@@ -37,7 +37,7 @@ from .chain import context_mismatch, context_missing, facts_of, frontier_of, las
 from .errors import candidate_invalid, decision_changed, market_input_changed, no_effect, requires_consume, restore_invalid
 from .market import digest_of, series_inputs
 from .points import check_ops, check_point
-from .records import plan_records
+from .records import plan_records, settle_changes
 from .values import DROP, OPERATION, READY, REAPPLY, REASON, REPLAY
 
 
@@ -257,6 +257,7 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
     restore = _restore_record(events, check, point, superseded, draft, request_basis, request_hash, requested_at,
                               ledger_text)                                                 # 5
     created = _chain_after(restore, draft, events, kept)
+    settle_changes(draft, events, created)
     candidate = History.from_dict(history_dict(events + [restore] + created))
     cand_check, cand_events = _check_candidate(history, check, view, candidate, kept, restore, created)
     chain = [cand_events[s] for s in cand_check.effective_seqs]
