@@ -1,7 +1,7 @@
 # V2 S3-B-4 復元計画・確認 設計案
 
-作成日：2026-11-02（日本時間）。版：第1版。
-状態：**設計案・レビュー待ち。B-4限定実装は未承認。**
+作成日：2026-11-02（日本時間）。版：第2版（同日のレビューN-01〜N-03・提案P-01〜P-05を反映、§15）。
+状態：**第2版・設計案・レビュー待ち。B-4限定実装は未承認。**
 今回のユーザー指示は設計書・限定実装依頼書の作成まで。文書の保存・推奨・レビュー通過を実装承認に置き換えない。
 
 ## 1. 目的と固定入力
@@ -11,6 +11,8 @@
 | 用途 | 固定版 |
 |---|---|
 | コード開始点 | **d82a5ced64658c2e736b82b1a2f1925636055417**（feat/v2-history-restart-s3b3-20261102）。コード・試験は7d75ea5dbee1f6cef9912fceced2c2be2e48fad9と同じ |
+| 本書初版 | f94220856c849f4a7dd91deac04b9b5a820a6239、設計blob 83202d84c565aa70f3b62aefe39bfa0bd4c7b323、依頼blob aad20dbfda8ae5d8c44c8ecc65ede205235c04d3 |
+| 初版レビュー原文 | 本第2版と同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B4_REVIEW_20261102.md。重大0・通常3・提案5。実行結果はレビュー担当の報告 |
 | B-3受領 | 78b9b405cebfb37283bf59f35d7774ad6910b331、docs/reviews/V2_RECOVERY_S3B3_IMPLEMENTATION_RECEIPT_20261102.md |
 | S3-B第2版 | 361904b1618ae9f9d3a672875c437a388826c253、docs/specs/V2_RECOVERY_S3B_HISTORY_RESTORE_DESIGN_DRAFT.md、特に§8・§14のD-3/D-5 |
 | 上位第4版 | e3e90947a718cca877b543739ca60539207ca7a7、docs/specs/V2_MARKET_STATE_PERSISTENCE_RECOVERY_DESIGN_DRAFT.md、R-2・RT-07 |
@@ -83,11 +85,11 @@ prepareはREADYだけを返す。同じ元planと確認hashを、その候補そ
 | 4 | 元履歴のPまでの実事実で残す文脈を照合し、REPLAYする境界も照合。REAPPLY各Dのseries入力を§9で固定。§6の意味内容・写像・frontier/floorを計算 | seriesの既存入力エラー、restore_invalid、参照欠落等 |
 | 5 | hashを確定して候補全体をvalidateし、過去保存・退避/再生対応を検査 | 既存history_invalid、内部不変検査はhistory_invalid/history/restore_candidate |
 | 6 | §7のREPLAY証拠→候補の全事実と現在sessions照合→除外・補完・版選択の事前投影 | S3-Aの既存エラーを維持 |
-| 7 | §8の新規消費の必要性→各REAPPLYの現在decision比較→現在seriesの値比較とevaluate_day照合 | restore_requires_consume、restore_decision_changed、restore_market_input_changed、既存入力エラー |
-| 8 | 変更しないproject_history_ledger(candidate,...,check_d)で最終照合。事前投影と一致を確認。§10の無効果検査→basis/hash→READY | 既存台帳エラー、restore_no_effect、内部不変エラー |
+| 7 | §8の新規消費の必要性→各REAPPLYの現在decision比較→現在seriesの値比較。ここではevaluate_dayを呼ばない | restore_requires_consume、restore_decision_changed、restore_market_input_changed、既存入力エラー |
+| 8 | 変更しないproject_history_ledger(candidate,...,check_d)で最終照合→事前集合と一致確認→evaluate_day照合→§10の無効果検査→basis/hash→READY | 既存台帳エラー、既存評価エラー、restore_no_effect、内部不変エラー |
 
 check_dは次セッションが存在すればよく、そのconfirmedは不要。B-3で等号の再開始をした直後には、その再開始日では復元計画も作れない。後の確定check_dを明示する。
-sessionsの形の不正や不正な台帳行はIDより前。一方、候補の保存文脈と現在sessionsとの差は段階6なので、使用済みIDと重なる場合はID conflictを優先する。
+sessionsの形の不正や不正な台帳行はIDより前。一方、残すprefixの保存文脈と現在sessionsとの差は段階4、候補全体の保存文脈の差は段階6で検出する。どちらも段階3のID照合より後なので、使用済みIDと重なる場合はID conflictを優先する。
 **元履歴に対する現在台帳の最終投影は、準備の必須前提にしない。** DROPで解決するはずの旧宣言/ACKの問題がそこで先に止まることを避ける。元履歴そのものの整合性は段階1で必ず検査し、残す/再適用/再生する事実は候補で完全照合する。退避しただけの旧境界・旧宣言を、現在sessionsの追加制約として使わない。
 
 ## 6. 候補を最後まで組み立てる
@@ -138,9 +140,25 @@ replayは各opにつき{op,from_seq,d,seq,same_as_superseded}。新記録はREAP
 2. 再生するACK/DECLAREはrequestバッチ単位で証拠を再検査する。そのグループの直前までの**有効列のprefix**から実物のFixedFactsを構築し、LedgerContext.from_facts(...,外側のcheck_d)を作る。existingはそのprefixの有効な解決記録、commandsは再生後の記録上のkind/variant/d/fingerprints/参照から作り、変更しないcheck_commandsへ渡す。元request_basis.commandsの古い参照をそのまま渡さない。
 3. check_commandsのextrasが、再計算したDECLAREのfrontier/contextと一致すること。ROW_REMOVED+ADDED等はグループを分断せず一括検査し、指示順の偶然で証拠を失わせない。DECLAREは有効decision1件なら既存declare_valid_decisionで拒否する。
 4. candidate全体のFixedFactsと現在入力でLedgerContextを作る。apply_records→check_versionsの順に呼び、残った6列をcanonical_json順に並べる。これは§8/§9の照合用の**事前の行集合**であり、最終照合済みのHistoryLedgerとして公開しない。
-5. 最後は必ず変更しないproject_history_ledger(candidate, sessions, raw, check_d)を呼び、全区間のAPPLY/欠測/宣言/当日選択を検査する。返る行・effective_digestは事前集合と一致すること。最終検査を省かない。
+5. §8のreleased_days、§9の現在decision・市場値比較が成功した後、必ず変更しないproject_history_ledger(candidate, sessions, raw, check_d)を呼び、全区間のAPPLY/欠測/宣言/当日選択を検査する。返る行・effective_digestは事前集合と一致すること。**この最終照合と一致確認が成功するまではevaluate_dayを呼ばない。** 独自の後発判定を複製してエラー順序を合わせない。
 
 prefixは完全検査済みsourceまたはcandidateの祖先列からこの関数内で導出した事実だけを使う。呼出し元がFixedFactsやLedgerContextを注入できるAPIは作らず、作業contextも戻り値に含めない。参照の構造検査はB-1、証拠/版選択はS3-A、最終全区間照合はB-2に委譲する。
+
+### 7.1 今回残す既知の制限（N-03、案aを推奨）
+
+上の手順2・3の保守的な証拠再検査を維持する案を、D-1に含めて推奨する。**内部整合性と全区間投影が正常な履歴でも、過去の証拠を現在台帳でprefixごとに再検査すると、計画を拒否する場合がある。** 元履歴が壊れているという意味ではない。
+
+| 現在までの履歴・再生の指定 | prefixでの拒否 |
+|---|---|
+| DECLARE D2の後にD2の有効decisionが届き、後のLATE ACKが除外。そのDECLAREとLATE ACKをともにREPLAY | DECLAREの再検査には後のLATE ACKがまだ入らず、resolution_invalid / commands / declare_valid_decision |
+| ROW_REMOVEDの後に同じrecord_idの変更行が戻り、後のCHANGED ACKが除外。両方をREPLAY | 先のROW_REMOVEDのunion_exclに後のCHANGEDが入らず、resolution_invalid / commands / ack_evidence |
+
+上の順序ではREADYを返さない。該当エラーを別codeへ変換したり、再検査を省いて続行したりしない。後の解決記録をexistingに混ぜず、その除外指紋だけを台帳へ先に適用する迂回も入れない。上位§8.8手順5の証拠再検査を撤回しない。
+
+対照として、組の最後の記録をPにし、その組を保持してから、**さらに後にある**RESTARTをDROPする復元を受入へ入れる。DROPを含め、CONSUMEも不要な入力で他の条件を満たせば成功する。組より前の不要RESTARTを取り消すという元の目的まで、この対照で実現したと説明しない。
+DECLAREと依存するLATE ACKをともにDROPして参照欠落を解消するとrestore_requires_consumeになる例や、LATE ACKだけDROPしてDECLAREの証拠再検査がなお失敗する例も別掲する。期待された拒否の試験と、復元成功の試験を分け、これら全てを復元成功として数えない。
+
+この制限を無くす案b（後の除外指紋を先に適用）/案c（証拠再検査を省く）は今回実装しない。D-1の採否で案aの制限を明示し、実装担当に方式の選択を残さない。
 
 ## 8. CONSUMEが必要な場合の停止
 
@@ -155,7 +173,7 @@ prefixは完全検査済みsourceまたはcandidateの祖先列からこの関�
 これはCONSUME保留時の保守的な制限であり、後のRESTARTにより再び境界以前になる日でも、DROPした操作による再消費が必要かを自動で免除しない。さらに広い取消を許す条件はCONSUME採用時の別設計とする。
 select_decisionのdecision_outside_window/target_mismatch/decision_conflict等は変更せず返す。単に行があるだけで有効decisionと断定しない。
 
-released_days以外の旧skippedへの後発、DROPしたLATE ACKにより戻る旧後発などは、最後のB-2照合で既存late_observationになる。この区別を受入試験で固定する。未適用行のある無関係な全日を勝手に消費対象に広げない。
+released_days以外の旧skippedへの後発、DROPしたLATE ACKにより戻る旧後発などは、先行検査に別の拒否理由が無ければ、evaluate_dayより先に行う段階8のB-2照合で既存late_observationになる。REAPPLYの親がAPPLY（as_of_dが非null）でも、初期状態でも同じ期待値とする。前者でevaluate_dayが先にintermediate_session_unprocessedを出してしまわないよう、順序を受入試験で固定する。未適用行のある無関係な全日を勝手に消費対象に広げない。
 
 ## 9. REAPPLYの現在入力と市場値の固定
 
@@ -163,10 +181,10 @@ REAPPLY対象だけを元seq順に取り、各Dでseries.through(D)を取得す�
 
 series_inputsの各項目は厳密に{from_seq,d,prev_session_date,series_previous_date,row,prev_row}。row/prev_rowは既存row_dictの6キー正規形。series_previous_dateと注入sessions.previous(D).dateと保存prev_session_dateが一致しなければsession_series_mismatch。数値はbool・非有限・巨大整数を受理しない。既存InputErrorは維持し、JSON化不能/系列プロトコルの形の誤りはrestore_invalid/series/market_input。この正規化は入力の固定であり指標式の複製ではない。
 
-各Dで次の順に照合する。
+各Dのdecision・市場値は段階7で照合し、日次評価は全候補の段階8のB-2照合が成功した後に行う。順序は次のとおり。
 1. §7の行集合からselect_decisionで選ぶ。不存在または保存したrecord_id/指紋と違う場合はrestore_decision_changed/observations、detail=D。選択自体の衝突/入力エラーは維持する。補完済みの保存行が選ばれることは許す。
 2. 現在row/prev_row/prev_session_dateと保存値を正規化比較し、違えばrestore_market_input_changed/series、detail=D。判定が同じでも市場値の差を許容しない。
-3. 新しい有効親state、同じ固定cut、現在sessions、事前の行集合を変更しないevaluate_dayへ渡す。保存値によるapply_transitionの候補とserialize_transition/next_stateが一致すること。原則Dは親as_of_dより後なので再実行扱いにしない。state_updatedを保存成功の意味で使わない。
+3. 全REAPPLYについて1・2が成功した後、段階8でB-2全区間照合と事前集合の一致を確認する。その**後**、新しい有効親state、同じ固定cut、現在sessions、最終照合済みの行集合を変更しないevaluate_dayへ渡す。保存値によるapply_transitionの候補とserialize_transition/next_stateが一致すること。原則Dは親as_of_dより後なので再実行扱いにしない。state_updatedを保存成功の意味で使わない。B-2照合が通ると候補のskip/宣言日には有効decisionが無いので、旧skip後発のエラーをevaluate_dayへ先取りさせない。
 
 series_digest=sha256(canonical_json(series_inputs))。前史の変更でも対象rowの指標が変われば拒否する。D後のデータだけ、SOXL表示価格や系列の説明だけの変更はこのdigestを変えない。現在入力の許容差や市場データの自動更新は入れず、U-07の別判断に残す。
 
@@ -177,6 +195,7 @@ REAPPLYのchanged_fieldsは4項目input_hash/skipped_sessions/transition_result/
 値そのものや市場値、F&G、自由文をsummaryへ出さない。summaryはstatus、request_id、P/旧head/候補head、件数、日付、固定op・種別・フィールド名、sameフラグ、plan_hash、固定falseフラグだけを表示する。
 
 D-2の推奨：**DROPが1件も無く、全REAPPLYがsame=trueならrestore_no_effect/opsで拒否**する。REAPPLYが0件の場合も「全件true」とみなす。RETIREによる監査鎖の付け替えだけを新しい復旧としない。DROPがある場合は市場状態が同じでも明示した制御記録取消として受理し得る。B-1の検査器はこの無効果制限を追加せず、計画だけの制限とする。
+この限定単位ではCONSUMEが無く、decision/市場値を変えず、DROPなしではAPPLY・境界・宣言の有効な並びも変わらないため、全REAPPLYは必ずsame=trueになる。したがって、ここでの無効果拒否は実質的に「DROPが1件も無い復元を拒否する」と同値（P-01）。この説明を再計算・入力照合・無効果判定の段階順序を省く許可にしない。same判定だけの削除で振る舞いが変わらない変異は等価と分類する。
 
 RestorePlanの外形は{basis,plan_hash}。basisは次の**23キー**：
 operation="soxl-v2-history-restore-plan/1", status=READY,
@@ -208,6 +227,7 @@ plan_hashはbasis全体のcanonical_jsonのSHA-256。時刻だけ変更すると
 | opsの型/キー/厳密整数、列の過不足/順序 | restore_invalid / ops / ops_shape または superseded_mismatch |
 | CONSUME/未知op、種別に禁止のop、request部分処分 | restore_invalid / ops / restore_op_unsupported、restore_op_kind、restore_partial_batch |
 | 写せない参照、再生DECLARE/RESTARTの幾何的条件 | restore_invalid / ops / restore_ref_unmapped、declare_frontier、restart_floor、restart_noop、check_d |
+| §7.1のREPLAY証拠再検査の制限 | resolution_invalid / commands / declare_valid_decision または ack_evidence。現在の証拠再検査が失敗した意味で、元履歴の破損と断定しない |
 | 新しい消費が必要 | restore_requires_consume / ops / ruleなし、detail=D |
 | 現在のdecision / 市場値が保存値と違う | restore_decision_changed / observations、restore_market_input_changed / series。ruleなし、detail=D |
 | 無効果 | restore_no_effect / ops / ruleなし |
@@ -228,7 +248,9 @@ InputErrorの日付/セッション/市場系列エラー、S3-Aのresolution_in
 | 上位例R/R-bの複数回復元・ACK/DECLARE再生 | 実際の台帳/seriesを注入し、元の例IDを維持。新しい外側IDは未使用のr4-review-1等。B-1の構造だけの合格をB-4の証拠合格とみなさない |
 | Pが旧復元バッチの途中のAPPLY | 有効点なら受理し得る。Pで切った不完全な物理Historyを検証する実装は拒否する |
 | 全REAPPLY true、DROPなし | 新IDでもrestore_no_effect。DROPのある正常計画の候補を同planで再確認する対照はNO_CHANGE |
-| sourceの最終投影に問題があるが、DROP後のcandidateは整合 | 元履歴内部は正常なら計画を作り得る。残るAPPLYのdecision変更や版選択は許さない |
+| DECLAREの保存contextと現在sessionsがずれ、そのDECLAREをDROPする。released_daysに有効decisionなし | sourceの現在投影はsession_context_mismatchでも、candidateでその宣言を外せば成功し得る。ずれた日を残るAPPLY/境界が使う場合は成功例にしない。RESTARTの保存境界差をDROPで除く対照も可 |
+| §7.1のDECLARE+LATE / ROW_REMOVED+CHANGEDをともにREPLAY | 元履歴のvalidateと全区間投影は成功しても、prefix証拠再検査は上表の既存エラーで拒否する既知の制限 |
+| 上の組の最後をPにし、さらに後の不要RESTARTをDROPする | 組は保持し再生しない。DROPあり・released_daysにdecisionなし・他の条件も満たす入力で復元成功。組より前のRESTARTを取り消すことの代替成功例ではない |
 
 新コードで許す既存公開依存は、History/validate_history/read_effective/project_history_ledger、history_dict/check_json/種別定数、basis_request_hash/is_int/is_hex64/is_date/same、FixedFacts/LedgerContext、check_commands、apply_records/check_versions、台帳parse/digest/copy_sessions、requested_text/is_requested_text/valid_request_id、MarketState/MarketRow/parse_iso_date、parse_observation/select_decision、apply_transition/evaluate_day、canonical_json/sha256_text/compute_event_hash、session_dict/row_dict/decision_dict/confirmed_inputs_dict/input_hash_of/project_context/serialize_transition/make_apply_event、PersistenceError/CoreError/InputError/ConflictError。実装で実際に使うものだけimportし、不要な公開名は増やさない。
 標準ライブラリはcopy/json。既存private名、Chain/ledger_of/_Walk/_Frozen、Ctx/SnapshotViewの代用品、S1 planやB-2 batchを保存用に流用することは禁止。テストヘルパーをランタイムから呼ばない。
@@ -237,9 +259,26 @@ InputErrorの日付/セッション/市場系列エラー、S3-Aのresolution_in
 
 | ID | 判断 | 推奨（未採用） |
 |---|---|---|
-| D-1 | 候補HistoryまでのB-4限定範囲、CONSUME保留と必要時停止、既存ランタイム無変更・公開S3-A橋渡し、新ID/同計画再確認、旧範囲試験2本の限定補正を採用するか | 採用を推奨 |
-| D-2 | DROPなし・全REAPPLY同一の無効果復元を計画で拒否するか | §10のrestore_no_effectを推奨。既存検査器は変更しない |
-| D-3 | 実装担当 | Sonnet 5.5・highを推奨。上記で仕様を固定した後の純粋な計画/検証実装。矛盾は主担当へ返す |
+| D-1 | 候補HistoryまでのB-4限定範囲、CONSUME保留と必要時停止、**§7.1案aの既知の拒否制限**、既存ランタイム無変更・公開S3-A橋渡し、新ID/同計画再確認、旧範囲試験2本の限定補正を採用するか | 案aを明記した第2版をレビュー後、採用することを推奨。制限解消を実装担当へ委ねない |
+| D-2 | DROPなし・全REAPPLY同一の無効果復元を計画で拒否するか | §10のrestore_no_effectを推奨。今回の前提ではDROPなしの拒否と同値。既存検査器は変更しない |
+| D-3 | 実装担当 | Sonnet 5.5・highを推奨。§7.1案aを含むD-1採用後の固定仕様で実装する。案b/cを独断で選ばず、矛盾は主担当へ返す |
 
 CONSUME、B-5、S3-C、全体稼働、本番保存先・資格情報は今回の採否に含まない。モデル実設定は実装セッションで確認する。
 変更境界・範囲試験の補正・受入条件・限定欠陥注入は、対になるdocs/tasks/V2_RECOVERY_S3B4_LIMITED_IMPLEMENTATION_REQUEST.mdで固定する。レビュー後にD-1〜D-3を一組で採否判断し、採用後に別実装ブランチで着手する。
+
+## 15. 第2版の改訂
+
+初版f942208へのレビュー原文を、本版と同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B4_REVIEW_20261102.mdに、取得した本文のまま保存する。N-01〜N-03のスクラッチ実行はレビュー担当の報告であり、本補正ではコード変更・試験実行・再現コード・市場計算は0。添付の確認スクリプト/一時差分は今回取得・再実行していない。
+
+| ID | 反映 |
+|---|---|
+| N-01 | 対になる依頼§3.2でr3_07のA/MとGit除外後の期待パスを補正。既存2本の比較元は維持し、d82a5ce起点の新B-4 scopeで今回の変更を監査 |
+| N-02 | §5・§7・§8・§9でreleased_days→decision→市場値→B-2最終照合/集合一致→evaluate_day→無効果→basisへ順序を固定 |
+| N-03 | §7.1・§12・§13・D-1/D-3に案aの既知の制限と拒否2例/成功対照を明記。案b/cは実装せず別設計へ |
+| P-01 | §10にDROPなし拒否との同値を説明。再計算/入力照合は省かず、same判定だけの削除は等価変異として扱う |
+| P-02 | §13のsource投影失敗→DROP成功例を、残る文脈へ影響しない宣言context差等で具体化 |
+| P-03 | 依頼B4-01/B4-20でB-3 runtime/tests/結果の固定をd82a5ce起点の新B-4 scopeが担うと明記 |
+| P-04 | 依頼B4-20でrestore語を禁止せず、CONSUMEは拒否/固定エラー用途のみ。新DのAPPLY生成経路を作らないことを確認 |
+| P-05 | §5で残す文脈は段階4、候補全体は段階6と区別。両方ともIDより後 |
+
+公開API、23キーbasis、15キーRESTORE記録、コード開始点d82a5ce、候補Historyまで・既存ランタイム無変更、CONSUME保留は維持する。D-1〜D-3は推奨のままで未採用、B-4実装は未承認。
