@@ -248,7 +248,7 @@ InputErrorの日付/セッション/市場系列エラー、S3-Aのresolution_in
 | 上位例R/R-bの複数回復元・ACK/DECLARE再生 | 実際の台帳/seriesを注入し、元の例IDを維持。新しい外側IDは未使用のr4-review-1等。B-1の構造だけの合格をB-4の証拠合格とみなさない |
 | Pが旧復元バッチの途中のAPPLY | 有効点なら受理し得る。Pで切った不完全な物理Historyを検証する実装は拒否する |
 | 全REAPPLY true、DROPなし | 新IDでもrestore_no_effect。DROPのある正常計画の候補を同planで再確認する対照はNO_CHANGE |
-| DECLAREの保存contextと現在sessionsがずれ、そのDECLAREをDROPする。released_daysに有効decisionなし | sourceの現在投影はsession_context_mismatchでも、candidateでその宣言を外せば成功し得る。ずれた日を残るAPPLY/境界が使う場合は成功例にしない。RESTARTの保存境界差をDROPで除く対照も可 |
+| DECLAREの保存contextと現在sessionsがずれ、そのDECLAREをDROPする。released_daysに有効decisionなし | sourceの現在投影はsession_context_mismatchでも、candidateでその宣言を外せば成功し得る。ずれた日を候補に残るAPPLY（今回REAPPLYするAPPLYも含む）/境界が使う場合は成功例にしない。最も単純な成功例はDECLAREを最後の記録にする。RESTARTの保存境界差をDROPで除く対照も可 |
 | §7.1のDECLARE+LATE / ROW_REMOVED+CHANGEDをともにREPLAY | 元履歴のvalidateと全区間投影は成功しても、prefix証拠再検査は上表の既存エラーで拒否する既知の制限 |
 | 上の組の最後をPにし、さらに後の不要RESTARTをDROPする | 組は保持し再生しない。DROPあり・released_daysにdecisionなし・他の条件も満たす入力で復元成功。組より前のRESTARTを取り消すことの代替成功例ではない |
 
@@ -282,3 +282,5 @@ CONSUME、B-5、S3-C、全体稼働、本番保存先・資格情報は今回の
 | P-05 | §5で残す文脈は段階4、候補全体は段階6と区別。両方ともIDより後 |
 
 公開API、23キーbasis、15キーRESTORE記録、コード開始点d82a5ce、候補Historyまで・既存ランタイム無変更、CONSUME保留は維持する。D-1〜D-3は推奨のままで未採用、B-4実装は未承認。
+
+第2版再レビュー補記（2026-11-02）：§13の成功例で「残るAPPLY」に今回REAPPLYするAPPLYも含むことを明記した。再レビュー原文は本補記と同じ固定コミットのdocs/reviews/V2_RECOVERY_S3B4_V2_REREVIEW_20261102.mdに保存する。依頼書・方式・受入条件・D-1〜D-3の未採用と実装未承認は不変。本補記でコード変更・試験実行・市場計算は行っていない。
