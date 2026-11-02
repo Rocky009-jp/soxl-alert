@@ -104,6 +104,24 @@ class ReplayEvidence(unittest.TestCase):
         ledger = R.O.project_history_ledger(res.history, b.w.sessions, b.w.ledger, D[5])
         self.assertEqual(len(ledger.rows), len(b.w.ledger) - 1)                          # the late row stays excluded
 
+    def test_the_prior_rows_come_from_the_unchanged_exclusion_then_supplement_then_version_choice(self):
+        b = R.ex_ack_between()
+        order = []
+        real_apply, real_versions = build.apply_records, build.check_versions
+
+        def apply_spy(*a, **k):
+            order.append("apply_records")
+            return real_apply(*a, **k)
+
+        def versions_spy(*a, **k):
+            order.append(("check_versions", a[3]))
+            return real_versions(*a, **k)
+
+        with mock.patch.object(build, "apply_records", side_effect=apply_spy), \
+                mock.patch.object(build, "check_versions", side_effect=versions_spy):
+            R.prep(b, 1, {2: "DROP", 3: "REAPPLY", 4: "REPLAY", 5: "REAPPLY"}, D[5], "r4-1")
+        self.assertEqual(order, ["apply_records", ("check_versions", "resolutions")])
+
     def test_a_version_choice_stays_refused(self):
         # ROW_REMOVED and then CHANGED: dropping only the removal would leave two versions of the record
         b = R.ex_removed_then_changed()[0]
@@ -197,6 +215,21 @@ class CompleteCandidate(unittest.TestCase):
             return check
 
         with mock.patch.object(build, "validate_history", side_effect=second_answer_differs):
+            self.assertEqual(err(R.prep, self.b, 1, self.map, D[5], "r4-1"),
+                             ("history_invalid", "history", "restore_candidate", None))
+
+    def test_a_candidate_whose_superseded_column_differs_is_refused(self):
+        real = build.validate_history
+        calls = []
+
+        def other_column(history):
+            check = real(history)
+            calls.append(check)
+            if len(calls) == 2:
+                return _with(check, superseded_seqs=tuple(check.superseded_seqs)[:-1])
+            return check
+
+        with mock.patch.object(build, "validate_history", side_effect=other_column):
             self.assertEqual(err(R.prep, self.b, 1, self.map, D[5], "r4-1"),
                              ("history_invalid", "history", "restore_candidate", None))
 

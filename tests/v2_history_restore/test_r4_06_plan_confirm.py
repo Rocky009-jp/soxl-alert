@@ -136,6 +136,14 @@ class Confirmation(unittest.TestCase):
         self.assertEqual([e["kind"] for e in again.history.events].count("RECOVERY_RESTORE"), 1)
         self.assertEqual((again.committed, again.committable), (False, False))
 
+    def test_branch_b_validates_the_original_prefix_of_the_candidate(self):
+        res = R.confirm(self.plan, self.b.history(), self.b.w)
+        with mock.patch("v2_history_restore.confirm.validate_history", wraps=V.validate_history) as spy:
+            R.confirm(self.plan, res.history, self.b.w)
+        lengths = [len(c[0][0].events) for c in spy.call_args_list]
+        self.assertIn(len(self.b.events), lengths)                                   # the physical prefix up to the plan's head
+        self.assertIn(len(res.history.events), lengths)                              # and the candidate
+
     def test_every_confirmation_rebuilds_the_whole_basis_and_checks_the_original_prefix(self):
         with mock.patch("v2_history_restore.confirm.build_restore", wraps=build.build_restore) as spy:
             R.confirm(self.plan, self.b.history(), self.b.w)
@@ -166,6 +174,13 @@ class Confirmation(unittest.TestCase):
         other_plan = R.prep(b, 0, {1: "REAPPLY", 2: "DROP", 3: "REAPPLY"}, D[4], "r4-9", ledger=ledger)
         other = R.confirm(other_plan, b.history(), b.w, ledger=ledger).history          # another restore of the same history
         self.assertEqual(err(R.confirm, plan, other, b.w, ledger=ledger)[:2], ("history_plan_stale", "plan"))
+
+    def test_an_invalid_history_is_its_own_error_not_a_stale_plan(self):
+        history = H.mutated(self.b.events, lambda ev: ev[3].__setitem__("d", D[9]))
+        e = R.refusal(R.confirm, self.plan, history, self.b.w)
+        self.assertEqual((e.code, e.field), ("history_invalid", "history"))
+        e = R.refusal(R.confirm, self.plan, self.b.history(), self.b.w, ledger=[{"record_id": "bad"}])
+        self.assertNotEqual(e.code, "history_plan_stale")
 
     def test_a_normal_change_of_the_inputs_is_stale(self):
         history = self.b.history()
@@ -206,10 +221,14 @@ class StrictSeries(object):
 
     def previous_date(self, d):
         self.log.append(("previous_date", d))
+        if self.cut is None:
+            raise AssertionError("previous_date was asked of the whole series, not of its cut")
         return self.base.previous_date(d)
 
     def row(self, d):
         self.log.append(("row", d))
+        if self.cut is None:
+            raise AssertionError("a row was asked of the whole series, not of its cut")
         if self.cut is not None and d > self.cut:
             raise AssertionError("a row after the cut was asked for: %s > %s" % (d, self.cut))
         return self.base.row(d)
