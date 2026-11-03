@@ -18,11 +18,11 @@ from v2_core.state import MarketState
 from v2_core.transition import apply_transition
 from v2_history.common import same
 from v2_history.values import ACK, APPLY, DECLARE_MISSING, RESTART_UNKNOWN
-from v2_persistence.events import input_hash_of, serialize_transition, session_dict
+from v2_persistence.events import decision_dict, input_hash_of, serialize_transition, session_dict
 
 from .chain import context_mismatch, context_missing, contexts_agree, floor_of, frontier_of, last_segment
 from .errors import restore_invalid
-from .values import DROP, REAPPLY, REPLAY, RETIRE
+from .values import CONSUME, DROP, REAPPLY, REPLAY, RETIRE
 
 _APPLY_FIELDS = ("input_hash", "skipped_sessions", "state_after", "transition_result")
 
@@ -59,6 +59,9 @@ class Draft:
         self.created = {}          # old seq -> new seq
         self.reapplied = []        # (old record, new draft), in order
         self.replayed = set()      # the new seqs of the replayed records
+        self.consumed = []         # (day, new draft) of each CONSUME, in order
+        self.made = []             # the new APPLY drafts of the REAPPLY and CONSUME operations, in the order of the operations
+        self.new_skips = set()     # the days that a REAPPLY newly passes over, a day consumed in front of it counted
 
 
 def _reapply(work, old, new_seq, sl):
@@ -66,6 +69,8 @@ def _reapply(work, old, new_seq, sl):
     d = old["d"]
     seg = last_segment(work)
     base = seg["applies"][-1]["d"] if seg["applies"] else seg["date"]
+    if not base < d:                       # only a CONSUME put in front of it, for a later day, can make this so
+        raise restore_invalid("ops", "restore_consume_order", detail=base)
     nxt = sl.next(d)
     index = {s.date: i for i, s in enumerate(sl.sessions)}
     if base not in index:
@@ -94,6 +99,36 @@ def _reapply(work, old, new_seq, sl):
            "transition_result": serialize_transition(t), "state_after": t.next_state.to_dict()}
     changed = sorted(name for name in _APPLY_FIELDS if not same(rec[name], old[name]))
     return rec, changed
+
+
+def _consume(work, d, new_seq, sl, decision, item):
+    """A new APPLY for a day that the operations set free: the decision the kept records leave for D and the market values
+    fixed from the injected series (item), through the unchanged apply_transition on the new parent. The session range
+    and the skipped sessions are those of an ordinary day: from the base of the segment (its last APPLY day, else its
+    boundary) to next(D), the sessions between the base and D being skipped."""
+    seg = last_segment(work)
+    base = seg["applies"][-1]["d"] if seg["applies"] else seg["date"]
+    if not base < d:
+        raise restore_invalid("ops", "restore_consume_order", detail=d)
+    index = {s.date: i for i, s in enumerate(sl.sessions)}
+    if base not in index:
+        raise context_missing(d)
+    between = [s for s in sl.sessions if base < s.date < d]
+    for s in between:
+        if not s.confirmed:
+            raise InputError("intermediate_session_unconfirmed", "sessions", detail=s.date)
+    context = [session_dict(s) for s in sl.sessions[index[base]:index[sl.next(d).date] + 1]]
+    ci = {"decision": decision_dict(decision), "row": copy.deepcopy(item["row"]),
+          "prev_row": copy.deepcopy(item["prev_row"]), "prev_session_date": item["prev_session_date"],
+          "session_context": context}
+    prev_row = None if item["prev_row"] is None else _row(item["prev_row"])
+    t = apply_transition(MarketState.from_dict(work[-1]["state_after"]), d, item["prev_session_date"],
+                         _row(item["row"]), prev_row, decision)
+    if t.next_state is None:
+        raise restore_invalid("ops", "restore_consume_input", detail=d)
+    return {"kind": APPLY, "seq": new_seq, "parent_seq": new_seq - 1, "parent_hash": None, "d": d,
+            "confirmed_inputs": ci, "input_hash": input_hash_of(ci), "skipped_sessions": [s.date for s in between],
+            "transition_result": serialize_transition(t), "state_after": t.next_state.to_dict()}
 
 
 def _replay_resolution(work, old, new_seq, sl, mapped, fixups):
@@ -169,12 +204,15 @@ def settle_changes(draft, events, created):
             change["changed_fields"] = sorted(name for name in _ACK_FIELDS if not same(new[name], old[name]))
 
 
-def plan_records(events, kept, superseded, plan_ops, sl):
+def plan_records(events, kept, superseded, plan_ops, sl, consume_inputs=None):
     """The working list after the restore point, operation by operation. kept are the effective seqs up to and
-    including the restore point; superseded the ones after it. Returns a Draft."""
+    including the restore point; superseded the ones after it (plan_ops names each of them once, in order, with the
+    CONSUME entries standing between). consume_inputs maps each CONSUME day to its (decision, fixed series item).
+    Returns a Draft."""
     work = [copy.deepcopy(events[s]) for s in kept]
     kept_set = set(kept)
     draft = Draft()
+    consumed_since = []                              # CONSUME days after the last APPLY that was not a CONSUME / restart
     new_seq = len(events) + 1                         # the RECOVERY_RESTORE record takes len(events)
 
     def mapped(target):
@@ -184,7 +222,21 @@ def plan_records(events, kept, superseded, plan_ops, sl):
             return target
         raise restore_invalid("ops", "restore_ref_unmapped")
 
-    for entry, seq in zip(plan_ops, superseded):
+    for entry in plan_ops:
+        if entry["op"] == CONSUME:
+            d = entry["d"]
+            new = _consume(work, d, new_seq, sl, *consume_inputs[d])
+            draft.entries.append({"op": CONSUME, "from_seq": None, "d": d, "seq": new_seq, "same_as_superseded": None})
+            draft.changes.append({"op": CONSUME, "from_seq": None, "kind": new["kind"], "d": d, "to_seq": new_seq,
+                                  "same_as_superseded": None, "changed_fields": []})
+            draft.consumed.append((d, new))
+            consumed_since.append(d)
+            draft.made.append(new)
+            draft.records.append(new)
+            work.append(new)
+            new_seq += 1
+            continue
+        seq = entry["from_seq"]
         op, old = entry["op"], events[seq]
         if op in (DROP, RETIRE):
             draft.entries.append({"op": op, "from_seq": seq, "d": None, "seq": None, "same_as_superseded": None})
@@ -196,9 +248,13 @@ def plan_records(events, kept, superseded, plan_ops, sl):
             draft.entries.append({"op": op, "from_seq": seq, "d": old["d"], "seq": new_seq,
                                   "same_as_superseded": same_flag})
             draft.reapplied.append((old, new))
+            draft.made.append(new)
+            draft.new_skips |= (set(new["skipped_sessions"]) | set(consumed_since)) - set(old["skipped_sessions"])
+            consumed_since = []
         else:                                           # REPLAY: the only operation left
             if old["kind"] == RESTART_UNKNOWN:
                 new, changed = _replay_restart(work, old, new_seq)
+                consumed_since = []
             else:
                 new, changed = _replay_resolution(work, old, new_seq, sl, mapped, draft.fixups)
             same_flag = None

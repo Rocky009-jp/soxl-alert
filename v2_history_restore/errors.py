@@ -2,9 +2,10 @@
 from v2_persistence.errors import PersistenceError
 
 
-def restore_invalid(field, rule):
-    """A mistake in what the caller asked for (or a plan that cannot be read), as opposed to a broken history."""
-    return PersistenceError("restore_invalid", field, rule=rule)
+def restore_invalid(field, rule, detail=None):
+    """A mistake in what the caller asked for (or a plan that cannot be read), as opposed to a broken history. detail is
+    only ever a day."""
+    return PersistenceError("restore_invalid", field, rule=rule, detail=detail)
 
 
 def candidate_invalid():
@@ -13,7 +14,7 @@ def candidate_invalid():
 
 
 def requires_consume(d):
-    """A day would have to be consumed anew; CONSUME is not planned in this stage."""
+    """A day the operations set free has a decision and the caller did not name it in a CONSUME."""
     return PersistenceError("restore_requires_consume", "ops", detail=d)
 
 

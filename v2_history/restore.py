@@ -2,8 +2,12 @@
 (design 8.1-8.6). Only the form and the facts of the batch are checked here; the created records must also pass the
 ordinary view rules (view.py) in the chain views that contain them.
 
-CONSUME is refused (restore_op_unsupported / unsupported_event). RECOVERY_PREFIX_ADOPTION cannot be restored
-before (restore_before_adoption).
+CONSUME (stage C-1) is a new APPLY for a day that the operations set free of a record that had passed over it. Only its
+form, place and day are checked here: the day is not the day of a superseded APPLY, it is named once, it does not stand
+inside one request batch, and the record it made is an APPLY of that day. Which days are free, and which decision and
+market values the new APPLY was made with, need the ledger, the sessions and the series, so they are the plan's matter
+(v2_history_restore), as the decisions and market values of a REAPPLY are. The created APPLY passes the ordinary rules of
+the chain view like any other. RECOVERY_PREFIX_ADOPTION cannot be restored before (restore_before_adoption).
 """
 from v2_recovery.common import is_requested_text, valid_request_id
 
@@ -118,21 +122,31 @@ def _check_one(events, parents, migration_seq, k, rec, replayed):
     replay = rec["replay"]
     if not isinstance(replay, list) or not isinstance(ops, list):
         raise _bad("restore_replay_mismatch")
-    for entry in list(ops) + list(replay):
-        if isinstance(entry, dict) and entry.get("op") == CONSUME:
-            raise _bad("restore_op_unsupported")
-    if len(replay) != len(superseded) or len(ops) != len(superseded):
+    if len(replay) != len(ops):
         raise _bad("restore_replay_mismatch")
-    for entry, op_entry, s in zip(replay, ops, superseded):
+    for entry in replay:
         if not isinstance(entry, dict) or set(entry) != REPLAY_KEYS:
             raise _bad("restore_replay_mismatch")
+    named = []                               # (replay entry, ops entry) of the operations that name a superseded record
+    for entry, op_entry in zip(replay, ops):
+        if entry["op"] != CONSUME:
+            named.append((entry, op_entry))
+            continue
+        if entry["from_seq"] is not None or entry["same_as_superseded"] is not None or not is_date(entry["d"]):
+            raise _bad("restore_replay_mismatch")
+        if not same(op_entry, {"op": CONSUME, "d": entry["d"]}):
+            raise _bad("request_basis")
+    if len(named) != len(superseded):
+        raise _bad("restore_replay_mismatch")
+    for (entry, op_entry), s in zip(named, superseded):
         if entry["op"] not in _ALL_OPS or entry["op"] not in _ALLOWED[events[s]["kind"]]:
             raise _bad("restore_op_kind")
         if entry["from_seq"] != s or not is_int(entry["from_seq"]):
             raise _bad("restore_replay_mismatch")
         if not same(op_entry, {"op": entry["op"], "from_seq": entry["from_seq"]}):
             raise _bad("request_basis")
-    _check_batch_ops(events, replay, superseded)
+    _check_batch_ops(events, [entry for entry, _op in named], superseded)
+    _check_consumes(events, replay, superseded)
     _check_window(events, k, replay, superseded, point, pos, replayed)
 
 
@@ -171,11 +185,45 @@ def _check_batch_ops(events, replay, superseded):
         raise _bad("restore_partial_batch")
 
 
+def _check_consumes(events, replay, superseded):
+    """A CONSUME is not the day of a superseded APPLY, is named once, and does not stand between two operations on the
+    records of one request (a batch is dropped or replayed as a whole, and nothing is put inside it)."""
+    applied = {events[s]["d"] for s in superseded if events[s]["kind"] == APPLY}
+    named = iter(superseded)
+    seen, owners = set(), []                  # owners: the request of each place; None for a record of no request
+    for entry in replay:
+        if entry["op"] == CONSUME:
+            if entry["d"] in applied:
+                raise _bad("restore_consume_applied_day")
+            if entry["d"] in seen:
+                raise _bad("restore_consume_duplicate")
+            seen.add(entry["d"])
+            owners.append(CONSUME)
+        else:
+            ev = events[next(named)]
+            owners.append(ev["request_id"] if ev["kind"] in (ACK, DECLARE_MISSING) else None)
+    for i, owner in enumerate(owners):
+        if owner == CONSUME:
+            before = {o for o in owners[:i] if o not in (None, CONSUME)}
+            after = {o for o in owners[i + 1:] if o not in (None, CONSUME)}
+            if before & after:
+                raise _bad("restore_consume_in_batch")
+
+
 def _check_window(events, k, replay, superseded, point, pos, replayed):
     created_map, dropped = {}, set()
     plan = []
     n = 0
-    for entry, s in zip(replay, superseded):
+    named = iter(superseded)
+    for entry in replay:
+        if entry["op"] == CONSUME:
+            created = k + 1 + n
+            n += 1
+            if entry["seq"] != created or not is_int(entry["seq"]):
+                raise _bad("restore_replay_mismatch")
+            plan.append((entry, None, created))
+            continue
+        s = next(named)
         if entry["op"] in (REAPPLY, REPLAY):
             created = k + 1 + n
             n += 1
@@ -188,7 +236,14 @@ def _check_window(events, k, replay, superseded, point, pos, replayed):
                 raise _bad("restore_replay_mismatch")
             dropped.add(s)
     for entry, s, created in plan:
-        if created >= len(events) or events[created]["kind"] != events[s]["kind"]:
+        if created >= len(events):
+            raise _bad("restore_incomplete")
+        if s is None:                                   # a consumed day: an APPLY of that day
+            if events[created]["kind"] != APPLY:
+                raise _bad("restore_incomplete")
+            if events[created]["d"] != entry["d"]:
+                raise _bad("restore_replay_mismatch")
+        elif events[created]["kind"] != events[s]["kind"]:
             raise _bad("restore_incomplete")
     point_pos = pos[point]
 
@@ -200,6 +255,8 @@ def _check_window(events, k, replay, superseded, point, pos, replayed):
         return target
 
     for entry, s, created in plan:
+        if s is None:
+            continue                                    # a consumed day: the chain view checks it like any APPLY
         old, new = events[s], events[created]
         if entry["op"] == REAPPLY:
             _check_reapply(entry, old, new)

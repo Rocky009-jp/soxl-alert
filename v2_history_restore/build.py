@@ -2,11 +2,13 @@
 basis. prepare_restore_plan runs it once on the given history; confirm_restore_plan runs it again on the original
 history and compares the result with the plan's basis.
 
-The order is fixed (design 5): the history, sessions, dates and ledger rows -> check_d, the restore point and the
-operations -> requested_at, the request id -> the saved context that stays, the series inputs, and every new content
-item -> the hashes and the candidate as a whole -> the evidence of the replayed requests, the facts of the whole
-candidate and the rows they leave -> the days that would need a new consumption, the saved decisions, the saved market
-inputs -> the final projection of the unchanged B-2 function, then evaluate_day -> the no-effect rule -> the basis.
+The order is fixed (design 5; C-1 design 3.4): the history, sessions, dates and ledger rows -> check_d, the restore
+point and the operations -> requested_at, the request id -> the saved context that stays, the series inputs, the
+decision of each consumed day and every new content item, then the days that were consumed must be days the operations
+set free -> the hashes and the candidate as a whole -> the evidence of the replayed requests, the facts of the whole
+candidate and the rows they leave -> the decisions the consumed days were made with, the days that still need a
+consumption, the saved decisions, the saved market inputs -> the final projection of the unchanged B-2 function, then
+evaluate_day for every re-applied and consumed day -> the no-effect rule -> the basis.
 
 No market rule, threshold or state formula is written here: the new APPLY records come from the unchanged
 apply_transition (records.py), the whole candidate is checked by the unchanged validate_history and projected by the
@@ -35,10 +37,10 @@ from v2_recovery.project import apply_records, check_versions
 
 from .chain import context_mismatch, context_missing, facts_of, frontier_of, last_segment
 from .errors import candidate_invalid, decision_changed, market_input_changed, no_effect, requires_consume, restore_invalid
-from .market import digest_of, series_inputs
+from .market import digest_of, fixed_days, series_inputs
 from .points import check_ops, check_point
 from .records import plan_records, settle_changes
-from .values import DROP, OPERATION, READY, REAPPLY, REASON, REPLAY
+from .values import CONSUME, DROP, OPERATION, READY, REAPPLY, REASON, REPLAY
 
 
 def requested_at_of(value):
@@ -66,8 +68,10 @@ def _check_check_d(check, sl, check_d):
 
 def _check_replayed_boundaries(events, superseded, plan_ops, sl):
     """A restart that is written again keeps its saved boundary session: it must equal the current session of that day."""
-    for entry, seq in zip(plan_ops, superseded):
-        old = events[seq]
+    for entry in plan_ops:
+        if entry["op"] == CONSUME:
+            continue
+        old = events[entry["from_seq"]]
         if entry["op"] == REPLAY and old["kind"] == RESTART_UNKNOWN:
             now = sl.get(old["resume_after"])
             if now is None:
@@ -169,12 +173,16 @@ def _frontiers_before_restarts(events, effective):
     return out
 
 
-def _released_days(events, effective, superseded, plan_ops, draft, sl, apply_days):
+def _freed_days(events, effective, plan_ops, draft, sl):
     """The days that the operations free of a record that had passed over them (design 8): the declared day of a dropped
-    declaration, the sessions a dropped restart had skipped, and the sessions a re-applied day newly skips."""
+    declaration, the sessions a dropped restart had skipped, and the sessions a re-applied day newly skips (a day consumed
+    in front of the re-applied day counted as one it newly skips). Before the days applied in the candidate are taken out."""
     days = set()
     frontiers = None
-    for entry, seq in zip(plan_ops, superseded):
+    for entry in plan_ops:
+        if entry["op"] == CONSUME:
+            continue
+        seq = entry["from_seq"]
         old = events[seq]
         if entry["op"] == DROP and old["kind"] == DECLARE_MISSING:
             days.add(old["d"])
@@ -182,10 +190,22 @@ def _released_days(events, effective, superseded, plan_ops, draft, sl, apply_day
             if frontiers is None:
                 frontiers = _frontiers_before_restarts(events, effective)
             days.update(s.date for s in sl.sessions if frontiers[seq] < s.date <= old["resume_after"])
-    for old, new in draft.reapplied:
-        days.update(set(new["skipped_sessions"]) - set(old["skipped_sessions"]))
+    days |= draft.new_skips
+    return days
+
+
+def _released_days(events, effective, superseded, plan_ops, draft, sl, apply_days):
+    """The freed days that no APPLY of the candidate covers: the ones that would still have to be consumed."""
     known = {s.date for s in sl.sessions}
-    return sorted(d for d in days if d in known and d not in apply_days)
+    return sorted(d for d in _freed_days(events, effective, plan_ops, draft, sl) if d in known and d not in apply_days)
+
+
+def _check_consumed_released(events, effective, plan_ops, draft, sl):
+    """Each consumed day is a freed day. Checked on the drafts, before any hash is made."""
+    freed = _freed_days(events, effective, plan_ops, draft, sl)
+    for d, _new in draft.consumed:
+        if d not in freed:
+            raise restore_invalid("ops", "restore_consume_not_released", detail=d)
 
 
 def _check_new_days(rows, sl, days):
@@ -202,8 +222,19 @@ def _check_saved_decisions(rows, sl, draft):
             raise decision_changed(old["d"])
 
 
+def _check_consumed_decisions(rows, sl, draft):
+    """The final rows still give each consumed day the decision it was made with (it was chosen from the rows the kept
+    records leave, before the records of the batch were known)."""
+    for d, new in draft.consumed:
+        saved = parse_observation(copy.deepcopy(new["confirmed_inputs"]["decision"]))
+        chosen = select_decision(copy.deepcopy(rows), sl, d)
+        if chosen is None or chosen.record_id != saved.record_id or chosen.fingerprint() != saved.fingerprint():
+            raise decision_changed(d)
+
+
 def _check_saved_market(items, draft):
-    for (old, _new), item in zip(draft.reapplied, items):
+    reapplied = [item for item in items if item["from_seq"] is not None]
+    for (old, _new), item in zip(draft.reapplied, reapplied):
         saved = old["confirmed_inputs"]
         if (not same(item["row"], saved["row"]) or not same(item["prev_row"], saved["prev_row"])
                 or item["prev_session_date"] != saved["prev_session_date"]):
@@ -213,15 +244,34 @@ def _check_saved_market(items, draft):
 def _check_days_again(chain, ledger, cuts, sl, draft):
     """Each re-applied day goes through the unchanged evaluate_day on its new parent state, the same cut of the series
     and the final ledger; the transition and the next state must be the ones that were calculated from the saved
-    inputs. Done only after the final projection has accepted the candidate."""
+    inputs; a consumed day goes the same way. Done only after the final projection has accepted the candidate."""
     index = {r["seq"]: i for i, r in enumerate(chain)}
-    for _old, new in draft.reapplied:
+    for new in draft.made:
         parent = chain[index[new["seq"]] - 1]
         day = evaluate_day(MarketState.from_dict(parent["state_after"]), new["d"], cuts[new["d"]], sl,
                            ledger.raw_observations())
         if (not same(serialize_transition(day), new["transition_result"])
                 or not same(day.next_state.to_dict(), new["state_after"])):
             raise candidate_invalid()
+
+
+def _consume_inputs(ctx, prefix, plan_ops, items, sl):
+    """For each CONSUME day: the decision that the rows left by the kept records give (the unchanged apply_records over
+    the kept acknowledgements and declarations, then the unchanged select_decision), and the series item fixed for that
+    day. A day without a decision is refused. Nothing is read when no day is consumed."""
+    days = [entry["d"] for entry in plan_ops if entry["op"] == CONSUME]
+    if not days:
+        return {}
+    remaining, _actually, _supplemented = apply_records(ctx, [r for r in prefix if r["kind"] in (ACK, DECLARE_MISSING)])
+    rows = sorted((r.cols for r in remaining.values()), key=canonical_json)
+    fixed = {item["d"]: item for item in items if item["from_seq"] is None}
+    out = {}
+    for d in days:
+        decision = select_decision(copy.deepcopy(rows), sl, d)
+        if decision is None:
+            raise restore_invalid("ops", "restore_consume_no_decision", detail=d)
+        out[d] = (decision, fixed[d])
+    return out
 
 
 def build_restore(history, restore_point, ops, sessions, raw_observations, series, check_d, request_id, when):
@@ -244,11 +294,13 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
     effective = list(check.effective_seqs)                                                 # 4
     kept = effective[:pos + 1]
     prefix = [events[s] for s in kept]
-    LedgerContext.from_facts(facts_of(prefix, prefix[-1]["seq"]), sl, raw_observations, check_d)
+    ctx = LedgerContext.from_facts(facts_of(prefix, prefix[-1]["seq"]), sl, raw_observations, check_d)
     _check_replayed_boundaries(events, superseded, plan_ops, sl)
-    olds = [events[e["from_seq"]] for e in plan_ops if e["op"] == REAPPLY]
-    items, cuts = series_inputs(series, sl, olds) if olds else ([], {})
-    draft = plan_records(events, kept, superseded, plan_ops, sl)
+    days = fixed_days(events, plan_ops, sl)
+    items, cuts = series_inputs(series, sl, days) if days else ([], {})
+    consume_inputs = _consume_inputs(ctx, prefix, plan_ops, items, sl)
+    draft = plan_records(events, kept, superseded, plan_ops, sl, consume_inputs)
+    _check_consumed_released(events, effective, plan_ops, draft, sl)
     point = {"seq": restore_point["seq"], "event_hash": restore_point["event_hash"]}
     request_basis = {"request_id": request_id, "restore_point": point, "ops": copy.deepcopy(plan_ops),
                      "check_d": check_d, "reason_code": REASON, "requested_at": requested_at}
@@ -263,15 +315,16 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
     chain = [cand_events[s] for s in cand_check.effective_seqs]
     _replay_evidence(chain, draft.replayed, sl, raw_observations, check_d)                       # 6
     facts, prior, _excluded, _supplemented = _prior_rows(chain, cand_check.head_seq, sl, raw_observations, check_d)
+    _check_consumed_decisions(prior, sl, draft)                                            # 7
     _check_new_days(prior, sl, _released_days(events, effective, superseded, plan_ops, draft, sl, facts.apply_days))
-    _check_saved_decisions(prior, sl, draft)                                               # 7
+    _check_saved_decisions(prior, sl, draft)
     _check_saved_market(items, draft)
     ledger = project_history_ledger(candidate, sessions, raw_observations, check_d)        # 8
     if (not same(ledger.rows, prior) or ledger.effective_digest != sha256_text(canonical_json(prior))
             or ledger.ledger_digest != ledger_text):
         raise candidate_invalid()
     _check_days_again(chain, ledger, cuts, sl, draft)
-    if not any(e["op"] == DROP for e in plan_ops) and all(e["same_as_superseded"] is not False
+    if not any(e["op"] in (DROP, CONSUME) for e in plan_ops) and all(e["same_as_superseded"] is not False
                                                            for e in draft.entries if e["op"] == REAPPLY):
         raise no_effect()
     basis = {

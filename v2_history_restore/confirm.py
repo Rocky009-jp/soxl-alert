@@ -16,9 +16,9 @@ from v2_recovery.common import is_requested_text, valid_request_id
 from v2_recovery.ledger import copy_sessions, ledger_digest, parse_ledger, sessions_digest
 
 from .build import build_restore
-from .market import digest_of, series_inputs
-from .values import (BASIS_KEYS, CONFIRMED_IN_MEMORY, NO_CHANGE, OP_KEYS, OPERATION, OPS, POINT_KEYS, READY, REAPPLY,
-                     REASON, RestoreConfirmResult, RestorePlan, change_ok, series_item_ok)
+from .market import digest_of, fixed_days, series_inputs
+from .values import (BASIS_KEYS, CONFIRMED_IN_MEMORY, CONSUME, CONSUME_KEYS, NO_CHANGE, OP_KEYS, OPERATION, OPS,
+                     POINT_KEYS, READY, REAPPLY, REASON, RestoreConfirmResult, RestorePlan, change_ok, series_item_ok)
 
 _HASH_KEYS = ("history_digest", "expected_head_hash", "expected_state_digest", "request_hash", "ledger_digest",
               "sessions_digest", "series_digest", "effective_digest", "candidate_digest", "candidate_state_digest")
@@ -33,12 +33,23 @@ def _form_ok(basis):
             and all(is_hex64(basis[k]) for k in _HASH_KEYS)
             and isinstance(point, dict) and set(point) == POINT_KEYS and is_int(point["seq"])
             and point["seq"] >= 0 and is_hex64(point["event_hash"])
-            and isinstance(ops, list) and all(isinstance(o, dict) and set(o) == OP_KEYS and o["op"] in OPS
-                                              and is_int(o["from_seq"]) and o["from_seq"] >= 0 for o in ops)
+            and isinstance(ops, list) and all(_op_ok(o) for o in ops)
             and isinstance(basis["series_inputs"], list) and all(series_item_ok(i) for i in basis["series_inputs"])
             and isinstance(basis["changes"], list) and all(change_ok(c) for c in basis["changes"])
             and isinstance(basis["candidate_records"], list) and basis["candidate_records"]
             and isinstance(basis["candidate_history"], dict))
+
+
+def _op_ok(o):
+    """One entry of the plan's ops: {op, from_seq} of the four operations, or {op: CONSUME, d}."""
+    if isinstance(o, dict) and o.get("op") == CONSUME:
+        return set(o) == CONSUME_KEYS and is_date(o["d"])
+    return (isinstance(o, dict) and set(o) == OP_KEYS and o["op"] in OPS and is_int(o["from_seq"])
+            and o["from_seq"] >= 0)
+
+
+def _has_consume(ops):
+    return any(isinstance(o, dict) and o.get("op") == CONSUME for o in ops)
 
 
 def _original_prefix(events, basis):
@@ -92,6 +103,9 @@ def _plan_basis(plan, confirmed_plan_hash):
             or confirmed_plan_hash != view["plan_hash"] or not _form_ok(basis)):
         raise history_plan_mismatch()
     candidate, cand_check, events, original = _candidate_of(basis)
+    stated = events[basis["expected_head_seq"] + 1]["request_basis"]["ops"]       # the RECOVERY_RESTORE of the candidate
+    if (_has_consume(basis["ops"]) or _has_consume(stated)) and not same(basis["ops"], stated):
+        raise history_plan_mismatch()          # the consumed days and their places are those of the plan's own candidate
     _reapply_olds(basis, events)      # the saved APPLY records of the REAPPLY operations: a refusal is still the plan's
     return basis, candidate, cand_check, events, original
 
@@ -104,8 +118,9 @@ def confirm_restore_plan(plan, confirmed_plan_hash, history, sessions, raw_obser
     check = validate_history(history)                                                      # 2
     sl = copy_sessions(sessions)
     rows = parse_ledger(raw_observations)
-    olds = _reapply_olds(basis, cand_events)
-    items = series_inputs(series, sl, olds)[0] if olds else []
+    _reapply_olds(basis, cand_events)
+    days = fixed_days(cand_events, basis["ops"], sl)
+    items = series_inputs(series, sl, days)[0] if days else []
     same_inputs = (ledger_digest(rows) == basis["ledger_digest"] and sessions_digest(sl) == basis["sessions_digest"]
                    and digest_of(items) == basis["series_digest"])
     is_original = (history.digest == basis["history_digest"] and check.head_seq == basis["expected_head_seq"]

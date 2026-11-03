@@ -26,9 +26,11 @@ NO_CHANGE = "NO_CHANGE"
 OPERATION = "soxl-v2-history-restore-plan/1"
 REASON = "RESTORE_VERIFIED_RECORD"
 REAPPLY, REPLAY, DROP, RETIRE = "REAPPLY", "REPLAY", "DROP", "RETIRE"
-OPS = (REAPPLY, REPLAY, DROP, RETIRE)
+CONSUME = "CONSUME"
+OPS = (REAPPLY, REPLAY, DROP, RETIRE)        # the four operations that name a superseded record
 RECORD_KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION)
 OP_KEYS = frozenset(["op", "from_seq"])
+CONSUME_KEYS = frozenset(["op", "d"])
 POINT_KEYS = frozenset(["seq", "event_hash"])
 CHANGE_KEYS = frozenset(["op", "from_seq", "kind", "d", "to_seq", "same_as_superseded", "changed_fields"])
 SERIES_KEYS = frozenset(["from_seq", "d", "prev_session_date", "series_previous_date", "row", "prev_row"])
@@ -45,7 +47,13 @@ _JSON_RULES = ("json_depth", "json_number", "json_key", "json_type")
 
 def change_ok(c):
     """One row of a plan's `changes` in its safe form: the fixed keys, an operation and a record kind of the fixed lists,
-    strict non-negative integers, a real day or None, a real bool or None, and field names of the fixed list only."""
+    strict non-negative integers, a real day or None, a real bool or None, and field names of the fixed list only. The
+    row of a CONSUME names no superseded record: from_seq is null, it makes an APPLY of a real day, and nothing is
+    compared with anything (no same flag, no changed field)."""
+    if isinstance(c, dict) and c.get("op") == CONSUME:
+        return (set(c) == CHANGE_KEYS and c["from_seq"] is None and c["kind"] == APPLY and is_date(c["d"])
+                and is_int(c["to_seq"]) and c["to_seq"] >= 0 and c["same_as_superseded"] is None
+                and c["changed_fields"] == [])
     return (isinstance(c, dict) and set(c) == CHANGE_KEYS and c["op"] in OPS
             and is_int(c["from_seq"]) and c["from_seq"] >= 0 and c["kind"] in RECORD_KINDS
             and (c["d"] is None or is_date(c["d"]))
@@ -64,8 +72,10 @@ def _row_ok(r):
 
 
 def series_item_ok(item):
-    """One fixed series input of a plan in its safe form (the keys of series_inputs, days, a row or None)."""
-    return (isinstance(item, dict) and set(item) == SERIES_KEYS and is_int(item["from_seq"]) and item["from_seq"] >= 0
+    """One fixed series input of a plan in its safe form (the keys of series_inputs, days, a row or None). The item of a
+    CONSUMEd day has from_seq null: no superseded record stands behind it."""
+    return (isinstance(item, dict) and set(item) == SERIES_KEYS
+            and (item["from_seq"] is None or (is_int(item["from_seq"]) and item["from_seq"] >= 0))
             and is_date(item["d"]) and is_date(item["prev_session_date"]) and is_date(item["series_previous_date"])
             and _row_ok(item["row"]) and (item["prev_row"] is None or _row_ok(item["prev_row"])))
 
