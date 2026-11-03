@@ -160,13 +160,13 @@ class RestoreRefusals(unittest.TestCase):
                 got = H.rebuild_edit(full, 18, lambda r: r["replay"][0].update(op=op))
                 H.expect_rule(self, "restore_op_kind", got)
 
-    def test_consume_is_not_supported_in_b1(self):
+    def test_a_consume_entry_of_the_wrong_form_is_refused(self):
         def fn(r):
             r["replay"][0] = {"op": "CONSUME", "d": D[3]}
-        H.expect_rule(self, "restore_op_unsupported", H.rebuild_edit(self.ev, 7, fn))
+        H.expect_rule(self, "restore_replay_mismatch", H.rebuild_edit(self.ev, 7, fn))
         def fn2(r):
             r["replay"].append({"op": "CONSUME", "d": D[5]})
-        H.expect_rule(self, "restore_op_unsupported", H.rebuild_edit(self.ev, 7, fn2))
+        H.expect_rule(self, "restore_replay_mismatch", H.rebuild_edit(self.ev, 7, fn2))
 
     def test_ops_and_replay_must_agree(self):
         ev = H.deep(self.ev)

@@ -27,7 +27,7 @@ ALLOWED_NAMES = {
     "v2_recovery.commands": {"check_commands"},
     "v2_recovery.project": {"apply_records", "check_versions"},
     "v2_persistence.codec": {"canonical_json", "sha256_text", "compute_event_hash"},
-    "v2_persistence.events": {"session_dict", "row_dict", "input_hash_of", "serialize_transition"},
+    "v2_persistence.events": {"session_dict", "row_dict", "input_hash_of", "serialize_transition", "decision_dict"},
     "v2_persistence.errors": {"PersistenceError"},
     "v2_core.state": {"MarketState"},
     "v2_core.fixture": {"parse_iso_date", "MarketRow"},
@@ -55,7 +55,13 @@ FORBIDDEN_ATTRS = {"now", "utcnow", "today", "time", "monotonic", "sleep", "uran
 LATER_STAGE_WORDS = ("unlock", "outbox", "webhook", "discord", "snapshot.json", "notify", "sheet", "historyreplacement",
                      "diagnos", "append_batch", "appendbatch", "adoption", "reinit", "publish", "cas_", "durab", "fsync",
                      "localfile", "memorystore", "journal")
-CONSUME_NAMES = {"requires_consume", "restore_requires_consume"}
+CONSUME_NAMES = {"requires_consume", "restore_requires_consume",
+                 # C-1 (a new APPLY for a day the operations set free): the fixed list of the names that hold the word
+                 "CONSUME", "CONSUME_KEYS", "consume_inputs", "consumed", "consumed_since", "_consume", "_consume_inputs",
+                 "_check_consumed_decisions", "_check_consumed_released", "_check_consumes", "_has_consume",
+                 "restore_consume_applied_day",
+                 "restore_consume_duplicate", "restore_consume_in_batch", "restore_consume_input",
+                 "restore_consume_no_decision", "restore_consume_not_released", "restore_consume_order"}
 OWN_CLASSES = {"RestorePlan", "RestoreConfirmResult"}
 PUBLIC = ["prepare_restore_plan", "confirm_restore_plan", "RestorePlan", "RestoreConfirmResult", "READY",
           "CONFIRMED_IN_MEMORY", "NO_CHANGE"]
@@ -225,9 +231,9 @@ class Runtime(unittest.TestCase):
                     if "consum" in v.lower():
                         found.append((fname, v))
                         self.assertIn(v, CONSUME_NAMES, "%s: %s" % (fname, v))
-        # the one function that raises it and the one place that calls it, and nothing that makes a day of its own
+        # the stop of a freed day that is not consumed is still there, and the names of the consumption are the fixed list
+        self.assertTrue({"requires_consume", "restore_requires_consume"} <= set(v for _f, v in found))
         self.assertEqual(sorted(set(v for _f, v in found)), sorted(CONSUME_NAMES))
-        self.assertEqual(sorted(set(f for f, _v in found)), ["build.py", "errors.py"])
 
     def test_a_new_apply_is_made_only_from_the_day_of_the_record_it_replaces(self):
         sites = []
@@ -242,7 +248,7 @@ class Runtime(unittest.TestCase):
                             kind = node.values[keys.index("kind")]
                             if isinstance(kind, ast.Name) and kind.id == "APPLY":
                                 sites.append((fname, func.name, node, func))
-        self.assertEqual([(f, n) for f, n, _d, _fn in sites], [("records.py", "_reapply")])
+        self.assertEqual([(f, n) for f, n, _d, _fn in sites], [("records.py", "_reapply"), ("records.py", "_consume")])
         _f, _n, record, func = sites[0]
         keys = [k.value for k in record.keys]
         day = record.values[keys.index("d")]
@@ -288,7 +294,7 @@ class Runtime(unittest.TestCase):
         from v2_history_restore import values
         self.assertEqual(values.OPS, ("REAPPLY", "REPLAY", "DROP", "RETIRE"))
         b = R.ex_restart_between()
-        for op, rule in (("CONSUME", "restore_op_unsupported"), ("consume", "restore_op_unsupported"),
+        for op, rule in (("CONSUME", "ops_shape"), ("consume", "restore_op_unsupported"),
                          ("APPLY", "restore_op_unsupported"), ("", "restore_op_unsupported"), (None, "ops_shape"),
                          (1, "ops_shape")):
             ops = R.ops_of(b, 1, {"*": "DROP"})

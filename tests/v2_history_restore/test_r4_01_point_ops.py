@@ -142,8 +142,9 @@ class OperationList(unittest.TestCase):
 
     def test_consume_and_unknown_operations_are_refused_with_any_keys(self):
         unsupported = ("ops", "restore_op_unsupported")
-        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "from_seq": 3}], unsupported)
-        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "d": D[2]}], unsupported)
+        # C-1: CONSUME takes {op, d} only and names no superseded record
+        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "from_seq": 3}], ("ops", "ops_shape"))
+        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "d": D[2]}], ("ops", "superseded_mismatch"))
         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "consume", "from_seq": 3}], unsupported)
         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "MERGE", "from_seq": 3}], unsupported)
         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "", "from_seq": 3}], unsupported)

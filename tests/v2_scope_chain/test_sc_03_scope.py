@@ -10,7 +10,7 @@ import unittest
 import sc_helpers as C
 
 START = "b626c98af5f01bc94e7b41d86aadde9663695eb9"
-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
+END = "bfbde7a7854bf91a77fb58737c24b19c6507453a"   # accepted (re-review 9fe3e19); frozen when C-1 began
 REV = END or "HEAD"
 
 FIVE = ("tests/v2_history_adopt/test_a5_08_scope.py", "tests/v2_history_diagnose/test_d5_08_scope.py",
