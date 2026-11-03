@@ -1,0 +1,759 @@
+diff --git a/tests/v2_history/test_h06_restore_batch.py b/tests/v2_history/test_h06_restore_batch.py
+index 628327e..4770326 100644
+--- a/tests/v2_history/test_h06_restore_batch.py
++++ b/tests/v2_history/test_h06_restore_batch.py
+@@ -160,13 +160,15 @@ class RestoreRefusals(unittest.TestCase):
+                 got = H.rebuild_edit(full, 18, lambda r: r["replay"][0].update(op=op))
+                 H.expect_rule(self, "restore_op_kind", got)
+ 
+-    def test_consume_is_not_supported_in_b1(self):
++    def test_a_consume_entry_of_the_wrong_form_is_refused(self):
++        # C-1: CONSUME is checked by the C-1 tests; an entry without the five keys, or one more entry than the operations,
++        # is still refused
+         def fn(r):
+             r["replay"][0] = {"op": "CONSUME", "d": D[3]}
+-        H.expect_rule(self, "restore_op_unsupported", H.rebuild_edit(self.ev, 7, fn))
++        H.expect_rule(self, "restore_replay_mismatch", H.rebuild_edit(self.ev, 7, fn))
+         def fn2(r):
+             r["replay"].append({"op": "CONSUME", "d": D[5]})
+-        H.expect_rule(self, "restore_op_unsupported", H.rebuild_edit(self.ev, 7, fn2))
++        H.expect_rule(self, "restore_replay_mismatch", H.rebuild_edit(self.ev, 7, fn2))
+ 
+     def test_ops_and_replay_must_agree(self):
+         ev = H.deep(self.ev)
+diff --git a/tests/v2_history_consume/test_c1_09_scope.py b/tests/v2_history_consume/test_c1_09_scope.py
+new file mode 100644
+index 0000000..84451a4
+--- /dev/null
++++ b/tests/v2_history_consume/test_c1_09_scope.py
+@@ -0,0 +1,31 @@
++"""C1-09 (trial): the range of stage C-1 against its code start bfbde7a, read from Git at REV (END = None)."""
++import os
++import subprocess
++import unittest
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
++START = "bfbde7a7854bf91a77fb58737c24b19c6507453a"
++END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++REV = END or "HEAD"
++MODIFIED = {"v2_history/restore.py", "v2_history_restore/__init__.py", "v2_history_restore/build.py",
++            "v2_history_restore/confirm.py", "v2_history_restore/market.py", "v2_history_restore/points.py",
++            "v2_history_restore/records.py", "v2_history_restore/values.py",
++            "tests/v2_history/test_h06_restore_batch.py", "tests/v2_history_restore/test_r4_01_point_ops.py",
++            "tests/v2_history_restore/test_r4_09_scope.py", "tests/v2_scope_chain/test_sc_03_scope.py"}
++
++
++def git(*args):
++    return subprocess.run(("git",) + args, cwd=ROOT, capture_output=True, text=True)
++
++
++class FilesChanged(unittest.TestCase):
++    def setUp(self):
++        if git("cat-file", "-e", START + "^{commit}").returncode or git("cat-file", "-e", REV + "^{commit}").returncode:
++            self.skipTest("the code start commit is not available in this checkout")
++
++    def test_the_changed_paths(self):
++        rows = [l.split("\t") for l in git("diff", "--name-status", START, REV).stdout.splitlines()]
++        self.assertEqual({p for s, p in rows if s == "M"}, MODIFIED)
++        for s, p in rows:
++            if s == "A":
++                self.assertTrue(p.startswith("tests/v2_history_consume/test_c1_"), p)
+diff --git a/tests/v2_history_restore/test_r4_01_point_ops.py b/tests/v2_history_restore/test_r4_01_point_ops.py
+index 98f2f5e..dc2c00c 100644
+--- a/tests/v2_history_restore/test_r4_01_point_ops.py
++++ b/tests/v2_history_restore/test_r4_01_point_ops.py
+@@ -142,8 +142,9 @@ class OperationList(unittest.TestCase):
+ 
+     def test_consume_and_unknown_operations_are_refused_with_any_keys(self):
+         unsupported = ("ops", "restore_op_unsupported")
+-        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "from_seq": 3}], unsupported)
+-        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "d": D[2]}], unsupported)
++        # C-1: CONSUME takes {op, d} only, and does not stand for a superseded record
++        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "from_seq": 3}], ("ops", "ops_shape"))
++        self.bad([{"op": "DROP", "from_seq": 2}, {"op": "CONSUME", "d": D[2]}], ("ops", "superseded_mismatch"))
+         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "consume", "from_seq": 3}], unsupported)
+         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "MERGE", "from_seq": 3}], unsupported)
+         self.bad([{"op": "DROP", "from_seq": 2}, {"op": "", "from_seq": 3}], unsupported)
+diff --git a/tests/v2_history_restore/test_r4_09_scope.py b/tests/v2_history_restore/test_r4_09_scope.py
+index e9b06f8..185e593 100644
+--- a/tests/v2_history_restore/test_r4_09_scope.py
++++ b/tests/v2_history_restore/test_r4_09_scope.py
+@@ -27,7 +27,7 @@ ALLOWED_NAMES = {
+     "v2_recovery.commands": {"check_commands"},
+     "v2_recovery.project": {"apply_records", "check_versions"},
+     "v2_persistence.codec": {"canonical_json", "sha256_text", "compute_event_hash"},
+-    "v2_persistence.events": {"session_dict", "row_dict", "input_hash_of", "serialize_transition"},
++    "v2_persistence.events": {"session_dict", "row_dict", "input_hash_of", "serialize_transition", "decision_dict"},
+     "v2_persistence.errors": {"PersistenceError"},
+     "v2_core.state": {"MarketState"},
+     "v2_core.fixture": {"parse_iso_date", "MarketRow"},
+@@ -55,7 +55,12 @@ FORBIDDEN_ATTRS = {"now", "utcnow", "today", "time", "monotonic", "sleep", "uran
+ LATER_STAGE_WORDS = ("unlock", "outbox", "webhook", "discord", "snapshot.json", "notify", "sheet", "historyreplacement",
+                      "diagnos", "append_batch", "appendbatch", "adoption", "reinit", "publish", "cas_", "durab", "fsync",
+                      "localfile", "memorystore", "journal")
+-CONSUME_NAMES = {"requires_consume", "restore_requires_consume"}
++CONSUME_NAMES = {"requires_consume", "restore_requires_consume",
++                 # C-1 (the consumption of a set-free day)
++                 "CONSUME", "CONSUME_KEYS", "consume_inputs", "consumed", "_consume", "_consume_inputs",
++                 "_check_consume_released", "_check_consumed", "restore_consume_order", "restore_consume_input",
++                 "restore_consume_no_decision", "restore_consume_not_released", "restore_consume_applied_day",
++                 "restore_consume_duplicate", "restore_consume_in_batch", "_check_consumes", "unconsumed", "_unconsumed"}
+ OWN_CLASSES = {"RestorePlan", "RestoreConfirmResult"}
+ PUBLIC = ["prepare_restore_plan", "confirm_restore_plan", "RestorePlan", "RestoreConfirmResult", "READY",
+           "CONFIRMED_IN_MEMORY", "NO_CHANGE"]
+@@ -225,9 +230,8 @@ class Runtime(unittest.TestCase):
+                     if "consum" in v.lower():
+                         found.append((fname, v))
+                         self.assertIn(v, CONSUME_NAMES, "%s: %s" % (fname, v))
+-        # the one function that raises it and the one place that calls it, and nothing that makes a day of its own
+-        self.assertEqual(sorted(set(v for _f, v in found)), sorted(CONSUME_NAMES))
+-        self.assertEqual(sorted(set(f for f, _v in found)), ["build.py", "errors.py"])
++        # C-1: the names of the consumption are the fixed list only
++        self.assertTrue({"requires_consume", "restore_requires_consume"} <= set(v for _f, v in found))
+ 
+     def test_a_new_apply_is_made_only_from_the_day_of_the_record_it_replaces(self):
+         sites = []
+@@ -242,7 +246,7 @@ class Runtime(unittest.TestCase):
+                             kind = node.values[keys.index("kind")]
+                             if isinstance(kind, ast.Name) and kind.id == "APPLY":
+                                 sites.append((fname, func.name, node, func))
+-        self.assertEqual([(f, n) for f, n, _d, _fn in sites], [("records.py", "_reapply")])
++        self.assertEqual([(f, n) for f, n, _d, _fn in sites], [("records.py", "_reapply"), ("records.py", "_consume")])
+         _f, _n, record, func = sites[0]
+         keys = [k.value for k in record.keys]
+         day = record.values[keys.index("d")]
+@@ -288,7 +292,7 @@ class Runtime(unittest.TestCase):
+         from v2_history_restore import values
+         self.assertEqual(values.OPS, ("REAPPLY", "REPLAY", "DROP", "RETIRE"))
+         b = R.ex_restart_between()
+-        for op, rule in (("CONSUME", "restore_op_unsupported"), ("consume", "restore_op_unsupported"),
++        for op, rule in (("CONSUME", "ops_shape"), ("consume", "restore_op_unsupported"),
+                          ("APPLY", "restore_op_unsupported"), ("", "restore_op_unsupported"), (None, "ops_shape"),
+                          (1, "ops_shape")):
+             ops = R.ops_of(b, 1, {"*": "DROP"})
+diff --git a/tests/v2_scope_chain/test_sc_03_scope.py b/tests/v2_scope_chain/test_sc_03_scope.py
+index d8877d5..5d7d316 100644
+--- a/tests/v2_scope_chain/test_sc_03_scope.py
++++ b/tests/v2_scope_chain/test_sc_03_scope.py
+@@ -10,7 +10,7 @@ import unittest
+ import sc_helpers as C
+ 
+ START = "b626c98af5f01bc94e7b41d86aadde9663695eb9"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "bfbde7a7854bf91a77fb58737c24b19c6507453a"   # accepted (re-review 9fe3e19); frozen when C-1 began
+ REV = END or "HEAD"
+ 
+ FIVE = ("tests/v2_history_adopt/test_a5_08_scope.py", "tests/v2_history_diagnose/test_d5_08_scope.py",
+diff --git a/v2_history/restore.py b/v2_history/restore.py
+index ed1428a..f9dfbae 100644
+--- a/v2_history/restore.py
++++ b/v2_history/restore.py
+@@ -2,8 +2,10 @@
+ (design 8.1-8.6). Only the form and the facts of the batch are checked here; the created records must also pass the
+ ordinary view rules (view.py) in the chain views that contain them.
+ 
+-CONSUME is refused (restore_op_unsupported / unsupported_event). RECOVERY_PREFIX_ADOPTION cannot be restored
+-before (restore_before_adoption).
++CONSUME (a new APPLY for a day the operations set free) is checked for its form and place only: its day is not a day of a
++superseded APPLY and it does not stand inside one request batch. Which days may be consumed, and with which decision and
++market inputs, is the plan's matter (it needs the ledger, the sessions and the series). The created APPLY passes the
++ordinary rules of the chain view. RECOVERY_PREFIX_ADOPTION cannot be restored before (restore_before_adoption).
+ """
+ from v2_recovery.common import is_requested_text, valid_request_id
+ 
+@@ -118,21 +120,25 @@ def _check_one(events, parents, migration_seq, k, rec, replayed):
+     replay = rec["replay"]
+     if not isinstance(replay, list) or not isinstance(ops, list):
+         raise _bad("restore_replay_mismatch")
+-    for entry in list(ops) + list(replay):
+-        if isinstance(entry, dict) and entry.get("op") == CONSUME:
+-            raise _bad("restore_op_unsupported")
+-    if len(replay) != len(superseded) or len(ops) != len(superseded):
++    if len(replay) != len(ops):
+         raise _bad("restore_replay_mismatch")
+-    for entry, op_entry, s in zip(replay, ops, superseded):
++    for entry, op_entry in zip(replay, ops):
+         if not isinstance(entry, dict) or set(entry) != REPLAY_KEYS:
+             raise _bad("restore_replay_mismatch")
++        if entry["op"] == CONSUME and not same(op_entry, {"op": CONSUME, "d": entry["d"]}):
++            raise _bad("request_basis")
++    named = [e for e in replay if e["op"] != CONSUME]
++    if len(named) != len(superseded):
++        raise _bad("restore_replay_mismatch")
++    for entry, op_entry, s in zip(named, [o for o in ops if o.get("op") != CONSUME], superseded):
+         if entry["op"] not in _ALL_OPS or entry["op"] not in _ALLOWED[events[s]["kind"]]:
+             raise _bad("restore_op_kind")
+         if entry["from_seq"] != s or not is_int(entry["from_seq"]):
+             raise _bad("restore_replay_mismatch")
+         if not same(op_entry, {"op": entry["op"], "from_seq": entry["from_seq"]}):
+             raise _bad("request_basis")
+-    _check_batch_ops(events, replay, superseded)
++    _check_batch_ops(events, named, superseded)
++    _check_consumes(events, replay, superseded)
+     _check_window(events, k, replay, superseded, point, pos, replayed)
+ 
+ 
+@@ -171,11 +177,48 @@ def _check_batch_ops(events, replay, superseded):
+         raise _bad("restore_partial_batch")
+ 
+ 
++def _check_consumes(events, replay, superseded):
++    """A CONSUME names a real day once, no day of a superseded APPLY, and stands outside every request batch."""
++    applied = {events[s]["d"] for s in superseded if events[s]["kind"] == APPLY}
++    seen = set()
++    owner = []                                   # the request id of the superseded record at each place, or None
++    it = iter(superseded)
++    for entry in replay:
++        if entry["op"] == CONSUME:
++            d = entry["d"]
++            if entry["from_seq"] is not None or entry["same_as_superseded"] is not None or not is_date(d):
++                raise _bad("restore_replay_mismatch")
++            if d in applied:
++                raise _bad("restore_consume_applied_day")
++            if d in seen:
++                raise _bad("restore_consume_duplicate")
++            seen.add(d)
++            owner.append(CONSUME)
++        else:
++            ev = events[next(it)]
++            owner.append(ev["request_id"] if ev["kind"] in (ACK, DECLARE_MISSING) else None)
++    for i, mark in enumerate(owner):
++        if mark == CONSUME:
++            before = {m for m in owner[:i] if m not in (None, CONSUME)}
++            after = {m for m in owner[i + 1:] if m not in (None, CONSUME)}
++            if before & after:
++                raise _bad("restore_consume_in_batch")
++
++
+ def _check_window(events, k, replay, superseded, point, pos, replayed):
+     created_map, dropped = {}, set()
+     plan = []
+     n = 0
+-    for entry, s in zip(replay, superseded):
++    it = iter(superseded)
++    for entry in replay:
++        if entry["op"] == CONSUME:
++            created = k + 1 + n
++            n += 1
++            if entry["seq"] != created or not is_int(entry["seq"]):
++                raise _bad("restore_replay_mismatch")
++            plan.append((entry, None, created))
++            continue
++        s = next(it)
+         if entry["op"] in (REAPPLY, REPLAY):
+             created = k + 1 + n
+             n += 1
+@@ -188,7 +231,14 @@ def _check_window(events, k, replay, superseded, point, pos, replayed):
+                 raise _bad("restore_replay_mismatch")
+             dropped.add(s)
+     for entry, s, created in plan:
+-        if created >= len(events) or events[created]["kind"] != events[s]["kind"]:
++        if created >= len(events):
++            raise _bad("restore_incomplete")
++        if s is None:
++            if events[created]["kind"] != APPLY:
++                raise _bad("restore_incomplete")
++            if events[created]["d"] != entry["d"]:
++                raise _bad("restore_replay_mismatch")
++        elif events[created]["kind"] != events[s]["kind"]:
+             raise _bad("restore_incomplete")
+     point_pos = pos[point]
+ 
+@@ -200,6 +250,8 @@ def _check_window(events, k, replay, superseded, point, pos, replayed):
+         return target
+ 
+     for entry, s, created in plan:
++        if s is None:
++            continue                                  # a consumed day: the chain view checks it as any APPLY
+         old, new = events[s], events[created]
+         if entry["op"] == REAPPLY:
+             _check_reapply(entry, old, new)
+diff --git a/v2_history_restore/__init__.py b/v2_history_restore/__init__.py
+index a848280..3a586dd 100644
+--- a/v2_history_restore/__init__.py
++++ b/v2_history_restore/__init__.py
+@@ -4,9 +4,10 @@ records it makes, on a checked schema-2 history.
+ Pure functions over values passed in. No files, paths, stores, clock, network, notification, credentials, threads or
+ randomness. Depends on the standard library, v2_core, v2_persistence, v2_recovery, v2_history and v2_history_ops (all
+ unchanged). The result is a candidate History, an in-memory verification value: committed and committable are always
+-False, there is no batch, and nothing is stored, published, locked or compared and swapped. Four operations only
+-(REAPPLY, REPLAY, DROP, RETIRE); a day that would have to be consumed anew is refused. Consuming, damage diagnosis and
+-publication are not here. Draft, not adopted for production.
++False, there is no batch, and nothing is stored, published, locked or compared and swapped. Four operations name the
++superseded records (REAPPLY, REPLAY, DROP, RETIRE); CONSUME (stage C-1) makes a new APPLY for a day the operations set
++free, and a set-free day with a decision that is not consumed is still refused. Damage diagnosis and publication are not
++here. Draft, not adopted for production.
+ """
+ from .confirm import confirm_restore_plan
+ from .prepare import prepare_restore_plan
+diff --git a/v2_history_restore/build.py b/v2_history_restore/build.py
+index ac0140e..6cfa64d 100644
+--- a/v2_history_restore/build.py
++++ b/v2_history_restore/build.py
+@@ -35,10 +35,10 @@ from v2_recovery.project import apply_records, check_versions
+ 
+ from .chain import context_mismatch, context_missing, facts_of, frontier_of, last_segment
+ from .errors import candidate_invalid, decision_changed, market_input_changed, no_effect, requires_consume, restore_invalid
+-from .market import digest_of, series_inputs
++from .market import digest_of, series_inputs, targets_of
+ from .points import check_ops, check_point
+ from .records import plan_records, settle_changes
+-from .values import DROP, OPERATION, READY, REAPPLY, REASON, REPLAY
++from .values import CONSUME, DROP, OPERATION, READY, REAPPLY, REASON, REPLAY
+ 
+ 
+ def requested_at_of(value):
+@@ -66,8 +66,10 @@ def _check_check_d(check, sl, check_d):
+ 
+ def _check_replayed_boundaries(events, superseded, plan_ops, sl):
+     """A restart that is written again keeps its saved boundary session: it must equal the current session of that day."""
+-    for entry, seq in zip(plan_ops, superseded):
+-        old = events[seq]
++    for entry in plan_ops:
++        if entry["op"] == CONSUME:
++            continue
++        old = events[entry["from_seq"]]
+         if entry["op"] == REPLAY and old["kind"] == RESTART_UNKNOWN:
+             now = sl.get(old["resume_after"])
+             if now is None:
+@@ -174,7 +176,10 @@ def _released_days(events, effective, superseded, plan_ops, draft, sl, apply_day
+     declaration, the sessions a dropped restart had skipped, and the sessions a re-applied day newly skips."""
+     days = set()
+     frontiers = None
+-    for entry, seq in zip(plan_ops, superseded):
++    for entry in plan_ops:
++        if entry["op"] == CONSUME:
++            continue
++        seq = entry["from_seq"]
+         old = events[seq]
+         if entry["op"] == DROP and old["kind"] == DECLARE_MISSING:
+             days.add(old["d"])
+@@ -185,7 +190,7 @@ def _released_days(events, effective, superseded, plan_ops, draft, sl, apply_day
+     for old, new in draft.reapplied:
+         days.update(set(new["skipped_sessions"]) - set(old["skipped_sessions"]))
+     known = {s.date for s in sl.sessions}
+-    return sorted(d for d in days if d in known and d not in apply_days)
++    return sorted(d for d in days if d in known and d not in apply_days), days
+ 
+ 
+ def _check_new_days(rows, sl, days):
+@@ -202,7 +207,27 @@ def _check_saved_decisions(rows, sl, draft):
+             raise decision_changed(old["d"])
+ 
+ 
++def _check_consume_released(events, effective, superseded, plan_ops, draft, sl):
++    """Each consumed day is a day the operations set free (design: the same released days as the stop rule, before the
++    days applied in the candidate are taken out). Checked on the drafts, before any hash is made."""
++    _unconsumed, released = _released_days(events, effective, superseded, plan_ops, draft, sl, set())
++    for d, _new in draft.consumed:
++        if d not in released:
++            raise restore_invalid("ops", "restore_consume_not_released")
++
++
++def _check_consumed(rows, sl, draft):
++    """The final rows still choose the decision each consumed day was made with (the decision was taken from the rows
++    the kept records leave)."""
++    for d, new in draft.consumed:
++        saved = parse_observation(copy.deepcopy(new["confirmed_inputs"]["decision"]))
++        chosen = select_decision(copy.deepcopy(rows), sl, d)
++        if chosen is None or chosen.record_id != saved.record_id or chosen.fingerprint() != saved.fingerprint():
++            raise decision_changed(d)
++
++
+ def _check_saved_market(items, draft):
++    items = [i for i in items if i["from_seq"] is not None]
+     for (old, _new), item in zip(draft.reapplied, items):
+         saved = old["confirmed_inputs"]
+         if (not same(item["row"], saved["row"]) or not same(item["prev_row"], saved["prev_row"])
+@@ -215,7 +240,7 @@ def _check_days_again(chain, ledger, cuts, sl, draft):
+     and the final ledger; the transition and the next state must be the ones that were calculated from the saved
+     inputs. Done only after the final projection has accepted the candidate."""
+     index = {r["seq"]: i for i, r in enumerate(chain)}
+-    for _old, new in draft.reapplied:
++    for new in [n for _o, n in draft.reapplied] + [n for _d, n in draft.consumed]:
+         parent = chain[index[new["seq"]] - 1]
+         day = evaluate_day(MarketState.from_dict(parent["state_after"]), new["d"], cuts[new["d"]], sl,
+                            ledger.raw_observations())
+@@ -224,6 +249,24 @@ def _check_days_again(chain, ledger, cuts, sl, draft):
+             raise candidate_invalid()
+ 
+ 
++def _consume_inputs(ctx0, prefix, plan_ops, items, sl):
++    """For each CONSUME day: the decision chosen from the rows the kept records leave (the exclusions of the kept
++    acknowledgements and declarations, by the unchanged apply_records), and the fixed series item of that day."""
++    days = [e["d"] for e in plan_ops if e["op"] == CONSUME]
++    if not days:
++        return {}
++    remaining, _actually, _supplemented = apply_records(ctx0, [r for r in prefix if r["kind"] in (ACK, DECLARE_MISSING)])
++    rows = [r.cols for r in remaining.values()]
++    by_day = {i["d"]: i for i in items if i["from_seq"] is None}
++    out = {}
++    for d in days:
++        decision = select_decision(copy.deepcopy(rows), sl, d)
++        if decision is None:
++            raise restore_invalid("ops", "restore_consume_no_decision")
++        out[d] = (decision, by_day[d])
++    return out
++
++
+ def build_restore(history, restore_point, ops, sessions, raw_observations, series, check_d, request_id, when):
+     """Returns (basis, candidate). when() gives the requested_at text; it is asked for after the inputs are read, so
+     that an error of the history, sessions, dates or ledger rows comes first."""
+@@ -244,11 +287,13 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
+     effective = list(check.effective_seqs)                                                 # 4
+     kept = effective[:pos + 1]
+     prefix = [events[s] for s in kept]
+-    LedgerContext.from_facts(facts_of(prefix, prefix[-1]["seq"]), sl, raw_observations, check_d)
++    ctx0 = LedgerContext.from_facts(facts_of(prefix, prefix[-1]["seq"]), sl, raw_observations, check_d)
+     _check_replayed_boundaries(events, superseded, plan_ops, sl)
+-    olds = [events[e["from_seq"]] for e in plan_ops if e["op"] == REAPPLY]
+-    items, cuts = series_inputs(series, sl, olds) if olds else ([], {})
+-    draft = plan_records(events, kept, superseded, plan_ops, sl)
++    targets = targets_of(events, plan_ops, sl)
++    items, cuts = series_inputs(series, sl, targets) if targets else ([], {})
++    consume_inputs = _consume_inputs(ctx0, prefix, plan_ops, items, sl)
++    draft = plan_records(events, kept, superseded, plan_ops, sl, consume_inputs)
++    _check_consume_released(events, effective, superseded, plan_ops, draft, sl)
+     point = {"seq": restore_point["seq"], "event_hash": restore_point["event_hash"]}
+     request_basis = {"request_id": request_id, "restore_point": point, "ops": copy.deepcopy(plan_ops),
+                      "check_d": check_d, "reason_code": REASON, "requested_at": requested_at}
+@@ -263,7 +308,9 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
+     chain = [cand_events[s] for s in cand_check.effective_seqs]
+     _replay_evidence(chain, draft.replayed, sl, raw_observations, check_d)                       # 6
+     facts, prior, _excluded, _supplemented = _prior_rows(chain, cand_check.head_seq, sl, raw_observations, check_d)
+-    _check_new_days(prior, sl, _released_days(events, effective, superseded, plan_ops, draft, sl, facts.apply_days))
++    unconsumed, _released = _released_days(events, effective, superseded, plan_ops, draft, sl, facts.apply_days)
++    _check_consumed(prior, sl, draft)
++    _check_new_days(prior, sl, unconsumed)
+     _check_saved_decisions(prior, sl, draft)                                               # 7
+     _check_saved_market(items, draft)
+     ledger = project_history_ledger(candidate, sessions, raw_observations, check_d)        # 8
+@@ -271,7 +318,7 @@ def build_restore(history, restore_point, ops, sessions, raw_observations, serie
+             or ledger.ledger_digest != ledger_text):
+         raise candidate_invalid()
+     _check_days_again(chain, ledger, cuts, sl, draft)
+-    if not any(e["op"] == DROP for e in plan_ops) and all(e["same_as_superseded"] is not False
++    if not any(e["op"] in (DROP, CONSUME) for e in plan_ops) and all(e["same_as_superseded"] is not False
+                                                            for e in draft.entries if e["op"] == REAPPLY):
+         raise no_effect()
+     basis = {
+diff --git a/v2_history_restore/confirm.py b/v2_history_restore/confirm.py
+index 1bdbdea..c71e1fe 100644
+--- a/v2_history_restore/confirm.py
++++ b/v2_history_restore/confirm.py
+@@ -16,9 +16,9 @@ from v2_recovery.common import is_requested_text, valid_request_id
+ from v2_recovery.ledger import copy_sessions, ledger_digest, parse_ledger, sessions_digest
+ 
+ from .build import build_restore
+-from .market import digest_of, series_inputs
+-from .values import (BASIS_KEYS, CONFIRMED_IN_MEMORY, NO_CHANGE, OP_KEYS, OPERATION, OPS, POINT_KEYS, READY, REAPPLY,
+-                     REASON, RestoreConfirmResult, RestorePlan, change_ok, series_item_ok)
++from .market import digest_of, series_inputs, targets_of
++from .values import (BASIS_KEYS, CONFIRMED_IN_MEMORY, CONSUME, CONSUME_KEYS, NO_CHANGE, OP_KEYS, OPERATION, OPS,
++                     POINT_KEYS, READY, REAPPLY, REASON, RestoreConfirmResult, RestorePlan, change_ok, series_item_ok)
+ 
+ _HASH_KEYS = ("history_digest", "expected_head_hash", "expected_state_digest", "request_hash", "ledger_digest",
+               "sessions_digest", "series_digest", "effective_digest", "candidate_digest", "candidate_state_digest")
+@@ -33,14 +33,20 @@ def _form_ok(basis):
+             and all(is_hex64(basis[k]) for k in _HASH_KEYS)
+             and isinstance(point, dict) and set(point) == POINT_KEYS and is_int(point["seq"])
+             and point["seq"] >= 0 and is_hex64(point["event_hash"])
+-            and isinstance(ops, list) and all(isinstance(o, dict) and set(o) == OP_KEYS and o["op"] in OPS
+-                                              and is_int(o["from_seq"]) and o["from_seq"] >= 0 for o in ops)
++            and isinstance(ops, list) and all(_op_ok(o) for o in ops)
+             and isinstance(basis["series_inputs"], list) and all(series_item_ok(i) for i in basis["series_inputs"])
+             and isinstance(basis["changes"], list) and all(change_ok(c) for c in basis["changes"])
+             and isinstance(basis["candidate_records"], list) and basis["candidate_records"]
+             and isinstance(basis["candidate_history"], dict))
+ 
+ 
++def _op_ok(o):
++    if isinstance(o, dict) and o.get("op") == CONSUME:
++        return set(o) == CONSUME_KEYS and is_date(o["d"])
++    return (isinstance(o, dict) and set(o) == OP_KEYS and o["op"] in OPS and is_int(o["from_seq"])
++            and o["from_seq"] >= 0)
++
++
+ def _original_prefix(events, basis):
+     """The history the plan was made from, as the physical prefix of a candidate: checked like any history, and it must
+     match the plan's digest, head and state."""
+@@ -104,8 +110,9 @@ def confirm_restore_plan(plan, confirmed_plan_hash, history, sessions, raw_obser
+     check = validate_history(history)                                                      # 2
+     sl = copy_sessions(sessions)
+     rows = parse_ledger(raw_observations)
+-    olds = _reapply_olds(basis, cand_events)
+-    items = series_inputs(series, sl, olds)[0] if olds else []
++    _reapply_olds(basis, cand_events)
++    targets = targets_of(cand_events, basis["ops"], sl)
++    items = series_inputs(series, sl, targets)[0] if targets else []
+     same_inputs = (ledger_digest(rows) == basis["ledger_digest"] and sessions_digest(sl) == basis["sessions_digest"]
+                    and digest_of(items) == basis["series_digest"])
+     is_original = (history.digest == basis["history_digest"] and check.head_seq == basis["expected_head_seq"]
+diff --git a/v2_history_restore/market.py b/v2_history_restore/market.py
+index b694f23..b7bee97 100644
+--- a/v2_history_restore/market.py
++++ b/v2_history_restore/market.py
+@@ -15,13 +15,27 @@ def _bad():
+     return restore_invalid("series", "market_input")
+ 
+ 
+-def series_inputs(series, sl, olds):
+-    """For each APPLY that will be applied again (in order): the cut of the series at D and the fixed input item.
++def targets_of(events, plan_ops, sl):
++    """The days whose market inputs the plan fixes, in the order of the operations: (from_seq, d, previous session
++    date) of each REAPPLY (the saved previous session date) and of each CONSUME (from_seq None; the previous session of
++    the injected sessions, which must exist)."""
++    out = []
++    for e in plan_ops:
++        if e["op"] == "REAPPLY":
++            old = events[e["from_seq"]]
++            out.append((old["seq"], old["d"], old["confirmed_inputs"]["prev_session_date"]))
++        elif e["op"] == "CONSUME":
++            prev = sl.previous(e["d"])
++            out.append((None, e["d"], None if prev is None else prev.date))
++    return out
++
++
++def series_inputs(series, sl, targets):
++    """For each day that will be applied again or consumed (in order): the cut of the series at D and the fixed item.
+     Returns (items, cuts {d: cut}). A series that does not answer in the expected form is restore_invalid / series /
+     market_input; the core's own input errors are kept as they are."""
+     items, cuts = [], {}
+-    for old in olds:
+-        d, saved = old["d"], old["confirmed_inputs"]
++    for from_seq, d, prev_date in targets:
+         session = sl.get(d)
+         if session is None:
+             raise InputError("target_not_in_sessions", "sessions")
+@@ -36,11 +50,11 @@ def series_inputs(series, sl, olds):
+             cut = series.through(d)
+             row = cut.row(d)
+             try:
+-                prev_row = cut.row(saved["prev_session_date"])
++                prev_row = cut.row(prev_date)
+             except InputError:
+                 prev_row = None                       # as the core does: the previous indicators are unavailable
+             series_previous = cut.previous_date(d)
+-            item = {"from_seq": old["seq"], "d": d, "prev_session_date": saved["prev_session_date"],
++            item = {"from_seq": from_seq, "d": d, "prev_session_date": prev_date,
+                     "series_previous_date": series_previous, "row": row_dict(row),
+                     "prev_row": None if prev_row is None else row_dict(prev_row, "prev_row")}
+             canonical_json(item)                        # a value that cannot be written as JSON is refused here
+@@ -50,7 +64,7 @@ def series_inputs(series, sl, olds):
+             raise
+         except (AttributeError, TypeError, KeyError, ValueError, IndexError, OverflowError, RecursionError):
+             raise _bad() from None
+-        if not (series_previous == prev_session.date == saved["prev_session_date"]):
++        if not (series_previous == prev_session.date == prev_date):
+             raise InputError("session_series_mismatch", "market")
+         items.append(item)
+         cuts[d] = cut
+diff --git a/v2_history_restore/points.py b/v2_history_restore/points.py
+index eebdbdf..5508fb2 100644
+--- a/v2_history_restore/points.py
++++ b/v2_history_restore/points.py
+@@ -3,7 +3,9 @@ from v2_history.common import is_hex64, is_int
+ from v2_history.values import ACK, APPLY, DECLARE_MISSING, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE, RESTART_UNKNOWN
+ 
+ from .errors import restore_invalid
+-from .values import DROP, OP_KEYS, OPS, POINT_KEYS, REAPPLY, REPLAY, RETIRE
++from v2_history.common import is_date
++
++from .values import CONSUME, CONSUME_KEYS, DROP, OP_KEYS, OPS, POINT_KEYS, REAPPLY, REPLAY, RETIRE
+ 
+ _ALLOWED = {APPLY: (REAPPLY,), ACK: (REPLAY, DROP), DECLARE_MISSING: (REPLAY, DROP),
+             RESTART_UNKNOWN: (REPLAY, DROP), RECOVERY_RESTORE: (RETIRE,)}
+@@ -45,15 +47,21 @@ def check_ops(events, superseded, ops):
+     for entry in ops:
+         if not isinstance(entry, dict) or not isinstance(entry.get("op"), str):
+             raise restore_invalid("ops", "ops_shape")
+-        if entry["op"] not in OPS:                              # CONSUME, with any keys, and every unknown name
++        if entry["op"] == CONSUME:
++            if set(entry) != CONSUME_KEYS or not is_date(entry["d"]):
++                raise restore_invalid("ops", "ops_shape")
++            norm.append({"op": CONSUME, "d": entry["d"]})
++            continue
++        if entry["op"] not in OPS:                              # every unknown name, with any keys
+             raise restore_invalid("ops", "restore_op_unsupported")
+         if set(entry) != OP_KEYS or not is_int(entry["from_seq"]):
+             raise restore_invalid("ops", "ops_shape")
+         norm.append({"op": entry["op"], "from_seq": entry["from_seq"]})
+-    if [e["from_seq"] for e in norm] != list(superseded):
++    named = [e for e in norm if e["op"] != CONSUME]
++    if [e["from_seq"] for e in named] != list(superseded):
+         raise restore_invalid("ops", "superseded_mismatch")
+     by_request = {}
+-    for entry, seq in zip(norm, superseded):
++    for entry, seq in zip(named, superseded):
+         kind = events[seq]["kind"]
+         if entry["op"] not in _ALLOWED.get(kind, ()):
+             raise restore_invalid("ops", "restore_op_kind")
+@@ -61,4 +69,29 @@ def check_ops(events, superseded, ops):
+             by_request.setdefault(events[seq]["request_id"], set()).add(entry["op"])
+     if any(len(chosen) > 1 for chosen in by_request.values()):
+         raise restore_invalid("ops", "restore_partial_batch")
++    _check_consumes(events, superseded, norm)
+     return norm
++
++
++def _check_consumes(events, superseded, norm):
++    """A CONSUME names no day of a superseded APPLY, no day twice, and stands outside every request batch (between two
++    operations on records of one request it would split the records the batch must keep together)."""
++    applied = {events[s]["d"] for s in superseded if events[s]["kind"] == APPLY}
++    seen, owner = set(), []
++    for entry in norm:
++        if entry["op"] == CONSUME:
++            if entry["d"] in applied:
++                raise restore_invalid("ops", "restore_consume_applied_day")
++            if entry["d"] in seen:
++                raise restore_invalid("ops", "restore_consume_duplicate")
++            seen.add(entry["d"])
++            owner.append(CONSUME)
++        else:
++            ev = events[entry["from_seq"]]
++            owner.append(ev["request_id"] if ev["kind"] in (ACK, DECLARE_MISSING) else None)
++    for i, mark in enumerate(owner):
++        if mark == CONSUME:
++            before = {m for m in owner[:i] if m not in (None, CONSUME)}
++            after = {m for m in owner[i + 1:] if m not in (None, CONSUME)}
++            if before & after:
++                raise restore_invalid("ops", "restore_consume_in_batch")
+diff --git a/v2_history_restore/records.py b/v2_history_restore/records.py
+index 5a0c0fb..c17e2d8 100644
+--- a/v2_history_restore/records.py
++++ b/v2_history_restore/records.py
+@@ -18,11 +18,11 @@ from v2_core.state import MarketState
+ from v2_core.transition import apply_transition
+ from v2_history.common import same
+ from v2_history.values import ACK, APPLY, DECLARE_MISSING, RESTART_UNKNOWN
+-from v2_persistence.events import input_hash_of, serialize_transition, session_dict
++from v2_persistence.events import decision_dict, input_hash_of, serialize_transition, session_dict
+ 
+ from .chain import context_mismatch, context_missing, contexts_agree, floor_of, frontier_of, last_segment
+ from .errors import restore_invalid
+-from .values import DROP, REAPPLY, REPLAY, RETIRE
++from .values import CONSUME, DROP, REAPPLY, REPLAY, RETIRE
+ 
+ _APPLY_FIELDS = ("input_hash", "skipped_sessions", "state_after", "transition_result")
+ 
+@@ -59,6 +59,7 @@ class Draft:
+         self.created = {}          # old seq -> new seq
+         self.reapplied = []        # (old record, new draft), in order
+         self.replayed = set()      # the new seqs of the replayed records
++        self.consumed = []         # (day, new draft), in order: the APPLY records of the CONSUME operations
+ 
+ 
+ def _reapply(work, old, new_seq, sl):
+@@ -96,6 +97,36 @@ def _reapply(work, old, new_seq, sl):
+     return rec, changed
+ 
+ 
++def _consume(work, d, new_seq, sl, decision, item):
++    """A new APPLY for a day the operations set free (CONSUME): the decision the ledger of the kept records gives for D
++    and the market rows fixed from the injected series, through the unchanged apply_transition on the new parent. The
++    session range and the skipped sessions are those of the ordinary day (from the segment's base to next(D))."""
++    seg = last_segment(work)
++    base = seg["applies"][-1]["d"] if seg["applies"] else seg["date"]
++    if not base < d:
++        raise restore_invalid("ops", "restore_consume_order")
++    nxt = sl.next(d)
++    index = {s.date: i for i, s in enumerate(sl.sessions)}
++    if base not in index:
++        raise context_missing(d)
++    between = [s for s in sl.sessions if base < s.date < d]
++    for s in between:
++        if not s.confirmed:
++            raise InputError("intermediate_session_unconfirmed", "sessions", detail=s.date)
++    context = [session_dict(s) for s in sl.sessions[index[base]:index[nxt.date] + 1]]
++    ci = {"decision": decision_dict(decision), "row": copy.deepcopy(item["row"]),
++          "prev_row": copy.deepcopy(item["prev_row"]), "prev_session_date": item["prev_session_date"],
++          "session_context": context}
++    prev_row = None if item["prev_row"] is None else _row(item["prev_row"])
++    t = apply_transition(MarketState.from_dict(work[-1]["state_after"]), d, item["prev_session_date"],
++                         _row(item["row"]), prev_row, decision)
++    if t.next_state is None:
++        raise restore_invalid("ops", "restore_consume_input")
++    return {"kind": APPLY, "seq": new_seq, "parent_seq": new_seq - 1, "parent_hash": None, "d": d,
++            "confirmed_inputs": ci, "input_hash": input_hash_of(ci), "skipped_sessions": [s.date for s in between],
++            "transition_result": serialize_transition(t), "state_after": t.next_state.to_dict()}
++
++
+ def _replay_resolution(work, old, new_seq, sl, mapped, fixups):
+     new = copy.deepcopy(old)
+     new.pop("event_hash", None)
+@@ -169,9 +200,10 @@ def settle_changes(draft, events, created):
+             change["changed_fields"] = sorted(name for name in _ACK_FIELDS if not same(new[name], old[name]))
+ 
+ 
+-def plan_records(events, kept, superseded, plan_ops, sl):
++def plan_records(events, kept, superseded, plan_ops, sl, consume_inputs=None):
+     """The working list after the restore point, operation by operation. kept are the effective seqs up to and
+-    including the restore point; superseded the ones after it. Returns a Draft."""
++    including the restore point; superseded the ones after it. consume_inputs gives, for each CONSUME day, the decision
++    and the fixed series item. Returns a Draft."""
+     work = [copy.deepcopy(events[s]) for s in kept]
+     kept_set = set(kept)
+     draft = Draft()
+@@ -184,7 +216,21 @@ def plan_records(events, kept, superseded, plan_ops, sl):
+             return target
+         raise restore_invalid("ops", "restore_ref_unmapped")
+ 
+-    for entry, seq in zip(plan_ops, superseded):
++    for entry in plan_ops:
++        if entry["op"] == CONSUME:
++            d = entry["d"]
++            decision, item = consume_inputs[d]
++            new = _consume(work, d, new_seq, sl, decision, item)
++            draft.entries.append({"op": CONSUME, "from_seq": None, "d": d, "seq": new_seq,
++                                  "same_as_superseded": None})
++            draft.changes.append({"op": CONSUME, "from_seq": None, "kind": new["kind"], "d": d, "to_seq": new_seq,
++                                  "same_as_superseded": None, "changed_fields": []})
++            draft.consumed.append((d, new))
++            draft.records.append(new)
++            work.append(new)
++            new_seq += 1
++            continue
++        seq = entry["from_seq"]
+         op, old = entry["op"], events[seq]
+         if op in (DROP, RETIRE):
+             draft.entries.append({"op": op, "from_seq": seq, "d": None, "seq": None, "same_as_superseded": None})
+diff --git a/v2_history_restore/values.py b/v2_history_restore/values.py
+index 60cf7ed..752f768 100644
+--- a/v2_history_restore/values.py
++++ b/v2_history_restore/values.py
+@@ -25,10 +25,12 @@ CONFIRMED_IN_MEMORY = "CONFIRMED_IN_MEMORY"
+ NO_CHANGE = "NO_CHANGE"
+ OPERATION = "soxl-v2-history-restore-plan/1"
+ REASON = "RESTORE_VERIFIED_RECORD"
+-REAPPLY, REPLAY, DROP, RETIRE = "REAPPLY", "REPLAY", "DROP", "RETIRE"
+-OPS = (REAPPLY, REPLAY, DROP, RETIRE)
++REAPPLY, REPLAY, DROP, RETIRE, CONSUME = "REAPPLY", "REPLAY", "DROP", "RETIRE", "CONSUME"
++OPS = (REAPPLY, REPLAY, DROP, RETIRE)                 # the operations that name a superseded record
++ALL_OPS = OPS + (CONSUME,)
+ RECORD_KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION)
+ OP_KEYS = frozenset(["op", "from_seq"])
++CONSUME_KEYS = frozenset(["op", "d"])
+ POINT_KEYS = frozenset(["seq", "event_hash"])
+ CHANGE_KEYS = frozenset(["op", "from_seq", "kind", "d", "to_seq", "same_as_superseded", "changed_fields"])
+ SERIES_KEYS = frozenset(["from_seq", "d", "prev_session_date", "series_previous_date", "row", "prev_row"])
+@@ -46,6 +48,10 @@ _JSON_RULES = ("json_depth", "json_number", "json_key", "json_type")
+ def change_ok(c):
+     """One row of a plan's `changes` in its safe form: the fixed keys, an operation and a record kind of the fixed lists,
+     strict non-negative integers, a real day or None, a real bool or None, and field names of the fixed list only."""
++    if isinstance(c, dict) and c.get("op") == CONSUME:
++        return (set(c) == CHANGE_KEYS and c["from_seq"] is None and c["kind"] == APPLY and is_date(c["d"])
++                and is_int(c["to_seq"]) and c["to_seq"] >= 0 and c["same_as_superseded"] is None
++                and c["changed_fields"] == [])
+     return (isinstance(c, dict) and set(c) == CHANGE_KEYS and c["op"] in OPS
+             and is_int(c["from_seq"]) and c["from_seq"] >= 0 and c["kind"] in RECORD_KINDS
+             and (c["d"] is None or is_date(c["d"]))
+@@ -65,7 +71,8 @@ def _row_ok(r):
+ 
+ def series_item_ok(item):
+     """One fixed series input of a plan in its safe form (the keys of series_inputs, days, a row or None)."""
+-    return (isinstance(item, dict) and set(item) == SERIES_KEYS and is_int(item["from_seq"]) and item["from_seq"] >= 0
++    return (isinstance(item, dict) and set(item) == SERIES_KEYS
++            and (item["from_seq"] is None or (is_int(item["from_seq"]) and item["from_seq"] >= 0))
+             and is_date(item["d"]) and is_date(item["prev_session_date"]) and is_date(item["series_previous_date"])
+             and _row_ok(item["row"]) and (item["prev_row"] is None or _row_ok(item["prev_row"])))
+ 
