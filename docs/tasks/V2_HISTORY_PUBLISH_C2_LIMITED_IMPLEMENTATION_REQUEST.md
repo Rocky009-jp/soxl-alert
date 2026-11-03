@@ -1,7 +1,7 @@
 # V2 C-2 公開値と照合 限定実装依頼書
 
-作成日：2026-11-03（日本時間）。版：初版。
-状態：**初版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
+作成日：2026-11-03（日本時間）。版：**第2版**（初版9dd64b8へのレビューの通常R-01〜R-03と提案P-01〜P-03を反映。変更した項目は§3のCAS、§4のC2-10・C2-11・C2-12・C2-14・C2-19、§5の3・4・5・15、§7。範囲・件数・担当は初版と同じ）。
+状態：**第2版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
 対になる設計はdocs/specs/V2_HISTORY_PUBLISH_C2_DESIGN_DRAFT.md（以下「設計」）。本段階はC-2（公開値、CASの検査、照合、バイトの形）だけを、メモリ内の純粋な計算として実装する。C-3（v2ローカル正本）・C-4（保守操作）は含めない。
 
 ## 1. 固定入力と実装開始条件
@@ -9,7 +9,8 @@
 | 用途 | 固定値 |
 |---|---|
 | 実装開始点 | **de6549acb4ecea759cc771300fd0bef59dd5456a**（feat/v2-history-consume-c1-20261103、C-1の保存最終） |
-| 対になる設計・試行の差分 | 本依頼と同じ資料コミット（docs/v2-history-publish-c2-20261103）の設計とdocs/specs/V2_HISTORY_PUBLISH_C2_TRIAL_20261103.diff。SHAと3つのblobを開始報告に記録 |
+| 対になる設計・試行の差分 | 本依頼と同じ資料コミット（第2版、docs/v2-history-publish-c2-revision-20261103）の設計（第2版）と、初版の資料コミット9dd64b8eb07ad35dd23c011ed2dbb1196307f542のdocs/specs/V2_HISTORY_PUBLISH_C2_TRIAL_20261103.diff（第2版のブランチにも同じblobで含まれる）。SHAと3つのblobを開始報告に記録。試行の差分には設計§10の2点（負のcandidate_head_seqでの照合の例外の漏れ、source_v1の誤用の順序）が残っているので、写さない |
+| 設計・依頼書のレビュー | docs/v2-history-publish-c2-review-20261103のdocs/reviews/V2_HISTORY_PUBLISH_C2_DESIGN_REVIEW_20261103.md（重大0・通常3・提案3）と確認スクリプト |
 | C-1の受領 | レビューb473db46ad3dbf3ad76fa76f50c49b03b558936d（§4.5の分担、§5のP-01〜P-03、§6） |
 | 上位の分割・P-02の規則 | a6340c3937092e4cb658913b9acfb4973a084326 docs/specs/V2_CONSUME_S3C_DESIGN_DRAFT.md §4・§5.1・§5.2（D-1〜D-6採用済み） |
 | 範囲試験の規則 | 08072cc47aa12340ed947d40f02ca8741a4060d6（設計§6、D-3）と再レビュー9fe3e1931ea88dc7b4cf46a20e82ad01dd42827d §4 |
@@ -38,7 +39,7 @@ C-3・C-4（ファイル、ロック、退避、解錠、移行・採用の実�
 - **移行の元**：snapshot.jsonのバイトを受け取り、S2の読込みと同じ厳格さ（UTF-8、decode_snapshot、validate_snapshot）で読んでから確認する。source_v1はそのバイトから計算する。
 - **公開値の形**（設計§4）：body 14キー、operation "soxl-v2-history-publication/1"、sourceとmodeの固定の対応、publication_hash＝bodyの正規化JSONのSHA-256。committedは常にFalse。summary・reprはホワイトリストだけ。
 - **バイト**（設計§5.1）：history_bytesは正規化UTF-8（BOM・末尾改行なし）。read_history_bytesは`bytes`だけ、BOMを取り除かない厳格な読み、既存decode_history・validate_history。正規化されていない有効なテキストを受け付ける。raw_identityは受け取ったバイトからhashlibで計算する。hashlibはread.pyだけ。
-- **CAS**（設計§5.2）：検査の順序（公開値→今→候補）と各拒否のcode・rule。check_publicationは計画を確認し直さない。
+- **CAS**（設計§5.2）：検査の順序（公開値→引数の誤用→今→候補）と各拒否のcode・rule。公開値の形にはcandidate_head_seq等の整数の範囲を含め（設計§5.2手順1、第2版）、引数の誤用（currentの型、source_v1の有無・型）は今の比較より先に見る。check_publicationは計画を確認し直さない。check_publicationとreconcile_publicationは同じ形の検査を使う。
 - **照合**（設計§5.3）：4つの結果と条件、判断の順序（REPLACEの「元のまま」を先に）、内容の問題は値で返す。Reconciliationはoutcomeとpublication_hashだけ。
 - **P-02**（a6340c3 §4の規則1〜3と規則4の識別値の部分）：採用はCONFIRMED_IN_MEMORYだけ、expectedは受け取ったバイトから計算し計画の値は一致を確かめるだけ、bodyに`discarded`・`diagnosis_digest`（その名を含むキー）を持たない。採用計画のbasisの`discarded`・`diagnosis_digest`を読まない。
 - **戦略式を書かない**：閾値・比率・状態の式・台帳の判定規則・記録の作り方を複製しない。
@@ -59,16 +60,16 @@ C-3・C-4（ファイル、ロック、退避、解錠、移行・採用の実�
 | C2-07 GENESIS | CREATE、candidate_historyがGENESISだけの履歴、make_history_genesisの拒否はそのまま |
 | C2-08 MIGRATION | snapshot.jsonのバイトから。UTF-8・JSON・snapshotの誤りはS2と同じcode（snapshot_invalid等）。source_v1が受け取ったバイトの識別値。確認の拒否はそのまま |
 | C2-09 ADOPTION | 元バイトでのCONFIRMED_IN_MEMORYだけで作る。候補のバイトを渡したNO_CHANGEはno_change。expectedが受け取ったバイトのsha256・長さ（試験側でhashlibで計算）。bodyに`discarded`・`diagnosis`を名に含むキーが無い |
-| C2-10 P-01 | C-1レビュー§4.5の履歴（検査器は受け付け、計画はrestore_consume_not_releasedで拒否）について、(a)正しい計画のbasisをその履歴に書き換えてhashを付け直した計画、(b)その履歴を持つRestoreConfirmResult、のどちらを渡しても公開値にならない。publish_\*の一覧が7つで、Historyを受け取る関数が無い。`_make`の呼出しがbuild.pyだけ（静的） |
-| C2-11 CAS | 書き方ごとの成功と、absent・present・head・raw・source_v1・current_type・source_v1の誤用の各拒否。公開値のhash・形・records・候補digestの改変（hashを付け直した改変を含む）の拒否。字下げ付きの有効なバイトの受け付け。BOM・UTF-8の誤り・壊れたJSON・無効な履歴は既存のhistory_invalid。検査の順序（公開値の誤りは今より先、今の誤りは候補より先） |
-| C2-12 照合 | 書き方ごとの4つの結果：前・後・後に記録が続く・無い・読めない・別の履歴。REPLACEで元の壊れたバイトがNOT_PUBLISHED。中身の問題で例外を出さない（公開値の誤りだけ拒否）。PUBLISHED_THEN_EXTENDEDの判定が物理prefixのdigestによる（記録のhashの一致だけで判定しない：候補の最後の記録と同じhashを持つ別のprefixを作る合成入力で確かめる） |
+| C2-10 P-01 | C-1レビュー§4.5の履歴（検査器は受け付け、計画はrestore_consume_not_releasedで拒否）について、(a)正しい計画のbasisをその履歴に書き換えてhashを付け直した計画、(b)その履歴を持つRestoreConfirmResult、のどちらを渡しても公開値にならない。publish_\*の一覧が7つで、Historyを受け取る関数が無い。`_make`の呼出しがbuild.pyだけ（静的）。**(c) 特性の試験**（第2版）：同じ履歴を候補にして`HistoryPublication._make`で作った値はcheck_publicationを通る（check_publicationは確認ではなく、だから`_make`はbuild.pyだけ、を示す1件。設計§8） |
+| C2-11 CAS | 書き方ごとの成功と、absent・present・head・raw・source_v1・current_type・source_v1の誤用の各拒否。公開値のhash・形・records・候補digestの改変（hashを付け直した改変を含む）の拒否。字下げ付きの有効なバイトの受け付け。BOM・UTF-8の誤り・壊れたJSON・無効な履歴は既存のhistory_invalid。検査の順序（公開値の誤り・引数の誤用は今より先、今の誤りは候補より先。第2版）。source_v1の誤用はAPPENDの今が古い場合でも`publication_invalid`／source_v1 |
+| C2-12 照合 | 書き方ごとの4つの結果：前・後・後に記録が続く・無い・読めない・別の履歴。REPLACEで元の壊れたバイトがNOT_PUBLISHED。中身の問題で例外を出さない（公開値の誤りだけ拒否）。PUBLISHED_THEN_EXTENDEDの判定が物理prefixのdigestによる（記録のhashの一致だけで判定しない）。有効な今では記録のhashが鎖になっているので、「同じhashを持つ別のprefix」は作れない（設計§5.3、第2版）。代わりに、candidate_head_hashは今の位置candidate_head_seqの記録と同じだがcandidate_digestが違う公開値（hashを付け直したもの）で、CONFLICTになることを確かめる（記録のhashだけで判定する実装はPUBLISHED_THEN_EXTENDEDを返す） |
 | C2-13 バイト | history_bytesがencode_historyのUTF-8と同じ。read_history_bytesが`bytes`以外（str、bytearray、memoryview、None、サブクラス）を拒否。raw_identityの値 |
-| C2-14 例外の漏れ | 公開値・今・v1のバイトのどの改変でも、AttributeError・KeyError・TypeError等の想定外の例外が出ない（固定のcodeだけ） |
+| C2-14 例外の漏れ | 公開値・今・v1のバイトのどの改変でも、AttributeError・KeyError・TypeError・IndexError等の想定外の例外が出ない（固定のcodeだけ）。型の改変（None・数・真偽・空文字・list・dict等）に加えて、**整数の欄の値の境界**（candidate_head_seq、expected.head_seq、raw_size、recordsのseq、candidate_historyのhead_seq・各seqの、負・0・1・境界の前後・巨大な値。第2版）を、check_publicationとreconcile_publicationの両方で、今が基点・候補・無い・読めない・壊れたバイトの各場合について試す |
 | C2-15 P-02 | v2_history_publishがv2_history_diagnoseを直接importしない。"discarded"・"diagnosis"の語を名前・文字列に持たない（docstringを除く）。採用計画のbasisから読むキーがrequest_id・raw_sha256・raw_sizeだけ |
 | C2-16 範囲の値 | test_c1_09のENDがde6549aで、差分は§2の2行だけ。範囲の鎖がadfdf765→…→bfbde7a→de6549a→（C-2、END=None）で、開いた範囲はC-2の1本だけ |
 | C2-17 自分の範囲 | de6549a→REVで、Mはtest_c1_09だけ（2行のハンクと一致）。Aはv2_history_publish/、tests/v2_history_publish/、結果文書だけ。それ以外はblob単位で同じ |
 | C2-18 範囲監査 | 新しいランタイムに、ファイル・パス・時計・乱数・ネット・スレッド・環境変数・プロセス、新しい依存が無い。hashlibはread.pyだけ。importは設計§2.3の一覧の中。既存パッケージの公開名が不変。新しい試験はネットワーク・書込み・時計・乱数を使わず、作業ツリーのファイルを書かない |
-| C2-19 次の段階の模擬 | 使い捨てのコミットでC-2の範囲試験の`END`だけを自分の最終SHAに替え（1行）、新規の全試験と範囲の鎖が通ること。結果文書に手順と結果を書く（そのコミットはpushしない） |
+| C2-19 次の段階の模擬 | （第2版）使い捨てのコミットで、(1) C-2の範囲試験の`END`だけを自分の**試験対象のSHA**に替え（1行）、(2) 次の段階の仮の開いた範囲試験1本（START＝(1)のSHA、END=None、`class FilesChanged`を持つ最小のもの、使い捨ての`tests/v2_next_stage/`）を足し、test_sc_\*・test_c1_\*・test_c2_\*が通ること。対照として(1)だけでは範囲の鎖の2件（test_sc_02のChainJudge）が失敗することも記録する（次の段階では起きない形なので、test_sc_02は直さない）。結果文書に手順と結果を書く（そのコミットはpushしない）。保存最終のSHAでの再現はレビューで行う |
 
 ## 5. 限定欠陥注入
 
@@ -79,6 +80,8 @@ C-3・C-4（ファイル、ロック、退避、解錠、移行・採用の実�
 3. 作り方：APPENDの「候補が今の延長」の確認を外す。
 4. 作り方：RESOLUTIONで確認結果のhistoryとの一致を外す。
 5. 作り方：採用のexpectedを計画のbasisのraw_sha256・raw_sizeから写す。
+
+   3・4・5は防御の重ねで、実物の確認の関数の下ではどの入力でも結果が同じになる（3：各確認の候補は今の物理的な延長。4：確認のbatchは自分の候補から作られ、check_append_batchが候補のdigestを比べる。5：confirm_prefix_adoptionは、受け取ったバイトから計算したsha256・長さが計画と同じときだけCONFIRMED_IN_MEMORYを返す）。検出には、build.pyの名前空間の確認の関数を、食い違う結果を返す代役に差し替える試験を使う（C-1の変異7と同じやり方。第2版）。代役を使わない場合は、この理由で等価と書く。
 6. 作り方：採用の公開値のbodyに計画のdiscardedを足す。
 7. 作り方：Historyを受け取るpublish_historyを足す（または公開値にfrom_dictを足す）。
 8. CAS：publication_hashの確認を外す。
@@ -88,7 +91,7 @@ C-3・C-4（ファイル、ロック、退避、解錠、移行・採用の実�
 12. CAS：MIGRATIONのsource_v1の確認を外す。
 13. CAS：候補のdigestの比較を外す。
 14. 照合：読めない今をNOT_PUBLISHEDにする。
-15. 照合：PUBLISHED_THEN_EXTENDEDを、物理prefixのdigestでなく候補の最後の記録のhashの一致だけで判定する。
+15. 照合：PUBLISHED_THEN_EXTENDEDを、物理prefixのdigestでなく候補の最後の記録のhashの一致だけで判定する（正直な公開値だけでは記録のhashの鎖のため等価。C2-12の食い違う公開値で検出する。第2版）。
 16. 範囲試験：新しい範囲試験が作業ツリーを読む（REVでなくopen）。
 17. 範囲試験：test_c1_09の補正の固定行を1行変える。
 18. 範囲試験：自分のファイルの範囲の値をREVから読む（C2-19の模擬で検出されること）。
@@ -109,7 +112,7 @@ PR・マージ・Actions・本番・通知、C-3・C-4へ進まない。
 
 ## 7. 読取専用の保護参照
 
-次の73参照を開始時と保存/push後に完全SHAで照合する。本書と設計を保存した資料ブランチdocs/v2-history-publish-c2-20261103も、受け取った版の完全SHAを1本加える（実装時は74参照）。
+次の75参照を開始時と保存/push後に完全SHAで照合する（初版の73に、初版の資料ブランチとそのレビューの2本を第2版で加えた）。本書（第2版）と設計を保存した資料ブランチdocs/v2-history-publish-c2-revision-20261103も、受け取った版の完全SHAを1本加える（実装時は76参照）。
 
 | 参照 | 完全SHA |
 |---|---|
@@ -186,6 +189,8 @@ PR・マージ・Actions・本番・通知、C-3・C-4へ進まない。
 | docs/v2-consume-c1-review-20261103 | b473db46ad3dbf3ad76fa76f50c49b03b558936d |
 | docs/v2-consume-s3c-20261103 | a6340c3937092e4cb658913b9acfb4973a084326 |
 | feat/v2-history-consume-c1-20261103 | de6549acb4ecea759cc771300fd0bef59dd5456a |
+| docs/v2-history-publish-c2-20261103 | 9dd64b8eb07ad35dd23c011ed2dbb1196307f542 |
+| docs/v2-history-publish-c2-review-20261103 | a6e783e57c1de5dd92e6b43cfc416a1d79a672eb |
 
 ## 8. 採用単位
 

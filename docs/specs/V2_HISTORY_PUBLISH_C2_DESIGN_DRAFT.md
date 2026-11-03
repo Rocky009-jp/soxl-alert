@@ -1,7 +1,7 @@
 # V2 C-2 公開値と照合 設計案
 
-作成日：2026-11-03（日本時間）。版：初版。
-状態：**初版・設計案・採否判断待ち。C-2の限定実装は未承認。C-3・C-4は対象外。**
+作成日：2026-11-03（日本時間）。版：**第2版**（初版9dd64b8へのレビュー［docs/v2-history-publish-c2-review-20261103］の通常R-01〜R-03と提案P-01〜P-03を反映。方式・パッケージ・変更境界・件数は初版と同じ。改訂の一覧は§10）。
+状態：**第2版・設計案・採否判断待ち。C-2の限定実装は未承認。C-3・C-4は対象外。**
 Rockyさんの「C-2（公開値の照合）の設計・依頼書に進んでください」を受けて作成した。今回の作業は、設計書と限定実装依頼書の作成、一時環境での試行まで。文書の保存、推奨、試行の合格を、実装の承認とは扱わない。作成担当はClaude Opus 5.5、effort high（このスレッドのセッション設定）。
 
 ## 0. 要約
@@ -12,8 +12,8 @@ Rockyさんの「C-2（公開値の照合）の設計・依頼書に進んでく
 - **バイトの形（D-4）**：書くバイトは正規化テキストのUTF-8（BOMなし、末尾改行なし）。読むときは厳格に（UTF-8、既存decode_history、既存validate_history）読むが、正規化されていない有効なテキストも受け付ける（S2の読み方とB-5aの診断に合わせる）。APPENDの「今」は正規化digestと先頭で、REPLACEは生バイトのsha256と長さで、CREATEはファイルが無いことで照合する。
 - **照合（D-5）**：成否不明の後に読み直したバイト列を、PUBLISHED（候補そのもの）、PUBLISHED_THEN_EXTENDED（候補が物理prefixで後に記録が続く）、NOT_PUBLISHED（まだ期待した今のまま）、CONFLICT（それ以外。読めないファイルを含む）の4つに分ける。誰が書いたかは示さず、通知の権利も与えない。
 - **P-02の規則1〜4（D-6）**：NO_CHANGEからは公開値を作らない。採用の公開値は元バイトでCONFIRMED_IN_MEMORYを得たときだけ作り、期待する生バイトの識別値は受け取ったバイトから計算する（計画の値は一致を確かめるだけ）。公開値の本文に`discarded`・`diagnosis_digest`を持たせない。規則4の退避の部分はC-4の受入条件に残す。
-- **範囲試験（D-7）**：C-1の範囲試験test_c1_09のENDをde6549aに固定する。試行で、**ENDの1行だけではC-1の範囲試験が1件失敗する**ことが分かった（自分のファイルをREVで読み直す試験が、固定後はEND=Noneの版を読む。§6.2）。読み直しをHEADにする1行を足して、計2行の補正とする。C-2の範囲試験は新しい開いた範囲（START=de6549a、END=None）で書き、自分の読み直しはHEADから行い、「次の段階がENDを1行で固定しても通る」ことを使い捨てのコミットで確かめる。C-1レビューの提案P-03（r4_09）は、r4_09を触らないので戻さない。
-- **一時環境での試行**：de6549aのコピーにC-2を試作した（pushしない）。既存12スイート1780件がPython 3.12.3と3.13.18で全件合格（test_c1_09の2行の補正を含む）。7種の作り方・CAS・照合・P-01・P-02の53項目（使い捨てのプローブ）がすべて期待どおりだった。公開値の各欄を変な型にする2,660通りの試しで、最初の試作に想定外の例外（sourceがlist・dictのときのTypeError）が見つかり、1行直して0件になった。受入C2-14はこの種の漏れを見るためのもの（§7）。
+- **範囲試験（D-7）**：C-1の範囲試験test_c1_09のENDをde6549aに固定する。試行で、**ENDの1行だけではC-1の範囲試験が1件失敗する**ことが分かった（自分のファイルをREVで読み直す試験が、固定後はEND=Noneの版を読む。§6.2）。読み直しをHEADにする1行を足して、計2行の補正とする。C-2の範囲試験は新しい開いた範囲（START=de6549a、END=None）で書き、自分の読み直しはHEADから行い、「次の段階がENDを1行で固定し、自分の開いた範囲試験を足しても通る」ことを使い捨てのコミットで確かめる（第2版で仮の開いた範囲試験を足す形に改めた。§6.3）。C-1レビューの提案P-03（r4_09）は、r4_09を触らないので戻さない。
+- **一時環境での試行**：de6549aのコピーにC-2を試作した（pushしない）。既存12スイート1780件がPython 3.12.3と3.13.18で全件合格（test_c1_09の2行の補正を含む）。7種の作り方・CAS・照合・P-01・P-02の53項目（使い捨てのプローブ）がすべて期待どおりだった。公開値の各欄を変な型にする2,660通りの試しで、最初の試作に想定外の例外（sourceがlist・dictのときのTypeError）が見つかり、1行直して0件になった。受入C2-14はこの種の漏れを見るためのもの（§7）。ただしこの試しは型だけを替えたもので、整数の値の範囲は見ていない。レビューで、負のcandidate_head_seqで照合がIndexErrorを漏らすことが分かった（第2版で形の規則とC2-14に加えた。§5.2、§10）。
 - 運用方針は日足のみ（早朝に米国の確定日足で通知し、夜の寄付きで手動購入）。分足・NBBOは前提にしない。公開値も日次の処理1つと人の保守操作だけを書き手として想定する。
 - 採否はD-1〜D-8の一組（§8）。
 
@@ -134,7 +134,8 @@ DAILY・RESOLUTIONの公開値は、B-2のHistoryAppendBatchをcheck_append_batc
 currentは、C-3・C-4がロックの下で読み直したhistory.jsonのバイト、または「無い」ことを表すNone。source_v1は移行のときだけ、同じロックの下で読んだsnapshot.jsonのバイト。
 
 順序：
-1. 公開値そのもの：型（HistoryPublicationだけ）、bodyの14キー、operation、sourceとmodeの対応、publication_hash、各hashの形、書き方ごとの欄の形。違えば`publication_invalid`。currentが`bytes`でもNoneでもなければ`publication_invalid`／current_type。
+1. 公開値そのもの：型（HistoryPublicationだけ）、bodyの14キー、operation、sourceとmodeの対応、publication_hash、各hashの形、書き方ごとの欄の形。違えば`publication_invalid`。**整数の欄の範囲も形に含める**（第2版、レビューR-03）：candidate_head_seqは0以上で、APPENDでは`expected.head_seq + len(records)`、CREATE・REPLACEでは`candidate_history`の`events`の件数−1と同じ（eventsがlistでなければ形の誤り）。expected.head_seqは0以上、raw_sizeは0以上。違えば`publication_invalid`／shape。照合（§5.3）も同じ形の検査を共有する。
+   続けて**引数の誤用**を見る（第2版、レビューP-03。今の比較より先）：currentが`bytes`でもNoneでもなければ`publication_invalid`／current_type。移行以外の公開値にsource_v1（None以外）を渡したら`publication_invalid`／source_v1。移行の公開値でsource_v1が`bytes`でもNoneでもなければ`publication_invalid`／source_v1。
 2. 今との比較：
 
    | 書き方 | 受け付ける今 | 違うとき |
@@ -143,7 +144,7 @@ currentは、C-3・C-4がロックの下で読み直したhistory.jsonのバイ�
    | CREATE | currentがNone。MIGRATIONはsource_v1の識別値がsource_v1と同じ | ある→／present、v1が無い・違う→／source_v1 |
    | REPLACE | currentの生バイトの識別値がexpectedと同じ（今のバイトは壊れていてよい） | 無い・違う→／raw |
 
-   移行以外の公開値にsource_v1を渡したら`publication_invalid`／source_v1。
+   （source_v1の誤用は手順1で見る。移行でsource_v1がNone、または識別値が違うときが／source_v1のstale。）
 3. 候補：APPENDは今の記録＋records（seqが続くこと）、他はcandidate_historyからHistoryを作り、既存validate_historyで完全に検査し、4つの候補値が一致すること。違えば`publication_invalid`／candidate_digest、recordsの形の誤りは／records。
 
 戻り値は候補History。C-3はこれをhistory_bytesで書く。check_publicationは**計画を確認し直さない**。公開値が作り手の作ったものであること（形とhash）と、今が期待どおりであることだけを確かめる。確認は作り手だけが行う（§3.1）。
@@ -158,6 +159,8 @@ replaceの呼出しの開始以後に失敗したとき（成否不明）に、�
 | PUBLISHED_THEN_EXTENDED | currentの先頭から候補の記録数だけの物理prefixのdigestが候補と同じで、その後に記録が続く |
 | NOT_PUBLISHED | CREATEでcurrentがNone。REPLACEで生バイトの識別値がexpectedと同じ。APPENDで正規化digest・先頭がexpectedと同じ |
 | CONFLICT | それ以外。CREATE以外でcurrentがNone、読めない・無効なcurrentを含む |
+
+- PUBLISHED_THEN_EXTENDEDの「物理prefix」は、今の先頭candidate_head_seq＋1件だけで作った履歴のdigestが、公開値のcandidate_digestと同じことで判断する。有効な今では記録のhashが鎖になっている（各event_hashはseqと直前の記録のhashを含む）ので、正直な公開値ではこれと「位置candidate_head_seqの記録のhashがcandidate_head_hashと同じ」は同じ結果になる。両者の違いは、candidate_head_hashとcandidate_digestが食い違う（hashを付け直した）公開値でだけ現れ、物理prefixの判定ではCONFLICTになる（第2版、レビューR-02）。
 
 - 判断の順序はREPLACEの「まだ元のまま」を最初に見る（元のバイトは壊れていて読めないため）。
 - NOT_PUBLISHEDは「同じ公開値でもう一度試してよい」を意味するが、C-3はもう一度ロックの下でcheck_publicationを通してから書く。照合だけで書かない。
@@ -191,7 +194,7 @@ C-1のレビュー（b473db4）は、範囲の鎖の試験をSTARTを戻した�
 - 新しいディレクトリ`tests/v2_history_publish/`に`test_c2_*.py`と`c2_helpers.py`を置く。`__init__.py`は作らない。
 - 範囲試験は`START = "de6549acb4ecea759cc771300fd0bef59dd5456a"`、`END = None`、`REV = END or "HEAD"`。git差分・中身・blob・一覧をREVから読み、作業ツリーを読まない。前の段階の差分を固定文字列で書き写さない。test_c1_09の2行の補正は、C-2自身の差分のハンクとして固定する。
 - **自分のファイルの読み直しはHEADから行う**（§6.2の教訓）。範囲の値（START・END）を読む試験は、HEADのテキストと実行中の値を比べる。
-- **次の段階の模擬**：受入の一部として、使い捨てのコミットでC-2の範囲試験のENDだけを自分の最終SHAに替え（1行）、C-2の全試験と範囲の鎖が通ることを確かめる（C2-19）。
+- **次の段階の模擬**（第2版、レビューR-01）：受入の一部として、使い捨てのコミットで、(1) C-2の範囲試験のENDだけを自分の試験対象のSHAに替え（1行）、(2) 次の段階の**仮の開いた範囲試験**1本（START＝(1)で固定したSHA、END=None、`class FilesChanged`を持つ最小のもの。置き場所は使い捨ての`tests/v2_next_stage/`）を足し、test_sc_\*・test_c1_\*・test_c2_\*が通ることを確かめる（C2-19）。実際の次の段階も、ENDの固定と自分の開いた範囲試験を同じコミットで足すので、これが正しい模擬になる。(2)を足さずに開いた範囲が0本になると、範囲の鎖の試験（test_sc_02のChainJudgeの2件。開いた範囲がもう1本あることを前提に「open range」の問題を期待する）が「2 chain beginnings」で失敗する。これは次の段階では起きない形なので、test_sc_02を直さない。模擬は結果文書のコミットの前に試験対象のSHAで行い（範囲試験は結果文書を必須にしないので通る）、保存最終のSHAでの再現はレビューで行う。
 - 範囲の鎖（test_sc_02）は新しい範囲試験を自動で見つける。鎖は`adfdf765→…→b626c98→bfbde7a→de6549a→（C-2、END=None）`になる。試行で、仮の範囲試験1本で鎖が通ることを確かめた。
 - C-1レビューの提案P-03（r4_09のファイル一覧の固定を戻す）は、C-2でr4_09を触らないので扱わない（次にr4_09を触る機会のまま）。
 
@@ -227,7 +230,7 @@ C-1のレビュー（b473db4）は、範囲の鎖の試験をSTARTを戻した�
 - GENESIS（4項目）・MIGRATION（4項目）：CREATE、ある場合のpresent、照合のNOT_PUBLISHED／PUBLISHED、v1のバイトが無い・違うときのsource_v1、移行以外にv1を渡したときの拒否。
 - ADOPTION（8項目）：REPLACE、expectedが受け取ったバイトから計算した値、NO_CHANGEのpublication_refused、別のバイトのraw、照合の前・後、bodyに`discarded`・`diagnosis`の名のキーが無いこと、候補が元バイトでの確認結果と同じこと。
 
-**型の試し（2,660通り）**：3つの書き方の公開値について、bodyの各欄（APPENDは各記録の各欄も）をNone・数・真偽・空文字・list・dict等に替え、hashを付け直して、check_publication・reconcile_publication・summary・reprを呼んだ。最初の試作は、sourceがlist・dictのときに`body["source"] not in MODE_OF`でTypeError（unhashable）を出した（36件）。sourceの型を先に確かめる1行で直し、0件になった。直した後に、プローブ53項目と全スイートを両方の版でもう一度通した。
+**型の試し（2,660通り）**：3つの書き方の公開値について、bodyの各欄（APPENDは各記録の各欄も）をNone・数・真偽・空文字・list・dict等に替え、hashを付け直して、check_publication・reconcile_publication・summary・reprを呼んだ。最初の試作は、sourceがlist・dictのときに`body["source"] not in MODE_OF`でTypeError（unhashable）を出した（36件）。sourceの型を先に確かめる1行で直し、0件になった（型の試しに限る。整数の値の境界はレビューで別に見つかった。§10のR-03）。直した後に、プローブ53項目と全スイートを両方の版でもう一度通した。
 
 試作の差分（8ファイル、+492／−2行、仮の範囲試験を含む）は、同じ資料コミットのdocs/specs/V2_HISTORY_PUBLISH_C2_TRIAL_20261103.diffに参考として保存する（未適用。SHA-256は§9）。実装者はこれを写すのではなく、本書と依頼書の規則に従って作り、違いがあれば結果文書で説明する。試作は受入試験・欠陥注入・正式な範囲試験・名前の整理を含まない。
 
@@ -241,14 +244,16 @@ C-1のレビュー（b473db4）は、範囲の鎖の試験をSTARTを戻した�
 | D-4 | バイトの形と読み方：正規化UTF-8で書き、厳格に読み、正規化されていない有効なテキストは受け付ける。今の照合はAPPEND＝正規化digestと先頭、REPLACE＝生バイトの識別値、CREATE＝無いこと（MIGRATIONはv1の識別値も）（§5.1、§5.2） | 採用を推奨。正規化されたテキストだけを受け付ける案は、手で整形した有効なファイルがC-3でも採用でも扱えなくなるので推奨しない |
 | D-5 | 照合：4つの結果、読めない今はCONFLICT、NOT_PUBLISHEDでも書く前にCASをやり直す、誰が書いたかと通知の権利を示さない（§5.3） | 採用を推奨 |
 | D-6 | P-02の規則1〜4とP-01：NO_CHANGEから作らない、採用は元バイトのCONFIRMED_IN_MEMORYだけ、識別値は受け取ったバイトから計算、本文にdiscarded・diagnosis_digestを持たない。規則4の退避の部分はC-4へ（§3.3、§4、§5.1） | 採用を推奨 |
-| D-7 | 範囲試験：test_c1_09のEND＝de6549aと自己読直しのHEAD化（計2行）、C-2の範囲試験はSTART＝de6549a・END=None、自己読直しはHEAD、次の段階の模擬を受入に含める。P-03は扱わない（§6） | 採用を推奨。2行目は1行固定の規則の例外で、理由は§6.2 |
+| D-7 | 範囲試験：test_c1_09のEND＝de6549aと自己読直しのHEAD化（計2行）、C-2の範囲試験はSTART＝de6549a・END=None、自己読直しはHEAD、次の段階の模擬（ENDの1行固定＋仮の開いた範囲試験1本、第2版）を受入に含める。P-03は扱わない（§6） | 採用を推奨。2行目は1行固定の規則の例外で、理由は§6.2 |
 | D-8 | C-2の実装単位と担当：対になる依頼書の範囲（新しいパッケージ、新しい試験ディレクトリ、test_c1_09の2行、結果文書）。担当はSonnet 5.5・high | 採用を推奨。規則と試行の差分が具体的で、既存の型（plan→confirm、_Frozen）に乗る。矛盾や規則の追加が必要なら止めて主担当へ返す |
 
 D-1〜D-8を一組で判断する。今回の文書作成と一時環境の試行は採用ではない。C-1の受領を、C-2の実装承認にしない。C-3・C-4、全体稼働、本番の保存先・資格情報・通知は今回の採否に含まない。
 
 範囲外として残すもの：C-1レビューの提案P-02（結果文書の記述ずれ。受領記録の注記で扱う）とP-03（r4_09）、B-4§7.1の既知の制限（案a）、B-5b再レビューのP-01（a5_09）、範囲試験の固定のレビューのP-02（git_show_at_endの本文）、U-03、U-07、a6340c3 §5.5の未決（C-4の依頼前に判断）。
 
-既知の制限：Pythonでは、内部の`_make`や`object.__new__`を直接呼べば公開値の形をした値を作れる。C-2はこれを防がず、作り手以外が`_make`を呼ばないことを範囲試験の静的監査で確かめる。C-3は自分のプロセスで作った公開値だけを受け取る。
+既知の制限：Pythonでは、内部の`_make`や`object.__new__`を直接呼べば公開値の形をした値を作れる。C-2はこれを防がず、作り手以外が`_make`を呼ばないことを範囲試験の静的監査で確かめる。C-3は自分のプロセスで作った公開値だけを受け取る。**check_publicationは確認ではない**：`_make`で作った値は、検査器だけを通った履歴（§3.3）を候補にしていても、形とhashと今が合えば受け付けられる（レビューのプローブで確認）。第2版では、この性質を特性の試験として1件固定し（C2-10）、C-3の依頼書に「C-3は同じプロセスでpublish_\*が返した値だけを受け取り、範囲試験でv2_history_publish/build.py以外が`_make`・`object.__new__(HistoryPublication)`を呼ばないことを監査する」を受入として引き継ぐ（レビューP-01）。
+
+C-4への引継ぎ（第2版）：採用のREPLACEがreplaceの後で中断すると、元バイトはhistory.jsonから消えている。照合に要る公開値は、C-4がquarantineへ写した元バイトからpublish_adoptionで作り直す。今のバイトでの確認はNO_CHANGE（publication_refused／no_change）になり、これがa6340c3 §4の規則3の「すでに候補である」に当たる。a6340c3 §5.4の順序（退避先へ写してfsyncしてからreplace）がこれを可能にするので、C-4の依頼書でこの手順を受入にする。
 
 ## 9. 作業記録
 
@@ -257,3 +262,17 @@ D-1〜D-8を一組で判断する。今回の文書作成と一時環境の試�
 - 本書、依頼書、試行の差分の3ファイルだけを、de6549aから作った新しい資料ブランチdocs/v2-history-publish-c2-20261103に追加した。製品コードの変更、PR、Actions、送信、新しい市場計算は0。一時環境の作業ツリーとローカルコミットはpushしていない。
 - 試行の差分docs/specs/V2_HISTORY_PUBLISH_C2_TRIAL_20261103.diffのSHA-256は 7bfd3a80534c0e7fc3f2618db1894bd05883aed00c29449cc886cc219554b0ba（一時環境のde6549a→試作後の`git diff`の出力そのまま。対象はv2_history_publish、tests/v2_history_consume/test_c1_09_scope.py、tests/v2_history_publish）。
 - モデル別の利用量は未計測。
+
+## 10. 第2版の改訂（2026-11-03）
+
+初版9dd64b8へのOpus 5.5・highのレビュー（a6e783e57c1de5dd92e6b43cfc416a1d79a672eb、docs/reviews/V2_HISTORY_PUBLISH_C2_DESIGN_REVIEW_20261103.md、重大0・通常3・提案3、「依頼書の限定改訂が先」）を、レビューの推奨どおり反映した。方式（D-1〜D-6）、パッケージ、変更境界、件数、試行の差分は変えていない（試行の差分は初版のまま参考として残す。下の2点は試行のコードに残っているので、写さない）。
+
+| レビュー | 改訂した箇所 | 内容 |
+|---|---|---|
+| R-01（通常） | §6.3、§8 D-7、依頼書C2-19 | 次の段階の模擬に仮の開いた範囲試験1本を足す。模擬は試験対象のSHAで行う |
+| R-02（通常） | §5.3、依頼書C2-12・欠陥注入15 | 物理prefix判定と記録のhashの判定は、正直な公開値では鎖のため同じ結果になる。区別はcandidate_head_hashとcandidate_digestが食い違う公開値で行う |
+| R-03（通常） | §5.2手順1、依頼書§3・C2-14 | candidate_head_seq等の整数の範囲を形に含める。試行のreconcile_publicationは負のcandidate_head_seqでIndexErrorを漏らす |
+| P-01（提案） | §8既知の制限、依頼書C2-10 | check_publicationが`_make`の値を受け付けることを特性の試験で固定し、C-3へ引き継ぐ |
+| P-02（提案） | 依頼書§5の3・4・5 | 実物の確認の関数の下では等価。代役で検出するか、理由を書いて等価とする |
+| P-03（提案） | §5.2手順1・2、依頼書§3 | 引数の誤用（current・source_v1）を今の比較より先に見る。試行は今の比較の後で見ている |
+
