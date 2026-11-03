@@ -14,9 +14,9 @@ TESTS = os.path.join(ROOT, "tests", "v2_history_adopt")
 ALLOWED_STDLIB = {"copy"}
 ALLOWED_NAMES = {
     "v2_history": {"History", "validate_history", "decode_history", "encode_history", "RECOVERY_PREFIX_ADOPTION",
-                   "SCHEMA_MIGRATION"},
+                   "SCHEMA_MIGRATION", "KINDS"},
     "v2_history.values": {"history_dict"},
-    "v2_history.common": {"is_int", "is_hex64", "basis_request_hash", "same"},
+    "v2_history.common": {"is_int", "is_hex64", "is_date", "basis_request_hash", "same"},
     "v2_history_diagnose": {"diagnose_history_bytes", "PREFIX_ONLY"},
     "v2_history_ops.errors": {"history_request_conflict", "history_plan_mismatch", "history_plan_stale"},
     "v2_persistence.codec": {"canonical_json", "sha256_text", "compute_event_hash"},

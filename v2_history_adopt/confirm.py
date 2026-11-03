@@ -4,8 +4,8 @@ Order (design 5.5): the plan's form, hash and candidate -> the data's type -> th
 whole plan is rebuilt and compared (CONFIRMED_IN_MEMORY), or the bytes are the candidate's own normalized text
 (NO_CHANGE), or they are something else (history_plan_stale). A plan is trusted for nothing it states about itself."""
 from v2_core.errors import CoreError
-from v2_history import History, RECOVERY_PREFIX_ADOPTION, encode_history, validate_history
-from v2_history.common import is_hex64, is_int, same
+from v2_history import KINDS, History, RECOVERY_PREFIX_ADOPTION, encode_history, validate_history
+from v2_history.common import is_date, is_hex64, is_int, same
 from v2_history.values import history_dict
 from v2_history_diagnose import diagnose_history_bytes
 from v2_history_ops.errors import history_plan_mismatch, history_plan_stale
@@ -22,7 +22,26 @@ _HASH_KEYS = ("raw_sha256", "diagnosis_digest", "prefix_head_hash", "prefix_stat
 
 
 def _form_ok(basis):
-    """The shapes of the plan's own values (design 5.5 step 1), before anything is rebuilt."""
+    """The shapes of the plan's own values (design 5.5 step 1), before anything is rebuilt. The discarded part is checked in
+    the form the diagnosis gives (design 5.4: the fixed keys, strict integers, the start at adopt_count, as many items as
+    the count says, each with its position, a kind of the fixed list or "?", a strict integer or None, a real day or None
+    and a request id of the fixed form or None). Only what the plan itself proves: its content is not proved here, and a
+    declared seq may be any integer, even a negative one."""
+
+    def item_ok(item, index):
+        return (isinstance(item, dict) and set(item) == {"index", "kind", "seq", "d", "request_id"}
+                and is_int(item["index"]) and item["index"] == index and (item["kind"] == "?" or item["kind"] in KINDS)
+                and (item["seq"] is None or is_int(item["seq"])) and (item["d"] is None or is_date(item["d"]))
+                and (item["request_id"] is None or valid_request_id(item["request_id"])))
+
+    def discarded_ok(part):
+        if not isinstance(part, dict) or set(part) != {"from_index", "count", "items"}:
+            return False
+        start, count, items = part["from_index"], part["count"], part["items"]
+        return (is_int(start) and start == basis["adopt_count"] and is_int(count) and count >= 0
+                and isinstance(items, list) and len(items) == count
+                and all(item_ok(item, start + at) for at, item in enumerate(items)))
+
     return (basis["operation"] == OPERATION and basis["status"] == READY and basis["reason_code"] == REASON
             and valid_request_id(basis["request_id"]) and is_requested_text(basis["requested_at"])
             and all(is_hex64(basis[k]) for k in _HASH_KEYS)
@@ -30,7 +49,7 @@ def _form_ok(basis):
             and is_int(basis["adopt_count"]) and basis["adopt_count"] >= 1
             and is_int(basis["prefix_head_seq"]) and basis["prefix_head_seq"] >= 0
             and is_int(basis["candidate_head_seq"]) and basis["candidate_head_seq"] >= 0
-            and isinstance(basis["discarded"], dict) and isinstance(basis["candidate_history"], dict)
+            and discarded_ok(basis["discarded"]) and isinstance(basis["candidate_history"], dict)
             and isinstance(basis["candidate_record"], dict))
 
 
