@@ -92,7 +92,23 @@ class BrokenBlock(unittest.TestCase):
                 with self.subTest("%s/%s" % (name, path)):
                     self.assertEqual(outcome(plan, data), MISMATCH)
 
-    def test_the_candidate_bytes_were_NO_CHANGE_for_the_empty_block_before_the_repair(self):
+    def test_a_block_whose_items_agree_with_a_start_that_is_not_adopt_count_is_a_mismatch(self):
+        # every item is in place for the start the block states, so only the start itself is wrong
+        start = self.k + 1
+        value = {"from_index": start, "count": 1, "items": [item(self.block, index=start)]}
+        plan = with_discarded(self.plan, value)
+        for data in (self.data, self.candidate, None):
+            with self.subTest(type(data).__name__):
+                self.assertEqual(outcome(plan, data), MISMATCH)
+
+    def test_items_that_are_empty_but_not_a_list_are_a_mismatch(self):
+        for name, items in (("dict", {}), ("text", ""), ("none", None), ("zero", 0)):
+            plan = with_discarded(self.plan, {"from_index": self.k, "count": 0, "items": items})
+            for data in (self.data, self.candidate, None):
+                with self.subTest("%s/%s" % (name, type(data).__name__)):
+                    self.assertEqual(outcome(plan, data), MISMATCH)
+
+    def test_the_reproduction_of_the_review_with_only_the_block_wrong_and_the_hash_right(self):
         # the review's own reproduction: only the content of the block is wrong and the hash is right
         plan = with_discarded(self.plan, {})
         self.assertEqual(plan.plan_hash, Z.sha_text(Z.cj(plan.basis)))
