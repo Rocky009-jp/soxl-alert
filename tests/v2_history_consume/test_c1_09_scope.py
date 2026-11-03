@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
 import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
 
 START = "bfbde7a7854bf91a77fb58737c24b19c6507453a"
-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
+END = "de6549acb4ecea759cc771300fd0bef59dd5456a"   # accepted (review b473db4); frozen when C-2 began
 REV = END or "HEAD"
 
 RUNTIME = ("v2_history/restore.py", "v2_history_restore/__init__.py", "v2_history_restore/build.py",
@@ -271,7 +271,7 @@ class Chain(Base):
         self.assertGreaterEqual(len(rows), 7)
 
     def test_the_range_values_of_this_file_are_those_read_from_the_text(self):
-        tree = ast.parse(C.show(REV, NEW_DIR + "test_c1_09_scope.py"))
+        tree = ast.parse(C.show("HEAD", NEW_DIR + "test_c1_09_scope.py"))   # HEAD: the frozen END is read as written
         self.assertEqual(C.read_constant(tree, "START", NEW_DIR.rstrip("/"), REV), (True, START))
         self.assertEqual(C.read_constant(tree, "END", NEW_DIR.rstrip("/"), REV), (True, END))
         self.assertIn("FilesChanged", C.top_level(tree))
