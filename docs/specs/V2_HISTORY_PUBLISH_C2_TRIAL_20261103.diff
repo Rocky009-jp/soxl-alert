@@ -1,0 +1,554 @@
+diff --git a/tests/v2_history_consume/test_c1_09_scope.py b/tests/v2_history_consume/test_c1_09_scope.py
+index 325a167..b7ecf13 100644
+--- a/tests/v2_history_consume/test_c1_09_scope.py
++++ b/tests/v2_history_consume/test_c1_09_scope.py
+@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "bfbde7a7854bf91a77fb58737c24b19c6507453a"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "de6549acb4ecea759cc771300fd0bef59dd5456a"   # accepted (review b473db4); frozen when C-2 began
+ REV = END or "HEAD"
+ 
+ RUNTIME = ("v2_history/restore.py", "v2_history_restore/__init__.py", "v2_history_restore/build.py",
+@@ -271,7 +271,7 @@ class Chain(Base):
+         self.assertGreaterEqual(len(rows), 7)
+ 
+     def test_the_range_values_of_this_file_are_those_read_from_the_text(self):
+-        tree = ast.parse(C.show(REV, NEW_DIR + "test_c1_09_scope.py"))
++        tree = ast.parse(C.show("HEAD", NEW_DIR + "test_c1_09_scope.py"))   # HEAD: the frozen END is read as written
+         self.assertEqual(C.read_constant(tree, "START", NEW_DIR.rstrip("/"), REV), (True, START))
+         self.assertEqual(C.read_constant(tree, "END", NEW_DIR.rstrip("/"), REV), (True, END))
+         self.assertIn("FilesChanged", C.top_level(tree))
+diff --git a/tests/v2_history_publish/test_c2_09_scope.py b/tests/v2_history_publish/test_c2_09_scope.py
+new file mode 100644
+index 0000000..dcd5518
+--- /dev/null
++++ b/tests/v2_history_publish/test_c2_09_scope.py
+@@ -0,0 +1,19 @@
++"""Trial stub of the C-2 range test (the implementation writes the real one). START is the accepted de6549a."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
++import sc_helpers as C  # noqa: E402
++
++START = "de6549acb4ecea759cc771300fd0bef59dd5456a"
++END = None
++REV = END or "HEAD"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_start_is_an_ancestor(self):
++        if not C.commit_exists(START):
++            self.skipTest("no history")
++        self.assertTrue(C.is_ancestor(START, REV))
+diff --git a/v2_history_publish/__init__.py b/v2_history_publish/__init__.py
+new file mode 100644
+index 0000000..a6a4c2e
+--- /dev/null
++++ b/v2_history_publish/__init__.py
+@@ -0,0 +1,22 @@
++"""V2 history publication, stage C-2 (trial): the value that a later store (C-3, C-4) may write, built only from a
++confirmed result, and its pure compare-and-swap check and read-only reconciliation.
++Pure functions over values and bytes passed in. No files, paths, stores, locks, clock, network, notification,
++credentials, threads or randomness. Depends on the standard library (copy, hashlib) and on v2_core, v2_persistence,
++v2_recovery, v2_history, v2_history_ops, v2_history_restart, v2_history_restore and v2_history_adopt (all unchanged).
++Every builder runs the confirming step itself with the inputs it is given; there is no builder that takes a History,
++a confirm result or a dict, so a history that only passed the history checker is never published. committed is always
++False. Draft, not adopted for production.
++"""
++from .build import (publish_adoption, publish_day, publish_genesis, publish_migration, publish_resolution,
++                    publish_restart, publish_restore)
++from .check import check_publication, reconcile_publication
++from .read import history_bytes, raw_identity, read_history_bytes
++from .values import (ADOPTION, APPEND, CONFLICT, CREATE, DAILY, GENESIS, MIGRATION, NOT_PUBLISHED, PUBLISHED,
++                     PUBLISHED_THEN_EXTENDED, REPLACE, RESOLUTION, RESTART, RESTORE, HistoryPublication,
++                     Reconciliation)
++
++__all__ = ["publish_day", "publish_resolution", "publish_restart", "publish_restore", "publish_genesis",
++           "publish_migration", "publish_adoption", "check_publication", "reconcile_publication", "history_bytes",
++           "read_history_bytes", "raw_identity", "HistoryPublication", "Reconciliation", "APPEND", "CREATE",
++           "REPLACE", "DAILY", "RESOLUTION", "RESTART", "RESTORE", "GENESIS", "MIGRATION", "ADOPTION", "PUBLISHED",
++           "PUBLISHED_THEN_EXTENDED", "NOT_PUBLISHED", "CONFLICT"]
+diff --git a/v2_history_publish/build.py b/v2_history_publish/build.py
+new file mode 100644
+index 0000000..70b7fab
+--- /dev/null
++++ b/v2_history_publish/build.py
+@@ -0,0 +1,129 @@
++"""The publish_* builders. Each runs the confirming step itself with the inputs it is given and builds a publication
++only from its positive outcome (PREPARED for a day, CONFIRMED_IN_MEMORY for a plan). NO_CHANGE never makes one."""
++import copy
++
++from v2_history import CONFIRMED_IN_MEMORY as MIG_CONFIRMED
++from v2_history import History, confirm_migration_plan, make_history_genesis, validate_history
++from v2_history.values import history_dict
++from v2_history_adopt import CONFIRMED_IN_MEMORY as ADOPT_CONFIRMED
++from v2_history_adopt import AdoptionPlan, confirm_prefix_adoption
++from v2_history_ops import CONFIRMED_IN_MEMORY as RES_CONFIRMED
++from v2_history_ops import PREPARED, check_append_batch, confirm_history_resolution_plan, prepare_history_day
++from v2_history_restart import CONFIRMED_IN_MEMORY as RST_CONFIRMED
++from v2_history_restart import confirm_restart_plan
++from v2_history_restore import CONFIRMED_IN_MEMORY as RSR_CONFIRMED
++from v2_history_restore import confirm_restore_plan
++from v2_persistence.codec import canonical_json, decode_snapshot, sha256_text
++from v2_persistence.errors import snapshot_invalid
++from v2_persistence.recompute import validate_snapshot
++
++from .errors import candidate_invalid, publication_refused
++from .read import raw_identity
++from .values import (ADOPTION, APPEND, CREATE, DAILY, GENESIS, MIGRATION, OPERATION, REPLACE, RESOLUTION, RESTART,
++                     RESTORE, HistoryPublication)
++
++
++def _candidate_fields(candidate):
++    check = validate_history(candidate)
++    return {"candidate_head_seq": check.head_seq, "candidate_head_hash": check.head_hash,
++            "candidate_digest": check.history_digest,
++            "candidate_state_digest": sha256_text(canonical_json(candidate.current_state))}
++
++
++def prefix_digest(events, n):
++    """Digest of the history made of the first n physical records (what a reader of that prefix would compute)."""
++    return History.from_dict(history_dict(copy.deepcopy(events[:n]))).digest
++
++
++def _append(history, candidate, source, d, request_id, plan_hash):
++    check = validate_history(history)
++    old, new = history.events, candidate.events
++    n = len(old)
++    if len(new) <= n or prefix_digest(new, n) != check.history_digest:      # the candidate extends this history
++        raise candidate_invalid()
++    body = {"operation": OPERATION, "mode": APPEND, "source": source, "d": d, "request_id": request_id,
++            "plan_hash": plan_hash,
++            "expected": {"head_seq": check.head_seq, "head_hash": check.head_hash,
++                         "history_digest": check.history_digest},
++            "source_v1": None, "records": new[n:], "candidate_history": None}
++    body.update(_candidate_fields(candidate))
++    return HistoryPublication._make(body)
++
++
++def _whole(mode, source, candidate, expected, source_v1, request_id, plan_hash):
++    body = {"operation": OPERATION, "mode": mode, "source": source, "d": None, "request_id": request_id,
++            "plan_hash": plan_hash, "expected": expected, "source_v1": source_v1, "records": None,
++            "candidate_history": candidate.to_dict()}
++    body.update(_candidate_fields(candidate))
++    return HistoryPublication._make(body)
++
++
++def publish_day(history, d, series, sessions, raw_observations):
++    res = prepare_history_day(history, d, series, sessions, raw_observations)
++    if res.status != PREPARED or res.batch is None:
++        raise publication_refused("not_prepared")
++    candidate = check_append_batch(history, res.batch)
++    return _append(history, candidate, DAILY, d, None, None)
++
++
++def publish_resolution(plan, confirmed_plan_hash, history, sessions, raw_observations):
++    res = confirm_history_resolution_plan(plan, confirmed_plan_hash, history, sessions, raw_observations)
++    if res.status != RES_CONFIRMED or res.batch is None:
++        raise publication_refused("no_change")
++    candidate = check_append_batch(history, res.batch)
++    if candidate != res.history:
++        raise candidate_invalid()
++    return _append(history, candidate, RESOLUTION, None, plan.basis["request_id"], plan.plan_hash)
++
++
++def publish_restart(plan, confirmed_plan_hash, history, sessions, raw_observations):
++    res = confirm_restart_plan(plan, confirmed_plan_hash, history, sessions, raw_observations)
++    if res.status != RST_CONFIRMED:
++        raise publication_refused("no_change")
++    return _append(history, res.history, RESTART, None, plan.basis["request_id"], plan.plan_hash)
++
++
++def publish_restore(plan, confirmed_plan_hash, history, sessions, raw_observations, series):
++    res = confirm_restore_plan(plan, confirmed_plan_hash, history, sessions, raw_observations, series)
++    if res.status != RSR_CONFIRMED:
++        raise publication_refused("no_change")
++    return _append(history, res.history, RESTORE, None, plan.basis["request_id"], plan.plan_hash)
++
++
++def publish_genesis(start_after, sessions):
++    candidate = make_history_genesis(start_after, sessions)
++    return _whole(CREATE, GENESIS, candidate, None, None, None, None)
++
++
++def _snapshot_of(data):
++    raw = raw_identity(data)
++    try:
++        text = data.decode("utf-8")
++    except UnicodeDecodeError:
++        raise snapshot_invalid("utf8") from None
++    snapshot = decode_snapshot(text)
++    validate_snapshot(snapshot)
++    return snapshot, raw
++
++
++def publish_migration(plan, confirmed_plan_hash, snapshot_data, resolutions, sessions, raw_observations):
++    """snapshot_data: the raw bytes of the v1 snapshot.json, read as S2 reads them."""
++    snapshot, raw = _snapshot_of(snapshot_data)
++    res = confirm_migration_plan(plan, confirmed_plan_hash, snapshot, resolutions, sessions, raw_observations)
++    if res.status != MIG_CONFIRMED:
++        raise publication_refused("no_change")
++    return _whole(CREATE, MIGRATION, res.history, None, raw, plan.basis["request_id"], plan.plan_hash)
++
++
++def publish_adoption(plan, confirmed_plan_hash, data):
++    """data: the raw bytes of history.json that the plan names. Only CONFIRMED_IN_MEMORY (the original bytes) makes a
++    publication; the expected identity is computed from `data`, the plan's raw_sha256 / raw_size are only compared."""
++    res = confirm_prefix_adoption(plan, confirmed_plan_hash, data)
++    if res.status != ADOPT_CONFIRMED:
++        raise publication_refused("no_change")
++    raw = raw_identity(data)
++    basis = plan.basis if isinstance(plan, AdoptionPlan) else None
++    if not isinstance(basis, dict) or (basis.get("raw_sha256"), basis.get("raw_size")) != (raw["raw_sha256"],
++                                                                                          raw["raw_size"]):
++        raise candidate_invalid()
++    return _whole(REPLACE, ADOPTION, res.history, raw, None, basis["request_id"], plan.plan_hash)
+diff --git a/v2_history_publish/check.py b/v2_history_publish/check.py
+new file mode 100644
+index 0000000..47f4d9e
+--- /dev/null
++++ b/v2_history_publish/check.py
+@@ -0,0 +1,155 @@
++"""check_publication (compare and swap, pure) and reconcile_publication (read-only, after an uncertain outcome).
++
++Neither re-confirms the plan: they check that the value is one that a builder made (form and hash) and that the
++current bytes are what it expects. Only the builders confirm."""
++import copy
++
++from v2_history import History, validate_history
++from v2_history.common import is_date, is_hex64, is_int
++from v2_history.values import history_dict
++from v2_history_ops.values import digest_of
++from v2_persistence.codec import canonical_json, sha256_text
++from v2_persistence.errors import PersistenceError
++from v2_recovery.common import valid_request_id
++
++from .build import prefix_digest
++from .errors import publication_invalid, publication_stale
++from .read import raw_identity, read_history_bytes
++from .values import (APPEND, APPEND_EXPECTED_KEYS, BODY_KEYS, CONFLICT, CREATE, DAILY, MIGRATION, MODE_OF,
++                     NOT_PUBLISHED, OPERATION, PUBLISHED, PUBLISHED_THEN_EXTENDED, RAW_KEYS, REPLACE,
++                     HistoryPublication, Reconciliation)
++
++
++def _raw_ok(v):
++    return isinstance(v, dict) and set(v) == RAW_KEYS and is_hex64(v["raw_sha256"]) and is_int(v["raw_size"]) \
++        and v["raw_size"] >= 0
++
++
++def _body(publication):
++    """Type, form, operation, mode for the source, hash and the per-mode fields."""
++    if type(publication) is not HistoryPublication:
++        raise publication_invalid("type")
++    view = publication.to_dict()
++    body = view.get("body")
++    if not isinstance(body, dict) or set(body) != BODY_KEYS or body["operation"] != OPERATION:
++        raise publication_invalid("shape")
++    if type(body["source"]) is not str or body["source"] not in MODE_OF or body["mode"] != MODE_OF[body["source"]]:
++        raise publication_invalid("mode")
++    if not is_hex64(view.get("publication_hash")) or view["publication_hash"] != digest_of(body):
++        raise publication_invalid("publication_hash")
++    for key in ("candidate_head_hash", "candidate_digest", "candidate_state_digest"):
++        if not is_hex64(body[key]):
++            raise publication_invalid("shape")
++    if not is_int(body["candidate_head_seq"]):
++        raise publication_invalid("shape")
++    if (body["d"] is not None) != (body["source"] == DAILY) or (body["d"] is not None and not is_date(body["d"])):
++        raise publication_invalid("shape")
++    if body["request_id"] is not None and not valid_request_id(body["request_id"]):
++        raise publication_invalid("shape")
++    mode = body["mode"]
++    if mode == APPEND:
++        e = body["expected"]
++        if (not isinstance(e, dict) or set(e) != APPEND_EXPECTED_KEYS or not is_int(e["head_seq"])
++                or not is_hex64(e["head_hash"]) or not is_hex64(e["history_digest"])
++                or not isinstance(body["records"], list) or not body["records"]
++                or body["candidate_history"] is not None or body["source_v1"] is not None):
++            raise publication_invalid("shape")
++    else:
++        if body["records"] is not None or not isinstance(body["candidate_history"], dict):
++            raise publication_invalid("shape")
++        if mode == CREATE and body["expected"] is not None:
++            raise publication_invalid("shape")
++        if mode == REPLACE and not _raw_ok(body["expected"]):
++            raise publication_invalid("shape")
++        if (body["source"] == MIGRATION) != (body["source_v1"] is not None) or (
++                body["source_v1"] is not None and not _raw_ok(body["source_v1"])):
++            raise publication_invalid("shape")
++    return body
++
++
++def _candidate(body, current_history):
++    """The candidate History of the publication (APPEND: the current history plus the records)."""
++    try:
++        if body["mode"] == APPEND:
++            events = current_history.events + copy.deepcopy(body["records"])
++            for i, rec in enumerate(body["records"]):
++                if not isinstance(rec, dict) or rec.get("seq") != body["expected"]["head_seq"] + 1 + i:
++                    raise publication_invalid("records")
++            candidate = History.from_dict(history_dict(events))
++        else:
++            candidate = History.from_dict(body["candidate_history"])
++    except (KeyError, TypeError, IndexError):
++        raise publication_invalid("records") from None
++    check = validate_history(candidate)
++    if (check.history_digest != body["candidate_digest"] or check.head_seq != body["candidate_head_seq"]
++            or check.head_hash != body["candidate_head_hash"]
++            or sha256_text(canonical_json(candidate.current_state)) != body["candidate_state_digest"]):
++        raise publication_invalid("candidate_digest")
++    return candidate
++
++
++def check_publication(current, publication, source_v1=None):
++    """current: the bytes of history.json read under the lock, or None when it is absent. source_v1: for MIGRATION
++    only, the bytes of the v1 snapshot.json read under the same lock. Returns the candidate History; raises
++    publication_stale when the current bytes are not what the publication expects. Nothing is written."""
++    body = _body(publication)                                                         # 1
++    if current is not None and type(current) is not bytes:
++        raise publication_invalid("current_type")
++    mode = body["mode"]
++    current_history = None
++    if mode == APPEND:                                                                # 2
++        if current is None:
++            raise publication_stale("absent")
++        current_history, check = read_history_bytes(current)
++        e = body["expected"]
++        if (check.history_digest, check.head_seq, check.head_hash) != (e["history_digest"], e["head_seq"],
++                                                                       e["head_hash"]):
++            raise publication_stale("head")
++    elif mode == CREATE:
++        if current is not None:
++            raise publication_stale("present")
++        if body["source"] == MIGRATION:
++            if source_v1 is None or type(source_v1) is not bytes or raw_identity(source_v1) != body["source_v1"]:
++                raise publication_stale("source_v1")
++    else:
++        if current is None or raw_identity(current) != body["expected"]:
++            raise publication_stale("raw")
++    if body["source"] != MIGRATION and source_v1 is not None:
++        raise publication_invalid("source_v1")
++    return _candidate(body, current_history)                                          # 3
++
++
++def reconcile_publication(current, publication):
++    """After an uncertain outcome: the bytes read again (None when history.json is absent) against the publication.
++    PUBLISHED: the current history is the candidate. PUBLISHED_THEN_EXTENDED: the candidate is its physical prefix and
++    records follow. NOT_PUBLISHED: the current bytes are still what the publication expects (the same publication may
++    be tried again, after check_publication under the lock). CONFLICT: anything else, an unreadable file included.
++    Read-only; says nothing about who wrote what."""
++    body = _body(publication)
++    if current is not None and type(current) is not bytes:
++        raise publication_invalid("current_type")
++    h = digest_of(body)
++    mode = body["mode"]
++    if current is None:
++        return Reconciliation._make(NOT_PUBLISHED if mode == CREATE else CONFLICT, h)
++    if mode == REPLACE and raw_identity(current) == body["expected"]:
++        return Reconciliation._make(NOT_PUBLISHED, h)
++    try:
++        history, check = read_history_bytes(current)
++    except PersistenceError:
++        return Reconciliation._make(CONFLICT, h)
++    if (check.history_digest, check.head_seq, check.head_hash) == (body["candidate_digest"],
++                                                                   body["candidate_head_seq"],
++                                                                   body["candidate_head_hash"]):
++        return Reconciliation._make(PUBLISHED, h)
++    events = history.events
++    n = body["candidate_head_seq"] + 1
++    if len(events) > n and events[n - 1].get("event_hash") == body["candidate_head_hash"] \
++            and prefix_digest(events, n) == body["candidate_digest"]:
++        return Reconciliation._make(PUBLISHED_THEN_EXTENDED, h)
++    if mode == APPEND:
++        e = body["expected"]
++        if (check.history_digest, check.head_seq, check.head_hash) == (e["history_digest"], e["head_seq"],
++                                                                       e["head_hash"]):
++            return Reconciliation._make(NOT_PUBLISHED, h)
++    return Reconciliation._make(CONFLICT, h)
+diff --git a/v2_history_publish/errors.py b/v2_history_publish/errors.py
+new file mode 100644
+index 0000000..f1eed03
+--- /dev/null
++++ b/v2_history_publish/errors.py
+@@ -0,0 +1,26 @@
++"""Error helpers. The persistence error type is reused: a fixed code, field and rule, never a raw value."""
++from v2_persistence.errors import PersistenceError
++
++
++def publication_invalid(rule):
++    """The publication value itself is wrong (form, hash, mode, records, candidate)."""
++    return PersistenceError("publication_invalid", "publication", rule=rule)
++
++
++def publication_stale(rule):
++    """The current bytes are not what the publication expects (another write came first, or the file is absent)."""
++    return PersistenceError("publication_stale", "current", rule=rule)
++
++
++def publication_refused(rule):
++    """The confirmed step gave nothing to publish (NO_CHANGE, a day that is not PREPARED)."""
++    return PersistenceError("publication_refused", "source", rule=rule)
++
++
++def current_invalid(rule):
++    return PersistenceError("history_invalid", "history", rule=rule)
++
++
++def candidate_invalid():
++    """The candidate this package built is not what it must be: an internal inconsistency, never a caller mistake."""
++    return PersistenceError("history_invalid", "history", rule="publication_candidate")
+diff --git a/v2_history_publish/read.py b/v2_history_publish/read.py
+new file mode 100644
+index 0000000..12ad110
+--- /dev/null
++++ b/v2_history_publish/read.py
+@@ -0,0 +1,34 @@
++"""The byte form of a stored schema-2 history: written as the canonical text in UTF-8 (no BOM, no newline), read
++strictly (UTF-8, the unchanged decode_history and validate_history). A valid text that is not canonical is read (as S2
++and the diagnosis do) and is identified by the digest of its canonical form."""
++import hashlib
++
++from v2_history import decode_history, encode_history, validate_history
++from v2_history.values import History
++
++from .errors import current_invalid
++
++
++def history_bytes(history):
++    if not isinstance(history, History):
++        raise current_invalid("type")
++    return encode_history(history).encode("utf-8")
++
++
++def raw_identity(data):
++    """{raw_sha256, raw_size} of exactly `bytes`, computed here (never copied from a plan)."""
++    if type(data) is not bytes:
++        raise current_invalid("type")
++    return {"raw_sha256": hashlib.sha256(data).hexdigest(), "raw_size": len(data)}
++
++
++def read_history_bytes(data):
++    """bytes -> (History, HistoryCheck). Raises on anything that is not a fully valid schema-2 history."""
++    if type(data) is not bytes:
++        raise current_invalid("type")
++    try:
++        text = data.decode("utf-8")
++    except UnicodeDecodeError:
++        raise current_invalid("utf8") from None
++    history = decode_history(text)
++    return history, validate_history(history)
+diff --git a/v2_history_publish/values.py b/v2_history_publish/values.py
+new file mode 100644
+index 0000000..dd2238d
+--- /dev/null
++++ b/v2_history_publish/values.py
+@@ -0,0 +1,105 @@
++"""HistoryPublication and Reconciliation: immutable, text-backed values (the _Frozen pattern of v2_history_ops)."""
++import copy
++
++from v2_history.common import is_date, is_hex64, is_int
++from v2_history_ops.values import _Frozen, digest_of
++from v2_recovery.common import valid_request_id
++
++from .errors import publication_invalid
++
++OPERATION = "soxl-v2-history-publication/1"
++APPEND, CREATE, REPLACE = "APPEND", "CREATE", "REPLACE"
++DAILY, RESOLUTION, RESTART, RESTORE = "DAILY", "RESOLUTION", "RESTART", "RESTORE"
++GENESIS, MIGRATION, ADOPTION = "GENESIS", "MIGRATION", "ADOPTION"
++MODE_OF = {DAILY: APPEND, RESOLUTION: APPEND, RESTART: APPEND, RESTORE: APPEND, GENESIS: CREATE, MIGRATION: CREATE,
++           ADOPTION: REPLACE}
++PUBLISHED, PUBLISHED_THEN_EXTENDED = "PUBLISHED", "PUBLISHED_THEN_EXTENDED"
++NOT_PUBLISHED, CONFLICT = "NOT_PUBLISHED", "CONFLICT"
++OUTCOMES = (PUBLISHED, PUBLISHED_THEN_EXTENDED, NOT_PUBLISHED, CONFLICT)
++BODY_KEYS = frozenset([
++    "operation", "mode", "source", "d", "request_id", "plan_hash", "expected", "source_v1", "records",
++    "candidate_history", "candidate_head_seq", "candidate_head_hash", "candidate_digest", "candidate_state_digest"])
++APPEND_EXPECTED_KEYS = frozenset(["head_seq", "head_hash", "history_digest"])
++RAW_KEYS = frozenset(["raw_sha256", "raw_size"])
++
++
++def _error(rule):
++    return publication_invalid(rule)
++
++
++class HistoryPublication(_Frozen):
++    """An immutable {body, publication_hash}. Made only by the publish_* builders: there is no from_dict, so a value
++    read back from a message or a file is never a publication. committed is always False."""
++
++    __slots__ = ()
++
++    @classmethod
++    def _make(cls, body):
++        return cls._wrap({"body": body, "publication_hash": digest_of(body)}, _error)
++
++    @property
++    def body(self):
++        return copy.deepcopy(self._view["body"])
++
++    @property
++    def publication_hash(self):
++        return copy.deepcopy(self._view["publication_hash"])
++
++    @property
++    def mode(self):
++        return copy.deepcopy(self._view["body"]["mode"])
++
++    @property
++    def source(self):
++        return copy.deepcopy(self._view["body"]["source"])
++
++    @property
++    def committed(self):
++        return False
++
++    def _display(self):
++        try:
++            b, h = self._view["body"], self._view["publication_hash"]
++            if b["source"] not in MODE_OF or b["mode"] != MODE_OF[b["source"]] or not is_hex64(h):
++                return None
++            if not is_int(b["candidate_head_seq"]) or not is_hex64(b["candidate_digest"]):
++                return None
++            d = b["d"] if b["d"] is not None and is_date(b["d"]) else None
++            rid = b["request_id"] if b["request_id"] is not None and valid_request_id(b["request_id"]) else None
++            n = len(b["records"]) if isinstance(b["records"], list) else None
++            return b["mode"], b["source"], d, rid, n, b["candidate_head_seq"], h
++        except (KeyError, TypeError):
++            return None
++
++    def summary(self):
++        """Whitelist only: mode, source, day, request id, record count, candidate head and the hash."""
++        shown = self._display()
++        if shown is None:
++            raise publication_invalid("shape")
++        mode, source, d, rid, n, head, h = shown
++        return {"mode": mode, "source": source, "d": d, "request_id": rid, "records": n,
++                "candidate_head_seq": head, "committed": False, "publication_hash": h}
++
++    def __repr__(self):
++        shown = self._display()
++        if shown is None:
++            return "HistoryPublication(?)"
++        return "HistoryPublication(mode=%s, source=%s, publication_hash=%s)" % (shown[0], shown[1], shown[6][:12])
++
++
++class Reconciliation(_Frozen):
++    """Outcome of reconcile_publication: the outcome and the publication hash. It says nothing about who wrote what and
++    gives no right to notify."""
++
++    __slots__ = ()
++
++    @classmethod
++    def _make(cls, outcome, publication_hash):
++        return cls._wrap({"outcome": outcome, "publication_hash": publication_hash}, _error)
++
++    outcome = property(lambda self: copy.deepcopy(self._view["outcome"]))
++    publication_hash = property(lambda self: copy.deepcopy(self._view["publication_hash"]))
++    committed = property(lambda self: False)
++
++    def __repr__(self):
++        return "Reconciliation(outcome=%s)" % self._view["outcome"]
