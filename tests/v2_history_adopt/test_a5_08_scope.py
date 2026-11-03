@@ -3,6 +3,7 @@ files change (six runtime files and six tests), each in exactly the pinned lines
 other change is a new file at an allowed path; everything else is blob-identical to the code start (section 7.4 of the
 request)."""
 import ast
+import io
 import os
 import re
 import subprocess
@@ -12,6 +13,7 @@ import a5_helpers as Z
 
 ROOT = Z.ROOT
 START = "c8ba08f15ea28248a9fe7924f32ce136fc16d5e6"
+END = "b626c98af5f01bc94e7b41d86aadde9663695eb9"   # the accepted final commit of this range (frozen when the next stage began)
 RESULT_DOC = "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"
 
 RUNTIME_M = ("v2_history/__init__.py", "v2_history/restore.py", "v2_history/values.py", "v2_history/view.py",
@@ -1644,7 +1646,7 @@ def start_text(path):
 
 
 def current_text(path):
-    with open(os.path.join(ROOT, path), encoding="utf-8") as f:
+    with io.StringIO(git_show_at_end(path)) as f:
         return f.read()
 
 
@@ -1690,16 +1692,25 @@ class PathJudgement(unittest.TestCase):
         self.assertTrue(modified_ok("v2_history/view.py"))
 
 
+def git_show_at_end(path):
+    """The text of a file at END (the frozen range is read from Git, never from the working tree)."""
+    out = subprocess.run(("git", "-C", ROOT, "show", "%s:%s" % (END, path)), capture_output=True, text=True,
+                         timeout=60)
+    return out.stdout
+
+
 class FilesChanged(unittest.TestCase):
     """Compared with the code start by git (committed state)."""
 
     def setUp(self):
         probe = git("cat-file", "-e", START + "^{commit}")
+        if probe.returncode == 0:
+            probe = git("cat-file", "-e", END + "^{commit}")
         if probe.returncode != 0:
             self.skipTest("the code start commit is not available in this checkout")
 
     def changed(self):
-        out = git("diff", "--name-status", START, "HEAD")
+        out = git("diff", "--name-status", START, END)
         self.assertEqual(out.returncode, 0, out.stderr)
         rows = [line.split("\t") for line in out.stdout.splitlines()]
         for row in rows:
@@ -1726,15 +1737,15 @@ class FilesChanged(unittest.TestCase):
                          {p for p in added_tests if os.path.basename(p).startswith("test_a5_")}, set())
 
     def test_everything_else_is_identical_to_the_code_start(self):
-        out = git("diff", "--name-only", START, "HEAD", "--", *UNCHANGED_ROOTS)
+        out = git("diff", "--name-only", START, END, "--", *UNCHANGED_ROOTS)
         self.assertEqual(out.stdout.strip(), "")
         for root, kept in (("v2_history", RUNTIME_M), ("v2_history_ops", RUNTIME_M), ("v2_history_restore", RUNTIME_M)):
-            out = git("diff", "--name-only", START, "HEAD", "--", root, *[":(exclude)%s" % p for p in kept])
+            out = git("diff", "--name-only", START, END, "--", root, *[":(exclude)%s" % p for p in kept])
             self.assertEqual(out.stdout.strip(), "", root)
-        out = git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_adopt",
+        out = git("diff", "--name-only", START, END, "--", "tests", ":(exclude)tests/v2_history_adopt",
                   *[":(exclude)%s" % p for p in TEST_M])
         self.assertEqual(out.stdout.strip(), "")
-        out = git("diff", "--name-only", START, "HEAD", "--", "docs", ":(exclude)%s" % RESULT_DOC)
+        out = git("diff", "--name-only", START, END, "--", "docs", ":(exclude)%s" % RESULT_DOC)
         self.assertEqual(out.stdout.strip(), "")
 
     def test_the_other_files_of_the_older_stages_are_blob_identical_to_the_code_start(self):
@@ -1748,7 +1759,7 @@ class FilesChanged(unittest.TestCase):
         compared = 0
         for _mode, kind, blob, path in rows:
             self.assertEqual(kind, "blob")
-            here = subprocess.run(("git", "-C", ROOT, "hash-object", path), capture_output=True, text=True, timeout=60)
+            here = subprocess.run(("git", "-C", ROOT, "rev-parse", END + ":" + path), capture_output=True, text=True, timeout=60)
             if path in changed:
                 self.assertNotEqual(here.stdout.strip(), blob, path)        # exactly these twelve differ
                 continue
@@ -1759,11 +1770,11 @@ class FilesChanged(unittest.TestCase):
     def test_the_results_of_the_older_stages_are_not_appended_to(self):
         for name in ("V2_RECOVERY_S3B2_RESULT.md", "V2_RECOVERY_S3B3_RESULT.md", "V2_RECOVERY_S3B4_RESULT.md",
                      "V2_RECOVERY_S3B5_RESULT.md"):
-            out = git("diff", "--name-only", START, "HEAD", "--", "docs/implementation/" + name)
+            out = git("diff", "--name-only", START, END, "--", "docs/implementation/" + name)
             self.assertEqual(out.stdout.strip(), "", name)
 
     def diff_lines(self, path):
-        out = git("diff", "-U0", START, "HEAD", "--", path)
+        out = git("diff", "-U0", START, END, "--", path)
         lines = out.stdout.splitlines()
         removed = [l[1:] for l in lines if l.startswith("-") and not l.startswith("---")]
         added = [l[1:] for l in lines if l.startswith("+") and not l.startswith("+++")]
@@ -1802,7 +1813,7 @@ class FilesChanged(unittest.TestCase):
             self.assertEqual(len(re.findall(r"^class ", old, re.M)), len(re.findall(r"^class ", new, re.M)), path)
 
     def lines_changed_in_new(self, path):
-        out = git("diff", "-U0", START, "HEAD", "--", path)
+        out = git("diff", "-U0", START, END, "--", path)
         result = []
         for line in out.stdout.splitlines():
             m = re.match(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", line)
@@ -1857,7 +1868,8 @@ class FilesChanged(unittest.TestCase):
                 self.assertEqual(source_of(old, name), source_of(new, name), "%s %s" % (path, name))
 
     def test_the_file_list_of_the_b1_package_is_not_widened(self):
-        names = sorted(f for f in os.listdir(os.path.join(ROOT, "v2_history")) if f.endswith(".py"))
+        names = sorted(os.path.basename(p) for p in git("ls-tree", "--name-only", END, "v2_history/").stdout.split()
+                       if p.endswith(".py"))
         out = git("ls-tree", "--name-only", START, "v2_history/")
         before = sorted(os.path.basename(p) for p in out.stdout.split() if p.endswith(".py"))
         self.assertEqual(names, before)

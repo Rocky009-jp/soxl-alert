@@ -2,6 +2,7 @@
 package uses only the existing public names that the request allows; it builds none of the later stages; and no
 existing file other than the two allowed ones differs from the code start."""
 import ast
+import io
 import os
 import subprocess
 import unittest
@@ -11,6 +12,7 @@ import ho_helpers as T
 ROOT = T.ROOT
 PKG = os.path.join(ROOT, "v2_history_ops")
 START = "adfdf765aeca0d01c8f10b596a6fac59d7c1a07e"
+END = "b328844fdeda235cf95bf7851ba9e3d7d55aa7bb"   # the accepted final commit of this range (frozen when the next stage began)
 
 ALLOWED_STDLIB = {"copy", "json"}
 ALLOWED_NAMES = {
@@ -165,6 +167,13 @@ class NoSideEffects(unittest.TestCase):
             self.assertFalse(os.path.exists(os.path.join(PKG, name)))
 
 
+def git_show_at_end(path):
+    """The text of a file at END (the frozen range is read from Git, never from the working tree)."""
+    out = subprocess.run(("git", "-C", ROOT, "show", "%s:%s" % (END, path)), capture_output=True, text=True,
+                         timeout=60)
+    return out.stdout
+
+
 class FilesChanged(unittest.TestCase):
     """Compared with the code start by git. The two allowed existing files are checked line by line."""
 
@@ -173,31 +182,22 @@ class FilesChanged(unittest.TestCase):
 
     def setUp(self):
         probe = self.git("cat-file", "-e", START + "^{commit}")
+        if probe.returncode == 0:
+            probe = self.git("cat-file", "-e", END + "^{commit}")
         if probe.returncode != 0:
             self.skipTest("the code start commit is not available in this checkout")
 
     def test_only_the_allowed_paths_differ(self):
-        out = self.git("diff", "--name-status", START, "HEAD")
+        out = self.git("diff", "--name-status", START, END)
         self.assertEqual(out.returncode, 0, out.stderr)
         changed = [line.split("\t") for line in out.stdout.splitlines()]
-        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
-               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")
         for status, path in changed:
-            allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/",
-                                        "v2_history_restart/", "tests/v2_history_restart/",
-                                        "v2_history_restore/", "tests/v2_history_restore/",
-                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",
-                                        "v2_history_adopt/", "tests/v2_history_adopt/"))
-                       or path in b5b
+            allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/"))
                        or path in ("v2_recovery/facts.py", "v2_recovery/commands.py",
-                                   "docs/implementation/V2_RECOVERY_S3B2_RESULT.md",
-                                   "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",
-                                   "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",
-                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",
-                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))
+                                   "docs/implementation/V2_RECOVERY_S3B2_RESULT.md"))
             self.assertTrue(allowed, "unexpected change: %s %s" % (status, path))
             if not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")):
-                if path != "v2_recovery/commands.py" and path not in b5b:
+                if path != "v2_recovery/commands.py":
                     self.assertEqual(status, "A", path)                       # new files only
                 else:
                     self.assertEqual(status, "M", path)
@@ -205,14 +205,11 @@ class FilesChanged(unittest.TestCase):
         self.assertIn("v2_recovery/facts.py", paths)
         self.assertIn("v2_recovery/commands.py", paths)
         for path in paths:
-            self.assertFalse(path.endswith("__init__.py") and path != "v2_history_restart/__init__.py"
-                             and path != "v2_history_restore/__init__.py"
-                             and path != "v2_history_diagnose/__init__.py"
-                             and path not in ("v2_history_adopt/__init__.py", "v2_history/__init__.py")
-                             and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")), path)
+            self.assertFalse(path.endswith("__init__.py") and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")),
+                             path)
 
     def test_commands_py_changes_are_the_two_allowed_ones_only(self):
-        out = self.git("diff", "-U0", START, "HEAD", "--", "v2_recovery/commands.py")
+        out = self.git("diff", "-U0", START, END, "--", "v2_recovery/commands.py")
         removed = [l[1:] for l in out.stdout.splitlines() if l.startswith("-") and not l.startswith("---")]
         added = [l[1:] for l in out.stdout.splitlines() if l.startswith("+") and not l.startswith("+++")]
         self.assertEqual(removed, ["    else:", "def make_records(ctx, existing, commands, basis, request_hash):",
@@ -224,13 +221,9 @@ class FilesChanged(unittest.TestCase):
         self.assertIn('rec["seq"] == ref["seq"]', text)
 
     def test_existing_tests_and_fixtures_are_untouched(self):
-        out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops",
-                       ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",
-                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",
-                       ":(exclude)tests/v2_history/test_h02_values_codec.py",
-                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")
+        out = self.git("diff", "--name-only", START, END, "--", "tests", ":(exclude)tests/v2_history_ops")
         self.assertEqual(out.stdout.strip(), "")
-        out = self.git("diff", "--name-only", START, "HEAD", "--", "main.py", "requirements.txt", ".github", "research",
+        out = self.git("diff", "--name-only", START, END, "--", "main.py", "requirements.txt", ".github", "research",
                        "docs/STATUS.md", "docs/ROADMAP.md", "CLAUDE.md")
         self.assertEqual(out.stdout.strip(), "")
 
