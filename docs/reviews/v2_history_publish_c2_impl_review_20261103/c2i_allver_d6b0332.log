@@ -1,0 +1,60 @@
+== py3.10 Python 3.10.20
+d6b0332500af8d8d46ddaae6c7fda39ee38a03db
+v2_core rc=0 Ran 197 tests in 7.353s | OK
+v2_persistence rc=0 Ran 170 tests in 14.808s | OK
+v2_persistence_local rc=0 Ran 113 tests in 24.491s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.876s | OK
+v2_history rc=0 Ran 230 tests in 11.929s | OK
+v2_history_ops rc=0 Ran 173 tests in 11.090s | OK
+v2_history_restart rc=0 Ran 109 tests in 7.967s | OK
+v2_history_restore rc=0 Ran 165 tests in 18.829s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 156.118s | OK
+v2_history_adopt rc=0 Ran 170 tests in 14.743s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.460s | OK
+v2_history_consume rc=0 Ran 112 tests in 8.235s | OK
+v2_history_publish rc=0 Ran 150 tests in 91.780s | OK
+== py3.11 Python 3.11.18
+d6b0332500af8d8d46ddaae6c7fda39ee38a03db
+v2_core rc=0 Ran 197 tests in 3.830s | OK
+v2_persistence rc=0 Ran 170 tests in 11.221s | OK
+v2_persistence_local rc=0 Ran 113 tests in 9.814s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.920s | OK
+v2_history rc=0 Ran 230 tests in 8.548s | OK
+v2_history_ops rc=0 Ran 173 tests in 9.271s | OK
+v2_history_restart rc=0 Ran 109 tests in 6.041s | OK
+v2_history_restore rc=0 Ran 165 tests in 15.100s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 124.774s | OK
+v2_history_adopt rc=0 Ran 170 tests in 11.387s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.259s | OK
+v2_history_consume rc=0 Ran 112 tests in 6.254s | OK
+v2_history_publish rc=0 Ran 150 tests in 69.558s | OK
+== py3.12 Python 3.12.3
+d6b0332500af8d8d46ddaae6c7fda39ee38a03db
+v2_core rc=0 Ran 197 tests in 4.345s | OK
+v2_persistence rc=0 Ran 170 tests in 11.983s | OK
+v2_persistence_local rc=0 Ran 113 tests in 11.238s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.434s | OK
+v2_history rc=0 Ran 230 tests in 10.102s | OK
+v2_history_ops rc=0 Ran 173 tests in 8.848s | OK
+v2_history_restart rc=0 Ran 109 tests in 5.911s | OK
+v2_history_restore rc=0 Ran 165 tests in 16.516s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 127.168s | OK
+v2_history_adopt rc=0 Ran 170 tests in 12.325s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.526s | OK
+v2_history_consume rc=0 Ran 112 tests in 7.882s | OK
+v2_history_publish rc=0 Ran 150 tests in 74.634s | OK
+== py3.13 Python 3.13.18
+d6b0332500af8d8d46ddaae6c7fda39ee38a03db
+v2_core rc=0 Ran 197 tests in 4.331s | OK
+v2_persistence rc=0 Ran 170 tests in 11.644s | OK
+v2_persistence_local rc=0 Ran 113 tests in 11.851s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.832s | OK
+v2_history rc=0 Ran 230 tests in 9.289s | OK
+v2_history_ops rc=0 Ran 173 tests in 9.388s | OK
+v2_history_restart rc=0 Ran 109 tests in 5.473s | OK
+v2_history_restore rc=0 Ran 165 tests in 14.112s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 116.119s | OK
+v2_history_adopt rc=0 Ran 170 tests in 12.925s | OK
+v2_scope_chain rc=0 Ran 34 tests in 3.159s | OK
+v2_history_consume rc=0 Ran 112 tests in 7.215s | OK
+v2_history_publish rc=0 Ran 150 tests in 70.314s | OK
