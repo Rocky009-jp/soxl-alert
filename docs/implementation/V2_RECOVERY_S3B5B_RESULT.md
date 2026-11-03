@@ -1362,3 +1362,142 @@ push後に保護参照61を再照合し、最後の差分が本文書だけで�
 - 変異試験は、過去B-1〜B-5aの変異を再実行していない（依頼どおり）。
 - PR・マージ・Actions・本番・通知・CONSUME・保存・公開・S3-Cは行っていない。依存・設定・workflowは変更していない。
 - 作業中の仮コミットに`__pycache__`が混入したため、最終コミットはc8ba08fからの1コミットに作り直した（最終コミットに追跡された`__pycache__`は0件）。
+
+
+---
+
+# 追記：R-01 限定修正（2026-11-03）
+
+旧結果（上記§1〜§10）は書き換えていない。状態：**R-01の限定修正・自己試験まで完了。レビュー待ち。PR・マージ・Actions・本番・通知・CONSUME・S3-Cには進んでいない。**
+
+## R1. 固定入力・設定
+
+| 項目 | 値 |
+|---|---|
+| 採用 | Rockyのレビュー結果（重大0・通常1＝R-01）とコーディネーターの依頼で、限定修正依頼案の範囲を実装 |
+| モデルの実設定 | get_session：configured_model＝`claude-sonnet-5-5[1m]`、session_context.model＝`claude-sonnet-5-5[1m]`、last_served_model＝`claude-sonnet-5-5`、effort_level＝`high` |
+| 固定資料 | 資料ブランチの 92630a3d5233f14900c7472dc754850701a56b61（レビュー docs/reviews/V2_RECOVERY_S3B5B_IMPLEMENTATION_REVIEW_20261103.md、再現コード docs/reviews/s3b5b_review_probe.py、依頼案 docs/tasks/V2_RECOVERY_S3B5B_REVIEW_FIX_REQUEST.md）。読取だけで、このブランチへ追随マージしていない |
+| コード開始点 | 782debc2a901a421a2b5205f9dd8ad4f0b484b01（feat/v2-history-adopt-s3b5b-20261103） |
+| 修正ブランチ | fix/v2-history-adopt-s3b5b-review-20261103（元ブランチは更新していない） |
+| コミット | 修正＋R-01回帰 bad7fbcd6bc2ce30a756ca944b356b991d405e5c、回帰試験の補強 **61659892086b559a4e9c62caedcc79145f0b75dd**（コード・回帰の最終＝**試験対象SHA**） |
+| 保存最終SHA | 本追記だけを加える次のコミット（本文書には自分のSHAを書けない。報告で示す） |
+| 保護参照 | 依頼案§4の60参照＋資料 5d21c10＋元実装 782debc＝**62参照**を、**修正の開始前**に`git ls-remote`の完全SHAで照合し62／62一致。push後の照合結果は報告に記す |
+
+## R2. 修正の内容
+
+R-01：計画の`discarded`が空辞書・負やboolのcount・adopt_countと違うfrom_index・countとitemsの長さの不一致・不正なitems要素でも、plan_hashを再計算すると候補バイトでNO_CHANGEになり、data=Noneではdataの型のエラーが先に出ていた。
+
+`v2_history_adopt/confirm.py`の計画検査`_form_ok`（dataを読む前、全経路の共通の段）に、診断が返す形だけを受け入れる検査を足した。
+
+- dictのキーは`from_index`・`count`・`items`ちょうど。from_indexは厳密整数でadopt_countと等しい。countは厳密整数で0以上（boolは不可）。itemsはlistで長さがcount。
+- 各itemのキーは`index`・`kind`・`seq`・`d`・`request_id`ちょうど。indexは厳密整数でfrom_index＋位置。kindは`?`またはKINDSの値。seqはNoneまたは厳密整数（診断の仕様どおり負も許す）。dはNoneまたは`is_date`を通る値。request_idはNoneまたは`valid_request_id`を通る値。
+- 不正は全て`history_plan_mismatch`／`plan`（元バイト・候補バイト・他のバイト・None・型違いのどの経路でも、dataの型を読む前）。
+- 追加した名前は既存公開の`v2_history.KINDS`と`v2_history.common.is_date`だけ。新しいモジュール変数・モジュール直下の関数は作らず（既存のaudit試験の制約を変えないため、補助は`_form_ok`の中の入れ子関数にした）、audit試験は`ALLOWED_NAMES`に上記2名を足しただけ。
+- 元バイト経路の診断・全basis再構築、候補経路の正規化バイト完全一致だけをNO_CHANGEとする点、staleの扱いは変えていない。元バイトなしでdiscardedの内容やdiagnosis_digestの真偽までは証明しない（形と計画内で分かる整合だけ）。公開API・エラーcode・キー数・保存schema・復元下限は変えていない。
+
+## R3. 差分（782debc→6165989、ランタイムとaudit試験。新規回帰試験は`tests/v2_history_adopt/test_a5_09_review_fix.py`の全文がリポジトリにある）
+
+```diff
+diff --git a/tests/v2_history_adopt/test_a5_07_runtime_audit.py b/tests/v2_history_adopt/test_a5_07_runtime_audit.py
+index adf9fcb..c56ef3d 100644
+--- a/tests/v2_history_adopt/test_a5_07_runtime_audit.py
++++ b/tests/v2_history_adopt/test_a5_07_runtime_audit.py
+@@ -15,7 +15,7 @@ ALLOWED_STDLIB = {"copy"}
+ ALLOWED_NAMES = {
+     "v2_history": {"History", "validate_history", "decode_history", "encode_history", "RECOVERY_PREFIX_ADOPTION",
+-                   "SCHEMA_MIGRATION"},
++                   "SCHEMA_MIGRATION", "KINDS"},
+     "v2_history.values": {"history_dict"},
+-    "v2_history.common": {"is_int", "is_hex64", "basis_request_hash", "same"},
++    "v2_history.common": {"is_int", "is_hex64", "is_date", "basis_request_hash", "same"},
+     "v2_history_diagnose": {"diagnose_history_bytes", "PREFIX_ONLY"},
+     "v2_history_ops.errors": {"history_request_conflict", "history_plan_mismatch", "history_plan_stale"},
+diff --git a/v2_history_adopt/confirm.py b/v2_history_adopt/confirm.py
+index 2e384de..4c86df4 100644
+--- a/v2_history_adopt/confirm.py
++++ b/v2_history_adopt/confirm.py
+@@ -5,6 +5,6 @@ whole plan is rebuilt and compared (CONFIRMED_IN_MEMORY), or the bytes are the c
+ (NO_CHANGE), or they are something else (history_plan_stale). A plan is trusted for nothing it states about itself."""
+ from v2_core.errors import CoreError
+-from v2_history import History, RECOVERY_PREFIX_ADOPTION, encode_history, validate_history
+-from v2_history.common import is_hex64, is_int, same
++from v2_history import KINDS, History, RECOVERY_PREFIX_ADOPTION, encode_history, validate_history
++from v2_history.common import is_date, is_hex64, is_int, same
+ from v2_history.values import history_dict
+ from v2_history_diagnose import diagnose_history_bytes
+@@ -23,5 +23,24 @@ _HASH_KEYS = ("raw_sha256", "diagnosis_digest", "prefix_head_hash", "prefix_stat
+ 
+ def _form_ok(basis):
+-    """The shapes of the plan's own values (design 5.5 step 1), before anything is rebuilt."""
++    """The shapes of the plan's own values (design 5.5 step 1), before anything is rebuilt. The discarded part is checked in
++    the form the diagnosis gives (design 5.4: the fixed keys, strict integers, the start at adopt_count, as many items as
++    the count says, each with its position, a kind of the fixed list or "?", a strict integer or None, a real day or None
++    and a request id of the fixed form or None). Only what the plan itself proves: its content is not proved here, and a
++    declared seq may be any integer, even a negative one."""
++
++    def item_ok(item, index):
++        return (isinstance(item, dict) and set(item) == {"index", "kind", "seq", "d", "request_id"}
++                and is_int(item["index"]) and item["index"] == index and (item["kind"] == "?" or item["kind"] in KINDS)
++                and (item["seq"] is None or is_int(item["seq"])) and (item["d"] is None or is_date(item["d"]))
++                and (item["request_id"] is None or valid_request_id(item["request_id"])))
++
++    def discarded_ok(part):
++        if not isinstance(part, dict) or set(part) != {"from_index", "count", "items"}:
++            return False
++        start, count, items = part["from_index"], part["count"], part["items"]
++        return (is_int(start) and start == basis["adopt_count"] and is_int(count) and count >= 0
++                and isinstance(items, list) and len(items) == count
++                and all(item_ok(item, start + at) for at, item in enumerate(items)))
++
+     return (basis["operation"] == OPERATION and basis["status"] == READY and basis["reason_code"] == REASON
+             and valid_request_id(basis["request_id"]) and is_requested_text(basis["requested_at"])
+@@ -31,5 +50,5 @@ def _form_ok(basis):
+             and is_int(basis["prefix_head_seq"]) and basis["prefix_head_seq"] >= 0
+             and is_int(basis["candidate_head_seq"]) and basis["candidate_head_seq"] >= 0
+-            and isinstance(basis["discarded"], dict) and isinstance(basis["candidate_history"], dict)
++            and discarded_ok(basis["discarded"]) and isinstance(basis["candidate_history"], dict)
+             and isinstance(basis["candidate_record"], dict))
+ 
+```
+
+変更したファイル：`v2_history_adopt/confirm.py`、`tests/v2_history_adopt/test_a5_07_runtime_audit.py`（ALLOWED_NAMESの2名）、`tests/v2_history_adopt/test_a5_09_review_fix.py`（新規、206行）。その他は782debcとblob同一（`git diff --stat 782debc 6165989`は3ファイルのみ）。
+
+## R4. 追加した試験（test_a5_09_review_fix.py、新規15件）
+
+| クラス | 件数 | 内容 |
+|---|---|---|
+| BrokenBlock | 10 | 34通りの不正を1つずつ壊し、元バイト・候補バイト・他のバイト・None・str・bytearrayの6経路でmismatch（204サブケース）。レビューの再現（空辞書・hash再計算済み）。壊れたblockではdataの型より先にmismatch。正常なblockはdataの型が先。形は正しいが内容が違うblockは、元バイトでmismatch、候補バイトでは形しか見ないのでNO_CHANGE（限界を明記）。正常な計画の他のバイトはstale。hashを再計算しない改ざんはmismatch。fromが adopt_count と違うがitemsは整合する例、itemsが空だがlistでない例 |
+| ShapesTheDiagnosisGives | 5 | 診断が実際に返す形が拒否されない対照：header-onlyの破損でcount＝0・items＝[]、複数itemsの連番、null読取値・負のseq・未知kind`?`、移行済みprefixと復元を含むprefix、KINDSの全種別 |
+| 計 | 15 | BrokenBlock 10＋ShapesTheDiagnosisGives 5 |
+
+新規パッケージの合計は旧155＋15＝**170**。
+
+## R5. 結果（Linux 6.18、`unshare -n -r`下、別クリーンクローン・core.autocrlf=false、試験対象6165989）
+
+版：3.10.20（uvの単体インタプリタ）、3.11.18、3.12.3、3.13.18。各版は別のクリーンクローンで`PYTHONDONTWRITEBYTECODE=1 python -B -W error::ResourceWarning -m unittest discover`。4版とも全スイートのrc＝0、失敗0、error0。
+
+| スイート | 件数 | 結果 |
+|---|---|---|
+| v2_core／v2_persistence／v2_persistence_local／v2_recovery／v2_history／v2_history_ops／v2_history_restart／v2_history_restore／v2_history_diagnose | 197／170／113／176／230／173／109／165／131＝**1464** | OK。1460合格＋Windows専用4 skip（旧と同じ） |
+| v2_history_adopt | **170**（旧155＋新15） | OK、skip 0 |
+| 合計 | 1634 | 1630合格＋4 skip |
+
+- 通信遮断：Linuxの`unshare -n -r`は使えた（OS単位）。試験内のプロセス内socket禁止は別。`unshare`なしの3.13でも新規170件OK。
+- 付属プローブ（`s3b5b_review_probe.py --expect-fixed`、3.13クリーンクローン）：**終了0**。R-01の観測19件が解消（fixed 19、unfixed 0）、正常な結果の対照6／6、元バイトでの拒否14／14、prefix格子56／56合格。
+- **Windows・ユーザーPC・物理電源断・autocrlf=true：未実施**（他者の結果で代用していない）。
+
+## R6. 感度確認（元の53変異の再実行はしていない）
+
+修正を外す変異16件を、新しい回帰試験だけで確認（`confirm.py`の1箇所を壊す）。
+
+- 修正前コード（782debcの`confirm.py`）に回帰試験を当てると、**177件失敗**（R-01を検出）。
+- 検出15、**等価1**、未検出0：A（blockがdictなら通す）、B（from_index＝adopt_count の検査を省く）、C（長さの検査を省く）、E（indexの位置検査を省く）、F（kindの検査を省く）、G（dの検査を省く）、H（request_idの検査を省く）、I（bool seqを許す）、J（負のseqを拒否する）、K（itemのキー検査を省く）、L（blockのキー検査を省く）、M（itemsがlistの検査を省く）、N（countが0を拒否する）、O（未知kind`?`を拒否する）、P（null読取値を拒否する）。
+- **等価（D：`count >= 0`を省く）**：countは厳密整数で`len(items) == count`が必要であり、listの長さは負にならないため、`count >= 0`を省いても受理される入力は変わらない（`count＝-1`と`items＝[]`は長さ0≠-1で拒否される）。反例は見つからず、検査は多重防護として残した。
+- 最初の実行ではB・D・Mが未検出で、B・Mには「itemsは整合するがstartが違う」例と「itemsが空でlistでない」例の回帰を足し、検出を確認した。Dのみ等価と判断した。
+
+## R7. 解釈した点・未実施
+
+- 診断の仕様どおり、捨てる側のseqは不正な宣言値でも厳密整数なら負を許す。claimed_head_seqなど他の宣言値からcountやitemsを制約していない。
+- 本修正は、元バイトがない経路でdiscardedの記述内容の真偽やdiagnosis_digestの真偽を証明するものではない（形と計画内の整合だけ）。hashの一致を作成者の真正性の証明として扱わない。
+- 旧結果§10の開始時の保護参照照合の欠落は、今回の照合で補ったことにしない（今回は修正の開始前に照合しただけ）。
+- 未実施：Windows、ユーザーPC、Python 3.10〜3.13以外、autocrlf=true、物理電源断。PR・マージ・Actions・本番・通知・CONSUME・S3-C。
