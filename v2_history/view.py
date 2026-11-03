@@ -17,18 +17,23 @@ from v2_recovery.common import is_requested_text, valid_request_id
 
 from .common import basis_request_hash, is_date, is_hex64, is_int, same
 from .errors import history_invalid
-from .values import ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN, SCHEMA_MIGRATION
+from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
+                     RESTART_UNKNOWN, SCHEMA_MIGRATION)
 
 VARIANTS = ("ADDED", "CHANGED", "ROW_REMOVED", "LATE")
 REASON_ACK = "ACKNOWLEDGE_LEDGER_CHANGE"
 REASON_DECLARE = "MARK_SESSION_MISSING"
 REASON_BATCH = "RESOLUTION_BATCH"
 REASON_RESTART = "RESTART_UNKNOWN"
+REASON_ADOPT = "ADOPT_VERIFIED_PREFIX"
 
 COMMAND_KEYS = frozenset(["kind", "variant", "d", "record_fingerprints", "applied_ref", "missing_ref"])
 BASIS_KEYS = frozenset(["request_id", "commands", "check_d", "reason_code", "requested_at"])
 RESTART_BASIS_KEYS = frozenset(["request_id", "resume_after", "check_d", "reason_code", "requested_at"])
 FLOOR_KEYS = frozenset(["last_apply_d", "last_declared_d", "prev_boundary"])
+EVIDENCE_KEYS = frozenset(["raw_sha256", "raw_size", "claimed_schema_version", "claimed_head_seq",
+                           "claimed_head_hash", "discarded_from_seq"])
+ADOPTION_BASIS_KEYS = frozenset(["request_id", "evidence", "reason_code", "requested_at"])
 _CONFIRMED_INPUT_KEYS = frozenset(["decision", "row", "prev_row", "prev_session_date", "session_context"])
 _REQUEST_LEVEL = ("request_id", "request_hash", "request_basis", "command_count", "ledger_digest", "requested_at")
 
@@ -322,6 +327,9 @@ class _Walk:
                 raise _bad("state_after")
             self.claim_request(rec["request_id"])
             return
+        if kind == RECOVERY_PREFIX_ADOPTION:
+            self.adoption_record(rec, parent_state)
+            return
 
     def resolution_record(self, idx, rec, parent_state):
         cmd = self.commands[idx - self.group_start]
@@ -447,6 +455,31 @@ class _Walk:
         self.seg_i += 1
         self.seg_applies = []
         self.seg_declares = []
+
+    def adoption_record(self, rec, parent_state):
+        """S3-B-5b: a control record that keeps the state and names the raw bytes whose verified prefix was adopted."""
+        self.claim_request(rec["request_id"])
+        if not same(rec["state_after"], parent_state):
+            raise _bad("state_after")
+        ev = rec["evidence"]
+        if (not isinstance(ev, dict) or set(ev) != EVIDENCE_KEYS or not is_hex64(ev["raw_sha256"])
+                or not is_int(ev["raw_size"]) or ev["raw_size"] < 1
+                or not is_int(ev["claimed_schema_version"]) or ev["claimed_schema_version"] != 2
+                or not (ev["claimed_head_seq"] is None or is_int(ev["claimed_head_seq"]))
+                or not (ev["claimed_head_hash"] is None or is_hex64(ev["claimed_head_hash"]))
+                or not is_int(ev["discarded_from_seq"]) or ev["discarded_from_seq"] != rec["seq"]):
+            raise _bad("adoption_evidence")
+        basis = rec["request_basis"]
+        if not isinstance(basis, dict) or set(basis) != ADOPTION_BASIS_KEYS:
+            raise _bad("request_basis")
+        if basis["request_id"] != rec["request_id"] or not same(basis["evidence"], ev):
+            raise _bad("request_basis")
+        if not is_requested_text(basis["requested_at"]) or basis["requested_at"] != rec["requested_at"]:
+            raise _bad("requested_at")
+        if basis["reason_code"] != REASON_ADOPT or rec["reason_code"] != REASON_ADOPT:
+            raise _bad("reason_code")
+        if not is_hex64(rec["request_hash"]) or rec["request_hash"] != basis_request_hash(basis):
+            raise _bad("request_hash")
 
 
 def check_view(recs):

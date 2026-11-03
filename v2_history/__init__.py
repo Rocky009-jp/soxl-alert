@@ -10,11 +10,11 @@ from .genesis import make_history_genesis
 from .migrate import (CONFIRMED_IN_MEMORY, READY, MigrationConfirmResult, MigrationPlan, confirm_migration_plan,
                       migrated_sources, prepare_migration_plan)
 from .validate import Boundary, HistoryCheck, validate_history
-from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, KINDS, RECOVERY_RESTORE, RESTART_UNKNOWN,
-                     SCHEMA_MIGRATION, SCHEMA_VERSION_V2, History, decode_history, encode_history)
+from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, KINDS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
+                     RESTART_UNKNOWN, SCHEMA_MIGRATION, SCHEMA_VERSION_V2, History, decode_history, encode_history)
 
 __all__ = ["History", "encode_history", "decode_history", "validate_history", "make_history_genesis",
            "migrated_sources", "prepare_migration_plan", "confirm_migration_plan", "HistoryCheck", "Boundary",
            "MigrationPlan", "MigrationConfirmResult", "SCHEMA_VERSION_V2", "KINDS", "GENESIS", "APPLY", "ACK",
-           "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "READY",
-           "CONFIRMED_IN_MEMORY"]
+           "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION",
+           "READY", "CONFIRMED_IN_MEMORY"]

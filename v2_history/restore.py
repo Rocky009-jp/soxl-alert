@@ -2,13 +2,15 @@
 (design 8.1-8.6). Only the form and the facts of the batch are checked here; the created records must also pass the
 ordinary view rules (view.py) in the chain views that contain them.
 
-CONSUME and RECOVERY_PREFIX_ADOPTION are refused (restore_op_unsupported / unsupported_event).
+CONSUME is refused (restore_op_unsupported / unsupported_event). RECOVERY_PREFIX_ADOPTION cannot be restored
+before (restore_before_adoption).
 """
 from v2_recovery.common import is_requested_text, valid_request_id
 
 from .common import basis_request_hash, is_date, is_hex64, is_int, same
 from .errors import history_invalid
-from .values import ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN, SCHEMA_MIGRATION
+from .values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
+                     RESTART_UNKNOWN, SCHEMA_MIGRATION)
 
 REASON_RESTORE = "RESTORE_VERIFIED_RECORD"
 BASIS_KEYS = frozenset(["request_id", "restore_point", "ops", "check_d", "reason_code", "requested_at"])
@@ -98,6 +100,9 @@ def _check_one(events, parents, migration_seq, k, rec, replayed):
         raise _bad("restore_point_not_effective")
     if migration_seq is not None and point < migration_seq:
         raise _bad("restore_before_migration")
+    adoptions = [s for s in chain if events[s]["kind"] == RECOVERY_PREFIX_ADOPTION]
+    if adoptions and point < adoptions[-1]:
+        raise _bad("restore_before_adoption")
     p_rec = events[point]
     if (p_rec["kind"] in (ACK, DECLARE_MISSING) and is_int(p_rec["command_index"])
             and is_int(p_rec["command_count"]) and p_rec["command_index"] < p_rec["command_count"] - 1):

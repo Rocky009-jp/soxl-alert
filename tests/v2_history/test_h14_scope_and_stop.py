@@ -102,17 +102,17 @@ class RuntimeIsPure(unittest.TestCase):
             "History", "encode_history", "decode_history", "validate_history", "make_history_genesis",
             "migrated_sources", "prepare_migration_plan", "confirm_migration_plan", "HistoryCheck", "Boundary",
             "MigrationPlan", "MigrationConfirmResult", "SCHEMA_VERSION_V2", "KINDS", "GENESIS", "APPLY", "ACK",
-            "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "READY",
-            "CONFIRMED_IN_MEMORY"]))
+            "DECLARE_MISSING", "RESTART_UNKNOWN", "RECOVERY_RESTORE", "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION",
+            "READY", "CONFIRMED_IN_MEMORY"]))
         for name in v2_history.__all__:
             self.assertTrue(hasattr(v2_history, name))
         self.assertEqual(v2_history.SCHEMA_VERSION_V2, 2)
-        self.assertEqual(len(v2_history.KINDS), 7)
+        self.assertEqual(len(v2_history.KINDS), 8)
         self.assertEqual((v2_history.READY, v2_history.CONFIRMED_IN_MEMORY), ("READY", "CONFIRMED_IN_MEMORY"))
 
     def test_consume_and_the_b5_kind_are_refused(self):
         import v2_history.values as values
-        self.assertNotIn("RECOVERY_PREFIX_ADOPTION", values.KINDS)
+        self.assertEqual(values.KINDS[-1], "RECOVERY_PREFIX_ADOPTION")              # added by B-5b
         self.assertNotIn("CONSUME", sources()["restore.py"].split("_ALLOWED")[1].split("\n\n")[0])
 
 

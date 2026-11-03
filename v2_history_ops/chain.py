@@ -7,8 +7,8 @@ S1 projection of the current segment gives are used inside prepare_day only and 
 No rule, threshold or state formula is written here: S1 recalculates (project_segment, prepare_day), the S3-A rule
 functions judge the ledger.
 """
-from v2_history.values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_RESTORE, RESTART_UNKNOWN,
-                               SCHEMA_MIGRATION)
+from v2_history.values import (ACK, APPLY, DECLARE_MISSING, GENESIS, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE,
+                               RESTART_UNKNOWN, SCHEMA_MIGRATION)
 from v2_history.view import Segment, project_segment
 from v2_persistence.codec import canonical_json, sha256_text
 from v2_persistence.events import make_apply_event, make_genesis_event, snapshot_of
@@ -19,7 +19,8 @@ from .values import EffectiveView
 NATIVE, MIGRATED, REPLAYED = "NATIVE", "MIGRATED", "REPLAYED"
 RESOLUTION = "RESOLUTION"
 _REQUEST_KINDS = {ACK: RESOLUTION, DECLARE_MISSING: RESOLUTION, RESTART_UNKNOWN: RESTART_UNKNOWN,
-                  RECOVERY_RESTORE: RECOVERY_RESTORE, SCHEMA_MIGRATION: SCHEMA_MIGRATION}
+                  RECOVERY_RESTORE: RECOVERY_RESTORE, SCHEMA_MIGRATION: SCHEMA_MIGRATION,
+                  RECOVERY_PREFIX_ADOPTION: RECOVERY_PREFIX_ADOPTION}
 
 
 def source_of(rec):

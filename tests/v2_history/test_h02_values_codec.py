@@ -140,7 +140,7 @@ class FormRefusals(unittest.TestCase):
         H.expect_rule(self, "record_keys", H.rebuild(ev))
 
     def test_unknown_kind_and_the_b5_kind(self):
-        for kind in ("BOGUS", "RECOVERY_PREFIX_ADOPTION", None, 7):
+        for kind in ("BOGUS", "CONSUME", None, 7):
             with self.subTest(kind):
                 ev = H.deep(self.ev)
                 ev[2]["kind"] = kind

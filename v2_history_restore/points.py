@@ -1,6 +1,6 @@
 """The restore point and the operation list (design 4): the checks of the caller's request, in a fixed order."""
 from v2_history.common import is_hex64, is_int
-from v2_history.values import ACK, APPLY, DECLARE_MISSING, RECOVERY_RESTORE, RESTART_UNKNOWN
+from v2_history.values import ACK, APPLY, DECLARE_MISSING, RECOVERY_PREFIX_ADOPTION, RECOVERY_RESTORE, RESTART_UNKNOWN
 
 from .errors import restore_invalid
 from .values import DROP, OP_KEYS, OPS, POINT_KEYS, REAPPLY, REPLAY, RETIRE
@@ -26,6 +26,9 @@ def check_point(check, view, events, point):
     migration = view.migration_seq
     if migration is not None and seq < migration:
         raise restore_invalid("restore_point", "restore_before_migration")
+    taken = [s for s in effective if events[s]["kind"] == RECOVERY_PREFIX_ADOPTION]
+    if taken and seq < taken[-1]:
+        raise restore_invalid("restore_point", "restore_before_adoption")
     rec = events[seq]
     if rec["kind"] in (ACK, DECLARE_MISSING) and rec["command_index"] < rec["command_count"] - 1:
         raise restore_invalid("restore_point", "restore_point_in_batch")

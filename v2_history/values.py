@@ -21,9 +21,9 @@ DECLARE_MISSING = "DECLARE_MISSING"
 RESTART_UNKNOWN = "RESTART_UNKNOWN"
 RECOVERY_RESTORE = "RECOVERY_RESTORE"
 SCHEMA_MIGRATION = "SCHEMA_MIGRATION"
-KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION)
-# Designed for B-5 and refused here (unsupported_event).
 RECOVERY_PREFIX_ADOPTION = "RECOVERY_PREFIX_ADOPTION"
+KINDS = (GENESIS, APPLY, ACK, DECLARE_MISSING, RESTART_UNKNOWN, RECOVERY_RESTORE, SCHEMA_MIGRATION,
+         RECOVERY_PREFIX_ADOPTION)
 
 HEADER_KEYS = frozenset(["schema_version", "core_sha", "head_seq", "head_hash", "current_state", "events"])
 _RESOLUTION_KEYS = frozenset([
@@ -41,10 +41,13 @@ MIGRATION_KEYS = frozenset([
     "kind", "seq", "parent_seq", "parent_hash", "source", "source_resolutions", "event_map", "resolution_map",
     "request_id", "request_hash", "request_basis", "reason_code", "requested_at", "ledger_digest", "state_after",
     "event_hash"])
+ADOPTION_KEYS = frozenset([
+    "kind", "seq", "parent_seq", "parent_hash", "evidence", "request_id", "request_hash", "request_basis",
+    "reason_code", "requested_at", "state_after", "event_hash"])
 RECORD_KEYS = {
     GENESIS: frozenset(GENESIS_KEYS), APPLY: frozenset(APPLY_KEYS), ACK: _RESOLUTION_KEYS,
     DECLARE_MISSING: _RESOLUTION_KEYS, RESTART_UNKNOWN: RESTART_KEYS, RECOVERY_RESTORE: RESTORE_KEYS,
-    SCHEMA_MIGRATION: MIGRATION_KEYS}
+    SCHEMA_MIGRATION: MIGRATION_KEYS, RECOVERY_PREFIX_ADOPTION: ADOPTION_KEYS}
 
 _MAX_DEPTH = 40
 

@@ -36,7 +36,7 @@ ALLOWED_NAMES = {
     "v2_core": {"SessionList", "MarketState", "parse_iso_date"},
 }
 KIND_CONSTANTS = {"ACK", "APPLY", "DECLARE_MISSING", "GENESIS", "RECOVERY_RESTORE", "RESTART_UNKNOWN",
-                  "SCHEMA_MIGRATION"}
+                  "SCHEMA_MIGRATION", "RECOVERY_PREFIX_ADOPTION"}
 FORBIDDEN_IMPORTS = {"os", "sys", "socket", "subprocess", "threading", "multiprocessing", "time", "random", "secrets",
                      "pathlib", "io", "shutil", "tempfile", "urllib", "http", "asyncio", "logging", "signal", "ssl",
                      "ctypes", "sqlite3", "glob", "fcntl", "msvcrt", "hashlib", "uuid", "webbrowser", "smtplib",
@@ -180,19 +180,24 @@ class FilesChanged(unittest.TestCase):
         out = self.git("diff", "--name-status", START, "HEAD")
         self.assertEqual(out.returncode, 0, out.stderr)
         changed = [line.split("\t") for line in out.stdout.splitlines()]
+        b5b = ("v2_history/__init__.py", "v2_history/values.py", "v2_history/view.py", "v2_history/restore.py",
+               "tests/v2_history/test_h02_values_codec.py", "tests/v2_history/test_h14_scope_and_stop.py")
         for status, path in changed:
             allowed = (path.startswith(("v2_history_ops/", "tests/v2_history_ops/",
                                         "v2_history_restart/", "tests/v2_history_restart/",
                                         "v2_history_restore/", "tests/v2_history_restore/",
-                                        "v2_history_diagnose/", "tests/v2_history_diagnose/"))
+                                        "v2_history_diagnose/", "tests/v2_history_diagnose/",
+                                        "v2_history_adopt/", "tests/v2_history_adopt/"))
+                       or path in b5b
                        or path in ("v2_recovery/facts.py", "v2_recovery/commands.py",
                                    "docs/implementation/V2_RECOVERY_S3B2_RESULT.md",
                                    "docs/implementation/V2_RECOVERY_S3B3_RESULT.md",
                                    "docs/implementation/V2_RECOVERY_S3B4_RESULT.md",
-                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md"))
+                                   "docs/implementation/V2_RECOVERY_S3B5_RESULT.md",
+                                   "docs/implementation/V2_RECOVERY_S3B5B_RESULT.md"))
             self.assertTrue(allowed, "unexpected change: %s %s" % (status, path))
             if not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")):
-                if path != "v2_recovery/commands.py":
+                if path != "v2_recovery/commands.py" and path not in b5b:
                     self.assertEqual(status, "A", path)                       # new files only
                 else:
                     self.assertEqual(status, "M", path)
@@ -203,6 +208,7 @@ class FilesChanged(unittest.TestCase):
             self.assertFalse(path.endswith("__init__.py") and path != "v2_history_restart/__init__.py"
                              and path != "v2_history_restore/__init__.py"
                              and path != "v2_history_diagnose/__init__.py"
+                             and path not in ("v2_history_adopt/__init__.py", "v2_history/__init__.py")
                              and not path.startswith(("v2_history_ops/", "tests/v2_history_ops/")), path)
 
     def test_commands_py_changes_are_the_two_allowed_ones_only(self):
@@ -220,7 +226,9 @@ class FilesChanged(unittest.TestCase):
     def test_existing_tests_and_fixtures_are_untouched(self):
         out = self.git("diff", "--name-only", START, "HEAD", "--", "tests", ":(exclude)tests/v2_history_ops",
                        ":(exclude)tests/v2_history_restart", ":(exclude)tests/v2_history_restore",
-                       ":(exclude)tests/v2_history_diagnose")
+                       ":(exclude)tests/v2_history_diagnose", ":(exclude)tests/v2_history_adopt",
+                       ":(exclude)tests/v2_history/test_h02_values_codec.py",
+                       ":(exclude)tests/v2_history/test_h14_scope_and_stop.py")
         self.assertEqual(out.stdout.strip(), "")
         out = self.git("diff", "--name-only", START, "HEAD", "--", "main.py", "requirements.txt", ".github", "research",
                        "docs/STATUS.md", "docs/ROADMAP.md", "CLAUDE.md")
