@@ -280,3 +280,22 @@ START＝b626c98、`END = None`、`REV = END or "HEAD"`（test_sc_03_scope.py。E
 - 未コミットの`__pycache__`が一度コミットに混入したが、push前に消してamendした（PYTHONDONTWRITEBYTECODE=1、`git add`前に確認）。pushしたコミットに含まれない。
 - 共有フォルダ implementation/scope_range_freeze_20261103/ に、変換スクリプト（freeze_transform.py）、欠陥注入ランナー（mutate_runner.py）、模擬の手順（simulate_next_stage.sh）、差分全文を置いた。
 - モデル別の利用量は未計測。
+
+## 11. レビューR-01の限定修正（2026-11-03、Sonnet 5.5・high）
+
+Opus 5.5・highのレビュー（docs/v2-scope-range-freeze-review-20261103、fa4b232810569f4512d09f244ef50f9685ff0c95、重大0・通常1・提案2）の指摘R-01（test_sc_02が、次の段階でtest_sc_03のENDが固定された後にHEADの鎖を見なくなる）と、同じファイルに入れる提案P-01を直した。P-02は推奨どおり今回入れない。
+
+| 項目 | 値 |
+|---|---|
+| ブランチ・開始 | fix/v2-scope-range-freeze-review-20261103、開始 dda7eb706637adc5f6dd37513e4b6ca360fde2ba |
+| 試験対象 | **00094cc84287cbea977f6c94bfa8126ea2ea7daa**（変更は tests/v2_scope_chain/test_sc_02_chain.py の1ファイルだけ） |
+| 保存最終 | 本節だけを足した次のコミット（push報告に記す） |
+
+修正：(1) test_sc_02はtest_sc_03のREV・ENDをimportせず、`TIP = "HEAD"`でrange_tests・judge_chainを読む。(2) 範囲試験の数は「既知の6本を含む」に、鎖は最初の5本が既知、6本目がtest_sc_03（START b626c98）、長さ6以上、全範囲試験が鎖の上、開いた範囲は0か1で最後、に変えた。(3) 回帰：test_sc_02のASTにtest_sc_03のimportも`REV`・`END`のNameも無く、range_tests・judge_chainの引数がTIP（judge_chainは表の中の固定コミットの文字列も可）であること。(4) P-01：判定器の「STARTがENDの祖先」「ENDがtipの祖先」を、それぞれ単独で働かせる1行の表の試験を2件（c8ba08f→ac21980をtip HEADで、adfdf765→c8ba08fをtip ac21980で）。sc_helpers.py、test_sc_01・03、5本、ランタイムは変えていない。
+
+結果：
+- 新規 tests/v2_scope_chain/ は31→**34件**（回帰1＋P-01の2）。Python 3.10.20／3.11.18／3.12.3／3.13.18、別クリーンクローン・`unshare -n -r`・core.autocrlf=falseで、既存1634件（Windows専用4 skip）と新規34件がすべて合格。
+- レビューのプローブ r01_chain_after_freeze_probe.sh：dda7eb7では終了1（R-01あり）、00094ccでは終了0（HEADで「2 open ranges」「3 chain beginnings」を返し、鎖の試験が失敗）。
+- 対照（正しい次段階）：使い捨てコミットで test_sc_03 の END をdda7eb7に替え、START＝dda7eb7・END＝None の範囲試験を1本足すと、tests/v2_scope_chain/ 34件が全て合格（test_sc_02は7本の鎖を合格と判定）。
+- 再注入（00094ccを壊した使い捨てコミット）：R1（ENDがtipの祖先の検査を外す）検出、R2（STARTがENDの祖先の検査を外す）検出、R1＋R2検出、R3（test_sc_02がtest_sc_03のREVを再びimportして読む）検出。「開いた範囲の個数の上限を緩める」は判定器が別に検査するので検出されない（冗長、等価として扱う）。
+- Windows、ユーザーPC、core.autocrlf=true、P-02、CONSUME、S3-Cは未実施・範囲外。PR・マージ・Actionsなし。
