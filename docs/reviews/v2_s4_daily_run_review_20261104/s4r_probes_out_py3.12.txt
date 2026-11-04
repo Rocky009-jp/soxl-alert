@@ -1,0 +1,43 @@
+== s4r_restart (python3.12)
+A RunReport(DONE, D=2026-03-05, consumed=['2026-03-03', '2026-03-04'], last=NO_COMMIT, code=None)
+view latest_apply_d=2026-03-04 processing_after=2026-03-05 boundary={'after': '2026-03-05', 'kind': 'RESTART_UNKNOWN', 'seq': 3}
+direct prepare_history_day(D4): PREPARED
+run after D4 close: RunReport(STOPPED, D=2026-03-06, consumed=[], last=None, code=target_not_after_boundary)
+run after D5 close: RunReport(STOPPED, D=2026-03-09, consumed=[], last=None, code=target_not_after_boundary)
+run after D6 close: RunReport(STOPPED, D=2026-03-10, consumed=[], last=None, code=target_not_after_boundary)
+patched (processing_after) after D5 close: RunReport(DONE, D=2026-03-09, consumed=['2026-03-06'], last=NO_COMMIT, code=None)
+== s4r_declare (python3.12)
+a view latest=2026-03-03 after=2026-03-03
+a RunReport(DONE, D=2026-03-06, consumed=['2026-03-05', '2026-03-06'], last=PREPARED, code=None)
+  gap line: []
+b trial   RunReport(STOPPED, D=2026-03-05, consumed=[], last=None, code=target_not_after_boundary)
+b patched RunReport(STOPPED, D=2026-03-05, consumed=[], last=None, code=target_not_after_boundary)
+c genesis, target == start_after: RunReport(STOPPED, D=2026-03-02, consumed=[], last=None, code=target_not_after_boundary)
+== s4r_now (python3.12)
+a delayed run: RunReport(DONE, D=2026-03-05, consumed=[], last=NO_COMMIT, code=None) | next open of D3 passed: True
+  run class line: 【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-03-05 ／実行区分: F&G観測待ち
+  has branch table lines: True
+b observation after now: RunReport(DONE, D=2026-03-05, consumed=['2026-03-05'], last=PREPARED, code=None)
+== s4r_calendar (python3.12)
+now = after D5 close, calendar ends at D6: RunReport(DONE, D=2026-03-09, consumed=[], last=NO_COMMIT, code=None)
+now = after D6 close, calendar ends at D6: RunReport(STOPPED, D=2026-03-10, consumed=[], last=None, code=next_session_missing)
+now = after D9 close, calendar ends at D6: RunReport(STOPPED, D=2026-03-10, consumed=[], last=None, code=next_session_missing)
+== trial s4a_trial.py / s4a_trial2.py (python3.12)
+1 normal RunReport(DONE, D=2026-03-05, consumed=['2026-03-03', '2026-03-04'], last=NO_COMMIT, code=None)
+   message head: 【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-03-05 ／実行区分: F&G観測待ち
+   has F&G-pending line: True
+2 rerun RunReport(DONE, D=2026-03-05, consumed=[], last=NO_COMMIT, code=None)
+   same digest: True same message: True
+3 gap RunReport(DONE, D=2026-03-09, consumed=['2026-03-06'], last=NO_COMMIT, code=None)
+   gap line: False
+4 stale RunReport(STALE, D=2026-03-05, consumed=['2026-03-03', '2026-03-04'], last=None, code=run_session_unconfirmed:2026-03-05)
+5 busy RunReport(STOPPED, D=2026-03-05, consumed=[], last=None, code=store_busy)
+6 target decided RunReport(DONE, D=2026-03-05, consumed=['2026-03-03', '2026-03-04', '2026-03-05'], last=PREPARED, code=None)
+7 ledger changed RunReport(STOPPED, D=2026-03-05, consumed=[], last=None, code=ledger_mismatch)
+   file unchanged: True
+a RunReport(DONE, D=2026-03-05, consumed=['2026-03-03', '2026-03-04', '2026-03-05'], last=PREPARED, code=None)
+b rerun after target consumed RunReport(DONE, D=2026-03-05, consumed=[], last=ALREADY_APPLIED, code=None) 【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-03-05 ／実行区分: 合図なし
+c catch-up 17 days DONE 17 NO_COMMIT
+d read-only RunReport(STOPPED, D=2026-04-01, consumed=[], last=PREPARED, code=store_read_only)
+e naive now RunError run_now_invalid
+f now earlier than head RunReport(STOPPED, D=2026-03-04, consumed=[], last=None, code=state_ahead_of_target)

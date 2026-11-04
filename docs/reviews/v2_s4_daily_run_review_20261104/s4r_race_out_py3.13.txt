@@ -1,0 +1,19 @@
+NPROC=2 DAYS=6 trials=20 same_as_one_run=20 prefix_only=0
+   11 (('DONE', None), ('STOPPED', 'store_busy'))
+   5 (('DONE', None), ('DONE', None))
+   4 (('DONE', None), ('STOPPED', 'publication_stale'))
+NPROC=4 DAYS=6 trials=20 same_as_one_run=20 prefix_only=0
+   6 (('DONE', None), ('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'))
+   5 (('DONE', None), ('DONE', None), ('DONE', None), ('STOPPED', 'publication_stale'))
+   3 (('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'), ('STOPPED', 'store_busy'))
+   2 (('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'))
+   2 (('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'publication_stale'), ('STOPPED', 'publication_stale'))
+   2 (('DONE', None), ('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'publication_stale'))
+trial 11: final has 5 applies (expected 6); reports [['STOPPED', 'publication_stale', 0], ['STOPPED', 'store_busy', 5]]
+trial 67: final has 5 applies (expected 6); reports [['STOPPED', 'publication_stale', 0], ['STOPPED', 'store_busy', 5]]
+trial 73: final has 5 applies (expected 6); reports [['STOPPED', 'store_busy', 5], ['STOPPED', 'publication_stale', 0]]
+NPROC=2 DAYS=6 trials=80 same_as_one_run=77 prefix_only=3
+   37 (('DONE', None), ('STOPPED', 'publication_stale'))
+   29 (('DONE', None), ('STOPPED', 'store_busy'))
+   11 (('DONE', None), ('DONE', None))
+   3 (('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'))
