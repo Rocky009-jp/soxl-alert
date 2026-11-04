@@ -1,0 +1,5 @@
+T1 OK migration: fault ('maintenance_incomplete', None); requested_at in history.json ['2026-06-01T00:00:00Z']; other -> ('maintenance_state_unexpected', 'v1_and_v2'), root unchanged=True; read back -> same hash, resumed=True, root ['history.json', 'quarantine']
+T2 OK adoption: fault ('store_commit_uncertain', None); new requested_at in history.json ['2026-06-01T00:00:00Z']; other -> ('publication_stale', 'raw'), root unchanged=True; read back -> same hash, resumed=True
+T3 OK violations of the 2nd-edition C4-20: []; names imported from v2_history_publish: 12
+T4 OK trial [migrate stale->no quarantine, adopt stale->no quarantine, read before mkdir] = [True, True, True]; injection 10 (MANIFEST before the read, migrate) = [False, True, False] -> detected=True
+summary: 4/4 OK
