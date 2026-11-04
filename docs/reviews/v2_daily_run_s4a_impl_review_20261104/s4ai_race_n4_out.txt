@@ -1,0 +1,4 @@
+NPROC=4 DAYS=6 trials=20 same_as_one_run=20 prefix_only=0
+   15 (('DONE', None), ('STOPPED', 'store_busy'), ('STOPPED', 'store_busy'), ('STOPPED', 'store_busy'))
+   4 (('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'), ('STOPPED', 'store_busy'))
+   1 (('DONE', None), ('STOPPED', 'publication_stale'), ('STOPPED', 'publication_stale'), ('STOPPED', 'store_busy'))

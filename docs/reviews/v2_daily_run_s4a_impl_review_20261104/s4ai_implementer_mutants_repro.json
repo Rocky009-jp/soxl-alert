@@ -1,0 +1,364 @@
+{
+ "tested": "c15ab18ae7a02dc9bef900412ae3af7862c232d1",
+ "python": "3.12.3",
+ "script": "implementation/s4a_daily_run_20261104/mutate.py (unchanged), shards 0/2 and 1/2",
+ "results": [
+  {
+   "id": "1",
+   "title": "target: close_at <= now becomes close_at < now",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 2,
+   "failing_examples": [
+    "test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one (test_s4a_01_args_target.Target.test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one)",
+    "test_the_same_instant_in_other_time_zones_gives_the_same_target_and_the_same_report (test_s4a_01_args_target.Target.test_the_same_instant_in_other_time_zones_gives_the_same_target_and_the_same_report)"
+   ]
+  },
+  {
+   "id": "3",
+   "title": "an unconfirmed session does not stop the run (no STALE): the evaluation goes on",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 5,
+   "failing_examples": [
+    "test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues (test_s4a_02_catch_up.Unconfirmed.test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues)",
+    "test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before)",
+    "test_an_unconfirmed_target_is_stale_too (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_target_is_stale_too)",
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)"
+   ]
+  },
+  {
+   "id": "5",
+   "title": "the target is taken out of the loop (< target instead of <= target)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 22,
+   "failing_examples": [
+    "test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result (test_s4a_02_catch_up.DecidedTarget.test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result)",
+    "test_a_gap_that_ends_in_the_target_is_listed_too (test_s4a_02_catch_up.MissingDay.test_a_gap_that_ends_in_the_target_is_listed_too)",
+    "test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line (test_s4a_02_catch_up.MissingDay.test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line)",
+    "test_two_gaps_give_two_lines (test_s4a_02_catch_up.MissingDay.test_two_gaps_give_two_lines)"
+   ]
+  },
+  {
+   "id": "7",
+   "title": "the line for a gap is dropped from the text",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 2,
+   "failing_examples": [
+    "test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text (test_s4a_02_catch_up.MissingDay.test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text)",
+    "test_two_gaps_give_two_lines (test_s4a_02_catch_up.MissingDay.test_two_gaps_give_two_lines)"
+   ]
+  },
+  {
+   "id": "9",
+   "title": "NOT_PUBLISHED: the same publication is published once more",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 2,
+   "failing_examples": [
+    "test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once)",
+    "test_no_value_of_c2_is_made_copied_or_forged_and_no_publication_is_published_twice (test_s4a_08_static.Runtime.test_no_value_of_c2_is_made_copied_or_forged_and_no_publication_is_published_twice)"
+   ]
+  },
+  {
+   "id": "11",
+   "title": "the CoreError of the target evaluation is not turned into STOPPED",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code (test_s4a_02_catch_up.TimeWentBack.test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code)"
+   ]
+  },
+  {
+   "id": "13",
+   "title": "except CoreError becomes except Exception in run_morning",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 16,
+   "failing_examples": [
+    "test_an_unknown_outcome_of_a_store_is_a_program_error_that_passes_through (test_s4a_04_uncertain_conflict.Uncertain.test_an_unknown_outcome_of_a_store_is_a_program_error_that_passes_through)",
+    "test_any_other_exception_passes_through_unchanged_at_every_call_point (test_s4a_05_exceptions.Sweep.test_any_other_exception_passes_through_unchanged_at_every_call_point)",
+    "test_any_other_exception_passes_through_unchanged_at_every_call_point (test_s4a_05_exceptions.Sweep.test_any_other_exception_passes_through_unchanged_at_every_call_point)",
+    "test_any_other_exception_passes_through_unchanged_at_every_call_point (test_s4a_05_exceptions.Sweep.test_any_other_exception_passes_through_unchanged_at_every_call_point)"
+   ]
+  },
+  {
+   "id": "15",
+   "title": "now is read from the clock instead of the argument",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 37,
+   "failing_examples": [
+    "test_no_session_closed_yet_is_a_run_error_before_the_store_is_touched (test_s4a_01_args_target.Arguments.test_no_session_closed_yet_is_a_run_error_before_the_store_is_touched)",
+    "test_a_later_session_that_has_not_closed_is_never_the_target (test_s4a_01_args_target.Target.test_a_later_session_that_has_not_closed_is_never_the_target)",
+    "test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one (test_s4a_01_args_target.Target.test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one)",
+    "test_sessions_that_all_lie_in_the_future_raise_run_no_closed_session (test_s4a_01_args_target.Target.test_sessions_that_all_lie_in_the_future_raise_run_no_closed_session)"
+   ]
+  },
+  {
+   "id": "E2",
+   "title": "extra: a second uncertain save in the same run is reconciled again (no limit of one restart)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once)"
+   ]
+  },
+  {
+   "id": "E4",
+   "title": "extra: target before the start uses <= (the start itself is refused)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 7,
+   "failing_examples": [
+    "test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text (test_s4a_02_catch_up.Rerun.test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text)",
+    "test_a_target_equal_to_the_start_is_the_already_applied_text (test_s4a_02_catch_up.TimeWentBack.test_a_target_equal_to_the_start_is_the_already_applied_text)",
+    "test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code (test_s4a_02_catch_up.TimeWentBack.test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)"
+   ]
+  },
+  {
+   "id": "E6",
+   "title": "extra: the code of an error is passed to the text as it is (no identifier filter)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 16,
+   "failing_examples": [
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)"
+   ]
+  },
+  {
+   "id": "E8",
+   "title": "extra: a now whose offset is None is accepted",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_now_that_is_not_an_aware_datetime_is_refused_and_the_store_is_not_touched (test_s4a_01_args_target.Arguments.test_a_now_that_is_not_an_aware_datetime_is_refused_and_the_store_is_not_touched)"
+   ]
+  },
+  {
+   "id": "E10",
+   "title": "extra: the start day itself is looked at again (s.date < start)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 51,
+   "failing_examples": [
+    "test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text (test_s4a_02_catch_up.Rerun.test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text)",
+    "test_the_report_and_its_days_are_immutable (test_s4a_07_values_text.Values.test_the_report_and_its_days_are_immutable)",
+    "test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result (test_s4a_02_catch_up.DecidedTarget.test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result)",
+    "test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap (test_s4a_02_catch_up.MissingDay.test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap)"
+   ]
+  },
+  {
+   "id": "E12",
+   "title": "extra: the report digest is not the last history's",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 3,
+   "failing_examples": [
+    "test_the_repr_shows_neither_the_text_nor_a_path_nor_the_digest (test_s4a_07_values_text.Values.test_the_repr_shows_neither_the_text_nor_a_path_nor_the_digest)",
+    "test_every_day_with_a_decision_is_saved_oldest_first_one_publication_each (test_s4a_02_catch_up.Normal.test_every_day_with_a_decision_is_saved_oldest_first_one_publication_each)",
+    "test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues (test_s4a_02_catch_up.Unconfirmed.test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues)"
+   ]
+  },
+  {
+   "id": "E14",
+   "title": "extra: the exit code of STALE is 0",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 3,
+   "failing_examples": [
+    "test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before)",
+    "test_the_four_examples (test_s4a_07_values_text.Texts.test_the_four_examples)",
+    "test_a_report_needs_a_known_outcome (test_s4a_07_values_text.Values.test_a_report_needs_a_known_outcome)"
+   ]
+  },
+  {
+   "id": "2",
+   "title": "an unconfirmed session is skipped and the run goes on",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 5,
+   "failing_examples": [
+    "test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues (test_s4a_02_catch_up.Unconfirmed.test_a_stale_run_leaves_the_store_so_that_the_next_run_after_the_data_is_confirmed_continues)",
+    "test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before)",
+    "test_an_unconfirmed_target_is_stale_too (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_target_is_stale_too)",
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)"
+   ]
+  },
+  {
+   "id": "4",
+   "title": "the start is latest_apply_d (the whole history), not processing_after",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 3,
+   "failing_examples": [
+    "test_an_acknowledgement_and_a_declaration_after_the_restart_do_not_move_the_start (test_s4a_03_inputs_store_restart.AfterReinitialisation.test_an_acknowledgement_and_a_declaration_after_the_restart_do_not_move_the_start)",
+    "test_the_morning_before_the_first_decision_after_the_restart_waits_and_does_not_stop (test_s4a_03_inputs_store_restart.AfterReinitialisation.test_the_morning_before_the_first_decision_after_the_restart_waits_and_does_not_stop)",
+    "test_the_target_after_a_restart_is_saved_as_the_first_apply_of_the_new_segment (test_s4a_03_inputs_store_restart.AfterReinitialisation.test_the_target_after_a_restart_is_saved_as_the_first_apply_of_the_new_segment)"
+   ]
+  },
+  {
+   "id": "6",
+   "title": "a PREPARED day is not saved",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 50,
+   "failing_examples": [
+    "test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result (test_s4a_02_catch_up.DecidedTarget.test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result)",
+    "test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap (test_s4a_02_catch_up.MissingDay.test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap)",
+    "test_a_gap_that_ends_in_the_target_is_listed_too (test_s4a_02_catch_up.MissingDay.test_a_gap_that_ends_in_the_target_is_listed_too)",
+    "test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text (test_s4a_02_catch_up.MissingDay.test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text)"
+   ]
+  },
+  {
+   "id": "8",
+   "title": "NOT_PUBLISHED is treated like a success",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once)"
+   ]
+  },
+  {
+   "id": "10",
+   "title": "after a published (or extended) outcome the history is not read again",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 6,
+   "failing_examples": [
+    "test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)"
+   ]
+  },
+  {
+   "id": "12",
+   "title": "the report is made inside the exception handler (the exception stays as its context)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 85,
+   "failing_examples": [
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)"
+   ]
+  },
+  {
+   "id": "14",
+   "title": "a STALE run also carries the full core text (of the last evaluated day)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 4,
+   "failing_examples": [
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)",
+    "test_a_decision_outside_its_window_stops_at_that_day_and_the_days_before_are_saved (test_s4a_03_inputs_store_restart.InputErrors.test_a_decision_outside_its_window_stops_at_that_day_and_the_days_before_are_saved)",
+    "test_a_missing_market_row_stops_at_that_day (test_s4a_03_inputs_store_restart.InputErrors.test_a_missing_market_row_stops_at_that_day)",
+    "test_the_bytes_after_the_stop_are_those_after_the_last_success (test_s4a_03_inputs_store_restart.InputErrors.test_the_bytes_after_the_stop_are_those_after_the_last_success)"
+   ]
+  },
+  {
+   "id": "E1",
+   "title": "extra: the guard against publishing the same value twice removed",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_store_that_says_published_but_did_not_publish_never_gets_the_same_value_twice (test_s4a_04_uncertain_conflict.Uncertain.test_a_store_that_says_published_but_did_not_publish_never_gets_the_same_value_twice)"
+   ]
+  },
+  {
+   "id": "E3",
+   "title": "extra: the day of a reconciled save is not counted as consumed",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 6,
+   "failing_examples": [
+    "test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)"
+   ]
+  },
+  {
+   "id": "E5",
+   "title": "extra: the store methods are not checked",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_store_without_the_three_methods_is_refused (test_s4a_01_args_target.Arguments.test_a_store_without_the_three_methods_is_refused)"
+   ]
+  },
+  {
+   "id": "E7",
+   "title": "extra: every store error is treated as an uncertain save",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 24,
+   "failing_examples": [
+    "test_a_read_only_store_stops_at_the_first_publication_and_not_before (test_s4a_03_inputs_store_restart.StoreStops.test_a_read_only_store_stops_at_the_first_publication_and_not_before)",
+    "test_a_day_added_by_another_writer_between_the_read_and_the_save_is_stale_and_never_doubled (test_s4a_04_uncertain_conflict.OtherWriterBetween.test_a_day_added_by_another_writer_between_the_read_and_the_save_is_stale_and_never_doubled)",
+    "test_a_day_of_other_content_added_between_the_read_and_the_save_is_stale_too (test_s4a_04_uncertain_conflict.OtherWriterBetween.test_a_day_of_other_content_added_between_the_read_and_the_save_is_stale_too)",
+    "test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception (test_s4a_05_exceptions.Sweep.test_every_core_error_at_every_call_point_gives_a_stopped_report_with_nothing_left_of_the_exception)"
+   ]
+  },
+  {
+   "id": "E9",
+   "title": "extra: the target is never evaluated when nothing lies after the start",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 7,
+   "failing_examples": [
+    "test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text (test_s4a_02_catch_up.Rerun.test_after_the_target_was_consumed_a_run_again_is_the_already_applied_text)",
+    "test_a_target_equal_to_the_start_is_the_already_applied_text (test_s4a_02_catch_up.TimeWentBack.test_a_target_equal_to_the_start_is_the_already_applied_text)",
+    "test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code (test_s4a_02_catch_up.TimeWentBack.test_a_target_that_is_the_genesis_boundary_is_stopped_by_the_core_code)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on)"
+   ]
+  },
+  {
+   "id": "E11",
+   "title": "extra: a restart is allowed without limit (the counter is never raised)",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once)"
+   ]
+  },
+  {
+   "id": "E13",
+   "title": "extra: the report is not immutable",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 1,
+   "failing_examples": [
+    "test_the_report_and_its_days_are_immutable (test_s4a_07_values_text.Values.test_the_report_and_its_days_are_immutable)"
+   ]
+  },
+  {
+   "id": "E15",
+   "title": "extra: the consumed day's skipped sessions are dropped",
+   "status": "DETECTED",
+   "ran": 96,
+   "failing_count": 4,
+   "failing_examples": [
+    "test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap (test_s4a_02_catch_up.MissingDay.test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap)",
+    "test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line (test_s4a_02_catch_up.MissingDay.test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line)",
+    "test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text (test_s4a_02_catch_up.MissingDay.test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text)",
+    "test_two_gaps_give_two_lines (test_s4a_02_catch_up.MissingDay.test_two_gaps_give_two_lines)"
+   ]
+  }
+ ]
+}

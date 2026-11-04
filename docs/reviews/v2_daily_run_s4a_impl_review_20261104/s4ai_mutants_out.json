@@ -1,0 +1,253 @@
+{
+ "tested": "c15ab18ae7a02dc9bef900412ae3af7862c232d1",
+ "python": "3.13.18",
+ "results": [
+  {
+   "id": "V01",
+   "what": "gap of a consumed day = skipped non-empty (P-01 direction)",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1)",
+   "failed": [
+    "test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line (test_s4a_02_catch_up.MissingDay.test_sessions_between_the_start_and_the_first_decision_are_skipped_but_not_a_gap_line)"
+   ],
+   "n_failed": 1,
+   "seconds": 29.0
+  },
+  {
+   "id": "V02",
+   "what": "no break after the target (sessions after D are looked at)",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=29)",
+   "failed": [
+    "test_the_same_instant_in_other_time_zones_gives_the_same_target_and_the_same_report (test_s4a_01_args_target.Target.test_the_same_instant_in_other_time_zones_gives_the_same_target_and_the_same_report)",
+    "test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result (test_s4a_02_catch_up.DecidedTarget.test_a_target_whose_decision_was_recorded_before_the_run_is_consumed_and_its_text_is_the_result)",
+    "test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap (test_s4a_02_catch_up.MissingDay.test_a_day_without_a_decision_is_not_saved_and_the_next_saved_day_carries_the_gap)",
+    "test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text (test_s4a_02_catch_up.MissingDay.test_the_text_carries_a_line_for_the_gap_with_the_missing_date_and_then_the_core_text)",
+    "test_two_gaps_give_two_lines (test_s4a_02_catch_up.MissingDay.test_two_gaps_give_two_lines)"
+   ],
+   "n_failed": 29,
+   "seconds": 171.6
+  },
+  {
+   "id": "V03",
+   "what": "no target-before-start check (the core error decides)",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1)",
+   "failed": [
+    "test_a_target_before_the_start_stops_the_run_and_writes_nothing (test_s4a_02_catch_up.TimeWentBack.test_a_target_before_the_start_stops_the_run_and_writes_nothing)"
+   ],
+   "n_failed": 1,
+   "seconds": 31.1
+  },
+  {
+   "id": "V04",
+   "what": "the double-send guard is reset on a restart",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1)",
+   "failed": [
+    "test_a_store_that_says_published_but_did_not_publish_never_gets_the_same_value_twice (test_s4a_04_uncertain_conflict.Uncertain.test_a_store_that_says_published_but_did_not_publish_never_gets_the_same_value_twice)"
+   ],
+   "n_failed": 1,
+   "seconds": 29.7
+  },
+  {
+   "id": "V05",
+   "what": "reconcile also called inside the handler (twice, context chain)",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=8)",
+   "failed": [
+    "test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_did_not_happen_is_not_published_the_run_stops_and_publish_was_called_once)",
+    "test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=1)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=2)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=4)"
+   ],
+   "n_failed": 8,
+   "seconds": 28.2
+  },
+  {
+   "id": "V07",
+   "what": "STALE without the session date",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=3)",
+   "failed": [
+    "test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_session_in_the_middle_stops_the_run_with_stale_and_keeps_the_days_before)",
+    "test_an_unconfirmed_target_is_stale_too (test_s4a_02_catch_up.Unconfirmed.test_an_unconfirmed_target_is_stale_too)",
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)"
+   ],
+   "n_failed": 3,
+   "seconds": 29.2
+  },
+  {
+   "id": "V08",
+   "what": "notice without 'not a condition failure'",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=2)",
+   "failed": [
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)",
+    "test_a_stopped_text_names_the_code_and_the_days_saved_and_says_it_is_not_a_miss (test_s4a_07_values_text.Texts.test_a_stopped_text_names_the_code_and_the_days_saved_and_says_it_is_not_a_miss)"
+   ],
+   "n_failed": 2,
+   "seconds": 27.4
+  },
+  {
+   "id": "V10",
+   "what": "sessions not type-checked",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1, errors=1)",
+   "failed": [
+    "test_sessions_that_are_not_a_session_list_are_refused_and_the_store_is_not_touched (test_s4a_01_args_target.Arguments.test_sessions_that_are_not_a_session_list_are_refused_and_the_store_is_not_touched)",
+    "test_the_first_wrong_argument_names_its_field_in_the_order_now_sessions_store (test_s4a_01_args_target.Arguments.test_the_first_wrong_argument_names_its_field_in_the_order_now_sessions_store)"
+   ],
+   "n_failed": 2,
+   "seconds": 27.2
+  },
+  {
+   "id": "V11",
+   "what": "store methods: hasattr instead of callable",
+   "result": "DETECTED",
+   "summary": "FAILED (errors=1)",
+   "failed": [
+    "test_a_store_without_the_three_methods_is_refused (test_s4a_01_args_target.Arguments.test_a_store_without_the_three_methods_is_refused)"
+   ],
+   "n_failed": 1,
+   "seconds": 27.0
+  },
+  {
+   "id": "V12",
+   "what": "target by open_at",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=3)",
+   "failed": [
+    "test_no_session_closed_yet_is_a_run_error_before_the_store_is_touched (test_s4a_01_args_target.Arguments.test_no_session_closed_yet_is_a_run_error_before_the_store_is_touched)",
+    "test_a_later_session_that_has_not_closed_is_never_the_target (test_s4a_01_args_target.Target.test_a_later_session_that_has_not_closed_is_never_the_target)",
+    "test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one (test_s4a_01_args_target.Target.test_now_equal_to_the_close_is_that_session_and_a_microsecond_before_is_the_previous_one)"
+   ],
+   "n_failed": 3,
+   "seconds": 28.5
+  },
+  {
+   "id": "V15",
+   "what": "PUBLISHED_THEN_EXTENDED not a success",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1)",
+   "failed": [
+    "test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again)"
+   ],
+   "n_failed": 1,
+   "seconds": 29.8
+  },
+  {
+   "id": "V17",
+   "what": "target result kept only when PREPARED",
+   "result": "UNDETECTED",
+   "summary": "OK",
+   "failed": [],
+   "n_failed": 0,
+   "seconds": 29.4
+  },
+  {
+   "id": "V19",
+   "result": "DETECTED",
+   "n_failed": 1,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "gap lines after the core text"
+  },
+  {
+   "id": "V20",
+   "result": "DETECTED",
+   "n_failed": 27,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "identifier filter limited to 16 characters"
+  },
+  {
+   "id": "V22",
+   "result": "DETECTED",
+   "n_failed": 3,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "STALE exit 0"
+  },
+  {
+   "id": "V23",
+   "result": "DETECTED",
+   "n_failed": 9,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "run.history not set at the start of a pass"
+  },
+  {
+   "id": "V25",
+   "result": "DETECTED",
+   "n_failed": 1,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "sent set never filled"
+  },
+  {
+   "id": "V27",
+   "result": "DETECTED",
+   "n_failed": 3,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "notice without the saved days"
+  },
+  {
+   "id": "V28",
+   "result": "DETECTED",
+   "n_failed": 5,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "gap header always"
+  },
+  {
+   "id": "V29",
+   "result": "DETECTED",
+   "n_failed": 4,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "unconfirmed -> STOPPED instead of STALE"
+  },
+  {
+   "id": "V30",
+   "result": "UNDETECTED",
+   "n_failed": 0,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "target result not reset on a restart"
+  },
+  {
+   "id": "V31",
+   "result": "DETECTED",
+   "n_failed": 1,
+   "note": "first run of shard B; its JSON was not written because V32 timed out, values from the log line",
+   "what": "an unconfirmed target is left to the core (STOPPED target_unconfirmed)"
+  },
+  {
+   "id": "V32",
+   "result": "DETECTED",
+   "n_failed": null,
+   "note": "the suite did not finish: _drive re-reads forever; stopped by the 900 s timeout (subprocess.TimeoutExpired)",
+   "what": "restart marker equals 'done' (a reconciled save ends the run)"
+  },
+  {
+   "id": "V33",
+   "what": "reconciled day not counted (cf. add3)",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=6)",
+   "failed": [
+    "test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_followed_by_another_writers_day_is_published_then_extended_and_read_again)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=1)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=2)",
+    "test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on (test_s4a_04_uncertain_conflict.Uncertain.test_a_save_that_was_written_but_reported_uncertain_is_reconciled_read_again_and_the_run_goes_on) (uncertain_publish=4)",
+    "test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once (test_s4a_04_uncertain_conflict.Uncertain.test_a_second_uncertain_save_in_the_same_run_stops_and_reconcile_was_called_once)"
+   ],
+   "n_failed": 6,
+   "seconds": 19.2
+  },
+  {
+   "id": "V34",
+   "what": "notice without the detail line",
+   "result": "DETECTED",
+   "summary": "FAILED (failures=1)",
+   "failed": [
+    "test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star (test_s4a_02_catch_up.Unconfirmed.test_the_text_of_a_stale_run_has_no_judgement_no_branch_table_and_no_b_star)"
+   ],
+   "n_failed": 1,
+   "seconds": 19.3
+  }
+ ]
+}

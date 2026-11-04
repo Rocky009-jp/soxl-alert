@@ -1,0 +1,18 @@
+== X1 gap under STALE
+run1: STALE run_session_unconfirmed [('2026-03-03', False, ()), ('2026-03-05', True, ('2026-03-04',))]
+run1 text mentions D2 (2026-03-04): False
+run2: DONE [('2026-03-09', True, ('2026-03-06',))]
+run2 text mentions D2 (2026-03-04): False ; mentions D4 (2026-03-06): True
+== X2 CoreError while the DONE text is made
+leaked: InputError price_not_finite_positive
+APPLY saved before the error: ['2026-03-03', '2026-03-04']
+the next run leaks again: True
+bstar(1e27) raises InvalidOperation (not a CoreError; a validated MarketSeries accepts 1e27)
+== X3 uncertain save of the target
+normal : DONE PREPARED ['2026-03-03', '2026-03-04'] publish 2 reconcile 0
+restart: DONE ALREADY_APPLIED ['2026-03-03', '2026-03-04'] publish 2 reconcile 1
+same text: True  same bytes: True
+== X2b a SOXL close of 1e27 on D (series stub that reports it, as a validated MarketSeries would accept)
+MarketSeries accepts soxl_close=1e27: True
+two mornings: ['InvalidOperation', 'InvalidOperation'] APPLY saved: ['2026-03-03', '2026-03-04']
+RESULT X1 gap shown in some text: False | X2 leaked: True | X3 target_status differs: True | X2b: ['InvalidOperation', 'InvalidOperation']

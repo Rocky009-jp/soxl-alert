@@ -1,0 +1,2 @@
+NPROC=2 DAYS=6 trials=60 same_as_one_run=60 prefix_only=0
+   60 (('DONE', None), ('STOPPED', 'store_busy'))
