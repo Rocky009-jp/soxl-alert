@@ -1,0 +1,12 @@
+== X1' (S4B-06(d)) daytime JST retry, then next JST morning, both errors
+  run1 Wed 10:00 JST raised ZeroDivisionError sends 1
+  run2 Thu 06:30 JST raised ZeroDivisionError sends 2
+  files ['2026-03-03-error.claim.json', '2026-03-03-error.result.json', '2026-03-04-error.claim.json', '2026-03-04-error.result.json']
+== X2' (S4B-06(e)) judgment, then an error rerun of the same D, then an error-first D followed by a judgment
+  judgment ('morning', '2026-03-04', 'SENT')
+  error rerun raised ZeroDivisionError sends 1
+  error first raised ZeroDivisionError | then judgment ('morning', '2026-03-04', 'SENT') sends 2
+== X6 fallback key (UTC date) and a D key share one file name
+  run1 broken sessions ('error', '2026-03-04', 'SENT') sends 1
+  run2 fixed list, D=2026-03-04 raised ZeroDivisionError sends 1
+Python 3.13.18 (main, Oct 26 2026, 14:08:19) [Clang 23.1.3 ]
