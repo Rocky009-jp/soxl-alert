@@ -1,0 +1,486 @@
+diff --git a/tests/v2_history_local/test_c3_09_scope.py b/tests/v2_history_local/test_c3_09_scope.py
+new file mode 100644
+index 0000000..e1c7937
+--- /dev/null
++++ b/tests/v2_history_local/test_c3_09_scope.py
+@@ -0,0 +1,19 @@
++"""Trial stub of the C-3 range test (the implementation writes the real one). START is the accepted d6b0332."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
++import sc_helpers as C  # noqa: E402
++
++START = "d6b0332500af8d8d46ddaae6c7fda39ee38a03db"
++END = None
++REV = END or "HEAD"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_start_is_an_ancestor(self):
++        if not C.commit_exists(START):
++            self.skipTest("no history")
++        self.assertTrue(C.is_ancestor(START, REV))
+diff --git a/tests/v2_history_publish/test_c2_09_scope.py b/tests/v2_history_publish/test_c2_09_scope.py
+index a7c875f..ece0d22 100644
+--- a/tests/v2_history_publish/test_c2_09_scope.py
++++ b/tests/v2_history_publish/test_c2_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "de6549acb4ecea759cc771300fd0bef59dd5456a"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "d6b0332500af8d8d46ddaae6c7fda39ee38a03db"   # accepted (review a91a9ed); frozen when C-3 began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_history_publish"
+diff --git a/v2_history_local/__init__.py b/v2_history_local/__init__.py
+new file mode 100644
+index 0000000..dd9bd91
+--- /dev/null
++++ b/v2_history_local/__init__.py
+@@ -0,0 +1,16 @@
++"""V2 history, stage C-3 (trial): the schema-2 history saved as one file, history.json, in an explicit dedicated
++directory, written only from a C-2 publication made in the same process.
++A test adapter for the local machine, not an adopted production store. One writer at a time through an exclusively
++created write.lock (the same name as S2, so S2 and C-3 writers exclude each other; never expired, never taken over);
++every operation re-reads and fully re-validates the file under the lock; a publication is checked by the unchanged
++check_publication and published with one os.replace of a temporary file written in the same directory. The OS calls
++are the unchanged S2 FileOps. No network, clock, environment variable, notification, retry, automatic repair, unlock,
++migration or adoption exists here (C-4). Draft, not adopted for production.
++"""
++from v2_persistence.local import FILE_AND_DIRECTORY_SYNC, FILE_SYNC_ONLY, FILE_SYNC_ONLY_MODE, STRICT, LocalStoreError
++
++from .results import INITIALIZED, PUBLISHED, HistoryStoreResult
++from .store import HistoryFileStore
++
++__all__ = ["HistoryFileStore", "HistoryStoreResult", "LocalStoreError", "STRICT", "FILE_SYNC_ONLY_MODE", "PUBLISHED",
++           "INITIALIZED", "FILE_AND_DIRECTORY_SYNC", "FILE_SYNC_ONLY"]
+diff --git a/v2_history_local/results.py b/v2_history_local/results.py
+new file mode 100644
+index 0000000..cc0c636
+--- /dev/null
++++ b/v2_history_local/results.py
+@@ -0,0 +1,17 @@
++"""Result value of the history file store. Immutable; the History inside is itself immutable (copies on access)."""
++from dataclasses import dataclass
++from typing import Any
++
++PUBLISHED = "PUBLISHED"
++INITIALIZED = "INITIALIZED"
++
++
++@dataclass(frozen=True)
++class HistoryStoreResult:
++    """Only a normal completion returns this: published, synchronised as `persistence_level` says, lock released.
++    Not a guarantee against power loss of the whole machine, and not a right to notify."""
++    status: str
++    committed: bool
++    history: Any
++    persistence_level: str
++    publication_hash: str
+diff --git a/v2_history_local/store.py b/v2_history_local/store.py
+new file mode 100644
+index 0000000..0c1533a
+--- /dev/null
++++ b/v2_history_local/store.py
+@@ -0,0 +1,397 @@
++"""HistoryFileStore (trial). The lock, scan, load and publish steps follow S2 (v2_persistence/local/store.py) one by
++one, over the unchanged S2 FileOps; S2's class and its private methods are not used."""
++import os
++import secrets
++import stat
++
++from v2_core.errors import CoreError
++from v2_history_publish import (APPEND, CREATE, GENESIS, HistoryPublication, check_publication, history_bytes,
++                                read_history_bytes, reconcile_publication)
++from v2_persistence.local.errors import (CLEANUP_LOCK_FOREIGN, CLEANUP_LOCK_LEFT, CLEANUP_TMP_LEFT,
++                                         CLEANUP_TMP_UNCONFIRMED, LocalStoreError)
++from v2_persistence.local.fsops import FileOps
++from v2_persistence.local.results import FILE_AND_DIRECTORY_SYNC, FILE_SYNC_ONLY
++from v2_persistence.local.store import FILE_SYNC_ONLY_MODE, STRICT
++
++from .results import INITIALIZED, PUBLISHED, HistoryStoreResult
++
++HISTORY_NAME = "history.json"
++V1_NAME = "snapshot.json"
++LOCK_NAME = "write.lock"
++TMP_PREFIX, TMP_SUFFIX = ".history.", ".tmp"
++S2_TMP_PREFIX = ".snapshot."
++LOCK_MAGIC = b"v2_history_local.lock\n"
++_MODES = (STRICT, FILE_SYNC_ONLY_MODE)
++_PUBLICATION_CODES = ("publication_invalid", "publication_stale")
++
++
++class _Lock:
++    __slots__ = ("path", "dev", "ino", "marker")
++
++    def __init__(self, path, dev, ino, marker):
++        self.path, self.dev, self.ino, self.marker = path, dev, ino, marker
++
++
++class _Ctx:
++    __slots__ = ("published",)
++
++    def __init__(self):
++        self.published = False
++
++
++def _publication(publication):
++    if type(publication) is not HistoryPublication:
++        raise LocalStoreError("store_publication_invalid", "publication", "args", rule="type")
++    return publication
++
++
++def _checked(current, publication):
++    """check_publication after the current bytes were read and validated (P-01 of the C-2 review): its refusals for
++    the publication and the current state pass through; any other error is about the candidate the value carries, an
++    internal inconsistency of a hand-made value, never a broken current file."""
++    try:
++        return check_publication(current, publication)
++    except CoreError as e:
++        if e.code in _PUBLICATION_CODES:
++            raise
++        raise LocalStoreError("store_candidate_invalid", "publication", "candidate") from None
++
++
++class HistoryFileStore:
++    def __init__(self, root, writable=False, durability=STRICT, *, _ops=None):
++        self._ops = FileOps() if _ops is None else _ops
++        self._root_arg = root
++        if durability not in _MODES:
++            raise LocalStoreError("store_config_invalid", "durability", "args")
++        if type(writable) is not bool:
++            raise LocalStoreError("store_config_invalid", "writable", "args")
++        self._writable = writable
++        self._durability = durability
++        self._dir = self._check_root()
++
++    def __repr__(self):
++        return "HistoryFileStore(writable=%s, durability=%s)" % (self._writable, self._durability)
++
++    writable = property(lambda self: self._writable)
++    durability = property(lambda self: self._durability)
++
++    @property
++    def persistence_level(self):
++        return FILE_AND_DIRECTORY_SYNC if self._durability == STRICT else FILE_SYNC_ONLY
++
++    # --- public API ----------------------------------------------------------------------------------------
++    def read(self):
++        """The validated History, read under the lock every time."""
++        self._dir = self._check_root()
++
++        def body(lock, ctx):
++            self._scan()
++            history, _check = read_history_bytes(self._load())
++            return history
++        return self._locked(body)
++
++    def initialize(self, publication):
++        """Only the CREATE publication of a GENESIS (publish_genesis), into a root without history.json."""
++        pub = _publication(publication)
++        if pub.mode != CREATE or pub.source != GENESIS:
++            raise LocalStoreError("store_operation_unsupported", "publication", "args", rule="not_genesis")
++        self._require_writable()
++        self._dir = self._check_root()
++
++        def body(lock, ctx):
++            self._scan()
++            if self._load(missing_ok=True) is not None:
++                raise LocalStoreError("already_initialized", "store", "read")
++            candidate = _checked(None, pub)
++            self._publish(lock, ctx, history_bytes(candidate))
++            return HistoryStoreResult(INITIALIZED, True, candidate, self.persistence_level, pub.publication_hash)
++        return self._locked(body)
++
++    def publish(self, publication):
++        """Only an APPEND publication (DAILY, RESOLUTION, RESTART, RESTORE). MIGRATION and ADOPTION are C-4."""
++        pub = _publication(publication)
++        if pub.mode != APPEND:
++            raise LocalStoreError("store_operation_unsupported", "publication", "args", rule="not_append")
++        self._require_writable()
++        self._dir = self._check_root()
++
++        def body(lock, ctx):
++            self._scan()
++            data = self._load()
++            read_history_bytes(data)                         # a broken current file is reported as it is, first
++            candidate = _checked(data, pub)
++            self._publish(lock, ctx, history_bytes(candidate))
++            return HistoryStoreResult(PUBLISHED, True, candidate, self.persistence_level, pub.publication_hash)
++        return self._locked(body)
++
++    def reconcile(self, publication):
++        """After store_commit_uncertain: read history.json again under the lock and return C-2's Reconciliation.
++        Read-only. Leftover temporary files do not stop it (they do not change history.json); a v1 file does."""
++        pub = _publication(publication)
++        self._dir = self._check_root()
++
++        def body(lock, ctx):
++            self._scan(tolerate_tmp=True)
++            return reconcile_publication(self._load(missing_ok=True), pub)
++        return self._locked(body)
++
++    # --- configuration and root (S2) -------------------------------------------------------------------------
++    def _require_writable(self):
++        if not self._writable:
++            raise LocalStoreError("store_read_only", "store", "args")
++
++    def _check_root(self):
++        ops = self._ops
++        try:
++            raw = os.fspath(self._root_arg)
++        except TypeError:
++            raw = None
++        ok, real = False, None
++        if isinstance(raw, str) and raw and "\0" not in raw and os.path.isabs(raw):
++            path = os.path.abspath(raw)
++            try:
++                st = ops.lstat(path)
++                ok = stat.S_ISDIR(st.st_mode) and not ops.is_link_like(st)
++                if ok:
++                    real = os.path.realpath(path)
++            except Exception:
++                ok = False
++        if not ok or real is None:
++            raise LocalStoreError("store_root_invalid", "root", "root")
++        return real
++
++    def _managed(self, name):
++        path = os.path.join(self._dir, name)
++        if os.path.dirname(path) != self._dir:
++            raise LocalStoreError("store_root_invalid", "root", "root")
++        return path
++
++    # --- lock (S2) -------------------------------------------------------------------------------------------
++    def _write_all(self, writer, data):
++        ops = self._ops
++        view = memoryview(data)
++        done = 0
++        while done < len(view):
++            n = ops.write(writer, view[done:])
++            if type(n) is not int or n <= 0 or n > len(view) - done:
++                raise OSError("bad write count")
++            done += n
++
++    def _acquire(self):
++        ops = self._ops
++        path = self._managed(LOCK_NAME)
++        marker = LOCK_MAGIC + secrets.token_hex(16).encode("ascii") + b"\n"
++        err, fd = None, None
++        try:
++            fd = ops.create_exclusive(path)
++        except FileExistsError:
++            err = LocalStoreError("store_busy", "lock", "lock_acquire")
++        except Exception:
++            err = LocalStoreError("store_io_error", "lock", "lock_acquire")
++            if self._exists(path):
++                err = LocalStoreError("store_busy", "lock", "lock_acquire")
++        if err is not None:
++            raise err
++        st, writer, failed = None, None, False
++        try:
++            st = ops.fstat(fd)
++            writer = ops.open_writer(fd)
++            fd = None
++            self._write_all(writer, marker)
++            ops.close(writer)
++            writer = None
++        except Exception:
++            failed = True
++        if failed:
++            tokens = self._discard_own(path, st, writer, fd, CLEANUP_LOCK_LEFT)
++            raise LocalStoreError("store_io_error", "lock", "lock_acquire", cleanup=tokens)
++        return _Lock(path, st.st_dev, st.st_ino, marker)
++
++    def _exists(self, path):
++        try:
++            self._ops.lstat(path)
++        except Exception:
++            return False
++        return True
++
++    def _owns(self, lock):
++        ops = self._ops
++        try:
++            st = ops.lstat(lock.path)
++            if ops.is_link_like(st) or not stat.S_ISREG(st.st_mode) or (st.st_dev, st.st_ino) != (lock.dev, lock.ino):
++                return False
++            data, st2 = ops.read_file(lock.path)
++            return data == lock.marker and (st2.st_dev, st2.st_ino) == (lock.dev, lock.ino)
++        except Exception:
++            return False
++
++    def _release(self, lock):
++        if not self._owns(lock):
++            return "lost"
++        try:
++            self._ops.unlink(lock.path)
++        except Exception:
++            return "failed"
++        return None
++
++    def _locked(self, body):
++        lock = self._acquire()
++        ctx, exc, value = _Ctx(), None, None
++        try:
++            value = body(lock, ctx)
++        except Exception as e:
++            exc = e
++        rel = self._release(lock)
++        if rel is None:
++            if exc is not None:
++                raise exc
++            return value
++        token = CLEANUP_LOCK_FOREIGN if rel == "lost" else CLEANUP_LOCK_LEFT
++        phase = "lock_ownership" if rel == "lost" else "lock_release"
++        earlier = tuple(getattr(exc, "cleanup", ())) if isinstance(exc, LocalStoreError) else ()
++        cleanup = earlier + tuple(t for t in (token,) if t not in earlier)
++        if ctx.published:
++            if isinstance(exc, LocalStoreError) and exc.code == "store_commit_uncertain":
++                raise exc.add_cleanup(token)
++            raise LocalStoreError("store_commit_uncertain", "history", phase, cleanup=cleanup,
++                                  primary=getattr(exc, "code", None))
++        if isinstance(exc, LocalStoreError) and exc.code == "store_lock_ownership_lost" and rel == "lost":
++            raise exc.add_cleanup(token)
++        code = "store_lock_ownership_lost" if rel == "lost" else "store_io_error"
++        raise LocalStoreError(code, "lock", phase, cleanup=cleanup, primary=getattr(exc, "code", None))
++
++    # --- reading -------------------------------------------------------------------------------------------
++    def _scan(self, tolerate_tmp=False):
++        """A v1 snapshot.json stops every operation (migration is C-4); a leftover temporary file of C-3 or of S2
++        stops every operation except the reconciliation. Nothing is adopted or removed."""
++        try:
++            names = self._ops.listdir(self._dir)
++        except Exception:
++            names = None
++        if names is None:
++            raise LocalStoreError("store_io_error", "root", "scan")
++        if V1_NAME in names:
++            raise LocalStoreError("store_layout_unsupported", "store", "scan",
++                                  rule="v1_and_v2" if HISTORY_NAME in names else "v1_only")
++        if not tolerate_tmp:
++            for name in names:
++                if name.endswith(TMP_SUFFIX) and (name.startswith(TMP_PREFIX) or name.startswith(S2_TMP_PREFIX)):
++                    raise LocalStoreError("store_artifact_present", "store", "scan")
++
++    def _load(self, missing_ok=False):
++        """The raw bytes of history.json (None when absent and missing_ok). Not decoded here."""
++        ops = self._ops
++        path = self._managed(HISTORY_NAME)
++        code = None
++        st = data = st2 = None
++        try:
++            st = ops.lstat(path)
++        except FileNotFoundError:
++            code = "missing"
++        except Exception:
++            code = "io"
++        if code == "missing":
++            if missing_ok:
++                return None
++            raise LocalStoreError("store_uninitialized", "store", "read")
++        if code is None and (ops.is_link_like(st) or not stat.S_ISREG(st.st_mode)):
++            code = "root"
++        if code is None:
++            try:
++                data, st2 = ops.read_file(path)
++            except Exception:
++                code = "io"
++        if code is None and (st.st_dev, st.st_ino) != (st2.st_dev, st2.st_ino):
++            code = "root"
++        if code == "io":
++            raise LocalStoreError("store_io_error", "history", "read")
++        if code == "root":
++            raise LocalStoreError("store_root_invalid", "root", "read")
++        return data
++
++    # --- publishing (S2) -------------------------------------------------------------------------------------
++    def _discard_own(self, path, st, writer, fd, left_token):
++        ops = self._ops
++        if writer is not None:
++            try:
++                ops.close(writer)
++            except Exception:
++                pass
++        elif fd is not None:
++            try:
++                ops.close_fd(fd)
++            except Exception:
++                pass
++        if st is None:
++            return (left_token,)
++        try:
++            now = ops.lstat(path)
++        except FileNotFoundError:
++            return ()
++        except Exception:
++            return (left_token,)
++        if (now.st_dev, now.st_ino) != (st.st_dev, st.st_ino):
++            return (CLEANUP_TMP_UNCONFIRMED,) if left_token == CLEANUP_TMP_LEFT else (left_token,)
++        try:
++            ops.unlink(path)
++        except Exception:
++            return (left_token,)
++        return ()
++
++    def _publish(self, lock, ctx, data):
++        ops = self._ops
++        strict = self._durability == STRICT
++        if strict:
++            if ops.is_windows():
++                raise LocalStoreError("store_durability_unsupported", "durability", "durability_probe",
++                                      rule="windows_strict")
++            try:
++                ops.probe_dir_sync(self._dir)
++                supported = True
++            except Exception:
++                supported = False
++            if not supported:
++                raise LocalStoreError("store_durability_unsupported", "durability", "durability_probe",
++                                      rule="directory_sync")
++        target = self._managed(HISTORY_NAME)
++        tmp = self._managed(TMP_PREFIX + secrets.token_hex(16) + TMP_SUFFIX)
++        phase, fd, st, writer, failed = "tmp_create", None, None, None, False
++        try:
++            fd = ops.create_exclusive(tmp)
++            st = ops.fstat(fd)
++            writer = ops.open_writer(fd)
++            fd = None
++            phase = "write"
++            self._write_all(writer, data)
++            phase = "flush"
++            ops.flush(writer)
++            phase = "file_sync"
++            ops.fsync_file(writer)
++            phase = "close"
++            ops.close(writer)
++            writer = None
++        except Exception:
++            failed = True
++        if failed:
++            created = st is not None or fd is not None or writer is not None or phase != "tmp_create"
++            tokens = self._discard_own(tmp, st, writer, fd, CLEANUP_TMP_LEFT) if created else ()
++            raise LocalStoreError("store_io_error", "history", phase, cleanup=tokens)
++        if not self._owns(lock):
++            tokens = self._discard_own(tmp, st, None, None, CLEANUP_TMP_LEFT)
++            raise LocalStoreError("store_lock_ownership_lost", "lock", "lock_ownership", cleanup=tokens)
++        ctx.published = True
++        failed = False
++        try:
++            ops.replace(tmp, target)
++        except Exception:
++            failed = True
++        if failed:
++            tokens = self._discard_own(tmp, st, None, None, CLEANUP_TMP_LEFT)
++            raise LocalStoreError("store_commit_uncertain", "history", "replace", cleanup=tokens)
++        if strict:
++            try:
++                ops.fsync_dir(self._dir)
++            except Exception:
++                failed = True
++            if failed:
++                raise LocalStoreError("store_commit_uncertain", "history", "dir_sync")
