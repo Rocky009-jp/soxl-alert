@@ -165,7 +165,7 @@
 | s4ai_probe.py・s4ai_probe_out_py3.13.txt | X1（P-01）、X2・X2b（P-02）、X3（P-04(a)） |
 | s4ai_race.py・s4ai_race_n2_out.txt・s4ai_race_n4_out.txt | 同時実行（§4.4） |
 | s4ai_next_stage_sim_6ad609f.txt | 次段階の模擬（§4.5） |
-| s4ai_refs_start.txt | 保護91参照の照合（開始時） |
+| s4ai_refs_start.txt・s4ai_refs_postpush.txt | 保護91参照の照合（開始時・1回目のpush後。後者の末尾に記録ブランチの先端） |
 
 再実行の例（リポジトリの根で、試験対象を取り出して）：
 
