@@ -1,0 +1,21 @@
+values: 20000
+   ('reconcile', 'publication_invalid') 6502
+   ('initialize', 'store_operation_unsupported') 5279
+   ('publish', 'publication_invalid') 3276
+   ('publish', 'store_operation_unsupported') 2495
+   ('initialize', 'store_publication_invalid') 751
+   ('initialize', 'publication_invalid') 662
+   ('publish', 'store_publication_invalid') 505
+   ('publish', 'store_uninitialized') 382
+   ('reconcile', 'OK') 109
+   ('publish', 'OK') 29
+   ('initialize', 'OK') 5
+   ('initialize', 'store_candidate_invalid') 3
+   ('publish', 'history_invalid') 2
+problems: 6
+   (1145, 'publish', 'success for a mutated body')
+   (2017, 'publish', 'success for a mutated body')
+   (7895, 'publish', 'success for a mutated body')
+   (12125, 'publish', 'success for a mutated body')
+   (14405, 'publish', 'success for a mutated body')
+   (15500, 'publish', 'success for a mutated body')

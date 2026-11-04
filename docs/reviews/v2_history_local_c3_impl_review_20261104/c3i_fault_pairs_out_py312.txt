@@ -1,0 +1,2 @@
+cases: 3880 {'store_root_invalid': 344, 'store_io_error': 2744, 'store_durability_unsupported': 94, 'OK': 8, 'store_lock_ownership_lost': 472, 'store_commit_uncertain': 218}
+problems: 0

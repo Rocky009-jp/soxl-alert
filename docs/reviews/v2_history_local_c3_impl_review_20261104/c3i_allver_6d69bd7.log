@@ -1,0 +1,60 @@
+== 3.10.20
+v2_core rc=0 Ran 197 tests in 5.748s | OK
+v2_persistence rc=0 Ran 170 tests in 14.928s | OK
+v2_persistence_local rc=0 Ran 113 tests in 20.361s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 2.290s | OK
+v2_history rc=0 Ran 230 tests in 12.302s | OK
+v2_history_ops rc=0 Ran 173 tests in 12.426s | OK
+v2_history_restart rc=0 Ran 109 tests in 7.372s | OK
+v2_history_restore rc=0 Ran 165 tests in 19.066s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 167.639s | OK
+v2_history_adopt rc=0 Ran 170 tests in 16.822s | OK
+v2_scope_chain rc=0 Ran 34 tests in 3.417s | OK
+v2_history_publish rc=0 Ran 150 tests in 99.129s | OK
+v2_history_local rc=0 Ran 139 tests in 13.019s | OK
+== 3.11.18
+v2_core rc=0 Ran 197 tests in 4.648s | OK
+v2_persistence rc=0 Ran 170 tests in 12.635s | OK
+v2_persistence_local rc=0 Ran 113 tests in 10.829s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 2.012s | OK
+v2_history rc=0 Ran 230 tests in 10.698s | OK
+v2_history_ops rc=0 Ran 173 tests in 10.681s | OK
+v2_history_restart rc=0 Ran 109 tests in 6.957s | OK
+v2_history_restore rc=0 Ran 165 tests in 17.920s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 142.393s | OK
+v2_history_adopt rc=0 Ran 170 tests in 13.425s | OK
+v2_scope_chain rc=0 Ran 34 tests in 3.311s | OK
+v2_history_publish rc=0 Ran 150 tests in 90.406s | OK
+v2_history_local rc=0 Ran 139 tests in 10.166s | OK
+== 3.12.3
+v2_core rc=0 Ran 197 tests in 4.714s | OK
+v2_persistence rc=0 Ran 170 tests in 14.231s | OK
+v2_persistence_local rc=0 Ran 113 tests in 12.077s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 2.134s | OK
+v2_history rc=0 Ran 230 tests in 11.325s | OK
+v2_history_ops rc=0 Ran 173 tests in 11.314s | OK
+v2_history_restart rc=0 Ran 109 tests in 7.290s | OK
+v2_history_restore rc=0 Ran 165 tests in 17.540s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 147.461s | OK
+v2_history_adopt rc=0 Ran 170 tests in 13.368s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.961s | OK
+v2_history_publish rc=0 Ran 150 tests in 82.082s | OK
+v2_history_local rc=0 Ran 139 tests in 9.540s | OK
+== 3.13.18
+v2_core rc=0 Ran 197 tests in 4.037s | OK
+v2_persistence rc=0 Ran 170 tests in 11.733s | OK
+v2_persistence_local rc=0 Ran 113 tests in 9.934s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.821s | OK
+v2_history rc=0 Ran 230 tests in 9.438s | OK
+v2_history_ops rc=0 Ran 173 tests in 9.646s | OK
+v2_history_restart rc=0 Ran 109 tests in 5.999s | OK
+v2_history_restore rc=0 Ran 165 tests in 15.240s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 127.688s | OK
+v2_history_adopt rc=0 Ran 170 tests in 12.391s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.835s | OK
+v2_history_publish rc=0 Ran 150 tests in 76.665s | OK
+v2_history_local rc=0 Ran 139 tests in 10.155s | OK
+3.10.20 v2_history_consume rc=0 Ran 112 tests in 8.815s | OK
+3.11.18 v2_history_consume rc=0 Ran 112 tests in 7.535s | OK
+3.12.3 v2_history_consume rc=0 Ran 112 tests in 8.536s | OK
+3.13.18 v2_history_consume rc=0 Ran 112 tests in 7.815s | OK

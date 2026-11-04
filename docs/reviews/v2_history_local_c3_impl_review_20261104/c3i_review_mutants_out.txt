@@ -1,0 +1,37 @@
+V01 | DETECTED | _locked: the primary code is not kept when the release fails | Ran 139 tests in 10.555s FAILED (failures=2) | test_c3_06_lock
+V02 | DETECTED | _locked: an uncertain commit does not get the lock token added | Ran 139 tests in 10.624s FAILED (failures=1) | test_c3_06_lock
+V03 | DETECTED | _publish: a failed replace does not remove its temporary file | Ran 139 tests in 10.890s FAILED (failures=4, errors=2) | test_c3_06_lock,test_c3_07_procedure_faults,test_c3_08_uncertain_reconcile
+V04 | DETECTED | _publish: a failure while writing the temporary file never cleans up | Ran 139 tests in 10.972s FAILED (failures=9) | test_c3_07_procedure_faults
+V05 | UNDETECTED | _acquire: an existing path behind a non-FileExistsError is store_io_error (no busy fallback) | Ran 139 tests in 10.723s OK | 
+V06 | DETECTED | _acquire: a failed marker write leaves the lock (no discard) | Ran 139 tests in 11.458s FAILED (failures=1) | test_c3_07_procedure_faults
+V07 | DETECTED | _load: an I/O error on the read is reported as store_root_invalid | Ran 139 tests in 11.641s FAILED (failures=2) | test_c3_02_init_read_publish,test_c3_08_uncertain_reconcile
+V08 | DETECTED | _load: a non-regular history.json counts as absent | Ran 139 tests in 11.554s FAILED (failures=2) | test_c3_02_init_read_publish
+V09 | DETECTED | operations do not re-check the root (only the constructor does) | Ran 139 tests in 11.154s FAILED (failures=1) | test_c3_01_config_values
+V10 | DETECTED | _checked: publication_stale is wrapped as store_candidate_invalid | Ran 139 tests in 11.273s FAILED (failures=6) | test_c3_02_init_read_publish,test_c3_04_refusals,test_c3_10_processes
+V11 | DETECTED | _checked: publication_invalid is wrapped as store_candidate_invalid | Ran 139 tests in 10.798s FAILED (failures=3) | test_c3_03_values,test_c3_04_refusals
+V12 | DETECTED | publish: one extra byte (newline) after the canonical bytes | Ran 139 tests in 10.571s FAILED (failures=21) | test_c3_02_init_read_publish,test_c3_04_refusals,test_c3_06_lock,test_c3_07_procedure_faults,test_c3_10_processes
+V13 | DETECTED | result: publication_hash is not the publication's | Ran 139 tests in 10.723s FAILED (failures=5) | test_c3_02_init_read_publish
+V14 | DETECTED | persistence_level reversed | Ran 139 tests in 10.928s FAILED (failures=5) | test_c3_01_config_values,test_c3_02_init_read_publish,test_c3_07_procedure_faults
+V15 | DETECTED | reconcile requires a writable store | Ran 139 tests in 10.932s FAILED (errors=12) | test_c3_08_uncertain_reconcile
+V16 | DETECTED | read: no scan (leftovers and v1 do not stop a read) | Ran 139 tests in 11.203s FAILED (failures=11) | test_c3_05_root_states,test_c3_06_lock,test_c3_08_uncertain_reconcile,test_c3_10_processes
+V17 | DETECTED | scan: v1_only and v1_and_v2 swapped | Ran 139 tests in 11.023s FAILED (failures=9) | test_c3_05_root_states,test_c3_08_uncertain_reconcile
+V18 | DETECTED | _release: reports success without removing the lock | Ran 139 tests in 11.350s FAILED (failures=74, errors=22) | test_c3_02_init_read_publish,test_c3_04_refusals,test_c3_05_root_states,test_c3_06_lock,test_c3_07_procedure_faults,test_c3_08_uncertain_reconcile,test_c3_10_processes
+V19 | UNDETECTED | _owns: the inode is not compared (marker only) | Ran 139 tests in 11.881s OK | 
+V20 | DETECTED | _owns: the marker is not compared (inode only) | Ran 139 tests in 10.899s FAILED (failures=2) | test_c3_06_lock
+V21 | DETECTED | _write_all: one write only (a short write is not retried) | Ran 139 tests in 11.553s FAILED (failures=1) | test_c3_07_procedure_faults
+V22 | DETECTED | _publish: the file fsync is omitted | Ran 139 tests in 11.018s FAILED (failures=7) | test_c3_07_procedure_faults
+V23 | DETECTED | _publish: a failed directory fsync after the replace is swallowed | Ran 139 tests in 11.312s FAILED (failures=6) | test_c3_07_procedure_faults,test_c3_08_uncertain_reconcile
+V24 | DETECTED | _publish: a failed replace reports phase dir_sync | Ran 139 tests in 11.992s FAILED (failures=5) | test_c3_06_lock,test_c3_07_procedure_faults,test_c3_08_uncertain_reconcile
+V25 | UNDETECTED | _locked: an uncertain commit whose lock was lost loses the earlier cleanup tokens | Ran 139 tests in 11.921s OK | 
+V26 | DETECTED | _locked: lost ownership before the publish keeps the error but drops the lock token | Ran 139 tests in 11.525s FAILED (failures=1) | test_c3_06_lock
+V27 | DETECTED | lock marker without the trailing newline after the fixed word | Ran 139 tests in 11.856s FAILED (failures=1) | test_c3_06_lock
+V28 | DETECTED | lock marker without the random part | Ran 139 tests in 12.122s FAILED (failures=1) | test_c3_06_lock
+V29 | UNDETECTED | temporary file name without the random part | Ran 139 tests in 12.548s OK | 
+V30 | DETECTED | scan: a temporary name is judged by its prefix only (suffix not checked) | Ran 139 tests in 11.712s FAILED (errors=1) | test_c3_05_root_states
+V31 | DETECTED | reconcile: a v1 file does not stop it | Ran 139 tests in 11.628s FAILED (failures=3) | test_c3_05_root_states,test_c3_08_uncertain_reconcile
+V32 | DETECTED | _kind: a publish also requires the source (with_source True) | Ran 139 tests in 11.894s FAILED (failures=1) | test_c3_03_values
+V33 | DETECTED | initialize: the read-only check is skipped | Ran 139 tests in 11.182s FAILED (failures=1) | test_c3_02_init_read_publish
+V34 | DETECTED | publish: writability is checked before the kind (order of the design changed) | Ran 139 tests in 10.955s FAILED (failures=1) | test_c3_03_values
+V35 | DETECTED | _discard_own: the file is removed even when its inode differs (no tmp_ownership_unconfirmed) | Ran 139 tests in 11.075s FAILED (failures=1) | test_c3_07_procedure_faults
+V36 | UNDETECTED | _check_root: realpath not taken (the joined path is used) | Ran 139 tests in 11.522s OK | 
+detected 31 undetected 5 prep_failed 0

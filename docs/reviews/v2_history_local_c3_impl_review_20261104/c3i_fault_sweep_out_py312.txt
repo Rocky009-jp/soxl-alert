@@ -1,0 +1,110 @@
+cases: 1656
+  initialize OK                               14
+  initialize store_busy                       14
+  initialize store_commit_uncertain           108
+  initialize store_durability_unsupported     12
+  initialize store_io_error                   308
+  initialize store_lock_ownership_lost        48
+  initialize store_root_invalid               24
+  publish    store_busy                       14
+  publish    store_commit_uncertain           108
+  publish    store_durability_unsupported     12
+  publish    store_io_error                   342
+  publish    store_lock_ownership_lost        48
+  publish    store_root_invalid               24
+  publish    store_uninitialized              4
+  read       store_busy                       14
+  read       store_io_error                   198
+  read       store_lock_ownership_lost        48
+  read       store_root_invalid               24
+  read       store_uninitialized              4
+  reconcile  OK                               4
+  reconcile  store_busy                       14
+  reconcile  store_io_error                   198
+  reconcile  store_lock_ownership_lost        48
+  reconcile  store_root_invalid               24
+problems: 168
+   ('publish', 'strict', 0, 'lstat', 'before', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'before', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'before', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'before', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'before', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'before', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 0, 'lstat', 'after', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'OSError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'FileExistsError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'FileNotFoundError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'PermissionError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'ValueError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 2, 'create_exclusive', 'after', 'RuntimeError', 'lock left without token', 'store_busy', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'OSError', 'tmp left without token', 'store_io_error', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'FileExistsError', 'tmp left without token', 'store_io_error', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'FileNotFoundError', 'tmp left without token', 'store_io_error', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'PermissionError', 'tmp left without token', 'store_io_error', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'ValueError', 'tmp left without token', 'store_io_error', [])
+   ('publish', 'strict', 11, 'create_exclusive', 'after', 'RuntimeError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 0, 'lstat', 'before', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'before', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'before', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'before', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'before', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'before', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 0, 'lstat', 'after', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'OSError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'FileExistsError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'FileNotFoundError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'PermissionError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'ValueError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 2, 'create_exclusive', 'after', 'RuntimeError', 'lock left without token', 'store_busy', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'OSError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'FileExistsError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'FileNotFoundError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'PermissionError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'ValueError', 'tmp left without token', 'store_io_error', [])
+   ('initialize', 'strict', 10, 'create_exclusive', 'after', 'RuntimeError', 'tmp left without token', 'store_io_error', [])
+   ('read', 'strict', 0, 'lstat', 'before', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'before', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'before', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'before', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'before', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'before', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 0, 'lstat', 'after', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'OSError', 'lock left without token', 'store_busy', [])
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'FileExistsError', 'lock left without token', 'store_busy', [])
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'FileNotFoundError', 'lock left without token', 'store_busy', [])
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'PermissionError', 'lock left without token', 'store_busy', [])
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'ValueError', 'lock left without token', 'store_busy', [])
+   ('read', 'strict', 2, 'create_exclusive', 'after', 'RuntimeError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'before', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'OSError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'FileExistsError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'FileNotFoundError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'PermissionError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'ValueError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 0, 'lstat', 'after', 'RuntimeError', 'construct', "LocalStoreError('store_root_invalid:root')")
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'OSError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'FileExistsError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'FileNotFoundError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'PermissionError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'ValueError', 'lock left without token', 'store_busy', [])
+   ('reconcile', 'strict', 2, 'create_exclusive', 'after', 'RuntimeError', 'lock left without token', 'store_busy', [])

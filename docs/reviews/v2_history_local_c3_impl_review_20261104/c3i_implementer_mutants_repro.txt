@@ -1,0 +1,26 @@
+1 DETECTED 12 scan: the check of the v1 file removed
+2 DETECTED 4 scan: the check of S2's temporary file name removed
+3 DETECTED 7 reconcile: stops on a leftover temporary file (tolerate removed)
+4 DETECTED 6 publish: the current file is not inspected first (P-01 order)
+5 DETECTED 2 publish: check_publication's history_invalid is returned as it is (not wrapped)
+6 DETECTED 3 publish: a CREATE publication is accepted too
+7 DETECTED 2 initialize: a CREATE that is not a GENESIS (MIGRATION) is accepted
+8 DETECTED 24 publish: the type check is moved after the lock
+9 DETECTED 4 publish: the ownership check before the replace removed
+10 DETECTED 1 publish: the uncertain-commit mark is set after the replace instead of before
+11 DETECTED 10 publish: STRICT omits the directory fsync
+12 DETECTED 2 publish: the Windows strict refusal removed
+13 DETECTED 1 clean-up: the temporary file is removed without confirming the inode
+14 DETECTED 6 lock release: the marker/ownership is not confirmed
+15 DETECTED 1 read: the before/after inode comparison removed
+16 DETECTED 40 the lock name differs from S2's
+17 DETECTED 2 range test: a new range test reads the working tree (open instead of REV)
+18 DETECTED 27 range test: the pinned line of test_c2_09 is changed
+E1 DETECTED 16 extra: the guard of the hand-made body (N-01) removed
+E2 DETECTED 2 extra: history.json that is a link or directory is read
+E3 DETECTED 1 extra: a write that makes no progress is accepted (infinite loop guard removed)
+E4 DETECTED 6 extra: the directory-sync probe is skipped
+E5 DETECTED 2 extra: the exact-type check becomes isinstance
+E6 DETECTED 7 extra: reconcile no longer needs the lock (no acquisition)
+E7 DETECTED 4 extra: initialize publishes without the empty-root check
+E8 DETECTED 1 extra: the lock marker is the S2 marker
