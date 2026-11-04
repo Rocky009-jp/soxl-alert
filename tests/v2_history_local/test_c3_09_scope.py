@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
 import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
 
 START = "d6b0332500af8d8d46ddaae6c7fda39ee38a03db"
-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
+END = "6d69bd714bf5cf7b54e63208d2ed6691aff7bf0a"   # accepted (review 2049e10); frozen when C-4 began
 REV = END or "HEAD"
 
 PACKAGE = "v2_history_local"
