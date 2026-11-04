@@ -1,0 +1,9 @@
+R1a OBSERVED migration: rename fault ('maintenance_incomplete', None) -> both; rebuilt with another requested_at: hash differs, migrate -> ('maintenance_state_unexpected', 'v1_and_v2'); MANIFEST keys ['format', 'key', 'operation', 'plan_hash', 'publication_hash', 'request_id', 'targets', 'writers_stopped']; same requested_at -> same hash, resumed=True
+R1b OBSERVED adoption: release fault ('store_commit_uncertain', None); rebuilt with another requested_at -> ('publication_stale', 'raw'); same requested_at -> resumed=True
+R2 OBSERVED C4-20 literal ('_make/_of/object.__new__ calls absent'): 11 hits ['store.py:180 ._of', 'values.py:80 ._make', 'values.py:34 ._wrap', 'values.py:36 copy.deepcopy()', 'values.py:37 copy.deepcopy()', 'values.py:38 copy.deepcopy()']; imports outside design 2.3: ['copy']
+R3 OBSERVED same inode, other bytes -> ('maintenance_plan_stale', None, 'move'); tree before ['.history.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.tmp', 'history.json'], after ['.history.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.tmp', 'history.json', 'quarantine', 'quarantine/6aeca1b93259cb5f334e51d063fa92e15a2c1ac544469a9b374768dba8cf68e4', 'quarantine/6aeca1b93259cb5f334e51d063fa92e15a2c1ac544469a9b374768dba8cf68e4/MANIFEST']
+R4 OBSERVED lock in the plan gone before the first attempt -> ('maintenance_quarantine_invalid', 'missing', 'quarantine') (design 5.1 step 4 says maintenance_plan_stale)
+R5 OBSERVED 'quarantine' is a file -> inspect ('maintenance_quarantine_invalid', 'type', 'inspect'); history.json is a directory -> inspect ('store_root_invalid', None, 'inspect') (no report, so no plan)
+R6 OBSERVED __context__='OSError', __suppress_context__=True
+R7 OBSERVED MANIFEST identity == bytes under the lock == publication's source_v1 (check_publication forces it); the trial builds the MANIFEST from the publication before the lock
+summary: 8/8 observed
