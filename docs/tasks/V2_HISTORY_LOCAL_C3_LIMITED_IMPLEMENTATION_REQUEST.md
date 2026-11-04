@@ -1,7 +1,7 @@
 # V2 C-3 v2ローカル正本 限定実装依頼書
 
-作成日：2026-11-04（日本時間）。版：初版。
-状態：**初版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
+作成日：2026-11-04（日本時間）。版：**第2版**（初版fd3c5bbへの設計レビュー213bcb7の通常N-01だけを反映。§3の1文、C3-06の1項、C3-15の許可。ほかは初版と同じ）。
+状態：**第2版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
 対になる設計はdocs/specs/V2_HISTORY_LOCAL_C3_DESIGN_DRAFT.md（以下「設計」）。本段階はC-3（v2履歴を1つのファイルhistory.jsonとして保存する、ローカル機の試験用ストア）だけを実装する。C-4（移行・採用の実行、明示解錠、退避）、S4（日次処理・通知・本番の保存先）は含めない。
 
 ## 1. 固定入力と実装開始条件
@@ -37,7 +37,7 @@ C-4（移行・採用の実行、明示解錠、一時ファイル・ロック�
 - **API**（設計§4.3）：`HistoryFileStore(root, writable=False, durability=STRICT, *, _ops=None)`と、`read()`・`initialize(publication)`・`publish(publication)`・`reconcile(publication)`の4操作、`HistoryStoreResult`（status、committed、history、persistence_level、publication_hash、不変）。durabilityの値と保存水準の固定語はS2のもの。
 - **S2との関係**（設計§3）：S2の`FileOps`を変えずに使い、`_ops`を試験の継ぎ目にする。`LocalFileStore`のクラス・内部メソッドは呼ばない。手順の順序とエラーの流儀（`LocalStoreError`のcode・field・phase・rule・cleanup・primary、cleanupの固定語）はS2と同じ。パス・OSのエラー文・入力値をエラーに入れない。
 - **rootの形**（設計§4.1、§4.2）：`history.json`、`write.lock`（S2と同名、中身は`v2_history_local.lock\n`＋乱数）、`.history.<32桁の16進>.tmp`。状態表の各セルのとおり（v1のファイル→store_layout_unsupported／v1_only・v1_and_v2、一時ファイルの残り→store_artifact_present［reconcileを除く］、ロック→store_busy、ほかの名前は見ない）。
-- **公開値の受け取り**（設計§4.3、D-7）：`type(p) is HistoryPublication`でなければロックの前にstore_publication_invalid／type。initializeはCREATEかつGENESISだけ、publishはAPPENDだけ、違えばstore_operation_unsupported（not_genesis／not_append）。v2_history_localは`_make`・`_of`・`object.__new__`・HistoryPublication／Reconciliationの構築をしない。
+- **公開値の受け取り**（設計§4.3、D-7）：`type(p) is HistoryPublication`でなければロックの前にstore_publication_invalid／type。initializeはCREATEかつGENESISだけ、publishはAPPENDだけ、違えばstore_operation_unsupported（not_genesis／not_append）。v2_history_localは`_make`・`_of`・`object.__new__`・HistoryPublication／Reconciliationの構築をしない。書き方・元は、形の誤りで例外が漏れない方法で読み、読めなければロックの前にstore_publication_invalid（rule＝shape）とする（第2版、レビューN-01）。
 - **拒否の分け方**（設計§4.4、C-2の提案P-01）：publishは今をread_history_bytesで先に検査し、その後でcheck_publicationを呼ぶ。check_publicationのpublication_invalid・publication_staleはそのまま返し、それ以外のCoreErrorはstore_candidate_invalid（field＝publication、phase＝candidate）。initializeのcheck_publicationも同じ扱い。
 - **書込みと成否不明**（設計§5.1）：S2の§6.3の順序。replaceの呼出し以後の失敗はstore_commit_uncertain（phase＝replace／dir_sync、field＝history）。自分の一時ファイル以外は消さない。他人のロックには触らない。
 - **照合**（設計§5.2）：reconcileはロックの下で、v1の確認と読込みだけを行い、C-2のreconcile_publicationをそのまま返す。一時ファイルの残りでは止まらない。読取り専用のストアでもできる。自動の再試行・解錠・掃除をしない。
@@ -56,7 +56,7 @@ C-4（移行・採用の実行、明示解錠、一時ファイル・ロック�
 | C3-03 初期化 | publish_genesisの値でINITIALIZED、ファイルがhistory_bytes(候補)と同じバイト、history.json以外が残らない。二重の初期化はalready_initialized。読取り専用はstore_read_only |
 | C3-04 読込み | 未初期化、history.jsonがリンク・ディレクトリ・読む間に入れ替わる、UTF-8・JSON・BOM・無効な履歴（既存のhistory_invalid等）。字下げ付きの有効なファイルを読む。読込みも毎回ロックを取り、解放する |
 | C3-05 公開 | DAILY・RESOLUTION・RESTART・RESTOREの公開値（C-2の作り手で作る。RESTOREはC-1のCONSUMEを含む例を1つ）でPUBLISHED、ファイルが候補の正規化バイト。同じ公開値の2回目・別の書込みの後はpublication_stale。未初期化はstore_uninitialized。字下げ付きの今に公開すると正規化して書く |
-| C3-06 受け取らない値 | dict・確認結果・Historyなどの型はstore_publication_invalid（ロックを取らない：ロックの作成が呼ばれないことをFileOpsの記録で確かめる）。CREATE・REPLACEのpublish、GENESIS以外のinitialize、MIGRATION・ADOPTIONはstore_operation_unsupported |
+| C3-06 受け取らない値 | dict・確認結果・Historyなどの型はstore_publication_invalid（ロックを取らない：ロックの作成が呼ばれないことをFileOpsの記録で確かめる）。CREATE・REPLACEのpublish、GENESIS以外のinitialize、MIGRATION・ADOPTIONはstore_operation_unsupported。body に mode（初期化では source も）が無い手作りの値（`_make`）は、publish・initializeとも固定のcodeで拒否し、ロックを取らない（第2版、N-01） |
 | C3-07 拒否の分け方（P-01） | 壊れた今（末尾を切る、記録のhashを変える）にpublish→今の検査のcode（history_invalid等）。正しい今に、候補が無効な手作りの値（`_make`、試験のこの1本だけで使う）→store_candidate_invalid。どちらもファイルは変わらない |
 | C3-08 rootの形 | 設計§4.2の表の全セル（4操作×6状態）。S2の一時ファイル名の残りも止まる。quarantine/等ほかの名前は見ない |
 | C3-09 ロック | store_busy（ファイル・ディレクトリ・壊れたリンクがロックの名前にある）。自分のマーカーを書く。公開の前に所有を失ったらstore_lock_ownership_lost（一時ファイルを消す）、公開の後ならstore_commit_uncertain。他人のロックはそのまま。解放の失敗はlock_left。S2のLocalFileStoreとC-3が同じrootで互いにstore_busyになる（両方向） |
@@ -65,7 +65,7 @@ C-4（移行・採用の実行、明示解錠、一時ファイル・ロック�
 | C3-12 保存水準 | STRICTはファイルとディレクトリのfsyncを呼ぶ、FILE_SYNC_ONLYはディレクトリのfsyncを呼ばない。Windowsのstrict（is_windowsを替えた記録の子クラス）はwindows_strict、確認の失敗はdirectory_sync。どちらもhistory.jsonと一時ファイルに触れず、ロックは解放される |
 | C3-13 プロセス | 4つ以上の子プロセスが同じrootで公開を競うと、成功は同じ日に1回だけで、ほかはstore_busy・publication_stale・publication_refusedのどれか。最後のファイルが有効。強制終了（SIGKILL。Windowsでは試験をskip）を、一時ファイルを書いた後・replaceの前とreplaceの後で起こし、次の操作がstore_busy（ロックの残り）になること、試験がロックを手で外した後は一時ファイルの残りでstore_artifact_present（replaceの前）または正常（replaceの後）になること、history.jsonが前か後のどちらかの有効な履歴であること |
 | C3-14 情報の漏れ | 故障の例外にパスや秘密らしい文字列を入れても、エラーのstr・repr・属性・cleanupに出ない（S2の試験と同じ形） |
-| C3-15 公開値の受け取りの監査 | 静的に：v2_history_localに`_make`・`_of`・`object.__new__`・HistoryPublication(…)・Reconciliation(…)の呼出しが無い。v2_history_publishからimportする名前が設計§2.3の一覧だけ。試験で`_make`を呼ぶのはC3-07の1ファイルだけ |
+| C3-15 公開値の受け取りの監査 | 静的に：v2_history_localに`_make`・`_of`・`object.__new__`・HistoryPublication(…)・Reconciliation(…)の呼出しが無い。v2_history_publishからimportする名前が設計§2.3の一覧だけ。試験で`_make`を呼ぶのはC3-07の1ファイルと、C3-06のN-01の項の試験だけ |
 | C3-16 範囲の値 | test_c2_09のENDがd6b0332で、差分は1行だけ。範囲の鎖がadfdf765→…→de6549a→d6b0332→（C-3、END=None）で、開いた範囲はC-3の1本だけ |
 | C3-17 自分の範囲 | d6b0332→REVで、Mはtest_c2_09だけ（1行のハンクと一致）。Aはv2_history_local/、tests/v2_history_local/、結果文書だけ。それ以外はblob単位で同じ |
 | C3-18 範囲監査 | 新しいランタイムのimportが設計§2.3の一覧だけ（os、secrets、stat、dataclasses、typingと、v2_core・v2_persistence.local・v2_history_publishの名前）。ネット・時計・threading・subprocess・環境変数・hashlib・新しい依存が無い。osの使い方はパスの組立て（join、dirname、abspath、isabs、realpath、fspath）だけで、ファイル操作はFileOps経由。新しい試験はネットワーク・時計による順序付け・環境変数を使わず、書込みは一時ディレクトリだけ、子プロセスは§3のものだけ |
