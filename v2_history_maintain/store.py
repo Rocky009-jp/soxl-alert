@@ -784,8 +784,10 @@ class HistoryMaintenance:
         """history.json is there: finish the rename (both files), or recognise a completed migration (v2 only)."""
         rule = "v1_and_v2" if has_v else "v2_present"
         unexpected = maintenance_error("maintenance_state_unexpected", "store", "scan", rule=rule)
-        data = self._read(self._managed(HISTORY_NAME), "history", "read")[0]
-        outcome = reconcile_publication(data, pub).outcome
+        got = self._read(self._managed(HISTORY_NAME), "history", "read")
+        if got is None:                                   # history.json is not there under the lock (it was seen in the listing)
+            raise unexpected
+        outcome = reconcile_publication(got[0], pub).outcome
         wanted = (PUBLISHED,) if has_v else (PUBLISHED, PUBLISHED_THEN_EXTENDED)
         if outcome not in wanted:
             raise unexpected
@@ -806,7 +808,10 @@ class HistoryMaintenance:
         else:
             if not self._matches(os.path.join(kpath, V1_NAME), info["identity"]):
                 raise unexpected
-        history = read_history_bytes(self._read(self._managed(HISTORY_NAME), "history", "read")[0])[0]
+        again = self._read(self._managed(HISTORY_NAME), "history", "read")
+        if again is None:                                 # gone after the check: the migration is not shown to be complete
+            raise maintenance_error("maintenance_state_unexpected", "store", "scan", rule="v2_present")
+        history = read_history_bytes(again[0])[0]
         return MaintenanceResult(MIGRATED, key, True, history, self.persistence_level)
 
     def _set_aside_v1(self, kpath, info, ctx):

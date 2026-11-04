@@ -258,6 +258,55 @@ class Resume(H.RootCase):
         self.assertEqual(ops.ops("rename"), [])
         self.assertEqual(H.tree(self.root), before)
 
+    # review N-01: history.json is in the listing but is not found when it is read under the lock (lstat or read_file
+    # answers FileNotFoundError): a fixed word, never a TypeError, the root unchanged; after the rename of snapshot.json it
+    # is "not shown to be complete"
+    def _history_gone(self, op, nth, completed):
+        if completed:
+            case = H.migration()
+            self.put_v1(case)
+            self.maint().migrate(case.pub, True)
+        else:
+            case, _e = self.interrupted_at_rename()
+        before = H.tree(self.root)
+        ops = H.C4Ops().fail(op, "history", exc=FileNotFoundError("gone"), nth=nth)
+        e = self.run_err(self.maint(ops).migrate, case.pub, True)
+        return case, e, before
+
+    def test_history_not_found_under_the_lock_while_both_files_are_there(self):
+        for op in ("lstat", "read_file"):
+            with self.subTest(op=op):
+                self.setUp()
+                case, e, before = self._history_gone(op, 1, False)
+                self.assertErr(e, "maintenance_state_unexpected", "store", "scan", "v1_and_v2")
+                self.assertEqual(H.tree(self.root), before)
+
+    def test_history_not_found_under_the_lock_in_the_completed_state(self):
+        for op in ("lstat", "read_file"):
+            with self.subTest(op=op):
+                self.setUp()
+                case, e, before = self._history_gone(op, 1, True)
+                self.assertErr(e, "maintenance_state_unexpected", "store", "scan", "v2_present")
+                self.assertEqual(H.tree(self.root), before)
+
+    def test_history_not_found_when_it_is_read_again_after_the_rename(self):
+        for op in ("lstat", "read_file"):
+            with self.subTest(op=op):
+                self.setUp()
+                case, e, _before = self._history_gone(op, 2, False)
+                self.assertErr(e, "maintenance_state_unexpected", "store", "scan", "v2_present")
+                self.assertEqual(sorted(os.listdir(self.root)), sorted([H.HIST, "quarantine"]))   # the rename was done
+                self.assertEqual(H.qraw(self.root, case.key, H.V1), case.data)
+                self.assertEqual(self.maint().migrate(case.pub, True).status, M.MIGRATED)          # the same call completes
+
+    def test_history_not_found_when_it_is_read_again_in_the_completed_state(self):
+        for op in ("lstat", "read_file"):
+            with self.subTest(op=op):
+                self.setUp()
+                case, e, before = self._history_gone(op, 2, True)
+                self.assertErr(e, "maintenance_state_unexpected", "store", "scan", "v2_present")
+                self.assertEqual(H.tree(self.root), before)
+
     def test_a_missing_set_aside_copy_stops_the_completed_state_from_being_recognised(self):
         case = H.migration()
         self.put_v1(case)
