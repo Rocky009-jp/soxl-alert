@@ -1,7 +1,7 @@
 # V2 C-4 保守操作（移行・採用・明示解錠） 限定実装依頼書
 
-作成日：2026-11-04（日本時間）。版：初版。
-状態：**初版・採否判断待ち・未承認。本書の保存だけでは実装を始めない。**
+作成日：2026-11-04（日本時間）。版：**第2版**（初版ce4fd28への設計レビュー74c93b1の通常N-01〜N-03だけを反映。§3の3項、C4-10・C4-12・C4-13・C4-20、欠陥注入10。ほかは初版と同じ）。
+状態：**第2版・採否判断待ち（再レビューの後に採否）・未承認。本書の保存だけでは実装を始めない。**
 対になる設計はdocs/specs/V2_HISTORY_MAINTAIN_C4_DESIGN_DRAFT.md（以下「設計」）。本段階はC-4（C-3のストアが止まった状態を、人の手順でC-3の通常の状態へ戻す保守操作：明示解錠、v1→v2移行の実行、prefix採用の実行、退避と中断後の再開）だけを実装する。S4（日次処理・通知・本番の保存先・定時実行）は含めない。
 
 ## 1. 固定入力と実装開始条件
@@ -96,15 +96,15 @@
   - 元バイトなら、check_publication→MANIFEST→写し（`.q.*.tmp`→fsync→replace）→**写しを読み戻して識別値を確かめる**（違えばmaintenance_copy_mismatchで、replaceの前に止まる）→候補の公開。
   - 元バイトでなければ、reconcileがPUBLISHEDかPUBLISHED_THEN_EXTENDEDで、退避先のMANIFESTと写しが一致するときだけ、resumed=Trueで完了する。他はcheck_publicationの拒否（publication_stale／raw）をそのまま返す。
   - snapshot.jsonがあればstore_layout_unsupported。
-- **退避の証拠**（a6340c3 §4の規則4）：MANIFESTの識別値は、ロックの下で読んだバイト（移行ではsnapshot.json、採用ではhistory.json）と、公開値の識別値の両方に一致する。read_set_asideはMANIFESTと照合してから返す。計画の値をそのまま写さない。
+- **退避の証拠**（a6340c3 §4の規則4）：MANIFESTの識別値は、ロックの下で読んだバイト（移行ではsnapshot.json、採用ではhistory.json）と、公開値の識別値の両方に一致する。read_set_asideはMANIFESTと照合してから返す。MANIFESTと退避先は、ロックの下で読んだバイトがcheck_publicationの照合を通った後にだけ作る（第2版、レビューN-03）。
 - **公開値の受け取り**（設計§3、D-7）：
   - `type(p) is HistoryPublication`でなければ、ロックの前にstore_publication_invalid／type。
   - 書き方・元は、形の誤りで例外が漏れない方法で読み、読めなければロックの前にstore_publication_invalid／shape。
   - 書き方・元が操作に合わなければstore_operation_unsupported（not_migration／not_adoption）。
   - check_publicationのpublication_invalid・publication_staleはそのまま返し、それ以外のCoreErrorはstore_candidate_invalidとする。
-  - v2_history_maintainは`_make`・`_of`・`object.__new__`・HistoryPublication／Reconciliationの構築をしない。
+  - v2_history_maintainは、C-2の値（HistoryPublication、Reconciliation）について`_make`・`_of`・`_wrap`・`from_dict`・`object.__new__`・構築・`copy`を使わない。C-4自身の値（RootReport、UnlockPlan）は、既存の`_Frozen`の仕組み（`_make`・`_of`・`_wrap`・`copy.deepcopy`）で作ってよい（第2版、レビューN-02）。
 - **書込みと成否不明**：history.jsonの公開はC-3の§5.1の順序とcodeのとおり（replaceの呼出し以後の失敗はstore_commit_uncertain）。自分の一時ファイル以外は消さない。計画に無い他人のロックには触らない。
-- **失敗の後の手順**（設計§5.4、D-6）：残り物の有無は、ディレクトリの一覧（inspect）だけで判断し、cleanupの語に頼らない。結果文書に、inspect→解錠→同じ操作（公開値はread_original／read_set_asideの読み直しから作り直す）の手順を書く。
+- **失敗の後の手順**（設計§5.4、D-6）：残り物の有無は、ディレクトリの一覧（inspect）だけで判断し、cleanupの語に頼らない。結果文書に、inspect→解錠→同じ操作（公開値はread_original／read_set_asideの読み直しから作り直す）の手順を書く。作り直しには元の計画と同じ入力（request_id、requested_at、移行ではcheck_d・resolutions・sessions・raw_observations、採用ではadopt_count）を使い、requested_atは実行前に控えるか、read_original("history.json")の候補の記録から読む。作り直した公開値のpublication_hashが退避先のkeyと違えば、操作を呼ばない（第2版、レビューN-01）。
 - **保存水準**（設計§5.6）：STRICT／FILE_SYNC_ONLY。Windowsのstrictはwindows_strict、ディレクトリのfsyncの確認の失敗はdirectory_sync。どちらも変更の前に止まる。
 - **戦略式・履歴の規則を書かない**：履歴・公開値の検査と照合は、既存のread_history_bytes・check_publication・reconcile_publication・raw_identityだけで行う。
 - **範囲試験**（設計§6）：
@@ -130,17 +130,17 @@
 | C4-07 解錠の中断と再開 | 各renameの故障でmaintenance_incomplete（primary）。同じ計画で再開すると残りだけを移し、resumed=True。退避先に知らない名前を置く、またはMANIFESTを1バイト変えると、maintenance_quarantine_invalidで止まる |
 | C4-08 P-02の残り物 | C-3のcreate_exclusiveが作成の後に例外を返す故障（C-3の試験と同じ形）で、cleanupが空のまま一時ファイルが残る。inspectが見つけ、解錠で移せ、その後C-3が公開できる。ロックの場合も同じ（cleanupに語が無いロックの残り） |
 | C4-09 移行 | migration_caseの公開値でMIGRATED。history.jsonがfile_bytes(候補)、退避先にMANIFESTと元のsnapshot.jsonのバイト。C-3が読める。宣言なし、CREATEのGENESIS・REPLACE・APPENDの公開値、v1のバイト違い（publication_stale／source_v1）、空・他人のhistory.json・一時ファイル（store_artifact_present）の各拒否で、rootが変わらない |
-| C4-10 移行の再開 | (a) snapshot.jsonのrenameの故障→「両方」→C-3はstore_layout_unsupported／v1_and_v2→read_originalのバイトからpublish_migrationで作り直した公開値（hashが同じ）で再開。(b) 解放の故障→C-4のロックの残り→解錠→read_set_asideから作り直して再開→resumed=True、書込みなし。(c) 完了後の再実行、C-3の日次の公開の後の再実行もresumed=True |
+| C4-10 移行の再開 | (a) snapshot.jsonのrenameの故障→「両方」→C-3はstore_layout_unsupported／v1_and_v2→read_originalのバイトからpublish_migrationで作り直した公開値（hashが同じ）で再開。(b) 解放の故障→C-4のロックの残り→解錠→read_set_asideから作り直して再開→resumed=True、書込みなし。(c) 完了後の再実行、C-3の日次の公開の後の再実行もresumed=True。(a)(b)の作り直しは、計画の値を使い回さず、prepare_migration_planを同じ入力で呼び直して作る。(d) 別のrequested_atで作り直すとpublication_hashが違い、migrateはmaintenance_state_unexpectedで止まってrootを変えない（第2版、N-01） |
 | C4-11 採用 | adoption_caseの公開値でADOPTED。history.jsonがfile_bytes(候補)、退避先の写しが元のバイト。C-3が読める。完了後に今のバイトでpublish_adoptionを呼ぶとpublication_refused／no_change。v1あり、別のバイト（publication_stale／raw）、MIGRATION・APPEND・CREATEの公開値の各拒否で、rootが変わらない |
-| C4-12 採用の再開（C-2の引継ぎ） | (a) replaceの後の故障（解放の失敗・dir_syncの失敗）→解錠→read_set_aside(key, "history.json")の元バイトからpublish_adoptionで作り直すとhashが同じ→adoptでresumed=True。(b) 写しのreplace・写しの書込みの故障→history.jsonは元のまま→再開で完了。(c) 写しを読み戻すと違う（記録の子クラスで読み戻しのバイトを替える）→maintenance_copy_mismatchで、history.jsonは元のまま |
-| C4-13 退避の証拠（規則4） | MANIFESTの識別値が、試験側でhashlibにより計算したロックの下のバイトの値と一致する。計画・公開値の値を写しただけの実装を、欠陥注入で区別できる。read_set_asideは、退避先のバイトが替えられていればmaintenance_set_aside_mismatch、MANIFESTに無い名前・keyも拒否 |
+| C4-12 採用の再開（C-2の引継ぎ） | (a) replaceの後の故障（解放の失敗・dir_syncの失敗）→解錠→read_set_aside(key, "history.json")の元バイトからpublish_adoptionで作り直すとhashが同じ→adoptでresumed=True。作り直しは、計画の値を使い回さず、prepare_prefix_adoptionを同じ入力で呼び直して作る。別のrequested_atで作り直すとhashが違い、adoptはpublication_stale／rawで止まってrootを変えない（第2版、N-01）。(b) 写しのreplace・写しの書込みの故障→history.jsonは元のまま→再開で完了。(c) 写しを読み戻すと違う（記録の子クラスで読み戻しのバイトを替える）→maintenance_copy_mismatchで、history.jsonは元のまま |
+| C4-13 退避の証拠（規則4） | MANIFESTの識別値が、試験側でhashlibにより計算したロックの下のバイトの値と一致する。MANIFESTは、ロックの下で読んだバイトがcheck_publicationを通った後にだけ書かれる：記録の子クラスで読込み→照合→MANIFESTの順を確かめ、読んだバイトを替える（公開値と違う）とMANIFESTも退避先も作られない（第2版、N-03）。read_set_asideは、退避先のバイトが替えられていればmaintenance_set_aside_mismatch、MANIFESTに無い名前・keyも拒否 |
 | C4-14 公開値の受け取り | dict・確認結果・History等の型はstore_publication_invalid／type、mode・sourceが無い手作りの値（`_make`）はshape。どちらもロックを取らない（ロックの作成が呼ばれないことを、FileOpsの記録で確かめる）。候補が無効な手作りの値はstore_candidate_invalid |
 | C4-15 ロック | C-4の操作が持つロックで、C-3・S2がstore_busy（両方向）。他人のロック（残り）で、C-4のread_original・read_set_aside・migrate・adoptがstore_busy。自分のマーカーを書く。公開の前に所有を失えばstore_lock_ownership_lost、後ならstore_commit_uncertain。解放の失敗はlock_left |
 | C4-16 手順と故障 | 正常時のMaintenanceOpsの呼出し列が、設計§5の順序と同じ（記録の子クラス）。全呼出し×前後×例外3種以上の単独故障の総当たりを、migrate・adopt・unlock×STRICT・FILE_SYNC_ONLYで行い、次の4点を試験で確かめる。(1) CoreError以外が漏れない。(2) 元のバイトがrootか退避先に残る。(3) history.jsonが元か候補。(4) 設計§5.4の手順で最終の状態に着く |
 | C4-17 保存水準 | STRICTで、設計§5.6のファイルとディレクトリのfsyncを呼ぶ（記録で確かめる）。FILE_SYNC_ONLYでは、ディレクトリのfsyncを呼ばない。Windowsのstrict（is_windowsを替えた記録の子クラス）はwindows_strict、確認の失敗はdirectory_sync。どちらも変更の前に止まり、ロックは解放される |
 | C4-18 プロセス | 4つ以上の子プロセスが同じrootでadopt（またはmigrate）を競うと、resumed=Falseの成功は1回だけで、ほかはstore_busyかresumed=True。最後のhistory.jsonが候補で、残り物なし。強制終了（SIGKILL。Windowsでは試験をskip）を、MANIFESTの後・公開の前と、公開の後・renameの前で起こす。どちらも次の操作がstore_busyになり、解錠→同じ操作で完了する |
 | C4-19 情報の漏れ | 故障の例外にパスや秘密らしい文字列を入れても、エラーのstr・repr・属性・cleanup・`__cause__`・`__context__`（`__suppress_context__`に関わらず、属性そのもの）、RootReport、MANIFESTに出ない |
-| C4-20 静的監査 | v2_history_maintainに`_make`・`_of`・`object.__new__`・HistoryPublication(…)・Reconciliation(…)の呼出しが無い。v2_history_localとLocalFileStoreをimportしない。v2_history_publishからimportする名前が設計§2.3の一覧だけ。osの使い方はパスの組立て（join、dirname、abspath、isabs、realpath、fspath）だけで、ファイル操作はMaintenanceOps経由。MaintenanceOpsが足すのはmkdir・renameだけ。ネット・時計・threading・subprocess・環境変数・hashlib・新しい依存が無い |
+| C4-20 静的監査 | v2_history_maintainで、v2_history_publishからimportした名前（とその値）に対する`_make`・`_of`・`_wrap`・`from_dict`・`object.__new__`・HistoryPublication(…)・Reconciliation(…)の呼出しが無い。RootReport・UnlockPlan以外のクラスに対する`_make`・`_of`が無い（C-4自身の値は`_Frozen`の仕組みで作ってよい。第2版、N-02）。v2_history_localとLocalFileStoreをimportしない。v2_history_publishからimportする名前が設計§2.3の一覧だけ。osの使い方はパスの組立て（join、dirname、abspath、isabs、realpath、fspath）だけで、ファイル操作はMaintenanceOps経由。MaintenanceOpsが足すのはmkdir・renameだけ。ネット・時計・threading・subprocess・環境変数・hashlib・新しい依存が無い |
 | C4-21 範囲の値と自分の範囲 | test_c3_09のENDが6d69bd7で、差分は1行だけ。範囲の鎖がadfdf765→…→d6b0332→6d69bd7→（C-4、END=None）で、開いた範囲はC-4の1本だけ。6d69bd7→REVで、Mはtest_c3_09だけ（1行のハンクと一致）、Aはv2_history_maintain/、tests/v2_history_maintain/、結果文書だけ。それ以外はblob単位で同じ。新しい試験はネットワーク・時計による順序付け・環境変数を使わず、書込みは一時ディレクトリだけ |
 | C4-22 次の段階の模擬 | 使い捨てのコミットで、(1) C-4の範囲試験の`END`だけを自分の試験対象のSHAに替え（1行）、(2) 仮の開いた範囲試験1本を足す。test_sc_\*・test_c1_\*・test_c2_\*・test_c3_\*・test_c4_\*が通ること。結果文書に手順と結果を書く（そのコミットはpushしない） |
 
@@ -157,7 +157,7 @@
 7. 退避先：MANIFESTの完全一致の確認を外す（再開で知らないMANIFESTを受け入れる）。
 8. 退避先：許す名前の確認を外す。
 9. 退避先：st_devの比較を外す（記録の子クラスでst_devを替えて検出されること）。
-10. MANIFEST：識別値をロックの下のバイトからでなく公開値から写す（C4-13で区別されること）。
+10. MANIFEST：ロックの下の読込み・照合より前にMANIFESTを書く（C4-13で検出されること。第2版、N-03）。
 11. 移行：snapshot.jsonのrenameをhistory.jsonの公開より前に行う。
 12. 移行：「両方」の再開で、history.jsonの照合を外す。
 13. 移行：`writers_stopped`の確認を外す。

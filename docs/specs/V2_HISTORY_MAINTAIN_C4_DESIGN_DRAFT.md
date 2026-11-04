@@ -1,7 +1,7 @@
 # V2 C-4 保守操作（移行・採用・明示解錠） 設計案
 
-作成日：2026-11-04（日本時間）。版：初版。
-状態：**初版・設計案・採否判断待ち。C-4の限定実装は未承認。**
+作成日：2026-11-04（日本時間）。版：**第2版**（初版ce4fd28への設計レビュー74c93b1の通常N-01〜N-03だけを反映。§10）。
+状態：**第2版・設計案・採否判断待ち（再レビューの後に採否）。C-4の限定実装は未承認。**
 Rockyさんの「C-4の作業を始めてください」（2026-11-04T02:47Z、コーディネーター経由）を、設計書と限定依頼書から始める指示として受けて作成した。今回の作業は、設計書と限定実装依頼書の作成と、一時環境での試行まで。文書の保存、推奨、試行の合格を、実装の承認とは扱わない。作成担当はClaude Opus 5.5、effort high（このスレッドのセッション設定）。
 
 ## 0. 要約
@@ -97,7 +97,7 @@ Rockyさんの「C-4の作業を始めてください」（2026-11-04T02:47Z、�
 
 依存は次のとおり。
 
-- 標準ライブラリ：os、secrets、stat、json、dataclasses、typing。C-3の集合にjsonを足すのは、MANIFESTを読むためだけ。
+- 標準ライブラリ：os、secrets、stat、json、copy、dataclasses、typing。C-3の集合にjsonを足すのはMANIFESTを読むためだけ、copyはC-4自身の値（RootReport・UnlockPlan）の属性を写して返すためだけ（第2版、レビューN-02）。
 - 変更しない既存のもの：
   - v2_core：エラーの型。
   - v2_persistence.local：FileOps、LocalStoreError、cleanupの固定語、保存水準の固定語。
@@ -120,7 +120,7 @@ hashlibは使わない（識別値はC-2のraw_identityで計算する）。v2_h
 - **C-3を変えず、内部も呼ばない**：ロック（`_acquire`、`_owns`、`_release`、`_locked`）、走査、読込み、公開（`_publish`、`_discard_own`）は、C-3の手順を同じ順序とエラーの流儀で写す。C-3設計D-2が「S2を共通化しない」としたのと同じ理由で、受領済みのC-3を共通化のために変えない。
 - **名前を合わせる**：`history.json`、`snapshot.json`、`write.lock`、`.history.<32桁の16進>.tmp`、`.snapshot.<…>.tmp`は、C-3・S2と同じ。値が同じであることは、試験が両方のモジュールの定数を読んで確かめる（ランタイムはC-3をimportしない）。
 - **ロックのマーカー**：C-4が作る`write.lock`の中身は`v2_history_maintain.lock\n`＋乱数（32桁の16進）＋改行。`inspect`は残ったロックの中身の先頭から持ち主の種類を示す（S2、C3、C4、EMPTY＝空、UNKNOWN）。種類によって解錠の扱いは変えない（人の判断の材料にするだけ）。
-- **公開値の受け取り**：C-3と同じく`type(p) is HistoryPublication`だけを受け取る。書き方・元は、形の誤りで例外が漏れない方法で読む（C-3のN-01と同じ）。C-4は`_make`・`_of`・`object.__new__`・公開値の構築をしない。
+- **公開値の受け取り**：C-3と同じく`type(p) is HistoryPublication`だけを受け取る。書き方・元は、形の誤りで例外が漏れない方法で読む（C-3のN-01と同じ）。C-2の値（HistoryPublication、Reconciliation）については、`_make`・`_of`・`_wrap`・`from_dict`・`object.__new__`・構築・`copy`を使わない。C-4自身の値（RootReport、UnlockPlan）は、既存の`_Frozen`の仕組み（`_make`・`_of`・`_wrap`・`copy.deepcopy`）で作ってよい（第2版、レビューN-02）。
 
 ## 4. rootと退避先
 
@@ -155,7 +155,7 @@ read_original・read_set_aside・migrate・adoptは、C-3と同じくロック�
 
 a6340c3は`quarantine/<依頼ID>/`を案としていた。本書は**keyを公開値のpublication_hash（移行・採用）または解錠計画のplan_hash**にする。理由は3つある。
 
-1. 中断の後に作り直した公開値は同じhashになる（C-2の作り手は決定的）。同じ操作がいつも同じ退避先を見つけるので、再開の規則が単純になる。
+1. 中断の後に、元の計画と**同じ入力**（requested_atを含む。§5.4）で作り直した公開値は、同じhashになる（C-2の作り手は決定的）。同じ操作がいつも同じ退避先を見つけるので、再開の規則が単純になる。
 2. 64桁の16進なので、ファイル名として安全である。依頼IDの文字種や長さに頼らない。
 3. 依頼IDを使い回しても、別の操作の退避先と衝突しない。
 
@@ -172,7 +172,7 @@ a6340c3は`quarantine/<依頼ID>/`を案としていた。本書は**keyを公�
 - パス、時刻、自由文は入れない。
 - 中身は公開値（または解錠計画）だけから決まる。だから再開の時は、今書くはずのバイトと完全に一致するかで確かめる。
 - 書くときは退避先の中の一時ファイル（`.q.<32桁>.tmp`）に書き、fsyncしてから1回のreplaceで`MANIFEST`にする。MANIFESTは「無い」か「完全」のどちらかになる。
-- MANIFESTのtargetsの識別値は、ロックの下で読んだバイトから作ったもの（移行ではsnapshot.json、採用ではhistory.json）と、公開値の識別値（source_v1、expected）の両方に一致する。C-2のcheck_publicationが一致を確かめてから書くので、計画や公開値の値を写しただけにはならない（a6340c3 §4の規則4）。
+- MANIFESTのtargetsの識別値は、ロックの下で読んだバイトから作ったもの（移行ではsnapshot.json、採用ではhistory.json）と、公開値の識別値（source_v1、expected）の両方に一致する。どちらから写しても同じバイトになる。規則4（a6340c3 §4）の要点は、**ロックの下で読んだバイトがcheck_publicationの照合を通った後にだけ、MANIFESTと退避先を作る**ことで、受入と欠陥注入はこの順序を確かめる（第2版、レビューN-03）。
 
 ### 4.5 API と値
 
@@ -268,6 +268,10 @@ replaceの前の失敗は、C-3と同じcode（store_io_error等）になる。h
    - 移行：snapshot.jsonがrootにあれば`read_original`で、退避済みなら`read_set_aside(key, "snapshot.json")`で読み、`publish_migration`に渡す。
    - 採用：history.jsonが元バイトのままなら`read_original`で、でなければ`read_set_aside(key, "history.json")`で読み、`publish_adoption`に渡す（C-2からの引継ぎ）。
    - keyは`inspect`の退避先の要約（operation、request_id）から選ぶ。作り直した公開値のhashが、keyと一致する。
+   - 作り直しの条件（第2版、レビューN-01）：
+     - 作り直しには、元の計画と同じ入力を使う。request_id、requested_at、移行ではcheck_d・resolutions・sessions・raw_observations、採用ではadopt_count。requested_atは計画のbasisと候補の記録に入るので、違えばplan_hashとpublication_hashが変わり、keyと一致しない。
+     - requested_atは、実行の前に計画の入力を控えておく。控えが無ければ、read_original("history.json")で候補の記録から読む（移行の「両方」・「history.jsonだけ」、採用のreplaceの後）。
+     - 作り直した公開値のpublication_hashが退避先のkeyと違えば、操作を呼ばずに入力を見直す。移行の「両方」や採用のreplaceの後の状態で違う公開値を呼ぶと、移行はmaintenance_state_unexpected、採用はpublication_staleで止まる（rootは変えない）。
 4. 結果がresumed=Trueでも、正常の完了と同じに扱う。
 
 試行の故障の総当たり（§7）で、全1,638通りがこの手順で最終の状態に着いた。
@@ -419,3 +423,13 @@ D-1〜D-9を一組で判断する。今回の文書作成と一時環境の試�
 - 本書、依頼書、試行の差分の3ファイルだけを、6d69bd7から作った新しい資料ブランチdocs/v2-history-maintain-c4-20261104に追加した。製品コードの変更、PR、Actions、送信、新しい市場計算は0。一時環境の作業ツリーとローカルコミットはpushしていない。
 - 試行の差分docs/specs/V2_HISTORY_MAINTAIN_C4_TRIAL_20261104.diffのSHA-256は fa9a60e2e24a6af5ecaf742ca2308918231c78c8e0ab49abb988875d31a58e69。一時環境の6d69bd7→試作後の`git diff`の出力そのままで、対象はv2_history_maintain、tests/v2_history_local/test_c3_09_scope.py、tests/v2_history_maintain。
 - モデル別の利用量は未計測。
+
+## 10. 第2版の改訂（2026-11-04）
+
+初版ce4fd28へのOpus 5.5・highの設計レビュー（74c93b1、docs/v2-history-maintain-c4-review-20261104のdocs/reviews/V2_HISTORY_MAINTAIN_C4_DESIGN_REVIEW_20261104.md、重大0・通常3・提案6）の通常N-01〜N-03だけを反映した。提案P-01〜P-06は任意で、反映していない。D-1〜D-9の内容（§8の表）と試行の差分（§7）は変えていない。試行のコードは改訂後の規則を満たす（レビュー§6）。
+
+| レビュー | 改訂した箇所 | 内容 |
+|---|---|---|
+| N-01（通常） | §4.3の理由1、§5.4の手順3。依頼書§3「失敗の後の手順」、C4-10、C4-12 | 公開値の作り直しは、元の計画と同じ入力（requested_atを含む）を使う。requested_atの控え方・読み方、hashがkeyと違うときは呼ばないことを書いた。受入に、計画を使い回さずprepare_\*を呼び直す作り直しと、別のrequested_atではhashが違いrootを変えずに止まる項を足した |
+| N-02（通常） | §2.3の標準ライブラリ、§3の公開値の受け取り。依頼書§3、C4-20 | `_make`・`_of`等の禁止をC-2の値に絞り、C-4自身の値は`_Frozen`の仕組みで作ってよいとした。標準ライブラリにcopyを足した |
+| N-03（通常） | §4.4の最後の項。依頼書§3「退避の証拠」、C4-13、欠陥注入10 | MANIFESTはどちらから写しても同じバイトになるので、確かめるのは「ロックの下の読込み→照合→MANIFEST」の順序とした。欠陥注入10を、MANIFESTを読込み・照合より前に書く変異に替えた |
