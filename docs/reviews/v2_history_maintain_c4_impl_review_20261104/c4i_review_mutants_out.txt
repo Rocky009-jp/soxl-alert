@@ -1,0 +1,29 @@
+V01 | NOT_DETECTED 218s | migrate both: accept an extended history | 
+V02 | NOT_DETECTED 217s | migrate fresh: allow history.json in the key directory | 
+V03 | DETECTED 2s | unlock: durability checked after the quarantine is made | FAIL: test_the_strict_levels_and_the_directory_syncs (test_c4_03_unlock.Unlock.test_the_strict_levels_and_the_directory_syncs)
+V04 | DETECTED 10s | adopt: names of the key directory not checked | FAIL: test_a_key_directory_with_a_foreign_name_stops_the_first_run (test_c4_05_adopt.Resume.test_a_key_directory_with_a_foreign_name_stops_the_first_run)
+V05 | NOT_DETECTED 231s | read_manifest: canonical form not required | 
+V06 | DETECTED 12s | publication hash not checked before the lock | FAIL: test_hand_made_values_without_mode_or_source_or_with_a_bad_hash_are_a_shape_error (test_c4_06_publication_lock.Receiving.test_hand_made_values_without_mode_or_source_or_with_a_bad_hash_are_a_shape_error)
+V07 | NOT_DETECTED 218s | unlock: a moved lock with temporary files still in the root is accepted | 
+V08 | DETECTED 11s | _owns: marker not compared | FAIL: test_a_lock_lost_before_the_publication_is_ownership_lost_and_nothing_is_published (test_c4_06_publication_lock.Lock.test_a_lock_lost_before_the_publication_is_ownership_lost_and_nothing_is_published)
+V09 | DETECTED 11s | _release: ownership not checked | FAIL: test_a_lock_lost_after_the_publication_is_commit_uncertain (test_c4_06_publication_lock.Lock.test_a_lock_lost_after_the_publication_is_commit_uncertain)
+V10 | DETECTED 1s | plan_unlock: temporary files in reverse order | ERROR: test_the_values_are_immutable_and_hold_no_path (test_c4_01_config_values.Values.test_the_values_are_immutable_and_hold_no_path)
+V11 | NOT_DETECTED 219s | check_plan: order of tmps not required | 
+V12 | NOT_DETECTED 214s | root: a link-like root accepted | 
+V14 | DETECTED 9s | publish: no directory fsync under STRICT | FAIL: test_a_failed_directory_sync_after_the_replace_is_commit_uncertain_and_resumes (test_c4_05_adopt.Resume.test_a_failed_directory_sync_after_the_replace_is_commit_uncertain_and_resumes)
+V15 | DETECTED 10s | adopt completed: outcome not required | FAIL: test_a_history_file_that_is_not_the_candidate_is_not_a_finished_adoption (test_c4_05_adopt.Resume.test_a_history_file_that_is_not_the_candidate_is_not_a_finished_adoption)
+V16 | DETECTED 5s | _incomplete: every store_io_error after a change (publish errors too) | FAIL: test_a_first_run_after_a_failure_before_the_publication_starts_from_the_set_aside_directory (test_c4_04_migrate.Resume.test_a_first_run_after_a_failure_before_the_publication_starts_from_the_set_aside_directory)
+V17 | NOT_DETECTED 218s | read_set_aside: the key inside the MANIFEST not compared | 
+V18 | DETECTED 1s | _locked: a failed release after a change is store_io_error | FAIL: test_the_c4_lock_left_by_an_unlock_is_in_the_next_plan_and_the_old_key_stays (test_c4_03_unlock.Interrupted.test_the_c4_lock_left_by_an_unlock_is_in_the_next_plan_and_the_old_key_stays)
+V19 | DETECTED 1s | inspect: lock owners S2/C3 swapped | FAIL: test_temporary_files_have_the_identity_of_the_file_system (test_c4_02_inspect_plan.Inspect.test_temporary_files_have_the_identity_of_the_file_system)
+V20 | NOT_DETECTED 217s | quarantine: a link-like directory accepted | 
+V21 | NOT_DETECTED 226s | migrate resume: a key directory without MANIFEST accepted (and written) | 
+V22 | NOT_DETECTED 230s | _move: the destination is not checked to be empty (rename may overwrite) | 
+V23 | DETECTED 1s | inspect: readable always True | FAIL: test_a_history_file_that_cannot_be_read_is_reported_not_raised (test_c4_02_inspect_plan.Inspect.test_a_history_file_that_cannot_be_read_is_reported_not_raised)
+V24 | DETECTED 7s | adopt: snapshot.json not refused | FAIL: test_a_v1_file_alone_is_the_unsupported_layout (test_c4_05_adopt.Adopt.test_a_v1_file_alone_is_the_unsupported_layout)
+V25 | DETECTED 5s | migrate: left temporary files not refused | FAIL: test_temporary_files (test_c4_04_migrate.Migrate.test_temporary_files)
+V26 | DETECTED 10s | adopt: no read-back at all (a resumed copy also unchecked) | FAIL: test_a_copy_that_reads_back_differently_stops_before_the_replace (test_c4_05_adopt.Resume.test_a_copy_that_reads_back_differently_stops_before_the_replace)
+V27 | NOT_DETECTED 228s | unlock: a new lock after the plan (plan with a lock) not stale | 
+V28 | DETECTED 1s | unlock: precheck of a lock that appeared removed (store_busy instead) | FAIL: test_the_c4_lock_left_by_an_unlock_is_in_the_next_plan_and_the_old_key_stays (test_c4_03_unlock.Interrupted.test_the_c4_lock_left_by_an_unlock_is_in_the_next_plan_and_the_old_key_stays)
+V29 | DETECTED 2s | unlock: no final directory fsync | FAIL: test_the_strict_levels_and_the_directory_syncs (test_c4_03_unlock.Unlock.test_the_strict_levels_and_the_directory_syncs)
+V30 | DETECTED 14s | Windows strict not refused (E8 again, as a control) | FAIL: test_windows_strict_is_refused_before_any_change_and_the_lock_is_released (test_c4_07_procedure_faults.Levels.test_windows_strict_is_refused_before_any_change_and_the_lock_is_released)

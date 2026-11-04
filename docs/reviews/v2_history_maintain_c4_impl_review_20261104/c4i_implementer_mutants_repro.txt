@@ -1,0 +1,33 @@
+# implementer's mutate.py on 1eb4261, python3.12, shards 0/2 and 1/2 (count = failing tests)
+1 DETECTED 2 unlock: the re-listing at execution is not checked against the plan (subset check removed)
+3 DETECTED 10 unlock: the lock is moved first instead of last
+5 DETECTED 1 unlock: the comparison with the confirmed hash removed
+7 DETECTED 2 quarantine: the exact comparison of an existing MANIFEST removed
+9 DETECTED 1 quarantine: the st_dev comparison of the directories removed
+10b DETECTED 11 adopt: MANIFEST written before the bytes under the lock are checked against the publication
+12 DETECTED 2 migrate: the resume does not check history.json against the publication (reconcile outcome ignored)
+14 DETECTED 2 adopt: the read-back check of the copy removed
+16 DETECTED 1 adopt: the resume does not check the identity of the set-aside copy
+18 DETECTED 2 adopt: the type check of the publication is moved after the lock
+19b UNDETECTED 0 mkdir: `raise ... from None` inside the except block (judged equivalent: _incomplete rebuilds the error outside any handler)
+21 DETECTED 20 range test: the pinned line of test_c3_09 is changed
+E2 DETECTED 21 extra: a failed quarantine step after a change is not reported as maintenance_incomplete
+E4 DETECTED 7 extra: the directory fsync of the quarantine steps removed
+E6 DETECTED 3 extra: the ownership check before the replace of history.json removed
+E8 DETECTED 1 extra: the STRICT refusal on Windows removed
+2 DETECTED 1 unlock/_move: the inode comparison right before the rename removed
+4 DETECTED 3 unlock: a plan without the lock does not take the C-4 lock
+6 DETECTED 1 plan_unlock: the declaration is a truthiness test instead of `is True`
+8 DETECTED 2 quarantine: the check of the names allowed in the directory removed
+10 DETECTED 4 migrate: MANIFEST written before the bytes under the lock are checked against the publication
+11 DETECTED 11 migrate: snapshot.json is set aside before history.json is published
+13 DETECTED 1 migrate: the writers_stopped check removed
+15 DETECTED 11 adopt: the copy is made after the candidate is published
+17 DETECTED 1 read_set_aside: the comparison with the MANIFEST removed
+19 DETECTED 9 read: `raise ... from None` inside the except block (the OS exception stays as __context__)
+20 DETECTED 59 the lock name differs from C-3 and S2
+E1 DETECTED 1 extra: check_plan no longer holds the names to the two shapes
+E3 DETECTED 1 extra: adopt resume does not reconcile (any raw-stale refusal with a copy is accepted)
+E5 DETECTED 8 extra: the lock marker is C-3's marker
+E7 DETECTED 1 extra: migrate resume (both files) does not compare snapshot.json with the publication's v1 identity
+E9 DETECTED 2 extra: unlock does not check what is gone from the root against quarantine

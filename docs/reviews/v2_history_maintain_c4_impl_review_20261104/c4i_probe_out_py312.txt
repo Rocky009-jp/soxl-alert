@@ -1,0 +1,27 @@
+X1 migrate resume both, FileNotFoundError at lstat:history #1 -> LEAK TypeError: TypeError("'NoneType' object is not subscriptable")
+   root after: ['history.json', 'quarantine', 'snapshot.json']
+X1 migrate resume both, FileNotFoundError at lstat:history #2 -> LEAK TypeError: TypeError("'NoneType' object is not subscriptable")
+   root after: ['history.json', 'quarantine']
+X1 migrate resume v2_only, FileNotFoundError at lstat:history #1 -> LEAK TypeError: TypeError("'NoneType' object is not subscriptable")
+   root after: ['history.json', 'quarantine']
+X1 migrate resume v2_only, FileNotFoundError at lstat:history #2 -> LEAK TypeError: TypeError("'NoneType' object is not subscriptable")
+   root after: ['history.json', 'quarantine']
+X2 unlock, 2nd target replaced (same bytes, new inode) after the 1st rename -> maintenance_plan_stale/store/scan rule=None primary=None cleanup=()
+   root after: ['.history.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.tmp', 'quarantine', 'write.lock'] ; quarantine: {'dd4eb7205344360773fa91e73d4ac2819dabda0e452cee7245c48a6f4a8edbfe': ['.history.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.tmp', 'MANIFEST']}
+X2 same plan again -> maintenance_plan_stale/store/scan rule=None primary=None cleanup=()
+   after same plan: root ['.history.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.tmp', 'quarantine', 'write.lock'] artifacts=2
+X2 new plan -> OK MaintenanceResult(status='UNLOCKED', key='ab9c910256636fa2c0365bcc8af503d1dc5518738e0657d1398aa81af21419e5', resumed=False, history=None, persistence_level='FILE_AND_DIRECTORY_SYNC')
+   root after: ['quarantine'] ; keys=2
+X3 adopt with a copy written wrong -> maintenance_copy_mismatch/quarantine/copy rule=None primary=None cleanup=()
+X3 adopt again, same publication -> maintenance_copy_mismatch/quarantine/copy rule=None primary=None cleanup=()
+X3 C-3 still reads -> history_invalid/history/None rule=event_hash primary=None cleanup=None
+   history.json is original: True
+X3 adopt with another requested_at (new key) -> OK 'ADOPTED'
+X4 mkdir failure -> maintenance_incomplete/quarantine/quarantine primary=store_io_error context=None cause=None suppress=False
+X5 migrate, snapshot.json lstat FileNotFoundError -> maintenance_state_unexpected/store/scan rule=v1_and_v2 primary=None cleanup=()
+X6 plan names a lock that its owner released -> maintenance_plan_stale/store/scan rule=None primary=None cleanup=()
+   root after: []
+X7 inspect: history.json is a dir, quarantine is a file -> OK ('V2', {'raw_sha256': None, 'raw_size': None, 'readable': False, 'regular': False}, {'keys': [], 'state': 'invalid'})
+X8 adopt, release fails after replace -> store_commit_uncertain/history/lock_release rule=None primary=None cleanup=('lock_left',)
+X8 adopt again with the copy removed by hand -> publication_stale/current/None rule=raw primary=None cleanup=None
+X9 read-only adopt -> store_read_only/store/args rule=None primary=None cleanup=()

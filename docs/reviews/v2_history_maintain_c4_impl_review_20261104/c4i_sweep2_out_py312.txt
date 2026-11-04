@@ -1,0 +1,145 @@
+double migrate strict cases=21914 first_positions=48
+  f1:maintenance_incomplete                8942
+  f1:store_busy                            354
+  f1:store_commit_uncertain                2536
+  f1:store_durability_unsupported          940
+  f1:store_io_error                        7262
+  f1:store_lock_ownership_lost             904
+  f1:store_root_invalid                    976
+  f1_no_failure                            3
+  f2:maintenance_incomplete                4380
+  f2:maintenance_plan_stale                88
+  f2:maintenance_quarantine_invalid        304
+  f2:maintenance_state_unexpected          756
+  f2:store_artifact_present                12
+  f2:store_busy                            398
+  f2:store_commit_uncertain                1400
+  f2:store_durability_unsupported          640
+  f2:store_io_error                        9181
+  f2:store_lock_ownership_lost             1464
+  f2:store_root_invalid                    1484
+  f2:store_uninitialized                   316
+  f2_LEAK                                  160
+  f2_ok                                    1331
+  final_ok                                 21754
+problems=160
+   migrate/strict F1=('replace', 'history', 1, True, 'os') F2=('lstat', 'history', 2, False, 'fnf') | F2 leaked TypeError: TypeError("'NoneType' object is not subscriptable")
+   migrate/strict F1=('replace', 'history', 1, True, 'os') F2=('lstat', 'history', 2, True, 'fnf') | F2 leaked TypeError: TypeError("'NoneType' object is not subscriptable")
+   migrate/strict F1=('replace', 'history', 1, True, 'os') F2=('read_file', 'history', 2, False, 'fnf') | F2 leaked TypeError: TypeError("'NoneType' object is not subscriptable")
+  x160 F2 leaked TypeError: TypeError("'NoneType' object is not subscriptable")
+
+double adopt strict cases=25474 first_positions=53
+  f1:maintenance_incomplete                12168
+  f1:store_busy                            372
+  f1:store_commit_uncertain                2778
+  f1:store_durability_unsupported          944
+  f1:store_io_error                        7324
+  f1:store_lock_ownership_lost             840
+  f1:store_root_invalid                    1048
+  f1_no_failure                            2
+  f2:maintenance_copy_mismatch             364
+  f2:maintenance_incomplete                5562
+  f2:maintenance_plan_stale                88
+  f2:maintenance_quarantine_invalid        284
+  f2:publication_stale                     252
+  f2:store_artifact_present                12
+  f2:store_busy                            456
+  f2:store_commit_uncertain                1820
+  f2:store_durability_unsupported          772
+  f2:store_io_error                        10510
+  f2:store_lock_ownership_lost             1696
+  f2:store_root_invalid                    1680
+  f2:store_uninitialized                   800
+  f2_ok                                    1178
+  final_ok                                 25474
+problems=0
+
+double unlock_lock strict cases=21374 first_positions=47
+  f1:maintenance_incomplete                14666
+  f1:store_durability_unsupported          516
+  f1:store_io_error                        5160
+  f1:store_root_invalid                    1032
+  f1_no_failure                            7
+  f2:maintenance_incomplete                7263
+  f2:maintenance_plan_stale                3356
+  f2:store_durability_unsupported          324
+  f2:store_io_error                        6254
+  f2:store_root_invalid                    1356
+  f2_ok                                    2821
+  final_ok                                 21374
+problems=0
+
+double unlock_tmp strict cases=23008 first_positions=50
+  f1:maintenance_incomplete                13642
+  f1:store_busy                            258
+  f1:store_durability_unsupported          520
+  f1:store_io_error                        6756
+  f1:store_lock_ownership_lost             792
+  f1:store_root_invalid                    1040
+  f1_no_failure                            6
+  f2:maintenance_incomplete                7436
+  f2:maintenance_plan_stale                2732
+  f2:store_busy                            156
+  f2:store_durability_unsupported          344
+  f2:store_io_error                        7528
+  f2:store_lock_ownership_lost             624
+  f2:store_root_invalid                    1448
+  f2_ok                                    2740
+  final_ok                                 23008
+problems=0
+
+== single faults, extra exception kinds
+kinds adopt file_sync_only cases=440 first_positions=46
+  f1:maintenance_copy_mismatch             4
+  f1:maintenance_incomplete                200
+  f1:store_busy                            5
+  f1:store_commit_uncertain                40
+  f1:store_io_error                        135
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1:store_uninitialized                   4
+  f1_ok                                    12
+  final_ok                                 440
+problems=0
+kinds migrate file_sync_only cases=385 first_positions=40
+  f1:maintenance_incomplete                139
+  f1:maintenance_state_unexpected          8
+  f1:store_busy                            5
+  f1:store_commit_uncertain                40
+  f1:store_io_error                        135
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1_ok                                    18
+  final_ok                                 385
+problems=0
+kinds unlock_lock file_sync_only cases=405 first_positions=41
+  f1:maintenance_incomplete                229
+  f1:maintenance_plan_stale                32
+  f1:store_io_error                        82
+  f1:store_root_invalid                    20
+  f1_ok                                    42
+  final_ok                                 405
+problems=0
+kinds unlock_tmp file_sync_only cases=430 first_positions=44
+  f1:maintenance_incomplete                209
+  f1:maintenance_plan_stale                24
+  f1:store_busy                            5
+  f1:store_io_error                        116
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1_ok                                    36
+  final_ok                                 430
+problems=0
+== single faults, extra exception kinds (strict, migrate)
+kinds migrate strict cases=465 first_positions=48
+  f1:maintenance_incomplete                189
+  f1:maintenance_state_unexpected          8
+  f1:store_busy                            5
+  f1:store_commit_uncertain                50
+  f1:store_durability_unsupported          20
+  f1:store_io_error                        135
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1_ok                                    18
+  final_ok                                 465
+problems=0
