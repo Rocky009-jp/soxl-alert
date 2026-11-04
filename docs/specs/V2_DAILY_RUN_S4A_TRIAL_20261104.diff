@@ -1,0 +1,255 @@
+diff --git a/tests/v2_daily_run/test_s4a_09_scope.py b/tests/v2_daily_run/test_s4a_09_scope.py
+new file mode 100644
+index 0000000..481906f
+--- /dev/null
++++ b/tests/v2_daily_run/test_s4a_09_scope.py
+@@ -0,0 +1,11 @@
++"""TRIAL placeholder of the S4-A range test (only so that the range chain sees an open last range)."""
++import unittest
++
++START = "2e6ba5ff20a7fa0340f8d46e2239af3c43258bbb"
++END = None
++REV = END or "HEAD"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_placeholder(self):
++        self.assertIsNone(END)
+diff --git a/tests/v2_history_maintain/test_c4_09_scope.py b/tests/v2_history_maintain/test_c4_09_scope.py
+index bea589a..be25c0b 100644
+--- a/tests/v2_history_maintain/test_c4_09_scope.py
++++ b/tests/v2_history_maintain/test_c4_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "6d69bd714bf5cf7b54e63208d2ed6691aff7bf0a"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "2e6ba5ff20a7fa0340f8d46e2239af3c43258bbb"   # accepted (re-review 8d02abf); frozen when S4-A began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_history_maintain"
+diff --git a/v2_daily_run/__init__.py b/v2_daily_run/__init__.py
+new file mode 100644
+index 0000000..a5f91f9
+--- /dev/null
++++ b/v2_daily_run/__init__.py
+@@ -0,0 +1,2 @@
++"""TRIAL of S4-A (not a request, not adopted): one morning run over an injected history store and inputs."""
++from .run import run_morning, RunReport, RunError
+diff --git a/v2_daily_run/run.py b/v2_daily_run/run.py
+new file mode 100644
+index 0000000..33cf2d1
+--- /dev/null
++++ b/v2_daily_run/run.py
+@@ -0,0 +1,82 @@
++"""TRIAL. One morning run: read the history, consume every confirmed session up to the latest closed one (one DAILY
++publication each, through the injected store), then evaluate the latest closed session and render the preview text.
++No clock (now is injected), no network, no notification, no retry, no unlock."""
++import datetime
++
++from v2_core.display import render_message
++from v2_core.errors import CoreError
++from v2_core.sessions import SessionList
++from v2_history_ops import ALREADY_APPLIED, NO_COMMIT, PREPARED, prepare_history_day, read_effective
++from v2_history_publish import PUBLISHED, PUBLISHED_THEN_EXTENDED, publish_day
++
++DONE, STALE, STOPPED = "DONE", "STALE", "STOPPED"
++
++
++class RunError(CoreError):
++    pass
++
++
++class RunReport(object):
++    def __init__(self, outcome, target_d, consumed, last_status, message, code=None, history_digest=None):
++        self.outcome, self.target_d, self.consumed = outcome, target_d, tuple(consumed)
++        self.last_status, self.message, self.code, self.history_digest = last_status, message, code, history_digest
++
++    def __repr__(self):
++        return "RunReport(%s, D=%s, consumed=%s, last=%s, code=%s)" % (
++            self.outcome, self.target_d, list(self.consumed), self.last_status, self.code)
++
++
++def _aware(now):
++    if not isinstance(now, datetime.datetime) or now.tzinfo is None or now.utcoffset() is None:
++        raise RunError("run_now_invalid", "now")
++    return now
++
++
++def run_morning(store, now, series, sessions, raw_observations):
++    now = _aware(now)
++    if not isinstance(sessions, SessionList):
++        raise RunError("sessions_invalid", "sessions")
++    closed = [s for s in sessions.sessions if s.close_at <= now]
++    if not closed:
++        raise RunError("run_no_closed_session", "sessions")
++    target = closed[-1]
++    consumed, last = [], None
++    try:
++        history = store.read()
++    except CoreError as e:
++        return RunReport(STOPPED, target.date, consumed, None, None, e.code)
++    view = read_effective(history)
++    start = view.latest_apply_d or view.processing_after
++    for s in sessions.sessions:
++        if s.date <= start or s.date > target.date:
++            continue
++        if not s.confirmed:
++            return RunReport(STALE, target.date, consumed, None, None, "run_session_unconfirmed:" + s.date,
++                             history.digest)
++        try:
++            res = prepare_history_day(history, s.date, series, sessions, raw_observations)
++        except CoreError as e:
++            return RunReport(STOPPED, target.date, consumed, None, None, e.code, history.digest)
++        last = res
++        if res.status == PREPARED:
++            pub = publish_day(history, s.date, series, sessions, raw_observations)
++            try:
++                history = store.publish(pub).history
++            except CoreError as e:
++                if e.code != "store_commit_uncertain":
++                    return RunReport(STOPPED, target.date, consumed, res.status, None, e.code, history.digest)
++                rec = store.reconcile(pub)
++                if rec.status not in (PUBLISHED, PUBLISHED_THEN_EXTENDED):
++                    return RunReport(STOPPED, target.date, consumed, res.status, None,
++                                     "run_publish_" + rec.status.lower(), history.digest)
++                history = store.read()
++            consumed.append(s.date)
++        elif res.status not in (NO_COMMIT, ALREADY_APPLIED):
++            raise AssertionError(res.status)
++    if last is None:            # nothing after the effective head: the latest closed session is already applied
++        try:
++            last = prepare_history_day(history, target.date, series, sessions, raw_observations)
++        except CoreError as e:
++            return RunReport(STOPPED, target.date, consumed, None, None, e.code, history.digest)
++    return RunReport(DONE, target.date, consumed, last.status, render_message(last.core_result), None,
++                     history.digest)
+diff --git a/trial_probes/s4a_time.py b/trial_probes/s4a_time.py
+new file mode 100644
+index 0000000..0be3545
+--- /dev/null
++++ b/trial_probes/s4a_time.py
+@@ -0,0 +1,18 @@
++import os, sys, tempfile, shutil, time
++from datetime import datetime
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")): sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++from v2_daily_run import run_morning
++D, TZ = P.DATES, P.TZ
++def morning(d):
++    y, m, dd = (int(x) for x in d.split("-")); return datetime(y, m, dd, 18, 0, tzinfo=TZ)
++w = P.World(0); root = tempfile.mkdtemp(dir=os.environ["TMPDIR"]); st = HistoryFileStore(root, writable=True)
++st.initialize(publish_genesis(w.start_after, w.sessions))
++w.ledger += [P.obs("R%d" % i, D[i], 25.0 + (i % 7)) for i in range(1, 38)]
++t=time.time(); r = run_morning(st, morning(D[38]), w.series, w.sessions, w.ledger); print("catch-up", len(r.consumed), "days %.1fs" % (time.time()-t))
++t=time.time(); r = run_morning(st, morning(D[38]), w.series, w.sessions, w.ledger); print("rerun %.2fs" % (time.time()-t), r.last_status)
++print("f", run_morning(st, morning(D[2]), w.series, w.sessions, w.ledger))
++shutil.rmtree(root)
+diff --git a/trial_probes/s4a_trial.py b/trial_probes/s4a_trial.py
+new file mode 100644
+index 0000000..57a9d46
+--- /dev/null
++++ b/trial_probes/s4a_trial.py
+@@ -0,0 +1,62 @@
++"""S4-A trial scenarios over the trial runner and the real C-3 store in a temp root."""
++import os, sys, tempfile, shutil
++from datetime import datetime, timedelta
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")):
++    sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++from v2_daily_run import run_morning
++D, TZ = P.DATES, P.TZ
++
++def morning(d, hour=7):   # the morning after D's close, before the next open (TZ is US -5)
++    y, m, dd = (int(x) for x in d.split("-"))
++    return datetime(y, m, dd, 16, 0, tzinfo=TZ) + timedelta(hours=hour + 2)   # 16:00+... same evening/night
++
++def fresh(w):
++    root = tempfile.mkdtemp(prefix="s4a_", dir=os.environ.get("TMPDIR"))
++    st = HistoryFileStore(root, writable=True)
++    st.initialize(publish_genesis(w.start_after, w.sessions))
++    return root, st
++
++def show(tag, r):
++    print(tag, r)
++
++# 1 normal: decisions D1, D2 recorded; the run after D3 closes consumes D1, D2 and evaluates D3 (waiting for F&G)
++w = P.World(0); root, st = fresh(w)
++w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R2", D[2], 31.0)]
++r = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("1 normal", r)
++print("   message head:", r.message.splitlines()[0]); print("   has F&G-pending line:", "未記録" in r.message)
++# 2 same morning again: nothing new
++r2 = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("2 rerun", r2)
++print("   same digest:", r.history_digest == r2.history_digest, "same message:", r.message == r2.message)
++# 3 gap: D3 has no decision, D4 has one; run after D5 closes
++w.ledger += [P.obs("R4", D[4], 25.0)]
++r3 = run_morning(st, morning(D[5]), w.series, w.sessions, w.ledger); show("3 gap", r3)
++print("   gap line:", "途切れ" in r3.message)
++shutil.rmtree(root)
++# 4 stale: D3 unconfirmed (data not final) while now is after D3's close
++w = P.World(0, unconfirmed=(D[3],)); root, st = fresh(w)
++w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R2", D[2], 31.0)]
++r4 = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("4 stale", r4)
++shutil.rmtree(root)
++# 5 busy: a leftover write.lock
++w = P.World(0); root, st = fresh(w)
++open(os.path.join(root, "write.lock"), "wb").write(b"x")
++r5 = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("5 busy", r5)
++shutil.rmtree(root)
++# 6 decision for the target D already recorded before the run (observed right after close)
++w = P.World(0); root, st = fresh(w)
++w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R2", D[2], 31.0), P.obs("R3", D[3], 22.0, hour=17)]
++r6 = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("6 target decided", r6)
++shutil.rmtree(root)
++# 7 a ledger that changed a consumed decision (same record id, other value) -> stop, nothing written
++w = P.World(0); root, st = fresh(w)
++w.ledger += [P.obs("R1", D[1], 30.0)]
++run_morning(st, morning(D[2]), w.series, w.sessions, w.ledger)
++w.ledger[0] = P.obs("R1", D[1], 35.0)
++before = open(os.path.join(root, "history.json"), "rb").read()
++r7 = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); show("7 ledger changed", r7)
++print("   file unchanged:", before == open(os.path.join(root, "history.json"), "rb").read())
++shutil.rmtree(root)
+diff --git a/trial_probes/s4a_trial2.py b/trial_probes/s4a_trial2.py
+new file mode 100644
+index 0000000..7e5d55c
+--- /dev/null
++++ b/trial_probes/s4a_trial2.py
+@@ -0,0 +1,31 @@
++import os, sys, tempfile, shutil
++from datetime import datetime, timedelta
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")):
++    sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++from v2_daily_run import run_morning
++D, TZ = P.DATES, P.TZ
++def morning(d):
++    y, m, dd = (int(x) for x in d.split("-")); return datetime(y, m, dd, 18, 0, tzinfo=TZ)
++w = P.World(0); root = tempfile.mkdtemp(dir=os.environ["TMPDIR"]); st = HistoryFileStore(root, writable=True)
++st.initialize(publish_genesis(w.start_after, w.sessions))
++w.ledger += [P.obs("R%d" % i, D[i], 30.0 + i) for i in range(1, 4)]
++print("a", run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger))
++r = run_morning(st, morning(D[3]), w.series, w.sessions, w.ledger); print("b rerun after target consumed", r, r.message.splitlines()[0])
++# long absence: decisions for D4..D20 every day, run once after D21 closes
++w.ledger += [P.obs("R%d" % i, D[i], 25.0 + (i % 5)) for i in range(4, 21)]
++r = run_morning(st, morning(D[21]), w.series, w.sessions, w.ledger); print("c catch-up 17 days", r.outcome, len(r.consumed), r.last_status)
++# read-only store
++ro = HistoryFileStore(root, writable=False)
++w.ledger += [P.obs("R21", D[21], 20.0)]
++print("d read-only", run_morning(ro, morning(D[22]), w.series, w.sessions, w.ledger))
++# naive now
++try:
++    run_morning(st, datetime(2026, 3, 5, 18), w.series, w.sessions, w.ledger)
++except Exception as e: print("e naive now", type(e).__name__, e.code)
++# now before genesis boundary's next close
++print("f now earlier than head", run_morning(st, morning(D[2]), w.series, w.sessions, w.ledger))
++shutil.rmtree(root)
