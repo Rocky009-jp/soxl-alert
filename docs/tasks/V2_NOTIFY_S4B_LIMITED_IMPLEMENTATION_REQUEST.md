@@ -1,6 +1,6 @@
 # V2 S4-B 通知の記録と送信権 限定実装依頼書
 
-作成日：2026-11-05（日本時間）。版：初版。作成：Claude Opus 5.5、effort high。
+作成日：2026-11-05（日本時間）。版：**第2版**（初版e196a68へのレビュー1122052の通常N-01だけを反映。§3の3、S4B-06、欠陥注入19・20。ほかは初版と同じ）。作成：Claude Opus 5.5、effort high。
 状態：**未採用**。本書の保存だけでは実装を始めない。実装は、設計§11のD-1〜D-8の採用と、別スレッドへの明示の着手の指示の後に始める。
 対になる設計はdocs/specs/V2_NOTIFY_S4B_DESIGN_DRAFT.md（以下「設計」）。本段階はS4-Bだけを実装する。中身は次の4つである。
 
@@ -59,7 +59,7 @@
 
 1. **公開名**：`morning_job`、`resend`、`outbox_status`、`compose_notice`、`compose_error_notice`、`LocalOutbox`、`Notice`、`JobReport`、`ResendReport`、`NotifyError`（CoreErrorの子）、状態と種類の定数。
 2. **時計と乱数**：時計を読まない（nowは注入、時刻つきのdatetimeでなければ`NotifyError`の`notify_args_invalid`）。乱数はclaim_idの`secrets.token_hex(16)`だけ。
-3. **種類と鍵**：設計§3。MORNING＝`<対象D>-morning`、HALT＝`<対象D>-halt`、ERROR＝`<nowのUTCの日付>-error`。HALTは、`<対象D>-morning`の意図がある（どの状態でも。DAMAGEDを含む）なら作らない。`target_status`を鍵の判断に使わない。
+3. **種類と鍵**：設計§3。MORNING＝`<対象D>-morning`、HALT＝`<対象D>-halt`、ERROR＝`<対象D>-error`。対象Dはjobが`run_morning`の前にS4-Aと同じ規則（`close_at <= now`の最後のセッション）で求め、求まらない場合（sessionsの型の誤り、閉じたセッションが無い、その途中の例外）だけ`<nowのUTCの日付>-error`にする。HALTとERRORは、`<対象D>-morning`の意図がある（どの状態でも。DAMAGEDを含む）なら作らない。`target_status`を鍵の判断に使わない。
 4. **文面**：設計§4の部品と順序。
    - 記録の欠けの条件はskipped_sessionsが空でない日。MORNINGではgap=falseの日だけ、HALTでは全部の日を書く。
    - 注記は4つ（次の寄付きの後、保存の未確認、境界の日、同時の実行）。それぞれ設計の条件のときだけ入れる。
@@ -99,7 +99,7 @@
 | S4B-03 MORNING | DONEの朝に1通送り、意図と結果の2ファイルができる。中身が設計§5の項目どおり（試験側でJSONを読んで確かめる）。text_sha256が文面のsha256と一致する。exit 0 |
 | S4B-04 同じ朝の再実行 | 2回目・3回目は送らない（SKIPPED_CLAIMED）。前の結果がSENTならexit 0。ファイルのバイトは変わらない |
 | S4B-05 HALTと順序 | (a) STALE・STOPPEDの朝に判定なしを1通。(b) その後に同じDが成功すれば判定ありを1通。(c) 判定ありの後に止まった実行は判定なしを送らない（SKIPPED_JUDGMENT_EXISTS）。(d) 判定ありの意図がDAMAGEDでも判定なしを送らない |
-| S4B-06 ERROR | (a) RunError（閉じたセッションが無い）でERRORを1通、同じUTCの日の2回目は送らない。(b) CoreError以外の例外（市場データの読込みで投げる偽物、本文にパスを含める）で、ERRORを1通送ってから同じ例外オブジェクトが出る。文面・意図に本文・パスが無い。(c) S4-AレビューのP-02(b)の形（bstarでdecimal.InvalidOperation）でも(b)と同じ |
+| S4B-06 ERROR | (a) RunError（閉じたセッションが無い）でERRORを1通（鍵はnowのUTCの日付）、同じUTCの日の2回目は送らない。(b) CoreError以外の例外（市場データの読込みで投げる偽物、本文にパスを含める）で、ERRORを1通送ってから同じ例外オブジェクトが出る。文面・意図に本文・パスが無い。(c) S4-AレビューのP-02(b)の形（bstarでdecimal.InvalidOperation）でも(b)と同じ。(d) 日本時間の昼の手動の再実行（UTCの当日）と翌朝の定時実行（UTCの同じ日の21〜22時台）がともに誤りで、対象Dが違えば、2通とも届く（レビュー1122052のX1の場面）。(e) 判定ありの意図（SENT・UNKNOWN・DAMAGEDのどれでも）がある同じDの誤りは、ERRORを送らない（SKIPPED_JUDGMENT_EXISTS）。ERRORの後に同じDが成功すれば判定ありは送れる |
 | S4B-07 記録の欠け | (a) HALT：STALEの朝に保存した日の欠けの日付が文面にある（S4-AレビューのX1の場面）。(b) MORNING：GENESISの直後・再初期化の直後の最初のAPPLY（gap=false、skipped_sessionsあり）の欠けが文面にある。(c) MORNINGでgap=trueの日の行が重ならない（同じ日付の欠けの行が1回だけ） |
 | S4B-08 注記 | 4つの注記が、設計の条件のときだけ入る。次の寄付きちょうど（now＝open_at）は入る、1マイクロ秒前は入らない |
 | S4B-09 本文 | MORNING・HALTの文面が`report.message`を変えずに含む（部分文字列として一致）。ERRORの文面にreport.messageは無い |
@@ -135,6 +135,8 @@
 16. 再送で、同じidの意図があるのに別の名前で作って送る。
 17. 例外処理の中でNotifyErrorを投げる（`__context__`が残る形）。
 18. fsync_fileを呼ばない。
+19. ERRORの鍵に、対象Dが求まるときもnowの日付を使う（第2版、N-01）。
+20. ERRORの前に判定ありの意図を確かめない（第2版、N-01）。
 
 ## 6. 環境・結果保存・停止
 
