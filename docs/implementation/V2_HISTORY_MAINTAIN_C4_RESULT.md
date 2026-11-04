@@ -256,3 +256,13 @@ C-4の操作の途中で壊れたときは、cleanupの語に頼らず `inspect`
 ## 13. 保存したもの（`/mnt/project-files/implementation/c4_maintain_20261104/`）
 
 `runall.sh`、`mutate.py`、`mutation_out.json`／`.txt`、`first_pass/`、`next_stage_sim.sh`／`_out.txt`、`final_runall_py3.{10,11,12,13}.log`、`sweep_py3.13.log`、`archive_tree_skips.log`、`refcheck.py`・`refs_protected82.txt`・`refs_final_before_push.txt`。
+
+## 14. 追補：実装レビューのN-01の限定修正（2026-11-04）
+
+実装レビュー（記録906a70a）のN-01（通常）だけを直した。提案P-01〜P-04には手を付けていない。
+
+- **修正**：`v2_history_maintain/store.py` の `_migrate_resume` で、`history.json` をロックの下で読んだ結果が `None`（lstat／read_fileがFileNotFoundError）のとき、`self._read(...)[0]` が `TypeError` を漏らしていた2か所を、固定のエラーにした。読み始め（旧787行）は、今までと同じ `maintenance_state_unexpected`（rule `v1_and_v2`／`v2_present`）。renameの後の読み直し（旧809行）は、`maintenance_state_unexpected`／store／scan／rule `v2_present`（移行の完了を示せないため）。ほかの `_read` の呼出しは、すでに `None` を扱っている。
+- **試験**：`test_c4_04_migrate.py` の `Resume` に4件（lstat・read_fileの2種×「両方」「完了後」×読み始め・読み直し＝8ケース）を足した。新規は 180→**184** 件。修正前のコードでは8ケースとも失敗する（`TypeError`）ことを確かめた。
+- **試験した版**：修正コミット `195d3531007a0fb8319db90ccd058c664d04d885`。完全な履歴の別クリーンクローン（`core.autocrlf=false`）で、Python 3.10.20／3.11.18／3.12.3／3.13.18の4版とも15スイートが全件合格（既存2,069＋新規184＝2,253件、失敗0・エラー0・新規のskip 0）。ログは `fix_n01_runall_py3.{10,11,12,13}.log`。
+- 総当たり（§10）の例外の種類にFileNotFoundErrorなどを足すことは、今回はしていない（レビューの任意の提案の範囲）。§0・§10の「どの通りでもCoreErrorだけ」は、この追補の前までは依頼の3種の例外での結果である。
+- 実Windows・物理電源断・ユーザーPCは、引き続き未実施。
