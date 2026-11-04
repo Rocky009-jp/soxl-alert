@@ -1,0 +1,49 @@
+double migrate strict cases=21914 first_positions=48
+  f1:maintenance_incomplete                8942
+  f1:store_busy                            354
+  f1:store_commit_uncertain                2536
+  f1:store_durability_unsupported          940
+  f1:store_io_error                        7262
+  f1:store_lock_ownership_lost             904
+  f1:store_root_invalid                    976
+  f1_no_failure                            3
+  f2:maintenance_incomplete                4380
+  f2:maintenance_plan_stale                88
+  f2:maintenance_quarantine_invalid        304
+  f2:maintenance_state_unexpected          916
+  f2:store_artifact_present                12
+  f2:store_busy                            398
+  f2:store_commit_uncertain                1400
+  f2:store_durability_unsupported          640
+  f2:store_io_error                        9181
+  f2:store_lock_ownership_lost             1464
+  f2:store_root_invalid                    1484
+  f2:store_uninitialized                   316
+  f2_ok                                    1331
+  final_ok                                 21914
+problems=0
+
+kinds migrate strict cases=465 first_positions=48
+  f1:maintenance_incomplete                189
+  f1:maintenance_state_unexpected          8
+  f1:store_busy                            5
+  f1:store_commit_uncertain                50
+  f1:store_durability_unsupported          20
+  f1:store_io_error                        135
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1_ok                                    18
+  final_ok                                 465
+problems=0
+
+kinds migrate file_sync_only cases=385 first_positions=40
+  f1:maintenance_incomplete                139
+  f1:maintenance_state_unexpected          8
+  f1:store_busy                            5
+  f1:store_commit_uncertain                40
+  f1:store_io_error                        135
+  f1:store_lock_ownership_lost             20
+  f1:store_root_invalid                    20
+  f1_ok                                    18
+  final_ok                                 385
+problems=0
