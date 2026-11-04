@@ -1,6 +1,6 @@
 # V2 S4-A 朝の1回の実行 限定実装依頼書
 
-作成日：2026-11-04（日本時間）。版：初版。作成：Claude Opus 5.5、effort high。
+作成日：2026-11-04（日本時間）。版：**第2版**（初版3fe3862へのレビューdd60f6fの通常N-01・N-02だけを反映。§3の4、S4A-09の語、S4A-13(b)、S4A-17の追加、欠陥注入4。ほかは初版と同じ）。作成：Claude Opus 5.5、effort high。
 状態：**未採用**。本書の保存だけでは実装を始めない。実装は、設計§9のD-1〜D-7の採用と、別スレッドへの明示の着手の指示の後に始める。
 対になる設計はdocs/specs/V2_S4_DAILY_RUN_DESIGN_DRAFT.md（以下「設計」）。本段階はS4-A（注入した保存先・時刻・入力で、追いつき→最新セッションの評価→プレビュー文面と実行報告までを1回行う）だけを実装する。通知・outbox・送信・gitの保存先・取得・本番接続（S4-B〜S4-E）は含めない。
 
@@ -56,7 +56,7 @@
    - sessionsが`SessionList`でない。
    - storeに呼べる`read`・`publish`・`reconcile`が無い。
 3. **対象D**：`close_at <= now`の最後のセッション（設計§5.2）。無ければ`RunError`（`run_no_closed_session`）。
-4. **開始位置**：`read_effective(history)`の`latest_apply_d`、無ければ`processing_after`。対象Dがこれより前なら、`STOPPED`（`run_target_before_head`）で何も書かない。
+4. **開始位置**：`read_effective(history).processing_after`（現在のまとまりの`as_of_d`、無ければGENESISの`start_after`かRESTART_UNKNOWNの`resume_after`。上位e3e9094 §2.8、設計§5.2）。`latest_apply_d`は使わない（再初期化の前のAPPLYも数えるため）。対象Dがこれより前なら、`STOPPED`（`run_target_before_head`）で何も書かない。
 5. **未確定**：開始位置より後で、対象D以前のセッションを古い順に見る。confirmed=falseに当たったら、`STALE`（code `run_session_unconfirmed`、detailにそのD）で止める。それより前の消費は残す。それより後へは進まない。
 6. **追いつき**：設計§5.3の1〜3。`PREPARED`のときだけ`publish_day`→`store.publish`。返った`history`を次の入力にする。`NO_COMMIT`・`ALREADY_APPLIED`は保存しない。ほかの状態は来ない前提で、来たらプログラムの誤りとして止める（握りつぶさない）。
 7. **対象Dの評価**：ループで対象Dを調べていれば、その結果を使う。開始位置が対象Dと同じで調べていなければ、`prepare_history_day(history, 対象D, …)`を1回呼ぶ（ALREADY_APPLIEDの文面）。この呼出しのCoreErrorも`STOPPED`にする（試行のT-2）。
@@ -71,7 +71,7 @@
     - STALE・STOPPED：判定・分岐表・b\*を含めない。「条件未達ではない」「前日値で補っていない」、code、それまでに保存した日を書く。
     - どの文面にも、パス・例外の本文・URL・秘密を入れない。文言の細部は実装者が決め、結果文書に例を載せる。
 
-## 4. 受入条件 S4A-01〜S4A-16
+## 4. 受入条件 S4A-01〜S4A-17
 
 各IDは機能項目であって、テスト件数ではない。新規Nは実測する。期待値は、既存の関数（prepare_history_day、publish_day、check_append_batch、validate_history、render_message）と、試験側の計算から作る。ランナーの出力をコピーしない。
 
@@ -85,14 +85,15 @@
 | S4A-06 再実行 | 同じnowでもう一度実行すると、publishは0回、ファイルのバイトは同じ、文面も同じ。対象Dを消費した後の再実行はALREADY_APPLIEDの文面 |
 | S4A-07 対象Dの決定済み | 対象Dのdecisionが窓の中で記録済みなら、対象Dも消費し、文面はその結果（render_messageの全文と一致） |
 | S4A-08 未確定 | 途中のセッションが未確定なら、STALE、exit 1、それより前だけ保存、それより後のdecisionは消費しない。文面に判定・分岐表・b\*が無い |
-| S4A-09 時刻の戻り | 有効な先頭より前の対象DでSTOPPED（run_target_before_head）、保存なし、例外が漏れない（T-2） |
+| S4A-09 時刻の戻り | 開始位置（§3の4）より前の対象DでSTOPPED（run_target_before_head）、保存なし、例外が漏れない（T-2） |
 | S4A-10 入力の誤り | ledger_mismatch、decision_outside_window、市場行の欠け、sessionsの文脈の不一致で、そのDでSTOPPED。それまでの日は保存済み。止まった後のバイトは、最後の成功の後のバイトと同じ |
 | S4A-11 保存先の停止 | 実物のC-3で、store_busy（ロックの残留）、store_uninitialized、store_read_only、store_layout_unsupported（snapshot.json）、store_artifact_present（一時ファイルの残留）がSTOPPED。どれもrootの一覧・バイトを変えない。ランタイムがv2_history_maintainをimportしない |
 | S4A-12 成否不明 | 偽の保存先で次を確かめる。(a) 実際は書いた後にstore_commit_uncertain→reconcileがPUBLISHED→読み直して続き、最終結果が通常と同じ。(b) NOT_PUBLISHED→STOPPED、publishは1回だけ。(c) CONFLICT→STOPPED。(d) reconcile自体の誤り→STOPPED。(e) 2回目の成否不明→run_publish_uncertain |
-| S4A-13 競合 | (a) 読込みと保存の間に別の書き手が1件足した→publication_staleでSTOPPED、二重の記録なし。(b) 子プロセス2〜4個が同じ朝に同時に実行（ファイルの合図で同時に始める）→最終のhistory.jsonが1回だけ実行した結果と同じ、同じDのAPPLYは1件、各報告はDONEかSTOPPED（store_busy・publication_stale） |
+| S4A-13 競合 | (a) 読込みと保存の間に別の書き手が1件足した→publication_staleでSTOPPED、二重の記録なし。(b) 子プロセス2〜4個が同じ朝に同時に実行（ファイルの合図で同時に始める）→各報告はDONEか、STOPPED（store_busy・publication_stale）。同じDのAPPLYは1件まで。最終のhistory.jsonは、1回だけ実行した結果の前の部分（途中まで）で、DONEを返した実行が1つでもあれば1回の結果と同じ。その後に1回実行すると、1回の結果と同じになる（第2版でN-02を反映。全員STOPPEDの並びはあり得る。本番は設計§5.4のconcurrencyで1実行にする） |
 | S4A-14 例外の出口 | 偽の保存先・コアの各呼出しでCoreErrorを起こす総当たりで、run_morningは必ずRunReportを返し、`__context__`・`__cause__`が残らない。CoreError以外（例：RuntimeError）はそのまま出る |
 | S4A-15 静的な範囲 | ランタイムのimportが§2の許可だけ（datetime、v2_core、v2_history_ops、v2_history_publish）。open・os・socket・subprocess・time・random・urllib・environの使用なし。`datetime.now`・`utcnow`・`today`の呼出しなし。`initialize`・`unlock`・`migrate`・`adopt`の呼出しなし。RunReportが不変で、reprに文面全体・パスが出ない |
 | S4A-16 範囲試験 | 新しい範囲試験（START＝2e6ba5f、END＝None、REV＝END or "HEAD"、FilesChanged）が、§2の変更だけを許す。test_c4_09の差分を自分の差分のハンクとして固定する。範囲の鎖が`…→6d69bd7→2e6ba5f→（S4-A）`で通る。ENDだけを固定して開いた範囲を外すと鎖の試験が失敗する手順を、結果文書に記録する（C4-22と同じ形） |
+| S4A-17 再初期化の後 | 実物のC-3で、(a) APPLY D1・D2 → RESTART_UNKNOWN（resume_after＝D3）→ D4のdecisionのとき、D4の引け後の実行がD4を再初期化の後の最初のAPPLYとして保存し（gap=false、上位N-07）、DONEになる。(b) 再初期化の後にACK・欠測宣言を足しても開始位置が動かない（上位O-06）。期待値は試験側のprepare_history_dayから作る（第2版でN-01を反映） |
 
 ## 5. 限定欠陥注入
 
@@ -101,7 +102,7 @@
 1. 対象Dの決定で`<=`を`<`にする。
 2. 未確定のセッションを飛ばして先へ進む。
 3. 未確定のセッションで止めずに、評価だけ続ける（STALEにしない）。
-4. 開始位置で`latest_apply_d`を見ず、常に`processing_after`から始める。
+4. 開始位置に`processing_after`ではなく`latest_apply_d`を使う（再初期化の後でS4A-17が検出すること。第2版でN-01を反映して向きを逆にした）。
 5. 対象Dをループから外す（`< 対象D`にする）。
 6. PREPAREDの日に保存しない。
 7. 文面から欠測の行を外す。
