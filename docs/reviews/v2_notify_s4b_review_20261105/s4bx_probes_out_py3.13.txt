@@ -1,0 +1,28 @@
+### s4bx_probe.py
+== X1 ERROR key = UTC date: a daytime JST retry silences the next JST morning
+  UTC (design sec.3)     run1 2026-03-04T01:00:00+00:00 -> sends 1
+                         run2 2026-03-04T21:30:00+00:00 -> sends 1  files=['2026-03-04-error.claim.json', '2026-03-04-error.result.json']
+  JST (for comparison)   run1 2026-03-04T10:00:00+09:00 -> sends 2
+                         run2 2026-03-05T06:30:00+09:00 -> sends 2  files=['2026-03-04-error.claim.json', '2026-03-04-error.result.json', '2026-03-05-error.claim.json', '2026-03-05-error.result.json']
+== X2 ERROR after a judgment of the same morning (key is not tied to D)
+  run1 ('DONE', None, 'morning', '2026-03-04', 'SENT')
+  run2 (later rerun, data source fails) ('raised ZeroDivisionError',)
+  sends 2 | last text first lines: ['【SOXL日次】判定なし（実行の誤り）', '  今朝は結果を出していません。条件未達ではありません。']
+== X3 halt then halt for the same D: the second run's consumed gaps are never shown
+  A (lock held) ('STOPPED', 'store_busy', 'halt', '2026-03-06', 'SENT')
+  B (D4 unconfirmed) ('STALE', 'run_session_unconfirmed', 'halt', '2026-03-06', 'SKIPPED_CLAIMED')
+  C (D4 confirmed) ('DONE', None, 'morning', '2026-03-06', 'SENT')
+  sends 2 | D2(2026-03-04) appears in any sent text: False
+== X4 a claim left empty (O_EXCL done, crash before the write): no route delivers D
+  rerun ('DONE', None, 'morning', '2026-03-05', 'SKIPPED_CLAIMED') | state DAMAGED
+  resend REFUSED_DAMAGED | sends 0
+== X5 outbox root = history root (not rejected by the request's checks)
+  run1 ('DONE', None, 'morning', '2026-03-04', 'SENT')
+  run2 next morning ('DONE', None, 'morning', '2026-03-05', 'SENT')
+### s4bx_x3b.py
+earlier halt=True: B STALE consumed=[('2026-03-03', False, ()), ('2026-03-05', True, ('2026-03-04',))] status=SKIPPED_CLAIMED; D2 in B's composed text=True; sends=1
+earlier halt=False: B STALE consumed=[('2026-03-03', False, ()), ('2026-03-05', True, ('2026-03-04',))] status=SENT; D2 in B's composed text=True; sends=1
+### s4bx_late.py
+DONE 2026-03-05 PREPARED SENT | passed-open note: False
+    first lines: ['【SOXL日次】対象D=2026-03-05', '【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-03-05 ／実行区分: 合図なし']
+Python 3.13.18 (main, Oct 26 2026, 14:08:19) [Clang 23.1.3 ]

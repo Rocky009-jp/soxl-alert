@@ -1,0 +1,3 @@
+{"N": 2, "K": 40, "sent_kinds": {"halt,judgment": 40}, "order": {"halt>judgment": 40}, "halt_codes": {"store_busy": 39, "publication_stale": 1}, "halt_without_note_beside_judgment_or_double": 0}
+{"N": 4, "K": 20, "sent_kinds": {"halt,judgment": 20}, "order": {"halt>judgment": 20}, "halt_codes": {"store_busy": 20}, "halt_without_note_beside_judgment_or_double": 0}
+Python 3.13.18 (main, Oct 26 2026, 14:08:19) [Clang 23.1.3 ]
