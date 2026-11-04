@@ -1,0 +1,420 @@
+diff --git a/tests/v2_daily_run/test_s4a_09_scope.py b/tests/v2_daily_run/test_s4a_09_scope.py
+index f79ccd4..d46af27 100644
+--- a/tests/v2_daily_run/test_s4a_09_scope.py
++++ b/tests/v2_daily_run/test_s4a_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "2e6ba5ff20a7fa0340f8d46e2239af3c43258bbb"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "6ad609fe52b50565103e56c598505cac85601216"   # accepted (receipt 3e3fd47); frozen when S4-B began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_daily_run"
+diff --git a/tests/v2_notify/test_s4b_09_scope.py b/tests/v2_notify/test_s4b_09_scope.py
+new file mode 100644
+index 0000000..4c28971
+--- /dev/null
++++ b/tests/v2_notify/test_s4b_09_scope.py
+@@ -0,0 +1,11 @@
++"""TRIAL placeholder of the S4-B range test (only so that the range chain sees an open last range)."""
++import unittest
++
++START = "6ad609fe52b50565103e56c598505cac85601216"
++END = None
++REV = END or "HEAD"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_placeholder(self):
++        self.assertIsNone(END)
+diff --git a/v2_notify/__init__.py b/v2_notify/__init__.py
+new file mode 100644
+index 0000000..f954607
+--- /dev/null
++++ b/v2_notify/__init__.py
+@@ -0,0 +1,4 @@
++"""TRIAL of S4-B (not a request, not adopted): notice text, a local outbox with a single send right, and the job."""
++from .compose import compose_notice, compose_error_notice
++from .outbox import LocalOutbox
++from .job import morning_job, resend
+diff --git a/v2_notify/compose.py b/v2_notify/compose.py
+new file mode 100644
+index 0000000..9e694b6
+--- /dev/null
++++ b/v2_notify/compose.py
+@@ -0,0 +1,48 @@
++"""TRIAL. The notice: kind (MORNING = a judgment, HALT = no judgment, ERROR = no report), its key date and its text."""
++import hashlib
++from v2_daily_run import DONE
++
++MORNING, HALT, ERROR = "morning", "halt", "error"
++_UNSURE = ("run_publish_uncertain", "run_publish_conflict")
++
++
++class Notice(object):
++    def __init__(self, kind, d, text, outcome, code):
++        self.kind, self.d, self.text, self.outcome, self.code = kind, d, text, outcome, code
++        self.sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def _missing_lines(report, only_without_gap):
++    out = []
++    for day in report.consumed:
++        if day.skipped_sessions and not (only_without_gap and day.gap):
++            out.append("  %s の前に、F&Gの記録が無いセッションがありました: %s"
++                       % (day.d, "、".join(day.skipped_sessions)))
++    return (["【F&Gの記録の欠け】"] + out) if out else []
++
++
++def compose_notice(report, sessions, now):
++    head = "【SOXL日次】対象D=%s" % report.target_d
++    if report.outcome == DONE:
++        lines = [head]
++        nxt = sessions.next(report.target_d)
++        if report.target_status == "NO_COMMIT" and nxt is not None and now >= nxt.open_at:
++            lines.append("※この実行は対象Dの次の寄付き（%s）の後です。下の分岐表の寄付きは過ぎています。"
++                         % nxt.open_at.isoformat())
++        lines += _missing_lines(report, only_without_gap=True)
++        lines.append(report.message)
++        return Notice(MORNING, report.target_d, "\n".join(lines), report.outcome, None)
++    lines = [head + " ／判定なし"] + _missing_lines(report, only_without_gap=False)
++    if report.code in _UNSURE:
++        lines.append("※最後の日の保存は確認できていません。")
++    if report.code == "target_not_after_boundary":
++        lines.append("※対象Dは記録の開始境界の日です。次のセッションから処理します（異常ではありません）。")
++    lines.append(report.message)
++    return Notice(HALT, report.target_d, "\n".join(lines), report.outcome, report.code)
++
++
++def compose_error_notice(now, code, type_name):
++    d = now.date().isoformat()
++    text = ("【SOXL日次】判定なし（実行の誤り）\n  今朝は結果を出していません。条件未達ではありません。\n"
++            "  理由: %s%s" % (code, "" if type_name is None else "（%s）" % type_name))
++    return Notice(ERROR, d, text, None, code)
+diff --git a/v2_notify/job.py b/v2_notify/job.py
+new file mode 100644
+index 0000000..2e65c76
+--- /dev/null
++++ b/v2_notify/job.py
+@@ -0,0 +1,59 @@
++"""TRIAL. The morning job: run S4-A, compose one notice, take the send right, send through the injected sender, record.
++The sender returns "SENT" or "NOT_STARTED"; anything else (another value, an exception) is UNKNOWN. Never resends."""
++from v2_core.errors import CoreError
++from v2_daily_run import RunError, run_morning
++from .compose import ERROR, HALT, MORNING, Notice, compose_error_notice, compose_notice
++from .outbox import NONE, NOT_SENT, SENT, UNKNOWN
++
++
++def _send(sender, text):
++    try:
++        r = sender.send(text)
++    except Exception:
++        return UNKNOWN
++    return SENT if r == "SENT" else NOT_SENT if r == "NOT_STARTED" else UNKNOWN
++
++
++def _deliver(outbox, sender, notice, now):
++    if notice.kind != MORNING and notice.kind != ERROR:
++        st, _c = outbox.state(notice.d, MORNING)
++        if st != NONE:
++            return "SKIPPED_JUDGMENT_EXISTS"
++    claim_id = outbox.claim(notice, now)
++    if claim_id is None:
++        return "SKIPPED_CLAIMED"
++    status = _send(sender, notice.text)
++    outbox.record(notice.d, notice.kind, claim_id, status, now)
++    return status
++
++
++def morning_job(store, outbox, sender, now, series, sessions, raw):
++    err, exc = None, None
++    try:
++        report = run_morning(store, now, series, sessions, raw)
++    except RunError as e:
++        report, err = None, (e.code, None)
++    except Exception as e:                      # a program error: notify without the text, then raise it again
++        report, err, exc = None, ("unexpected_error", type(e).__name__), e
++    notice = compose_notice(report, sessions, now) if report is not None else compose_error_notice(now, *err)
++    status = _deliver(outbox, sender, notice, now)
++    if exc is not None:
++        raise exc
++    return report, notice, status
++
++
++def resend(outbox, sender, d, kind, resend_id, now):
++    st, claim = outbox.state(d, kind)
++    if claim is None or st == SENT:
++        return "REFUSED_" + st
++    for rid in outbox.resend_ids(d, kind):
++        if outbox.state(d, kind, rid)[0] == SENT:
++            return "REFUSED_ALREADY_RESENT"
++    n = Notice(kind, d, "【再送】元の通知の送信を確認できなかったため、同じ内容を送ります。\n" + claim["text"],
++               claim["outcome"], claim["code"])
++    cid = outbox.claim(n, now, resend_id, claim["claim_id"])
++    if cid is None:
++        return "SKIPPED_CLAIMED"
++    status = _send(sender, n.text)
++    outbox.record(d, kind, cid, status, now, resend_id)
++    return status
+diff --git a/v2_notify/outbox.py b/v2_notify/outbox.py
+new file mode 100644
+index 0000000..124df49
+--- /dev/null
++++ b/v2_notify/outbox.py
+@@ -0,0 +1,93 @@
++"""TRIAL. A local outbox in one explicit directory. A claim and a result are created exclusively (never replaced)."""
++import json, os, secrets
++from v2_core.errors import CoreError
++from v2_persistence.local.fsops import FileOps
++
++NONE, CLAIMED, SENT, NOT_SENT, UNKNOWN, DAMAGED = "NONE", "CLAIMED", "SENT", "NOT_SENT", "UNKNOWN", "DAMAGED"
++
++
++class OutboxError(CoreError):
++    pass
++
++
++def _cj(x):
++    return json.dumps(x, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
++
++
++class LocalOutbox(object):
++    def __init__(self, root, _ops=None):
++        self._root, self._ops = root, _ops or FileOps()
++
++    def _path(self, name):
++        return os.path.join(self._root, name)
++
++    def _create(self, name, obj):
++        """True if this call created the file; False if something is already there."""
++        try:
++            fd = self._ops.create_exclusive(self._path(name))
++        except FileExistsError:
++            return False
++        except OSError:
++            err = OutboxError("outbox_io_error", "outbox")
++        else:
++            err = None
++        if err is not None:
++            raise err
++        w = self._ops.open_writer(fd)
++        try:
++            data = _cj(obj)
++            n = 0
++            while n < len(data):
++                n += self._ops.write(w, data[n:])
++            self._ops.flush(w)
++            self._ops.fsync_file(w)
++        finally:
++            self._ops.close(w)
++        self._ops.fsync_dir(self._root)
++        return True
++
++    def _read(self, name):
++        try:
++            data, _st = self._ops.read_file(self._path(name))
++        except FileNotFoundError:
++            return None
++        try:
++            return json.loads(data.decode("utf-8"))
++        except ValueError:
++            return DAMAGED
++
++    @staticmethod
++    def _base(d, kind, resend_id=None):
++        return "%s-%s" % (d, kind) + ("" if resend_id is None else ".resend-%s" % resend_id)
++
++    def state(self, d, kind, resend_id=None):
++        base = self._base(d, kind, resend_id)
++        claim = self._read(base + ".claim.json")
++        if claim is None:
++            return NONE, None
++        if claim is DAMAGED:
++            return DAMAGED, None
++        result = self._read(base + ".result.json")
++        if result is None:
++            return UNKNOWN, claim                 # an intent without a result: maybe sent
++        if result is DAMAGED or result.get("claim_id") != claim["claim_id"]:
++            return DAMAGED, claim
++        return result["status"], claim
++
++    def resend_ids(self, d, kind):
++        pre, out = self._base(d, kind) + ".resend-", []
++        for n in sorted(self._ops.listdir(self._root)):
++            if n.startswith(pre) and n.endswith(".claim.json"):
++                out.append(n[len(pre):-len(".claim.json")])
++        return out
++
++    def claim(self, notice, now, resend_id=None, resend_of=None):
++        claim_id = secrets.token_hex(16)
++        body = {"kind": notice.kind, "d": notice.d, "claim_id": claim_id, "text": notice.text,
++                "text_sha256": notice.sha256, "outcome": notice.outcome, "code": notice.code,
++                "claimed_at": now.isoformat(), "resend_of": resend_of}
++        return claim_id if self._create(self._base(notice.d, notice.kind, resend_id) + ".claim.json", body) else None
++
++    def record(self, d, kind, claim_id, status, now, resend_id=None):
++        return self._create(self._base(d, kind, resend_id) + ".result.json",
++                            {"claim_id": claim_id, "status": status, "recorded_at": now.isoformat()})
+diff --git a/trial_probes/s4b_len.py b/trial_probes/s4b_len.py
+new file mode 100644
+index 0000000..a9f86b4
+--- /dev/null
++++ b/trial_probes/s4b_len.py
+@@ -0,0 +1,20 @@
++import os, sys, tempfile
++from datetime import datetime
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")): sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++from v2_notify import LocalOutbox, morning_job
++D, TZ = P.DATES, P.TZ
++class S(object):
++    def __init__(self): self.t = []
++    def send(self, text): self.t.append(text); return "SENT"
++for case in ("waiting", "decided"):
++    w = P.World(0); h, o = tempfile.mkdtemp(dir=os.environ["TMPDIR"]), tempfile.mkdtemp(dir=os.environ["TMPDIR"])
++    HistoryFileStore(h, writable=True).initialize(publish_genesis(w.start_after, w.sessions))
++    w.ledger += [P.obs("R%d" % i, D[i], 30.0) for i in range(1, 3 if case == "waiting" else 4)]
++    s = S(); y, m, d = (int(x) for x in D[3].split("-"))
++    morning_job(HistoryFileStore(h, writable=True), LocalOutbox(o), s, datetime(y, m, d, 18, tzinfo=TZ), w.series, w.sessions, w.ledger)
++    print(case, "chars", len(s.t[-1]), "lines", len(s.t[-1].splitlines()))
++print(s.t[-1][:600])
+diff --git a/trial_probes/s4b_race.py b/trial_probes/s4b_race.py
+new file mode 100644
+index 0000000..7fbc55a
+--- /dev/null
++++ b/trial_probes/s4b_race.py
+@@ -0,0 +1,41 @@
++"""N processes run the trial morning job at once on one history root and one outbox root; count the sends."""
++import os, sys, subprocess, tempfile, shutil, time, json
++from datetime import datetime
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")):
++    sys.path.insert(0, p)
++import p_helpers as P
++D, TZ = P.DATES, P.TZ
++def now():
++    y, m, d = (int(x) for x in D[6].split("-")); return datetime(y, m, d, 18, tzinfo=TZ)
++def world():
++    w = P.World(0); w.ledger += [P.obs("R%d" % i, D[i], 30.0) for i in range(1, 6)]; return w
++if len(sys.argv) > 2:
++    h, o, sync, i, logf = sys.argv[2:7]
++    from v2_history_local import HistoryFileStore
++    from v2_notify import LocalOutbox, morning_job
++    class S(object):
++        def send(self, text):
++            with open(logf, "a") as f: f.write(json.dumps(text.splitlines()[0]) + "\n")
++            return "SENT"
++    w = world()
++    open(os.path.join(sync, "ready." + i), "w").close()
++    while not os.path.exists(os.path.join(sync, "go")): time.sleep(0.001)
++    r, n, s = morning_job(HistoryFileStore(h, writable=True), LocalOutbox(o), S(), now(), w.series, w.sessions, w.ledger)
++    print(r.outcome, r.code, n.kind, s); sys.exit(0)
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++N, K, TMP = int(os.environ.get("N", 4)), int(os.environ.get("K", 20)), os.environ["TMPDIR"]
++summary = {}
++for k in range(K):
++    h, o, sync = (tempfile.mkdtemp(dir=TMP) for _ in range(3)); logf = os.path.join(sync, "sent.log")
++    w = world(); HistoryFileStore(h, writable=True).initialize(publish_genesis(w.start_after, w.sessions))
++    ps = [subprocess.Popen([sys.executable, "-B", __file__, ROOT, h, o, sync, str(i), logf], stdout=subprocess.PIPE, text=True) for i in range(N)]
++    while len([x for x in os.listdir(sync) if x.startswith("ready.")]) < N: time.sleep(0.01)
++    open(os.path.join(sync, "go"), "w").close()
++    outs = [p.communicate()[0].strip() for p in ps]
++    sent = open(logf).read().splitlines() if os.path.exists(logf) else []
++    key = (len(sent), tuple(sorted("judgment" if "判定なし" not in json.loads(x) else "halt" for x in sent)))
++    summary[key] = summary.get(key, 0) + 1
++    for d in (h, o, sync): shutil.rmtree(d)
++print("N=%d K=%d" % (N, K), summary)
+diff --git a/trial_probes/s4b_trial.py b/trial_probes/s4b_trial.py
+new file mode 100644
+index 0000000..290674f
+--- /dev/null
++++ b/trial_probes/s4b_trial.py
+@@ -0,0 +1,83 @@
++"""S4-B trial scenarios: real S4-A + real C-3 store + trial outbox + fake sender."""
++import os, sys, tempfile, shutil
++from datetime import datetime, timedelta
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence"), os.path.join(ROOT, "tests", "v2_history")):
++    sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_local import HistoryFileStore
++from v2_history_publish import publish_genesis
++from v2_notify import LocalOutbox, morning_job, resend
++D, TZ = P.DATES, P.TZ
++TMP = os.environ["TMPDIR"]
++
++class Sender(object):
++    def __init__(self, mode="SENT"):
++        self.mode, self.sent = mode, []
++    def send(self, text):
++        self.sent.append(text)
++        if self.mode == "RAISE":
++            raise TimeoutError("timeout")
++        return self.mode
++
++def at(d, h=18, m=0):
++    y, mo, dd = (int(x) for x in d.split("-")); return datetime(y, mo, dd, h, m, tzinfo=TZ)
++
++def setup(unconfirmed=()):
++    w = P.World(0, unconfirmed=unconfirmed)
++    hroot, oroot = tempfile.mkdtemp(dir=TMP), tempfile.mkdtemp(dir=TMP)
++    st = HistoryFileStore(hroot, writable=True); st.initialize(publish_genesis(w.start_after, w.sessions))
++    return w, st, LocalOutbox(oroot), hroot, oroot
++
++def job(w, st, ob, snd, now):
++    r, n, s = morning_job(st, ob, snd, now, w.series, w.sessions, w.ledger)
++    return (r.outcome if r else None), n.kind, s
++
++# 1 normal then the same morning twice more: one send
++w, st, ob, h, o = setup(); s = Sender()
++w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R2", D[2], 31.0)]
++print("1a", job(w, st, ob, s, at(D[3])), "1b", job(w, st, ob, s, at(D[3])), "1c", job(w, st, ob, s, at(D[3])), "sends", len(s.sent))
++print("   files", sorted(os.listdir(o)))
++# 2 STALE (D4 unconfirmed), D2 missing -> halt notice lists D2; later D4 confirmed -> judgment for D4 still sent
++w, st, ob, h, o = setup(unconfirmed=(D[4],)); s = Sender()
++w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R3", D[3], 31.0)]
++r = job(w, st, ob, s, at(D[4])); print("2a", r, "D2 in text:", D[2] in s.sent[-1])
++w.sessions = P.make_sessions()      # D4 confirmed now
++r = job(w, st, ob, s, at(D[4], 19)); print("2b", r, "sends", len(s.sent))
++r = job(w, st, ob, s, at(D[4], 20)); print("2c rerun", r, "sends", len(s.sent))
++# 3 judgment sent, then a later run of the same D stops (store busy) -> no halt notice
++open(os.path.join(h, "write.lock"), "wb").write(b"x")
++r = job(w, st, ob, s, at(D[4], 21)); print("3", r, "sends", len(s.sent))
++os.unlink(os.path.join(h, "write.lock"))
++# 4 sender times out -> UNKNOWN, rerun never sends, resend once by id, same id again refused/skipped
++w, st, ob, h, o = setup(); s = Sender("RAISE")
++w.ledger += [P.obs("R1", D[1], 30.0)]
++print("4a", job(w, st, ob, s, at(D[2])), "4b", job(w, st, ob, s, at(D[2])), "sends", len(s.sent))
++s.mode = "SENT"
++print("4c resend", resend(ob, s, D[2], "morning", "req1", at(D[2], 22)), "4d same id", resend(ob, s, D[2], "morning", "req1", at(D[2], 23)),
++      "4e new id", resend(ob, s, D[2], "morning", "req2", at(D[2], 23)), "sends", len(s.sent))
++# 5 NOT_STARTED -> NOT_SENT, resend allowed
++w, st, ob, h, o = setup(); s = Sender("NOT_STARTED"); w.ledger += [P.obs("R1", D[1], 30.0)]
++print("5", job(w, st, ob, s, at(D[2])), ob.state(D[2], "morning")[0])
++# 6 run after the next open with no decision -> line about the passed open
++w, st, ob, h, o = setup(); s = Sender()
++y = D[3]; nxt = w.sessions.next(y).open_at
++r = job(w, st, ob, s, nxt + timedelta(minutes=5)); print("6", r, "passed-open line:", "寄付き" in s.sent[-1].splitlines()[1])
++# 7 RunError (naive now is not possible through the job; use no closed session) -> error notice once per UTC day
++w, st, ob, h, o = setup(); s = Sender()
++early = at(P.DATES[0], 1)
++try:
++    print("7a", job(w, st, ob, s, early - timedelta(days=30)), "7b", job(w, st, ob, s, early - timedelta(days=30)), "sends", len(s.sent))
++except Exception as e:
++    print("7 raised", type(e).__name__, e)
++# 8 program error inside run_morning -> error notice sent, then the exception goes on
++class BadSeries(object):
++    def through(self, d): raise ZeroDivisionError("boom /secret/path")
++w, st, ob, h, o = setup(); s = Sender(); w.ledger += [P.obs("R1", D[1], 30.0)]
++try:
++    morning_job(st, ob, s, at(D[2]), BadSeries(), w.sessions, w.ledger)
++except ZeroDivisionError:
++    print("8 raised after notice; sent", len(s.sent), "no path in text:", "/secret" not in s.sent[-1])
++# 9 first APPLY after GENESIS with a skipped day (gap False) is listed in a DONE notice
++w, st, ob, h, o = setup(); s = Sender(); w.ledger += [P.obs("R2", D[2], 30.0)]
++r = job(w, st, ob, s, at(D[3])); print("9", r, "D1 listed:", D[1] in s.sent[-1])
