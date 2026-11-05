@@ -1,0 +1,10 @@
+Z1 live bar of the open session | failure: input_calendar_data_mismatch detail=2026-07-23 | run: STOPPED input_calendar_data_mismatch halt SENT | pinned_by: None through: None
+   control (no live bar) | failure: None | run: DONE None morning SENT | pinned_by: this through: 2026-07-22
+Z2 live bar + separate live row | failure: input_market_response_invalid detail=None | run: STOPPED input_market_response_invalid halt SENT | pinned_by: None through: None
+   control (no live bar) | failure: None | run: DONE None morning SENT | pinned_by: this through: 2026-07-22
+Z3 next D after a whole-history adjustment | failure: None | run: DONE None morning SENT | pinned_by: this through: 2026-07-24
+   same morning rerun (unadjusted fetch) | failure: None | run: DONE None morning SKIPPED_CLAIMED | pinned_by: existing through: 2026-07-24
+Z4 early close of a consumed day added to the table | failure: None | run: STOPPED session_context_mismatch halt SENT | pinned_by: this through: 2026-07-24
+Z5 through ahead of the rows | failure: None | run: STOPPED target_row_missing halt SENT | pinned_by: existing through: 2026-12-31
+   sessions confirmed after now: 112
+Z6 raised: TypeError 
