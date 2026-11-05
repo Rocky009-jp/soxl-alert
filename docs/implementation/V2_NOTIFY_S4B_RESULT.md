@@ -450,3 +450,21 @@ F&G現在値（目視）: 28（decision、observed_at=2026-03-06T01:00:00+00:00�
   - 再送は、元の実行がまだ走っている（意図だけがある）ときもUNKNOWNとして受け付ける（設計§13のP-08は記録のみ）。
   - 意図の作成が途中で止まると（`write`の後など）、そのファイルは空・途中までで、DAMAGEDになる。送らない側に倒れるだけで、outboxは自動では直さない。手で直す手順は未整備。
 - 設計の意図と違うと分かったことは**ない**。矛盾・範囲外の変更は無く、止めた箇所もない。
+
+## 14. 追補：実装レビューのN-01と再レビューのRN-01の限定修正（2026-11-05）
+
+実装レビュー（記録1f914f9）のN-01（通常）を1回目の修正（3b2c4ea）で、その再レビュー（記録77e9cf8）のRN-01（通常、N-01の残り）を2回目の修正（db5dc46）で直した。どちらも、提案（RP-01〜03・P-01〜P-04など）には手を付けていない。本文（§0〜§13）は修正前の記述のまま残し、数値と記述の訂正はこの節が優先する。
+
+- **N-01（3b2c4ea、`d49a4cc`の次）**：`LocalOutbox(root, durability="strict", *, _ops=None)`。値はC-3と同じ`"strict"`と`"file_sync_only"`の2語だけで、ほかは`notify_args_invalid`。`file_sync_only`は、書く順序とバイトを同じにして、ディレクトリのfsync（§3.3の最後の段）だけを省く。strictの書く順序は§3.3のまま。
+- **RN-01（db5dc46、3b2c4eaの次）**：
+  1. `durability="strict"`のとき、`LocalOutbox`を作った時点（ファイルを作る前）で、C-3の`_publish`と同じ順に確かめる。`ops.is_windows()`が真なら拒む。そうでなければ`ops.probe_dir_sync(root)`を1回呼び、失敗（`OSError`・`CoreError`・`ValueError`）なら拒む。拒むときの誤りは新しいcode `outbox_durability_unsupported`（`NotifyError`、field `durability`、`__context__`・`__cause__`なし）で、何も作らない。`file_sync_only`は確認せず、どの環境でも作れる。既定は`strict`。これで、Windowsで`file_sync_only`を指定し忘れても、最初の朝に意図が残るのではなく、作成時に分かる。
+  2. 試験の補助：`s4b_helpers.MODE`（実際のホストがWindowsなら`file_sync_only`、そうでなければ`strict`）。`Case.outbox()`と子プロセス（`s4b_worker.py`）はこのモードで`LocalOutbox`を作る。strictの手順そのもの（fsync_dirの順序・失敗）を確かめる試験は、`StrictOps`（Windowsでないホストとして振る舞い、ディレクトリ同期は実物、実Windowsでは呼出しを数えるだけ）と`Case.strict_outbox()`で、どのホストでも`strict`を試す。
+  3. 変更したファイル：`v2_notify/outbox.py`、`v2_notify/values.py`（codeの定数1行）、`tests/v2_notify/`の`s4b_helpers.py`・`s4b_worker.py`・`test_s4b_01`・`05`・`06`・`07`・`10`。依頼書§1の許す範囲の中で、ほかのファイルは触れていない。
+- **ランタイムのimport（再レビューRP-01の記録）**：ランタイムの許可が1つ増えた。`v2_persistence.local.store`から`STRICT`・`FILE_SYNC_ONLY_MODE`の2定数（C-3の`v2_history_local`が同じ場所から同じ2語をimportしている）。静的試験の許可リストに足した。S4B-17の依頼書の許可（`fsops`）より広い。ほかのimport・OSへの経路は変えていない。ファイル操作の呼出しは`probe_dir_sync`と`is_windows`が使う集合に加わった。
+- **新規の件数**：新しいDurabilityの試験は、N-01で6件、RN-01で8件になり（`test_s4b_06_outbox_faults`）、新規は**123→131件**、全体は**2,472→2,480件**（既存2,253＋S4-A 96＋S4-B 131）。途中の3b2c4eaは129件・2,478件。§0・§7・§8の「123件」「2,472件」は、この追補の前の値。
+- **試験した版**：修正コミット `db5dc4692dbdc77c87d751e31e76edc8a54c4c74`。完全な履歴の別クリーンクローン（`core.autocrlf=false`）で、Python 3.10.20／3.11.18／3.12.3／3.13.18の4版とも17スイートが全件合格（2,480件、失敗0・エラー0・新規のskip 0、`runall.sh`の終了コード0）。ログは`s4b_notify_20261105/rn01_runall_py3.{10,11,12,13}.log`。1回目の修正のログは`n01_runall_py*.log`。
+- **Windows相当の模擬**：`FileOps.is_windows`を真にし、`fsync_dir`・`probe_dir_sync`を`PermissionError`にした同じプロセスで`test_s4b_01`〜`07`（98件）を実行：補助が`file_sync_only`を選び、**失敗0・エラー0**（`rn01/windir_suite.py`、3.12・3.13）。修正前（3b2c4ea）は、再レビューの報告で96件中71件が失敗していた。`test_s4b_08`（子プロセス）は、この模擬では実行していない。
+- **欠陥注入（RN-01の部分）**：strictで作成時にWindowsを確かめない／`probe_dir_sync`を呼ばない／strictの確認ごと外す／確認の例外を`OSError`だけにする、の4件を、`test_s4b_06`・`test_s4b_01`で検出した（1件目は1件、2・3件目は4件、4件目は1件の試験が落ちた）。1回目の修正では、F01〜F03・F05（fsync_dirの扱い・語の検査・既定）を再レビューが検出している。
+- **記述の訂正**：§13の「`LocalOutbox`はfsync_dirを毎回呼ぶので、ディレクトリのfsyncができない環境ではoutboxが使えない」は、この追補の前までの状態。今は、Windowsなど、ディレクトリのfsyncができない環境では`durability="file_sync_only"`を指定すれば使え、`strict`のままだと作成時に`outbox_durability_unsupported`で拒まれる（何も作らない）。このとき、ディレクトリの内容が電源断のあとも残るという保証は、`file_sync_only`では強くない（C-3のfile_sync_onlyと同じ）。実Windowsでの確認は、引き続き**未実施**。§3.3の書く順序は、strictの場合の順序。
+- **未解決・未実施**：実Windows、O_EXCLとfsync_dirのWindowsでの振る舞い、物理電源断、ユーザーPC、ネットワークドライブ・同期フォルダ。入口のスクリプトでモードを決める段階はS4-E（再レビューの「受領を先にする場合」の持ち越し先）。
+- **保存したもの**：`/mnt/project-files/implementation/s4b_notify_20261105/`に、`n01_*`（1回目）と`rn01_*`・`rn01/`（2回目）のログ・模擬のスクリプト・保護参照の照合。
