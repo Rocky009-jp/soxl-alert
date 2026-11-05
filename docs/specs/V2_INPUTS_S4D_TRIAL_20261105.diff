@@ -107,7 +107,7 @@ index 0000000..5768569
 +    return rows, head
 diff --git a/v2_inputs/load.py b/v2_inputs/load.py
 new file mode 100644
-index 0000000..86d4ef2
+index 0000000..0df4f84
 --- /dev/null
 +++ b/v2_inputs/load.py
 @@ -0,0 +1,144 @@
@@ -149,12 +149,12 @@ index 0000000..86d4ef2
 +    return store if failure is None else _Guard(store, failure)
 +
 +
-+def _last_complete(sessions_closed, by_symbol, now):
++def _last_complete(sessions_all, sessions_closed, by_symbol, now):
 +    """The last session date (in order, without a hole) with a row for every symbol; InputError for a hole followed by
-+    data, or a data day the calendar does not have."""
++    data, or a data day the table does not have (checked against every table session, not only the closed ones)."""
 +    last, hole = None, None
-+    table = set(s.date for s in sessions_closed)
-+    first = sessions_closed[0].date if sessions_closed else None
++    table = set(s.date for s in sessions_all)
++    first = sessions_all[0].date if sessions_all else None
 +    for s in SYMBOLS[:3]:
 +        extra = [d for d in by_symbol[s] if first is not None and d >= first and d not in table]
 +        if extra:
@@ -185,7 +185,7 @@ index 0000000..86d4ef2
 +    return True
 +
 +
-+def _fetch_all(fetch, end):
++def _fetch_all(fetch, end, target):
 +    """({symbol: rows}, None) or (None, InputError); a fetch exception is input_market_fetch_failed."""
 +    out = {}
 +    for s in SYMBOLS:
@@ -195,7 +195,7 @@ index 0000000..86d4ef2
 +            data = _FAILED
 +        if data is _FAILED:
 +            return None, InputError("input_market_fetch_failed", "market")
-+        out[s] = parse_chart(data, s)[0]
++        out[s] = parse_chart(data, s, through=target)[0]
 +    if PREHISTORY_START not in out["SOXX"]:
 +        return None, InputError("input_market_history_short", "market", detail=PREHISTORY_START)
 +    return out, None
@@ -222,10 +222,10 @@ index 0000000..86d4ef2
 +            prov["pinned_by"] = "existing"
 +        else:
 +            prov["fetch_count"] = len(SYMBOLS)
-+            fetched, err = _fetch_all(fetch, end)
++            fetched, err = _fetch_all(fetch, end, target)
 +            if err is not None:
 +                raise err
-+            last = _last_complete(closed, fetched, now)
++            last = _last_complete(skeleton.sessions, closed, fetched, now)
 +            if last is not None and (through is None or last > through):
 +                data = snapshot_bytes(last, fetched)
 +                if not pin.pin(head, data, last):
@@ -257,10 +257,10 @@ index 0000000..86d4ef2
 +    return Inputs(series, sessions, raw if failure is None else [], failure, prov)
 diff --git a/v2_inputs/market.py b/v2_inputs/market.py
 new file mode 100644
-index 0000000..98a4cff
+index 0000000..810f2fc
 --- /dev/null
 +++ b/v2_inputs/market.py
-@@ -0,0 +1,140 @@
+@@ -0,0 +1,143 @@
 +"""TRIAL. Market series from Yahoo chart (v8) JSON bytes, the pinned snapshot on refs/heads/<ref> (market.json)."""
 +import datetime as dt, hashlib, json, math
 +from v2_core.errors import InputError
@@ -305,8 +305,9 @@ index 0000000..98a4cff
 +    return ts, close, adj
 +
 +
-+def parse_chart(data, symbol):
-+    """{date: (close, adjclose)} of one symbol from PREHISTORY_START; a day with a null value has no row."""
++def parse_chart(data, symbol, through=None):
++    """{date: (close, adjclose)} of one symbol from PREHISTORY_START to `through` (the target D); a row after `through`
++    (the bar of a session still open, or Yahoo's separate live row) is dropped before any check; a null value has no row."""
 +    cols = _columns(data, symbol)
 +    if cols is None:
 +        raise InputError("input_market_response_invalid", "market")
@@ -316,6 +317,8 @@ index 0000000..98a4cff
 +            raise InputError("input_market_response_invalid", "market")
 +        utc = dt.datetime.fromtimestamp(t, dt.timezone.utc)
 +        day = (utc + ny_offset(utc.date())).date().isoformat()
++        if through is not None and day > through:
++            continue                                  # after the target D: not checked, not pinned (N-01)
 +        if day in seen:
 +            raise InputError("input_market_response_invalid", "market")
 +        seen.add(day)
@@ -668,10 +671,10 @@ index 0000000..3c1601c
 +halt = [t for t in s.sent if "input_market_fetch_failed" in t][0]; print("--- halt text ---"); print(halt)
 diff --git a/trial_probes/s4d_extra.py b/trial_probes/s4d_extra.py
 new file mode 100644
-index 0000000..38e99e2
+index 0000000..e83fd06
 --- /dev/null
 +++ b/trial_probes/s4d_extra.py
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,48 @@
 +"""S4-D trial, the checks added with the second draft: args, chart_url, git failure, history start, provenance, context."""
 +import sys, os, json, tempfile, subprocess, datetime as dt
 +ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT)
@@ -708,14 +711,18 @@ index 0000000..38e99e2
 +    return json.dumps({"chart": {"result": [{"meta": {"symbol": symbol}, "timestamp": ts,
 +        "indicators": {"quote": [{"close": [10.0] * len(ts)}], "adjclose": [{"adjclose": [10.0] * len(ts)}]}}]}}).encode()
 +from v2_inputs.load import _fetch_all
-+got, err = _fetch_all(lambda s, a, b: body(s, ["2010-02-12", "2026-07-21"]), "2026-07-22"); print("short:", err.code, err.detail, err.__context__)
-+got, err = _fetch_all(lambda s, a, b: body(s, ["2009-01-02", "2010-02-11"]), "2026-07-22"); print("before start dropped:", sorted(got["SOXX"]), err)
++got, err = _fetch_all(lambda s, a, b: body(s, ["2010-02-12", "2026-07-21"]), "2026-07-22", "2026-07-21"); print("short:", err.code, err.detail, err.__context__)
++got, err = _fetch_all(lambda s, a, b: body(s, ["2009-01-02", "2010-02-11"]), "2026-07-22", "2026-07-21"); print("before start dropped:", sorted(got["SOXX"]), err)
 +try: M.parse_chart(body("SOXX", ["2026-07-21", "2026-07-21"]), "SOXX")
 +except InputError as e: print("duplicate:", e.code, e.__context__)
 +try: M.parse_chart(b"\xff", "SOXX")
 +except InputError as e: print("not utf8:", e.code, e.__context__)
 +try: M.parse_chart("text", "SOXX")
 +except InputError as e: print("not bytes:", e.code)
++# N-01: rows after the target D are dropped before the checks (a duplicate or a bad value there is not an error)
++rows, _ = M.parse_chart(body("SOXX", ["2026-07-21", "2026-07-22", "2026-07-22"]), "SOXX", through="2026-07-21"); print("after target dropped:", sorted(rows))
++try: M.parse_chart(body("SOXX", ["2026-07-21", "2026-07-21", "2026-07-22"]), "SOXX", through="2026-07-21")
++except InputError as e: print("duplicate within target still invalid:", e.code)
 diff --git a/trial_probes/s4d_equal.py b/trial_probes/s4d_equal.py
 new file mode 100644
 index 0000000..a6bb642

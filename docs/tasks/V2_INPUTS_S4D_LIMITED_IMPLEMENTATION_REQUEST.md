@@ -1,7 +1,7 @@
 # V2 S4-D 朝の実行の入力（セッション・市場データ・台帳） 限定実装依頼書
 
-作成日：2026-11-05（日本時間）。版：**初版**。作成：Claude Opus 5.5、effort high。
-状態：**初版・未採用**。設計§13のD-1〜D-10は採用されていない。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
+作成日：2026-11-05（日本時間）。版：**第2版**（初版fad0f5bへのレビュー33894b2の通常N-01と提案P-01を反映。§2、§3の2・5・7・8、S4D-05(g)・S4D-12(d)、欠陥注入21・22、§7・§8。ほかは初版と同じ）。作成：Claude Opus 5.5、effort high。
+状態：**第2版・未採用**。設計§13のD-1〜D-10は採用されていない（採用の記録は第2版の差分の再レビューの後。設計§15）。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
 対になる設計はdocs/specs/V2_INPUTS_S4D_DESIGN_DRAFT.md（以下「設計」）。本段階はS4-Dだけを実装する。中身は次の4つである。
 
 - XNYSのセッションを表と夏時間の規則から作る`xnys.py`。
@@ -51,7 +51,7 @@
 次の範囲へ広げない。
 
 - HTTPの取得（URLを開く、ソケット、プロキシ、User-Agent、再試行、時間切れ）。ネットワーク越しのgit。GitHubのAPI。資格情報・トークン・環境変数の読込み。入口のスクリプト・CLI・workflow。
-- 台帳への書込み（ランナーは読むだけ）。休場日の表を、設計§4.1の表と違う内容にすること（照合の結果で直す場合も、S4-Eの前の別の判断にする）。
+- 台帳への書込み（ランナーは読むだけ）。休場日の表を、設計§4.1の表と違う内容にすること（表はICEの公式発表と照合済み。直す必要を見つけたら、直さずに止めて報告する）。
 - 時計の読込み、sleep、時間を置いた再試行、強制push、参照の削除。
 - 受領済みのパッケージの変更。前の段階の提案（S4-B実装レビューP-01等、設計§10.2）の修正。
 
@@ -68,10 +68,10 @@
    | `input_calendar_ended` | `calendar` | 投げる | `now`のUTCの日付が`CALENDAR_END`より後（設計§4.2） |
    | `input_calendar_not_covered` | `calendar` | 返す | `now`＋14日が`CALENDAR_END`より後 |
    | `input_market_fetch_failed` | `market` | 返す | `fetch`が例外を出した |
-   | `input_market_response_invalid` | `market` | 返す | 応答がbytesでない、UTF-8・JSONでない、形が違う、`meta.symbol`が違う、列の長さが違う、時刻が整数でない、同じ日付が2つ |
-   | `input_market_value_invalid` | `market` | 返す（detail＝最初の日付） | 値が有限の正の数でない、または`PRICE_MAX`以上（boolは数でない） |
+   | `input_market_response_invalid` | `market` | 返す | 応答がbytesでない、UTF-8・JSONでない、形が違う、`meta.symbol`が違う、列の長さが違う、時刻が整数でない、対象Dまでの行に同じ日付が2つ |
+   | `input_market_value_invalid` | `market` | 返す（detail＝最初の日付） | 対象Dまでの行の値が有限の正の数でない、または`PRICE_MAX`以上（boolは数でない） |
    | `input_market_history_short` | `market` | 返す（detail＝`2010-02-11`） | SOXXに`PREHISTORY_START`の行が無い（系列の始まりが変わるとRSIが変わる。設計§5.1） |
-   | `input_calendar_data_mismatch` | `market` | 返す（detail＝その日） | `CALENDAR_START`以後に、表に無い日のSOXX・SPY・IEFの行がある |
+   | `input_calendar_data_mismatch` | `market` | 返す（detail＝その日） | `CALENDAR_START`以後・対象Dまでに、表の全セッション（閉じていないものを含む）に無い日のSOXX・SPY・IEFの行がある |
    | `input_market_rows_missing` | `market` | 返す（detail＝穴の日） | 表の閉じたセッションに、4記号が揃わない日があり、その後に揃った日がある |
    | `input_market_pin_invalid` | `market` | 返す | 固定の参照に`market.json`が無い・形式が違う |
    | `input_market_pin_failed` | `market` | 返す | 固定のpushが通らず、読み直した固定が自分の日まで届いていない |
@@ -85,10 +85,10 @@
 
 3. **例外の連鎖**：例外の処理の中で新しい例外を投げない。値を作って処理の外で投げ、`InputError`の`__context__`・`__cause__`をNoneにする（S4-Cの§3の7と同じ）。
 4. **時刻**：`load_inputs`は時計を読まない。`now`だけを使い、`clock`はコミットの日時にだけ使う。夏時間は設計§4.1の規則（3月の第2日曜日から11月の第1日曜日の前日まで−4時間、ほかは−5時間）で、zoneinfo・tzdataを使わない。
-5. **セッション**：設計§4.1の表と時刻。`build_sessions(now, confirmed_through)`は、表の全セッション（`CALENDAR_START`から）を返し、`confirmed`は`confirmed_through`以下の日だけ。表の内容から`calendar_sha256`（表の正規の文字列のsha256。文字列の作り方は結果文書に書く）を作る。
+5. **セッション**：設計§4.1の表と時刻。`build_sessions(now, confirmed_through)`は、表の全セッション（`CALENDAR_START`から）を返し、`confirmed`は`confirmed_through`以下の日だけ。表の内容から`calendar_sha256`（表の正規の文字列のsha256。文字列の作り方は結果文書に書く）を作る。表の横に、出典（ICEの発表「NYSE Group Announces 2026, 2027 and 2028 Holiday and Early Closings Calendar」、2025-12-23）と照合の日付（2026-11-05、レビュー33894b2）を注記する（設計§4.1）。
 6. **取得**：`load_inputs`は、固定の`through`が対象D（`now`までに閉じた最後のセッション）より前のときだけ、4記号それぞれについて`fetch(symbol, PREHISTORY_START, end)`を1回ずつ呼ぶ。`end`は`now`のニューヨークの日付の翌日（`YYYY-MM-DD`）。`chart_url(symbol, start, end)`は、`https://query1.finance.yahoo.com/v8/finance/chart/<記号>?period1=<startの0時UTCの秒>&period2=<endの0時UTCの秒>&interval=1d&events=div%2Csplit&includeAdjustedClose=true`を返す純粋な関数で、`load_inputs`は呼ばない（S4-Eの取得の関数が使う）。
-7. **解釈**：設計§5.2。`null`の日は行を作らない。日付は時刻（UTCの秒）をニューヨークの日付にしたもの。`PREHISTORY_START`より前の行は捨てる。
-8. **揃った最後の日**：設計§5.3。表の閉じたセッションを古い順に見て、引けから60分以上たち、4記号が揃った日。60分に満たない日で止まる。
+7. **解釈**：設計§5.2。`parse_chart(data, symbol, through=None)`。日付は時刻（UTCの秒）をニューヨークの日付にしたもの。**`through`より後の日付の行は、同じ日付・値の検査よりも前に捨てる**（固定しない、誤りにもしない。第2版N-01）。`load_inputs`は`through`に対象Dを渡す。`null`の日は行を作らない。`PREHISTORY_START`より前の行は捨てる。
+8. **揃った最後の日**：設計§5.3。表の閉じたセッションを古い順に見て、引けから60分以上たち、4記号が揃った日。60分に満たない日で止まる。表との照合（`input_calendar_data_mismatch`）は、閉じたセッションだけでなく表の全セッションに対して行う（第2版N-01）。
 9. **固定**：設計§5.3。
    - `market.json`は、キーを並べた正規のJSON（`sort_keys`、区切り`,`・`:`、ASCII）で、`schema`＝`v2_inputs.market.1`、`through`、`source`＝`yahoo_chart_v8`、記号ごとの`dates`・`close`・`adjclose`（`PREHISTORY_START`以上、`through`以下）。同じ内容は同じバイト。
    - 揃った最後の日が固定の`through`より後のときだけ、`Git.commit_with`で親＝固定の先頭（無ければ親なし）の木の`market.json`を置き換えるコミット（`replace=True`、メッセージは固定の語と`through`の日付だけ）を作り、`Git.push`で送る。
@@ -111,14 +111,14 @@
 | S4D-02 引数 | §3の2の`input_args_invalid`の各場面で例外になり、`fetch`・`Git`を呼ばない（呼出しの回数0）。`now`が時刻帯なしのdatetime・dateも拒む |
 | S4D-03 暦 | (a) 2026-01-02〜2026-10-01のセッションの日付が、研究のdaily.jsonのSOXXの日付（188日）と一致。(b) 休場日・短縮取引日の集合が設計§4.1の表と一致し、土日のセッションが無い。(c) 寄付き・引けのUTCの時刻を、夏時間の切替えの前後の平日（2026・2027・2028年の3月と11月の各4日）と短縮取引日（2026-11-27は18:00Z、2028-07-03は17:00Z）で確かめる。(d) `confirmed`が`confirmed_through`以下の日だけ。(e) `now`＋14日がちょうど`CALENDAR_END`は失敗なし、1日超えると`input_calendar_not_covered`。`now`のUTCの日付が`CALENDAR_END`の翌日で`input_calendar_ended`。(f) `calendar_sha256`は同じ表で同じ、表の1日を変えると変わる |
 | S4D-04 URLと取得の引数 | `chart_url`が§3の6の文字列そのもの（2つの例）。`load_inputs`が呼ぶ`fetch`の引数が`(記号, "2010-02-11", nowのニューヨークの日付の翌日)`で、4記号を1回ずつ |
-| S4D-05 解釈 | (a) 正しい応答→行。(b) `null`の日は行が無く、誤りにならない。(c) NaN・inf・0・負・`PRICE_MAX`ちょうど・bool・文字列→`input_market_value_invalid`、detailは最初の日付。`PRICE_MAX`未満の最大の例は通る。(d) 形の誤りの各場面（§3の2）→`input_market_response_invalid`。(e) 9:30・16:00・0:00（ニューヨーク）の時刻が、夏時間の前後とも同じ日付になる。(f) `PREHISTORY_START`より前の行は捨てる |
+| S4D-05 解釈 | (a) 正しい応答→行。(b) `null`の日は行が無く、誤りにならない。(c) NaN・inf・0・負・`PRICE_MAX`ちょうど・bool・文字列→`input_market_value_invalid`、detailは最初の日付。`PRICE_MAX`未満の最大の例は通る。(d) 形の誤りの各場面（§3の2）→`input_market_response_invalid`。(e) 9:30・16:00・0:00（ニューヨーク）の時刻が、夏時間の前後とも同じ日付になる。(f) `PREHISTORY_START`より前の行は捨てる。(g) `through`より後の行は、同じ日付が2つでも、値が範囲外でも捨てられ誤りにならない。`through`までに同じ日付が2つあれば誤りのまま |
 | S4D-06 固定の形 | (a) 正規のJSON：同じ内容を違う順で作っても同じバイト、読んで書き直すと同じバイト。(b) `read_snapshot`の誤り（JSONでない、schemaが違う、列の長さが違う、値が範囲外、キーが無い）→`input_market_pin_invalid`。(c) SOXXに2010-02-11の行が無い→`input_market_history_short` |
 | S4D-07 研究との一致 | 研究のデータから作った応答を固定し、固定から読んだ系列の判定の入力（`row(D)`・`soxl_close(D)`・`market_dates`の該当範囲）が、`load_research_fixture(through=D)`と、設計T-4の6日すべてで一致 |
 | S4D-08 固定の進め方 | (a) 最初の実行→`this`、試験側で読んだコミットが親なしで木が`market.json`だけ。(b) 同じ朝の再実行→取得0回、`existing`。(c) 次の対象D→取得4回、新しいコミットの親が前の先頭（早送り）。(d) 取得したが揃った最後の日が`through`より後でない→コミットを作らず、固定済みのバイトから系列を作る。(e) 引けから59分の日は数えず、60分の日は数える |
 | S4D-09 価格改訂 | 同じ対象Dの再実行で、取得先が調整後終値を改訂（試験の応答を0.1%変える）しても、固定済みを使い、`morning_job`はSKIPPED_CLAIMED・送信なしで止まらない。対照として、改訂した系列を直接渡すと`recompute_mismatch`になることを試験で示す（設計T-1） |
 | S4D-10 失敗は判定なし | §3の2の「返す」誤りの各コード（`input_calendar_not_covered`を含む）を作り、`guarded_store`で包んだS4-Cの`GitHistoryStore`と`GitOutbox`の上で`morning_job`を走らせる。どれもSTOPPED（そのコード）、`<D>-halt`の判定なし1通SENT、文面に「理由コード: <コード>（<項目名>）」、リモートの履歴は変わらない。`input_calendar_ended`だけは例外で、`load_inputs`から投げられる |
 | S4D-11 対象Dの行がまだ無い | 対象Dの行が無い応答→失敗なし、対象Dが未確定でSTALE（`run_session_unconfirmed`）、判定なし1通。同じ朝の後の実行で行が揃う→DONE・判定あり1通 |
-| S4D-12 穴と表に無い日 | (a) 前の日に穴、対象Dはある→`input_market_rows_missing`（detail＝穴の日）。直した後の実行→DONE（止まった日を追いついて消費）。(b) 休場日の行→`input_calendar_data_mismatch`（detail＝その日）。(c) 2026年より前の休場日の行は誤りにしない |
+| S4D-12 穴と表に無い日 | (a) 前の日に穴、対象Dはある→`input_market_rows_missing`（detail＝穴の日）。直した後の実行→DONE（止まった日を追いついて消費）。(b) 休場日の行→`input_calendar_data_mismatch`（detail＝その日）。(c) 2026年より前の休場日の行は誤りにしない。(d) 取引時間中（例：ニューヨーク10:40）の取得で、その日の日足が1行ある応答と、同じ日付の2行がある応答→どちらも失敗なし、その日は固定されず、前日のDがDONE・判定あり（レビューの探りZ1・Z2と同じ場面） |
 | S4D-13 固定の競合 | (a) 2つのクローンで同じDを同時に固定（取得の途中で他方が改訂した版を先に固定。設計S11）→負けた方は`other`、両方の`market_sha256`が同じ、判定あり1通。(b) pushがUNCERTAIN（S4C-03(e)のpost-receiveの方法）で届いていた→読み直した版を使う。(c) `v2-market`だけを拒むpre-receive→`input_market_pin_failed`・判定なし1通。(d) 子プロセス2〜4個で各10回以上、同じDの固定のsha256が1つ、判定あり1通まで。回数と結果を結果文書に記録する |
 | S4D-14 台帳 | (a) BOM・CRLF・空の行・前後の空白→受け付け、coreへ渡る値が空白を除いた文字列（数・時刻に変わっていない）。(b) 見出しの誤り、列の数の誤り、UTF-8でない、空のファイル、参照なし、ファイルなし→各コード。(c) `observed_at`が`now`の1秒後→`input_ledger_observation_after_now`、`now`ちょうど→受け付け。(d) 読めない`observed_at`→`load_inputs`は通し、coreの誤りで止まる。(e) `ledger_commit`が試験側で読んだ先頭のSHA。(f) 台帳の参照を読んだ後、リモートの台帳を変えない（ランナーが書かない） |
 | S4D-15 通しの朝 | genesis（2026-07-20）から6回の朝（S4-A・S4-B・S4-Cの受領済みの部品）を`load_inputs`で走らせ、毎回DONE・判定あり1通。同じ6回を、`load_research_fixture`の系列と表のセッション・同じ台帳の行で直接走らせた場合と、各日のRunReportの結果と、最後の`history.json`の各APPLYの判定が一致。バイトが違う部分（入力の出所の記録など）があれば、結果文書に列挙する |
@@ -150,6 +150,8 @@
 18. `GitError`を`input_git_failed`に置き換えない（または「参照なし」として扱う）。
 19. SOXXの始まりの検査（`input_market_history_short`）を外す。
 20. `InputError`を例外の処理の中で投げる（`__context__`が残る）。
+21. 表との照合を、閉じたセッションだけにする（第2版N-01）。
+22. 対象Dより後の行を捨てずに、同じ日付の検査（または表との照合）をする（第2版N-01）。
 
 ## 6. 環境・結果保存・停止
 
@@ -188,7 +190,7 @@ PR・マージ・Actions・本番・非公開リポジトリの作成・GitHub�
 
 ## 7. 読取専用の保護参照
 
-次の104参照を、開始時と保存・push後に完全SHAで照合する。S4-Cの依頼書の99参照に、S4-Cの資料・実装レビュー（受領記録を含む）・レビュー・再レビュー・実装の5本を加えたものである。本書と設計を保存した資料ブランチdocs/v2-inputs-s4d-20261105についても、受け取った版の完全SHAを1本加える。設計・依頼書へのレビュー・再レビューの資料ブランチがあれば、その受け取った版も加える（加えた本数と合計を結果文書に書く）。
+次の104参照を、開始時と保存・push後に完全SHAで照合する。S4-Cの依頼書の99参照に、S4-Cの資料・実装レビュー（受領記録を含む）・レビュー・再レビュー・実装の5本を加えたものである。本書と設計を保存した資料ブランチdocs/v2-inputs-s4d-20261105についても、受け取った版の完全SHAを1本加える。設計・依頼書へのレビュー・再レビューの資料ブランチがあれば、その受け取った版も加える（加えた本数と合計を結果文書に書く）。**実装時は、少なくとも次の2本を加えた106参照**を照合する：資料ブランチdocs/v2-inputs-s4d-20261105の受け取った版（採用記録のコミット）、レビューdocs/v2-inputs-s4d-review-20261105の33894b254c0967cecd69c7efbccc7db8001926f6。第2版の再レビューの資料ブランチがあれば、さらに1本加える。
 
 | 参照 | 完全SHA |
 |---|---|
@@ -307,7 +309,7 @@ PR・マージ・Actions・本番・非公開リポジトリの作成・GitHub�
 
 - D-1：S4-Dの範囲（`v2_inputs`の5ファイルと試験。HTTPの取得と受領済みのパッケージの変更は含めない）。
 - D-2：全体の流れ（`load_inputs`→`guarded_store`→`morning_job`、`now`は入口で1回）。
-- D-3：セッション（表と夏時間の規則、残り14日の検査、表の照合はS4-Eの前の条件）。
+- D-3：セッション（表と夏時間の規則、残り14日の検査。表はICEの公式発表2025-12-23と照合済み）。
 - D-4：取得先と値の定義（Yahoo Financeのchart API v8、始まり2010-02-11、価格の上限）。
 - D-5：価格改訂（`v2-market`への対象Dごとの固定）。
 - D-6：台帳（`v2-ledger`の`observations.csv`）。
