@@ -1,0 +1,9 @@
+Y1 control DONE morning SENT | 2026-07-23 in market.json: False | sha 637ff41fdb67
+Y1 live1 DONE morning SENT | 2026-07-23 in market.json: False | sha 637ff41fdb67
+Y1 live2 DONE morning SENT | 2026-07-23 in market.json: False | sha 637ff41fdb67
+Y1 pinned bytes equal to control: True True
+Y2 inj21 live1 DONE None morning SENT
+Y2 inj21 live2 DONE None morning SENT
+Y2 inj21 holiday row: STOPPED input_calendar_data_mismatch 2026-07-03
+Y3 after-target NaN/null dropped: 2026-07-22 False
+   with through=2026-07-23: input_market_value_invalid 2026-07-23
