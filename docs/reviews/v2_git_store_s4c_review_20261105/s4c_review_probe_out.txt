@@ -1,0 +1,13 @@
+X1 A SENT sends 1
+X1 B (mirror lost the morning files) SENT sends 2
+X1 remote morning claim replaced: True commits on outbox: 5
+X2 STOPPED publication_stale halt SENT concurrent note: True
+X2 push classified as REJECTED
+X3 B publishes the same candidate first: DONE
+X3 A push REJECTED
+X3 A RunReport(outcome=STOPPED, exit_code=1, target_d=2026-03-05, consumed=0, target_status=None, code=publication_stale)
+X4 DONE morning SKIPPED_CLAIMED DAMAGED sends 0 remote morning now: [('morning', 'NONE')]
+X5 run1 STOPPED store_io_error halt SENT | run2 DONE morning SENT | sends: ['【SOXL日次】対象D=2026-03-04 ／判定なし', '【SOXL日次】対象D=2026-03-04']
+X5 run1 halt has a 'later judgment' note: False
+X3' B publish: PUBLISHED
+X3' A publish: PUBLISHED | APPLY count of D1 on the remote: 1

@@ -1,0 +1,12 @@
+To ../o.git
+*	<sha>:refs/heads/s	[new branch]
+Done
+To ../o.git
+!	<sha>:refs/heads/s	[remote rejected] (pre-receive hook declined)
+Done
+To ../o.git
+!	<sha>:refs/heads/s	[rejected] (non-fast-forward)
+Done
+To ../o.git
+=	<sha>:refs/heads/s	[up to date]
+Done
