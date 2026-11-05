@@ -127,7 +127,6 @@ def load_inputs(git, fetch, now, refs, clock):
             provenance["pinned_by"] = "existing"
         else:
             fetched, error = _fetch_all(fetch, end, target, calls)
-            provenance["fetch_count"] = calls[0]
             if error is not None:
                 raise error
             last = _last_complete(skeleton.sessions, closed, fetched, now)
@@ -156,6 +155,7 @@ def load_inputs(git, fetch, now, refs, clock):
         failure = InputError("input_git_failed", "inputs")
     except CoreError as error:
         failure = error
+    provenance["fetch_count"] = calls[0]                       # S4-E (S4-D review P-01): also after a parse error
     if failure is not None:
         series, raw = None, []
     return Inputs(series, build_sessions(now, through), raw, failure, provenance)

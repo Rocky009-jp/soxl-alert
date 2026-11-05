@@ -1,0 +1,103 @@
+# V2 朝の実行 workflow のひな形（S4-E の E-0）。
+# この場所（docs/ops/）は GitHub Actions が読まないので、公開リポジトリでは動かない。
+# E-2 で、Rocky さんの承認の後に、非公開リポジトリの .github/workflows/v2-morning.yml へ写す。
+# E-0 では置くだけで、有効にしない。写す前に、下の「E-2 で確かめる」の3点を確かめる。
+#
+# E-2 で確かめる：
+#   1. actions/checkout の @ の後の 40 桁を、公式のリリースのコミット SHA に書き換える（今は仮の値）。
+#   2. 'queue: max' を GitHub が受け付けるか（最初の push で確かめる）。受け付けなければ、読むだけの
+#      コマンドを別のグループにする形だけで進め、手順書に「待ちの実行があるときは手動の実行をしない」と書く。
+#   3. 非公開リポジトリの state 側のチェックアウトの資格情報で、v2-* の参照への push が通ること。
+#
+# 時刻（D-5）：日本時間 火〜土 7:40 と 8:40（UTC の月〜金 22:40 と 23:40）。1回目（7:40）が、その日の F&G の
+# 記録の締切になる。GitHub の定時の実行は遅れることがある。
+#
+# 秘密（E-4 で足す）：E-0〜E-3 のこのひな形には、秘密を読む行を含めない。E-4 では、環境変数
+# V2_DISCORD_WEBHOOK_URL を、実際のモードが live のときだけ実行のステップへ渡す。step の env は shell より前に
+# 決まるので、同じステップの run で決めた MODE は条件に使えない。前のステップにモードの1行を置き、
+# $GITHUB_OUTPUT へ mode を書き、実行のステップの env で、その値が live のときだけ秘密の値を渡す形にする
+# （または E-4 の直前に決める同じ働きの形）。入口は dry では秘密を読まない。
+name: v2-morning
+
+on:
+  schedule:
+    - cron: "40 22 * * 1-5"   # 日本時間 火〜土 7:40（1回目。F&G の記録の締切）
+    - cron: "40 23 * * 1-5"   # 日本時間 火〜土 8:40（同じ朝の2回目。取得の失敗の取り戻し）
+  workflow_dispatch:           # 手動：morning / status / resend / init / check-source
+    inputs:
+      command:
+        description: "morning / status / resend / init / check-source"
+        type: choice
+        options: [morning, status, resend, init, check-source]
+        default: morning
+      mode:
+        description: "auto は V2_MODE に従う（本番の後も auto のまま。dry を選ぶと送信されない）"
+        type: choice
+        options: [auto, dry, live]
+        default: auto
+      date:
+        description: "status / resend の対象日 YYYY-MM-DD"
+        type: string
+        default: ""
+      kind:
+        description: "resend の種類 morning / halt / error"
+        type: string
+        default: ""
+      request_id:
+        description: "resend の依頼 id（毎回新しい値）"
+        type: string
+        default: ""
+      start_after:
+        description: "init の開始の境界 YYYY-MM-DD（表の閉じたセッション）"
+        type: string
+        default: ""
+
+permissions:
+  contents: write              # この非公開リポジトリだけ（GITHUB_TOKEN）。v2-* の参照へ push する
+
+env:
+  V2_MODE: dry                 # E-5 で live にするコミットが、本番の開始の記録になる
+  V2_CODE_SHA: "0000000000000000000000000000000000000000"   # 公開リポジトリの受領版の 40 桁（仮の値）。変えるコミットが版の採用の記録
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # 書く実行（定時の2回、手動の morning・resend・init）は同じ v2-writer に入れて1つずつ走らせ、待ちを先着順に保つ。
+    # 読むだけの status・check-source は実行ごとの別のグループにする（待ちの実行を取り消さない）。
+    concurrency:
+      group: ${{ (github.event_name == 'workflow_dispatch' && (inputs.command == 'status' || inputs.command == 'check-source')) && format('v2-read-{0}', github.run_id) || 'v2-writer' }}
+      cancel-in-progress: false
+      queue: max
+    steps:
+      # 非公開リポジトリ（台帳と v2-* の参照の置き場所）。資格情報は作業場所の git の設定に残る。
+      - uses: actions/checkout@1111111111111111111111111111111111111111   # E-2 で公式のリリースの SHA を確かめて書く（仮の値）
+        with:
+          path: state
+          persist-credentials: true
+      # 公開リポジトリのコードを、固定の 40 桁で。
+      - uses: actions/checkout@1111111111111111111111111111111111111111   # E-2 で公式のリリースの SHA を確かめて書く（仮の値）
+        with:
+          repository: Rocky009-jp/soxl-alert
+          ref: ${{ env.V2_CODE_SHA }}
+          path: code
+          persist-credentials: false
+      - name: v2_run
+        working-directory: code
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_COMMAND: ${{ inputs.command }}
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_KIND: ${{ inputs.kind }}
+          INPUT_REQUEST_ID: ${{ inputs.request_id }}
+          INPUT_START_AFTER: ${{ inputs.start_after }}
+        run: |
+          case "$EVENT_NAME:$INPUT_MODE" in schedule:*|*:auto) MODE="$V2_MODE";; *) MODE="$INPUT_MODE";; esac
+          CMD="${INPUT_COMMAND:-morning}"
+          args=("$CMD" --mode "$MODE" --workdir "$GITHUB_WORKSPACE/state" --code-version "$V2_CODE_SHA")
+          if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ -n "$INPUT_KIND" ]; then args+=(--kind "$INPUT_KIND"); fi
+          if [ -n "$INPUT_REQUEST_ID" ]; then args+=(--request-id "$INPUT_REQUEST_ID"); fi
+          if [ -n "$INPUT_START_AFTER" ]; then args+=(--start-after "$INPUT_START_AFTER"); fi
+          python3 -E -B -m v2_run "${args[@]}"

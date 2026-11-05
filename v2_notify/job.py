@@ -109,7 +109,7 @@ def morning_job(store, outbox, sender, now, series, sessions, raw_observations):
     else:
         notice = compose_error_notice(target_d or _utc_date(now), error[0], error[1], d_is_target=target_d is not None)
     # a HALT or ERROR notice is not made when a MORNING claim of the same D exists, in any state (DAMAGED included)
-    judgment_known = notice.kind == HALT or (notice.kind == ERROR and target_d is not None)
+    judgment_known = notice.kind in (HALT, ERROR)      # S4-E (S4-B review P-01): the fallback key checks its date too
     judgment = outbox.status(notice.d, MORNING).status if judgment_known else NONE
     if judgment != NONE:
         delivery, send_status, existing = SKIPPED_JUDGMENT_EXISTS, None, judgment
