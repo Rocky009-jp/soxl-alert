@@ -1,0 +1,22 @@
+v2_core rc=0 Ran 197 tests in 5.269s | OK
+v2_persistence rc=0 Ran 170 tests in 13.441s | OK
+v2_persistence_local rc=0 Ran 113 tests in 23.405s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.934s | OK
+v2_history rc=0 Ran 230 tests in 11.536s | OK
+v2_history_ops rc=0 Ran 173 tests in 11.512s | OK
+v2_history_restart rc=0 Ran 109 tests in 7.164s | OK
+v2_history_restore rc=0 Ran 165 tests in 18.031s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 152.034s | OK
+v2_history_adopt rc=0 Ran 170 tests in 14.483s | OK
+v2_scope_chain rc=0 Ran 34 tests in 3.446s | OK
+v2_history_consume rc=0 Ran 112 tests in 8.693s | OK
+v2_history_publish rc=0 Ran 150 tests in 85.616s | OK
+v2_history_local rc=0 Ran 139 tests in 12.503s | OK
+v2_history_maintain rc=0 Ran 184 tests in 248.983s | OK
+v2_daily_run rc=0 Ran 96 tests in 23.359s | OK
+v2_notify rc=0 Ran 131 tests in 90.629s | OK
+v2_git_store rc=0 Ran 118 tests in 192.518s | OK
+
+real	15m33.435s
+user	15m48.454s
+sys	1m14.146s

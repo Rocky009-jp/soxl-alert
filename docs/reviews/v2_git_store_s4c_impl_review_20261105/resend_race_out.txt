@@ -1,0 +1,12 @@
+(n, texts sent, resend claims on the remote, deliveries) -> rounds
+  12 x n=2 sends=2 claims=2 ('SENT', 'SENT')
+  12 x n=3 sends=2 claims=2 ('CLAIM_FAILED', 'SENT', 'SENT')
+  12 x n=4 sends=2 claims=2 ('CLAIM_FAILED', 'CLAIM_FAILED', 'SENT', 'SENT')
+the same id asked again after CLAIM_FAILED -> delivery
+  12 x n=3 REFUSED_ALREADY_SENT
+  24 x n=4 REFUSED_ALREADY_SENT
+----------------------------------------------------------------------
+Ran 1 test in 63.456s
+
+OK
+rc=0

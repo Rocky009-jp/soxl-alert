@@ -1,0 +1,4 @@
+Y5 gaps: the code against request 3.8 / 3.2 where no test pins it
+  V02 publish REJECTED then the fetch fails -> store_io_error (request 3.8: store_io_error)
+  V03 initialize REJECTED and no ref afterwards -> store_io_error (request 3.8: store_io_error)
+  V15 a parent that is a link -> GitError('git_args_invalid:parent',) (request 3.2: git_args_invalid)

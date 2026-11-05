@@ -1,0 +1,7 @@
+5 DETECTED 4 a failed fetch is 'no ref'
+6 DETECTED 4 a refusal after a moved head has a new code
+19 DETECTED 1 the add commit of the outbox replaces a name of the parent's tree
+20 DETECTED 1 a refusal by a rule (head not moved) is publication_stale
+20b DETECTED 4 any refusal is store_io_error (a lost race too)
+E20 UNDETECTED 0 extra: an error of the mirror is not raised (the claim is still sent)
+rc=0

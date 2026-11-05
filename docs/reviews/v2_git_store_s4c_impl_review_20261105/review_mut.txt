@@ -1,0 +1,25 @@
+V01  DETECTED        1  push verdict takes the first of several lines for the ref | FAIL: test_f_fake_answers_of_git (test_s4c_02_git.Push.test_f_fake_answers_of_git)
+V02  NOT_DETECTED    0  history publish: a failed fetch after a refusal is read as a moved head (publication_stale) | 
+V03  NOT_DETECTED    0  history initialize: every refusal is already_initialized (no fetch again) | 
+V04  DETECTED        2  outbox create: an uncertain push that did not arrive (head not moved) ends at once | FAIL: test_d_an_uncertain_push_that_did_not_arrive_is_tried_once_more (test_s4c_05_outbox.Deciding.test_d_an_uncertain_push_that_did_not_arrive_is_tried_once_more)
+V05  DETECTED        2  outbox create: every refusal without the name ends at once (moved head too) | ERROR: test_a_another_key_was_pushed_first_the_claim_is_made_again_and_succeeds (test_s4c_05_outbox.Deciding.test_a_another_key_was_pushed_first_the_claim_is_made_again_and_succeeds)
+V06  DETECTED        2  outbox create: five tries | ERROR: test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent (test_s4c_05_outbox.Deciding.test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent)
+V07  DETECTED        2  outbox create: three tries | FAIL: test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent (test_s4c_05_outbox.Deciding.test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent)
+V08  NOT_DETECTED    0  commit time: a negative offset is written with + | 
+V09  DETECTED        2  fetch without + (not forced into refs/v2remote) | FAIL: test_no_command_of_a_whole_morning_changes_a_branch_the_index_or_the_work_tree (test_s4c_02_git.Fetch.test_no_command_of_a_whole_morning_changes_a_branch_the_index_or_the_work_tree)
+V10  DETECTED        1  history reconcile: a missing ref is store_uninitialized instead of the C-2 reconciliation of nothing | ERROR: test_a_ref_that_does_not_exist_is_uninitialized (test_s4c_03_history.InitializeAndRead.test_a_ref_that_does_not_exist_is_uninitialized)
+V11  NOT_DETECTED    0  outbox initialize: an uncertain push is done when the ref exists, whatever its marker | 
+V12  DETECTED        1  mirror: a name that is not a plain name is not refused | FAIL: test_c_entries_that_are_not_plain_files_make_the_whole_outbox_unreadable (test_s4c_05_outbox.Initialization.test_c_entries_that_are_not_plain_files_make_the_whole_outbox_unreadable)
+V13  NOT_DETECTED    0  outbox claim: the key is not checked before git is started | 
+V14  NOT_DETECTED    0  outbox mirror: the base mode is strict | 
+V15  NOT_DETECTED    0  outbox parent: a link is taken | 
+V16  DETECTED        3  outbox create: a name on the remote after a failed push is ours whatever its bytes | FAIL: test_b_the_same_key_was_made_first_by_another_run_nothing_is_sent (test_s4c_05_outbox.Deciding.test_b_the_same_key_was_made_first_by_another_run_nothing_is_sent)
+V17  DETECTED        1  history commit message: 13 characters of the hash | FAIL: test_every_commit_of_the_history_ref_has_one_parent_and_only_history_json (test_s4c_07_commits.Shape.test_every_commit_of_the_history_ref_has_one_parent_and_only_history_json)
+V18  DETECTED        1  commit: only the committer date is set (the author date is git's) | FAIL: test_author_committer_and_date_come_from_the_injected_clock_one_call_per_commit (test_s4c_07_commits.Shape.test_author_committer_and_date_come_from_the_injected_clock_one_call_per_commit)
+V19  DETECTED        1  environment: GIT_CONFIG_NOSYSTEM is not set | ERROR: test_the_command_the_settings_and_the_environment (test_s4c_02_git.Start.test_the_command_the_settings_and_the_environment)
+V20  DETECTED        2  push verdict: = (already there) is not OK | FAIL: test_a_pushing_what_the_remote_already_has_is_ok (test_s4c_02_git.Push.test_a_pushing_what_the_remote_already_has_is_ok)
+V21  DETECTED        2  outbox create: four lost tries are 'taken by another' (SKIPPED_CLAIMED) instead of an error | FAIL: test_a_clock_that_does_not_return_a_time_makes_nothing_and_pushes_nothing (test_s4c_01_args.Args.test_a_clock_that_does_not_return_a_time_makes_nothing_and_pushes_nothing)
+V22  DETECTED        1  history publish: the mode is not checked (a CREATE publication is appended) | ERROR: test_the_publication_checks_before_anything_is_pushed (test_s4c_03_history.InitializeAndRead.test_the_publication_checks_before_anything_is_pushed)
+V23  DETECTED        1  load: an outbox whose ref is missing reads as the base's (empty) outbox | FAIL: test_a_no_ref_is_a_damaged_outbox_that_sends_nothing_and_makes_nothing (test_s4c_05_outbox.Initialization.test_a_no_ref_is_a_damaged_outbox_that_sends_nothing_and_makes_nothing)
+V24  DETECTED        8  outbox create: the result of a push is not looked at when the commit was made (OK assumed) | FAIL: test_d_a_pre_receive_hook_refusal_is_rejected_and_the_history_store_reads_it_as_a_rule_not_a_race (test_s4c_02_git.Push.test_d_a_pre_receive_hook_refusal_is_rejected_and_the_history_store_reads_it_as_a_rule_not_a_race)
+done

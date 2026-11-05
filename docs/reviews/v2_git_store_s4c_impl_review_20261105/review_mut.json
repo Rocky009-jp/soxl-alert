@@ -1,0 +1,194 @@
+[
+ {
+  "id": "V01",
+  "desc": "push verdict takes the first of several lines for the ref",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "FAIL: test_f_fake_answers_of_git (test_s4c_02_git.Push.test_f_fake_answers_of_git)",
+  "race_included": false
+ },
+ {
+  "id": "V02",
+  "desc": "history publish: a failed fetch after a refusal is read as a moved head (publication_stale)",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V03",
+  "desc": "history initialize: every refusal is already_initialized (no fetch again)",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V04",
+  "desc": "outbox create: an uncertain push that did not arrive (head not moved) ends at once",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "FAIL: test_d_an_uncertain_push_that_did_not_arrive_is_tried_once_more (test_s4c_05_outbox.Deciding.test_d_an_uncertain_push_that_did_not_arrive_is_tried_once_more)",
+  "race_included": true
+ },
+ {
+  "id": "V05",
+  "desc": "outbox create: every refusal without the name ends at once (moved head too)",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "ERROR: test_a_another_key_was_pushed_first_the_claim_is_made_again_and_succeeds (test_s4c_05_outbox.Deciding.test_a_another_key_was_pushed_first_the_claim_is_made_again_and_succeeds)",
+  "race_included": true
+ },
+ {
+  "id": "V06",
+  "desc": "outbox create: five tries",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "ERROR: test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent (test_s4c_05_outbox.Deciding.test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent)",
+  "race_included": true
+ },
+ {
+  "id": "V07",
+  "desc": "outbox create: three tries",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "FAIL: test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent (test_s4c_05_outbox.Deciding.test_e_four_times_beaten_by_other_keys_is_a_failure_to_claim_and_nothing_is_sent)",
+  "race_included": true
+ },
+ {
+  "id": "V08",
+  "desc": "commit time: a negative offset is written with +",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V09",
+  "desc": "fetch without + (not forced into refs/v2remote)",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "FAIL: test_no_command_of_a_whole_morning_changes_a_branch_the_index_or_the_work_tree (test_s4c_02_git.Fetch.test_no_command_of_a_whole_morning_changes_a_branch_the_index_or_the_work_tree)",
+  "race_included": false
+ },
+ {
+  "id": "V10",
+  "desc": "history reconcile: a missing ref is store_uninitialized instead of the C-2 reconciliation of nothing",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "ERROR: test_a_ref_that_does_not_exist_is_uninitialized (test_s4c_03_history.InitializeAndRead.test_a_ref_that_does_not_exist_is_uninitialized)",
+  "race_included": false
+ },
+ {
+  "id": "V11",
+  "desc": "outbox initialize: an uncertain push is done when the ref exists, whatever its marker",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V12",
+  "desc": "mirror: a name that is not a plain name is not refused",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "FAIL: test_c_entries_that_are_not_plain_files_make_the_whole_outbox_unreadable (test_s4c_05_outbox.Initialization.test_c_entries_that_are_not_plain_files_make_the_whole_outbox_unreadable)",
+  "race_included": false
+ },
+ {
+  "id": "V13",
+  "desc": "outbox claim: the key is not checked before git is started",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V14",
+  "desc": "outbox mirror: the base mode is strict",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V15",
+  "desc": "outbox parent: a link is taken",
+  "result": "NOT_DETECTED",
+  "failed": 0,
+  "first": null,
+  "race_included": false
+ },
+ {
+  "id": "V16",
+  "desc": "outbox create: a name on the remote after a failed push is ours whatever its bytes",
+  "result": "DETECTED",
+  "failed": 3,
+  "first": "FAIL: test_b_the_same_key_was_made_first_by_another_run_nothing_is_sent (test_s4c_05_outbox.Deciding.test_b_the_same_key_was_made_first_by_another_run_nothing_is_sent)",
+  "race_included": true
+ },
+ {
+  "id": "V17",
+  "desc": "history commit message: 13 characters of the hash",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "FAIL: test_every_commit_of_the_history_ref_has_one_parent_and_only_history_json (test_s4c_07_commits.Shape.test_every_commit_of_the_history_ref_has_one_parent_and_only_history_json)",
+  "race_included": false
+ },
+ {
+  "id": "V18",
+  "desc": "commit: only the committer date is set (the author date is git's)",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "FAIL: test_author_committer_and_date_come_from_the_injected_clock_one_call_per_commit (test_s4c_07_commits.Shape.test_author_committer_and_date_come_from_the_injected_clock_one_call_per_commit)",
+  "race_included": false
+ },
+ {
+  "id": "V19",
+  "desc": "environment: GIT_CONFIG_NOSYSTEM is not set",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "ERROR: test_the_command_the_settings_and_the_environment (test_s4c_02_git.Start.test_the_command_the_settings_and_the_environment)",
+  "race_included": false
+ },
+ {
+  "id": "V20",
+  "desc": "push verdict: = (already there) is not OK",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "FAIL: test_a_pushing_what_the_remote_already_has_is_ok (test_s4c_02_git.Push.test_a_pushing_what_the_remote_already_has_is_ok)",
+  "race_included": false
+ },
+ {
+  "id": "V21",
+  "desc": "outbox create: four lost tries are 'taken by another' (SKIPPED_CLAIMED) instead of an error",
+  "result": "DETECTED",
+  "failed": 2,
+  "first": "FAIL: test_a_clock_that_does_not_return_a_time_makes_nothing_and_pushes_nothing (test_s4c_01_args.Args.test_a_clock_that_does_not_return_a_time_makes_nothing_and_pushes_nothing)",
+  "race_included": true
+ },
+ {
+  "id": "V22",
+  "desc": "history publish: the mode is not checked (a CREATE publication is appended)",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "ERROR: test_the_publication_checks_before_anything_is_pushed (test_s4c_03_history.InitializeAndRead.test_the_publication_checks_before_anything_is_pushed)",
+  "race_included": false
+ },
+ {
+  "id": "V23",
+  "desc": "load: an outbox whose ref is missing reads as the base's (empty) outbox",
+  "result": "DETECTED",
+  "failed": 1,
+  "first": "FAIL: test_a_no_ref_is_a_damaged_outbox_that_sends_nothing_and_makes_nothing (test_s4c_05_outbox.Initialization.test_a_no_ref_is_a_damaged_outbox_that_sends_nothing_and_makes_nothing)",
+  "race_included": false
+ },
+ {
+  "id": "V24",
+  "desc": "outbox create: the result of a push is not looked at when the commit was made (OK assumed)",
+  "result": "DETECTED",
+  "failed": 8,
+  "first": "FAIL: test_d_a_pre_receive_hook_refusal_is_rejected_and_the_history_store_reads_it_as_a_rule_not_a_race (test_s4c_02_git.Push.test_d_a_pre_receive_hook_refusal_is_rejected_and_the_history_store_reads_it_as_a_rule_not_a_race)",
+  "race_included": true
+ }
+]

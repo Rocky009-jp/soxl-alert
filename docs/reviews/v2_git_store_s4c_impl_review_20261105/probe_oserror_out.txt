@@ -1,0 +1,2 @@
+Y2 oserror: os.listdir of the mirror fails after the rebuild, inside claim
+  raw PermissionError leaves claim (morning_job catches only NotifyError -> the job ends with it)

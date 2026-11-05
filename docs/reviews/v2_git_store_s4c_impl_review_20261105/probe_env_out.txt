@@ -1,0 +1,7 @@
+Y3 env: the GIT_ variables of the parent never reach git
+  GIT_SSH_COMMAND      reaches git: False
+  GIT_ASKPASS          reaches git: False
+  GIT_CONFIG_COUNT     reaches git: False
+  GIT_CONFIG_KEY_0     reaches git: False
+  GIT_CONFIG_VALUE_0   reaches git: False
+  core.sshCommand in the work directory's own config reaches git: True

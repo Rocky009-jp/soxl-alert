@@ -1,0 +1,5 @@
+Y1 scale: one GitOutbox.load on a v2-outbox ref holding n files (git git version 2.43.0)
+  n=    0  load: 0.02 s, 4 git processes, status=NONE
+  n=  100  load: 0.25 s, 104 git processes, status=NONE
+  n=  500  load: 1.29 s, 504 git processes, status=NONE
+  n= 2000  load: 4.68 s, 2004 git processes, status=NONE
