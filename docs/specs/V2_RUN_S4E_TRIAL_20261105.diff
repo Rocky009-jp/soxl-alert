@@ -1,0 +1,885 @@
+diff --git a/tests/v2_inputs/test_s4d_09_scope.py b/tests/v2_inputs/test_s4d_09_scope.py
+index ade91db..d6332d7 100644
+--- a/tests/v2_inputs/test_s4d_09_scope.py
++++ b/tests/v2_inputs/test_s4d_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "ffa370089cd37fcc76658b4de0f4aedde0a246e0"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "9bdd4217d18e0ac328ddfa6a76b5d2a82748549d"   # accepted (receipt 43ebe55); frozen when S4-E began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_inputs"
+diff --git a/tests/v2_run/test_s4e_09_scope.py b/tests/v2_run/test_s4e_09_scope.py
+new file mode 100644
+index 0000000..5336ba6
+--- /dev/null
++++ b/tests/v2_run/test_s4e_09_scope.py
+@@ -0,0 +1,27 @@
++"""Trial placeholder of the S4-E range test (the implementation writes the full one, S4E-18)."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
++import sc_helpers as C  # noqa: E402
++
++START = "9bdd4217d18e0ac328ddfa6a76b5d2a82748549d"
++END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++REV = END or "HEAD"
++FIRST_OF_CHAIN = "adfdf765aeca0d01c8f10b596a6fac59d7c1a07e"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_the_whole_chain_has_no_gap_and_this_is_the_only_open_range(self):
++        if C.git("cat-file", "-e", START + "^{commit}").returncode != 0:
++            self.skipTest("the code start commit is not available in this checkout")
++        rows = C.range_tests(REV)
++        self.assertEqual(C.judge_chain(rows, C.is_ancestor, tip=REV, begin=FIRST_OF_CHAIN), [])
++        self.assertEqual([r["path"] for r in rows if r["end"] is None], ["tests/v2_run/test_s4e_09_scope.py"])
++        self.assertEqual([r["path"] for r in rows if r["end"] == START], ["tests/v2_inputs/test_s4d_09_scope.py"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/v2_inputs/load.py b/v2_inputs/load.py
+index df97f88..6ce3835 100644
+--- a/v2_inputs/load.py
++++ b/v2_inputs/load.py
+@@ -127,7 +127,6 @@ def load_inputs(git, fetch, now, refs, clock):
+             provenance["pinned_by"] = "existing"
+         else:
+             fetched, error = _fetch_all(fetch, end, target, calls)
+-            provenance["fetch_count"] = calls[0]
+             if error is not None:
+                 raise error
+             last = _last_complete(skeleton.sessions, closed, fetched, now)
+@@ -156,6 +155,7 @@ def load_inputs(git, fetch, now, refs, clock):
+         failure = InputError("input_git_failed", "inputs")
+     except CoreError as error:
+         failure = error
++    provenance["fetch_count"] = calls[0]                       # S4-E (S4-D review P-01): also after a parse error
+     if failure is not None:
+         series, raw = None, []
+     return Inputs(series, build_sessions(now, through), raw, failure, provenance)
+diff --git a/v2_notify/job.py b/v2_notify/job.py
+index ffbedab..1153cd6 100644
+--- a/v2_notify/job.py
++++ b/v2_notify/job.py
+@@ -109,7 +109,7 @@ def morning_job(store, outbox, sender, now, series, sessions, raw_observations):
+     else:
+         notice = compose_error_notice(target_d or _utc_date(now), error[0], error[1], d_is_target=target_d is not None)
+     # a HALT or ERROR notice is not made when a MORNING claim of the same D exists, in any state (DAMAGED included)
+-    judgment_known = notice.kind == HALT or (notice.kind == ERROR and target_d is not None)
++    judgment_known = notice.kind in (HALT, ERROR)      # S4-E (S4-B review P-01): the fallback key checks its date too
+     judgment = outbox.status(notice.d, MORNING).status if judgment_known else NONE
+     if judgment != NONE:
+         delivery, send_status, existing = SKIPPED_JUDGMENT_EXISTS, None, judgment
+diff --git a/v2_run/__init__.py b/v2_run/__init__.py
+new file mode 100644
+index 0000000..1b8977e
+--- /dev/null
++++ b/v2_run/__init__.py
+@@ -0,0 +1,6 @@
++"""TRIAL of S4-E (not a request, not adopted): the entry of the morning run on the private repository's Actions.
++
++One place decides everything once (R2-P01): the time, the Git of the checkout, the ref names of the mode, the store,
++the outbox, the sender and the fetch. The HTTP of the market fetch and of the Discord webhook is here and only here."""
++from .web import DiscordSender, DrySender, make_fetch, split_text, live_text
++from .entry import MODES, Setup, main
+diff --git a/v2_run/__main__.py b/v2_run/__main__.py
+new file mode 100644
+index 0000000..2784b97
+--- /dev/null
++++ b/v2_run/__main__.py
+@@ -0,0 +1,5 @@
++import sys
++
++from .entry import main
++
++sys.exit(main(sys.argv[1:]))
+diff --git a/v2_run/check.py b/v2_run/check.py
+new file mode 100644
+index 0000000..2aedcc5
+--- /dev/null
++++ b/v2_run/check.py
+@@ -0,0 +1,83 @@
++"""TRIAL. check-source: the facts of the chart responses that the dry run must record before the live run (S4-D
++handoffs: the design review P-03, the receipt P-02, the re-review R-02). Counts and dates only; nothing is written."""
++import csv
++import datetime as dt
++import json
++import os
++
++from v2_inputs import CALENDAR_START, SYMBOLS
++from v2_inputs.xnys import ny_offset, session_days
++
++RESEARCH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
++                        "research", "SOXL_initial_trend_20261023", "data")
++
++
++def _ny(stamp):
++    utc = dt.datetime.fromtimestamp(stamp, dt.timezone.utc)
++    local = utc + ny_offset(utc.date())
++    return local.date().isoformat(), local.strftime("%H:%M")
++
++
++def research_dates():
++    """{symbol: set of dates} of the research data (SOXX and SOXL from daily.json, SPY and IEF from the csv)."""
++    with open(os.path.join(RESEARCH, "daily.json"), encoding="utf-8") as f:
++        daily = json.load(f)
++    out = {"SOXX": {d for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++           "SOXL": set(daily["funds"]["SOXL"]["ohlcv"]["date"])}
++    with open(os.path.join(RESEARCH, "daily_adjclose.csv"), encoding="utf-8") as f:
++        rows = list(csv.DictReader(f))
++    for s in ("SPY", "IEF"):
++        out[s] = {r["Date"] for r in rows if r[s]}
++    return out
++
++
++def inspect(data, symbol, target, table, known, pinned=None, through=None):
++    """A dict of facts of one response. target: the target D of now; table: the table dates up to target."""
++    facts = {"symbol": symbol}
++    try:
++        res = json.loads(data.decode("utf-8"))["chart"]["result"][0]
++        ts = res["timestamp"]
++        close = res["indicators"]["quote"][0]["close"]
++        adj = res["indicators"]["adjclose"][0]["adjclose"]
++        facts["meta_symbol_ok"] = res["meta"]["symbol"] == symbol
++    except Exception as e:                      # the type name only
++        facts["shape"] = "invalid (%s)" % type(e).__name__
++        return facts
++    facts["shape"] = "ok" if len(ts) == len(close) == len(adj) else "lengths differ"
++    days, times, nulls, dup = {}, {}, [], []
++    for t, c, a in zip(ts, close, adj):
++        d, hm = _ny(t)
++        times[hm] = times.get(hm, 0) + 1
++        if d in days:
++            dup.append(d)
++        days[d] = (c, a)
++        if c is None or a is None:
++            nulls.append(d)
++    have = {d for d, v in days.items() if v[0] is not None and v[1] is not None}
++    facts["rows"] = len(ts)
++    facts["first"], facts["last"] = (min(days), max(days)) if days else (None, None)
++    facts["times_ny"] = ", ".join("%s×%d" % (k, v) for k, v in sorted(times.items(), key=lambda x: -x[1])[:4])
++    facts["duplicate_dates"] = ", ".join(sorted(set(dup))[-5:]) or "-"
++    facts["target_rows"] = sum(1 for t in ts if _ny(t)[0] == target)
++    facts["table_days_missing_or_null"] = len([d for d in table if d not in have])
++    facts["table_days_missing_examples"] = ", ".join([d for d in table if d not in have][:5]) or "-"
++    facts["null_rows"] = len(nulls)
++    before = {d for d in have if d < CALENDAR_START.isoformat()}
++    ref = {d for d in known.get(symbol, set()) if d < CALENDAR_START.isoformat()}
++    lo = min(ref) if ref else None
++    facts["pre2026_only_in_response"] = len({d for d in before if lo and d >= lo} - ref)
++    facts["pre2026_only_in_research"] = len(ref - before)
++    rets = []
++    if pinned is not None and through is not None:      # P-03(d): was a provisional value pinned? (close never revises)
++        last = days.get(through)
++        facts["pin_last_close_changed"] = "no row" if last is None else (last[0] != pinned.get(through, (None,))[0])
++        facts["pin_older_close_changed"] = sum(1 for d, v in pinned.items() if d < through and d in days and days[d][0] != v[0])
++        common = sorted(d for d in pinned if d in have and d <= through)
++        for a_, b_ in zip(common, common[1:]):                # daily returns of adjclose, robust to a rescaled history
++            rets.append(abs(days[b_][1] / days[a_][1] - pinned[b_][1] / pinned[a_][1]))
++        facts["pin_adj_return_maxdiff"] = "%.2e" % max(rets) if rets else "-"
++    return facts
++
++
++def table_dates(target):
++    return [d.isoformat() for d in session_days() if d.isoformat() <= target]
+diff --git a/v2_run/entry.py b/v2_run/entry.py
+new file mode 100644
+index 0000000..1d85b03
+--- /dev/null
++++ b/v2_run/entry.py
+@@ -0,0 +1,218 @@
++"""TRIAL. python -m v2_run <command> --mode dry|live --workdir <checkout of the private repository> [...]
++
++Commands: morning (the scheduled run), status (the outbox of one date), resend (a manual resend), init (a new genesis
++and outbox on the refs of the mode), check-source (the facts of the chart responses, nothing written).
++The entry is the only place that reads the clock, the environment (the webhook secret and the summary file) and opens
++HTTP. Everything is decided once in Setup and the same objects are passed on (R2-P01). The record of a run (the Actions
++summary) has codes, dates, digests, counts and times: never a path, a URL, a secret or an exception text."""
++import argparse
++import datetime as dt
++import json
++import os
++import re
++import shutil
++import tempfile
++import time
++import urllib.request
++
++from v2_core.errors import CoreError
++from v2_git_store import Git, GitHistoryStore, GitOutbox
++from v2_history_publish import publish_genesis
++from v2_inputs import build_sessions, guarded_store, load_inputs, SYMBOLS
++from v2_notify import ERROR, HALT, KINDS, MORNING, NONE, SENT, SKIPPED_CLAIMED, SKIPPED_JUDGMENT_EXISTS, morning_job, outbox_status, resend
++
++from .web import DiscordSender, DrySender, live_text, make_fetch
++
++MODES = {
++    "dry": {"state": "v2-dry-state", "outbox": "v2-dry-outbox", "market": "v2-dry-market", "ledger": "v2-ledger"},
++    "live": {"state": "v2-state", "outbox": "v2-outbox", "market": "v2-market", "ledger": "v2-ledger"},
++}
++SECRET_NAME = "V2_DISCORD_WEBHOOK_URL"
++OK_DELIVERIES = (SENT, SKIPPED_CLAIMED, SKIPPED_JUDGMENT_EXISTS)
++REFUSED_JUDGMENT_EXISTS = "REFUSED_JUDGMENT_EXISTS"
++_SHA = re.compile(r"[0-9a-f]{40}")
++_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
++
++
++def utc_now():
++    return dt.datetime.now(dt.timezone.utc)
++
++
++class Setup(object):
++    """Everything of one run, decided once (R2-P01): mode, now, Git, refs, store, outbox, sender, fetch."""
++
++    def __init__(self, mode, workdir, env, urlopen, now_fn, scratch):
++        self.mode, self.refs, self.clock = mode, MODES[mode], now_fn
++        self.now = now_fn()
++        self.git = Git(workdir)
++        self.store = GitHistoryStore(self.git, self.refs["state"], now_fn)
++        self.outbox = GitOutbox(self.git, self.refs["outbox"], scratch, now_fn)
++        self.sender = DrySender() if mode == "dry" else DiscordSender(env.get(SECRET_NAME), urlopen)
++        self.fetch = make_fetch(urlopen)
++
++
++class Record(object):
++    def __init__(self):
++        self.lines = []
++
++    def add(self, key, value):
++        self.lines.append("- %s: %s" % (key, value))
++
++    def block(self, title, text):
++        self.lines += ["", "#### " + title, "", "```", text.replace("```", "'''"), "```"]
++
++
++def _git_version(git):
++    proc = git.run(["--version"])
++    m = re.search(r"\d+\.\d+(\.\d+)?", proc.stdout.decode("ascii", "replace")) if proc is not None else None
++    return m.group(0) if m else "unknown"
++
++
++def _outbox_files(s):
++    head = s.git.fetch(s.refs["outbox"])
++    return 0 if head is None else len(s.git.tree(head))
++
++
++def cmd_morning(s, rec):
++    t0 = time.monotonic()
++    inputs, raised = None, None
++    try:
++        inputs = load_inputs(s.git, s.fetch, s.now, {"market": s.refs["market"], "ledger": s.refs["ledger"]}, s.clock)
++    except CoreError as e:                      # input_args_invalid / input_calendar_ended: still one notice (ERROR)
++        raised = e
++    t1 = time.monotonic()
++    if inputs is None:
++        job = morning_job(s.store, s.outbox, s.sender, s.now, None, None, [])
++    else:
++        job = morning_job(guarded_store(s.store, inputs.failure), s.outbox, s.sender, s.now, inputs.series,
++                          inputs.sessions, inputs.raw_observations)
++    t2 = time.monotonic()
++    if raised is not None:
++        rec.add("inputs_raised", "%s（%s）" % (raised.code, getattr(raised, "field", None)))
++    elif inputs.failure is not None:
++        f = inputs.failure
++        rec.add("inputs_failure", "%s（%s）%s" % (f.code, f.field, "" if not f.detail else " " + f.detail))
++    if inputs is not None:
++        for k in sorted(inputs.provenance):
++            rec.add("provenance." + k, inputs.provenance[k])
++    rec.add("run_outcome", job.run_outcome)
++    rec.add("key", "%s-%s" % (job.d, job.kind))
++    rec.add("delivery", job.delivery)
++    rec.add("send_status", job.send_status)
++    rec.add("existing_status", job.existing_status)
++    rec.add("code", job.code)
++    if job.report is not None:
++        rec.add("consumed", " ".join(d.d for d in job.report.consumed) or "-")
++        rec.add("history_digest", (job.report.history_digest or "-")[:12])
++    files = _outbox_files(s)
++    t3 = time.monotonic()
++    s.outbox.load(job.d, job.kind)              # one read of the outbox (S4-C handoff 3)
++    t4 = time.monotonic()
++    rec.add("seconds.load_inputs", "%.2f" % (t1 - t0))
++    rec.add("seconds.morning_job", "%.2f" % (t2 - t1))
++    rec.add("seconds.outbox_load", "%.2f" % (t4 - t3))
++    rec.add("outbox_files", files)
++    if s.mode == "dry" and s.sender.texts:
++        rec.block("text (dry: not sent)", s.sender.texts[-1])
++    return 0 if (raised is None and job.delivery in OK_DELIVERIES) else 1
++
++
++def cmd_status(s, rec, d):
++    for e in outbox_status(s.outbox, d):
++        rec.add("%s-%s%s" % (e.d, e.kind, "" if e.resend_request_id is None else "/" + e.resend_request_id),
++                "%s %s" % (e.status, e.recorded_at or e.claimed_at or ""))
++    return 0
++
++
++def cmd_resend(s, rec, d, kind, rid):
++    if kind in (HALT, ERROR) and s.outbox.status(d, MORNING).status != NONE:     # S4-B review P-02
++        rec.add("delivery", REFUSED_JUDGMENT_EXISTS)
++        return 1
++    r = resend(s.outbox, s.sender, d, kind, rid, s.now)
++    rec.add("delivery", r.delivery)
++    rec.add("send_status", r.send_status)
++    rec.add("original_status", r.original_status)
++    return 0 if r.delivery == SENT else 1
++
++
++def cmd_init(s, rec, start_after):
++    sessions = build_sessions(s.now, start_after)     # the boundary is confirmed by the table once it has closed
++    closed = [x.date for x in sessions.sessions if x.close_at <= s.now]
++    if start_after not in closed:
++        rec.add("refused", "start_after_not_a_closed_session")
++        return 1
++    result = s.store.initialize(publish_genesis(start_after, sessions))
++    rec.add("state", getattr(result, "status", result))
++    rec.add("outbox", s.outbox.initialize())
++    return 0
++
++
++def cmd_check_source(s, rec):
++    from .check import inspect, research_dates, table_dates
++    from v2_inputs import PREHISTORY_START
++    closed = [x.date for x in build_sessions(s.now, None).sessions if x.close_at <= s.now]
++    target = closed[-1] if closed else None
++    rec.add("target_d", target)
++    table, known = table_dates(target) if target else [], research_dates()
++    from v2_inputs import MarketPin
++    _head, through, pinned, _digest = MarketPin(s.git, s.refs["market"], s.clock).read()
++    rec.add("pin_through", through)
++    end = (s.now + dt.timedelta(days=1)).date().isoformat()
++    worst = 0
++    for symbol in SYMBOLS:
++        try:
++            data = s.fetch(symbol, PREHISTORY_START, end)
++        except Exception as e:
++            rec.add(symbol + ".fetch", "failed (%s)" % type(e).__name__)
++            worst = 1
++            continue
++        for k, v in inspect(data, symbol, target, table, known, (pinned or {}).get(symbol), through).items():
++            if k != "symbol":
++                rec.add("%s.%s" % (symbol, k), v)
++    return worst
++
++
++def main(argv, env=None, out=print, now_fn=utc_now, urlopen=urllib.request.urlopen):
++    env = os.environ if env is None else env
++    p = argparse.ArgumentParser(prog="v2_run")
++    p.add_argument("command", choices=("morning", "status", "resend", "init", "check-source"))
++    p.add_argument("--mode", choices=sorted(MODES), required=True)
++    p.add_argument("--workdir", required=True)
++    p.add_argument("--code-version", default="")
++    p.add_argument("--date", default=None)
++    p.add_argument("--kind", choices=KINDS, default=None)
++    p.add_argument("--request-id", default=None)
++    p.add_argument("--start-after", default=None)
++    a = p.parse_args(argv)
++    rec, code = Record(), 1
++    scratch = tempfile.mkdtemp(prefix="v2run_")
++    try:
++        s = Setup(a.mode, os.path.abspath(a.workdir), env, urlopen, now_fn, scratch)
++        rec.add("command", a.command)
++        rec.add("mode", a.mode)
++        rec.add("now_utc", s.now.isoformat(timespec="seconds"))
++        rec.add("code_version", a.code_version if _SHA.fullmatch(a.code_version or "") else "unknown")
++        rec.add("git", _git_version(s.git))
++        if a.command == "morning":
++            code = cmd_morning(s, rec)
++        elif a.command == "status":
++            code = cmd_status(s, rec, a.date)
++        elif a.command == "resend":
++            code = cmd_resend(s, rec, a.date, a.kind, a.request_id)
++        elif a.command == "init":
++            code = cmd_init(s, rec, a.start_after)
++        else:
++            code = cmd_check_source(s, rec)
++    except Exception as e:                      # the type name only: an exception text may hold a path or a URL
++        rec.add("failed", type(e).__name__ + ("（%s）" % e.code if isinstance(getattr(e, "code", None), str) else ""))
++        code = 1
++    finally:
++        shutil.rmtree(scratch, True)
++    rec.add("exit_code", code)
++    text = "\n".join(["### v2_run"] + rec.lines)
++    out(text)
++    path = env.get("GITHUB_STEP_SUMMARY")
++    if path:
++        with open(path, "a", encoding="utf-8") as f:
++            f.write(text + "\n")
++    return code
+diff --git a/v2_run/web.py b/v2_run/web.py
+new file mode 100644
+index 0000000..4045acd
+--- /dev/null
++++ b/v2_run/web.py
+@@ -0,0 +1,117 @@
++"""TRIAL. The two HTTP calls of V2: the chart (v8) daily of one symbol, and one post to a Discord webhook.
++urlopen is injected (the tests never open a socket to the outside). No exception text, URL or body leaves this module."""
++import json
++import socket
++import urllib.error
++import urllib.request
++
++from v2_inputs import chart_url
++
++USER_AGENT = "Mozilla/5.0 (compatible; soxl-alert-v2)"
++FETCH_TIMEOUT = 30
++SEND_TIMEOUT = 20
++MAX_BYTES = 8 * 1024 * 1024
++LIMIT = 1900                                   # Discord allows 2000 characters per message
++PREVIEW_HEAD = "【SOXL日次・ローカルプレビュー（実送信なし）】"
++LIVE_HEAD = "【詳細】"
++WEBHOOK_PREFIXES = ("https://discord.com/api/webhooks/", "https://discordapp.com/api/webhooks/")
++SENT, NOT_STARTED, UNKNOWN = "SENT", "NOT_STARTED", "UNKNOWN"
++
++
++class FetchFailed(Exception):
++    """A fixed word only (never the URL or the body)."""
++
++
++def make_fetch(urlopen=urllib.request.urlopen):
++    """fetch(symbol, start, end) -> bytes, for load_inputs. Any failure raises (load_inputs: input_market_fetch_failed)."""
++    def fetch(symbol, start, end):
++        request = urllib.request.Request(chart_url(symbol, start, end),
++                                         headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
++        with urlopen(request, timeout=FETCH_TIMEOUT) as response:
++            if getattr(response, "status", None) != 200:
++                raise FetchFailed("status")
++            data = response.read(MAX_BYTES + 1)
++        if len(data) > MAX_BYTES:
++            raise FetchFailed("size")
++        return data
++    return fetch
++
++
++def live_text(text):
++    """The text as it is really sent: the preview heading of the core becomes the live one (nothing else changes)."""
++    return text.replace(PREVIEW_HEAD, LIVE_HEAD)
++
++
++def split_text(text, limit=LIMIT):
++    """Parts of at most `limit` characters, cut at line ends (a longer line is cut where it must); one part when short."""
++    if len(text) <= limit:
++        return [text]
++    parts, cur = [], ""
++    for line in text.split("\n"):
++        while len(line) > limit:
++            if cur:
++                parts.append(cur)
++                cur = ""
++            parts.append(line[:limit])
++            line = line[limit:]
++        joined = line if not cur else cur + "\n" + line
++        if len(joined) > limit:
++            parts.append(cur)
++            cur = line
++        else:
++            cur = joined
++    if cur:
++        parts.append(cur)
++    n = len(parts)
++    return ["（%d/%d）\n%s" % (i + 1, n, p) for i, p in enumerate(parts)]
++
++
++class DiscordSender(object):
++    """send(text) -> SENT / NOT_STARTED / UNKNOWN (the S4-B contract). NOT_STARTED only when no part can have been
++    posted: a missing or malformed URL, or the first part refused (4xx) or not connected (DNS, refused connection).
++    Every other failure, and any failure after the first part, is UNKNOWN. No retry."""
++
++    def __init__(self, url, urlopen=urllib.request.urlopen):
++        self._url = url if isinstance(url, str) and url.startswith(WEBHOOK_PREFIXES) and url.isascii() else None
++        self._open = urlopen
++
++    def __repr__(self):
++        return "DiscordSender()"
++
++    def _post(self, content):
++        body = json.dumps({"content": content, "allowed_mentions": {"parse": []}}, ensure_ascii=False).encode("utf-8")
++        request = urllib.request.Request(self._url + "?wait=true", data=body, method="POST",
++                                         headers={"Content-Type": "application/json", "User-Agent": USER_AGENT})
++        try:
++            with self._open(request, timeout=SEND_TIMEOUT) as response:
++                return "ok" if 200 <= getattr(response, "status", 0) < 300 else "unsure"
++        except urllib.error.HTTPError as e:
++            code = e.code
++            e.close()
++            return "refused" if 400 <= code < 500 else "unsure"
++        except urllib.error.URLError as e:
++            refused = isinstance(e.reason, (ConnectionRefusedError, socket.gaierror))
++            return "refused" if refused else "unsure"
++        except Exception:
++            return "unsure"
++
++    def send(self, text):
++        if self._url is None or not isinstance(text, str):
++            return NOT_STARTED
++        for i, part in enumerate(split_text(live_text(text))):
++            outcome = self._post(part)
++            if outcome == "ok":
++                continue
++            return NOT_STARTED if (outcome == "refused" and i == 0) else UNKNOWN
++        return SENT
++
++
++class DrySender(object):
++    """The dry run: nothing leaves the runner; the text goes to the run record. Answers SENT (the dry outbox)."""
++
++    def __init__(self):
++        self.texts = []
++
++    def send(self, text):
++        self.texts.append(text)
++        return SENT
+diff --git a/trial_probes/s4e_trial.py b/trial_probes/s4e_trial.py
+new file mode 100644
+index 0000000..ae253d3
+--- /dev/null
++++ b/trial_probes/s4e_trial.py
+@@ -0,0 +1,121 @@
++"""S4-E trial: the entry v2_run (dry and live) over a local bare remote, with a fake urlopen for the chart and Discord."""
++import os, sys, json, csv, tempfile, subprocess, time, socket, io, datetime as dt, urllib.error
++ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT)
++from v2_git_store import Git
++from v2_inputs.xnys import ny_offset, session_days
++from v2_notify import morning_job, LocalOutbox, outbox_status
++from v2_run import main, split_text, DiscordSender, live_text
++from v2_run.entry import Setup
++
++JST = dt.timezone(dt.timedelta(hours=9))
++DATA = os.path.join(ROOT, "research/SOXL_initial_trend_20261023/data")
++daily = json.load(open(os.path.join(DATA, "daily.json")))
++adj = list(csv.DictReader(open(os.path.join(DATA, "daily_adjclose.csv"))))
++fg = {r["Date"]: r["Fear Greed"] for r in csv.DictReader(open(os.path.join(DATA, "fear-greed.csv")))}
++SRC = {"SOXX": {d: a for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++       "SOXL": {d: c for d, c in zip(daily["funds"]["SOXL"]["ohlcv"]["date"], daily["funds"]["SOXL"]["ohlcv"]["close"])},
++       "SPY": {r["Date"]: float(r["SPY"]) for r in adj if r["SPY"]}, "IEF": {r["Date"]: float(r["IEF"]) for r in adj if r["IEF"]}}
++WEBHOOK = "https://discord.com/api/webhooks/123/SECRETTOKEN_abc"
++
++def ts_of(d, hh=9, mm=30):
++    day = dt.date.fromisoformat(d)
++    return int((dt.datetime(day.year, day.month, day.day, hh, mm) - ny_offset(day)).replace(tzinfo=dt.timezone.utc).timestamp())
++
++class Resp(io.BytesIO):
++    def __init__(self, data, status=200): super().__init__(data); self.status = status
++    def __enter__(self): return self
++    def __exit__(self, *a): self.close()
++
++class Net(object):
++    """Fake urlopen. chart: rows of the research data up to self.upto (and an optional live bar of today);
++    discord: self.discord is a list of behaviours, one per post ('204', '400', '500', 'refused', 'timeout')."""
++    def __init__(self): self.upto, self.discord, self.posts, self.charts, self.live = None, [], [], 0, None
++    def __call__(self, req, timeout=None):
++        url = req.full_url
++        if url.startswith("https://query1.finance.yahoo.com/"):
++            self.charts += 1
++            sym = url.split("/chart/")[1].split("?")[0]
++            rows = sorted((d, v) for d, v in SRC[sym].items() if d <= self.upto and d != "2026-05-25")
++            ts = [ts_of(d) for d, _ in rows]; vals = [v for _, v in rows]
++            if self.live:                                        # R-02 shape: two rows of one date after the close
++                ts.append(ts_of(self.live, 16, 0)); vals.append(vals[-1])
++            body = {"chart": {"result": [{"meta": {"symbol": sym}, "timestamp": ts,
++                    "indicators": {"quote": [{"close": vals}], "adjclose": [{"adjclose": vals}]}}], "error": None}}
++            return Resp(json.dumps(body).encode())
++        if url.startswith("https://discord.com/api/webhooks/"):
++            b = self.discord.pop(0) if self.discord else "204"
++            body = json.loads(req.data.decode()); self.posts.append((b, body["content"], body.get("allowed_mentions")))
++            if b in ("204", "200"): return Resp(b"{}", 200)
++            if b in ("400", "429", "500"): raise urllib.error.HTTPError(url, int(b), "x", {}, io.BytesIO(b""))
++            if b == "refused": raise urllib.error.URLError(ConnectionRefusedError(111, "refused " + url))
++            if b == "timeout": raise socket.timeout("timed out " + url)
++        raise AssertionError("unexpected url")
++
++def sh(*a, cwd=None): return subprocess.run(a, cwd=cwd, check=True, capture_output=True)
++o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP); sh("git", "init", "-q", "--bare", o)
++def clone():
++    w = tempfile.mkdtemp(prefix="SECRETPATH_w", dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    return w
++W = clone(); G = Git(W)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++COLS = "record_id,target_us_session_date,observation_role,observation_status,current_fg_value,observed_at_iso8601\n"
++days = [d.isoformat() for d in session_days() if "2026-07-20" <= d.isoformat() <= "2026-08-10"]
++def ledger_upto(next_day):
++    rows = [COLS] + ["fg-%s,%s,decision,observed,%s,%sT07:05+09:00\n" % (d, d, fg[d], (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat())
++                     for d in days if (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat() <= next_day]
++    want = "".join(rows).encode(); head = G.fetch("v2-ledger")
++    if head is None or G.blob(head, "observations.csv") != want:
++        G.push(G.commit_with(head, "observations.csv", want, "user ledger", CLOCK()), "v2-ledger")
++NET = Net(); OUT = []
++def run(args, day, hhmm="07:40", env=None):
++    now = dt.datetime.fromisoformat("%sT%s:00+09:00" % (day, hhmm)).astimezone(dt.timezone.utc)
++    OUT.clear(); summary = os.path.join(tempfile.mkdtemp(dir=TMP), "summary.md")
++    e = {"GITHUB_STEP_SUMMARY": summary}; e.update(env or {})
++    code = main(args + ["--workdir", W, "--code-version", "0" * 40], env=e, out=OUT.append, now_fn=lambda: now, urlopen=NET)
++    text = OUT[0]
++    return code, dict(l[2:].split(": ", 1) for l in text.splitlines() if l.startswith("- ")), text
++
++ALL = []
++def show(tag, code, kv, text, keys=("run_outcome", "key", "delivery", "send_status", "code", "inputs_failure")):
++    ALL.append(text)
++    print(tag, "exit", code, " ".join("%s=%s" % (k, kv[k]) for k in keys if k in kv))
++
++# dry: init, then mornings
++c, kv, t = run(["init", "--mode", "dry", "--start-after", "2026-07-20"], "2026-07-21", "07:00"); show("E1 init dry", c, kv, t, ("state", "outbox", "git"))
++for d in days[1:6]:
++    nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; ledger_upto(nxt)
++    c, kv, t = run(["morning", "--mode", "dry"], nxt); show("E2 dry " + d, c, kv, t)
++print("   timings", kv["seconds.load_inputs"], kv["seconds.morning_job"], kv["seconds.outbox_status"], "files", kv["outbox_files"], "pinned_by", kv.get("provenance.pinned_by"))
++print("   dry text head:", t.split("```")[1].strip().splitlines()[:2])
++c, kv, t = run(["morning", "--mode", "dry"], nxt, "08:40"); show("E3 dry second run same morning", c, kv, t)
++# R-02: after the close, the target D comes twice
++d = days[6]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; NET.live = d; ledger_upto(nxt)
++c, kv, t = run(["morning", "--mode", "dry"], nxt); show("E4 R-02 two rows of D after close", c, kv, t); NET.live = None
++c, kv, t = run(["morning", "--mode", "dry"], nxt, "08:40"); show("   second run (shape back to normal)", c, kv, t)
++# live
++c, kv, t = run(["init", "--mode", "live", "--start-after", "2026-07-28"], "2026-07-29", "07:00"); show("E5 init live", c, kv, t, ("state", "outbox"))
++cases = [("204", "SENT"), ("400", "NOT_SENT"), ("500", "UNKNOWN"), ("refused", "NOT_SENT"), ("timeout", "UNKNOWN")]
++for (b, want), d in zip(cases, days[7:12]):
++    nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; ledger_upto(nxt); NET.discord = [b]
++    c, kv, t = run(["morning", "--mode", "live"], nxt, env={"V2_DISCORD_WEBHOOK_URL": WEBHOOK}); show("E6 live discord %s (want %s)" % (b, want), c, kv, t)
++c, kv, t = run(["morning", "--mode", "live"], nxt, "08:40", env={"V2_DISCORD_WEBHOOK_URL": WEBHOOK}); show("E7 live second run after UNKNOWN", c, kv, t)
++d = days[12]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; ledger_upto(nxt)
++c, kv, t = run(["morning", "--mode", "live"], nxt); show("E8 live without the secret", c, kv, t)
++print("   live heading in the posted text:", [p[1].splitlines()[1][:12] for p in NET.posts[:1]], "preview words posted:", any("プレビュー" in p[1] for p in NET.posts))
++print("   mentions blocked on every post:", all(p[2] == {"parse": []} for p in NET.posts), len(NET.posts))
++# resend: the UNKNOWN day, with an id; then a HALT resend when a MORNING exists
++c, kv, t = run(["resend", "--mode", "live", "--date", days[11], "--kind", "morning", "--request-id", "r1"], "2026-08-08", "09:00", env={"V2_DISCORD_WEBHOOK_URL": WEBHOOK}); show("E9 resend morning of the UNKNOWN day", c, kv, t, ("delivery", "send_status", "original_status"))
++c, kv, t = run(["resend", "--mode", "live", "--date", days[11], "--kind", "halt", "--request-id", "r2"], "2026-08-08", "09:00", env={"V2_DISCORD_WEBHOOK_URL": WEBHOOK}); show("E10 resend halt when the morning exists", c, kv, t, ("delivery",))
++c, kv, t = run(["status", "--mode", "live", "--date", days[11]], "2026-08-08", "09:05"); print("E11 status", [l for l in t.splitlines() if l.startswith("- " + days[11])])
++# S4-B review P-01: the fallback ERROR of a date whose MORNING exists
++s = Setup("live", W, {}, NET, lambda: dt.datetime(2026, 8, 5, 22, 40, tzinfo=dt.timezone.utc), tempfile.mkdtemp(dir=TMP))
++r = morning_job(s.store, s.outbox, s.sender, s.now, None, None, []); print("E12 fallback ERROR key", r.d, r.kind, r.delivery, r.existing_status)
++# split
++long = "\n".join("行%03d " % i + "あ" * 40 for i in range(100)); parts = split_text(live_text(long))
++print("E13 split", len(long), "->", len(parts), "parts, max", max(len(p) for p in parts), "starts", parts[1][:6])
++NET.discord = ["204", "500"]; print("   second part fails:", DiscordSender(WEBHOOK, NET).send(long), "| first part 400:", (NET.discord.append("400") or DiscordSender(WEBHOOK, NET).send(long)))
++print("E14 bad webhook URL:", DiscordSender("http://example.invalid/x", NET).send("x"), DiscordSender(None, NET).send("x"))
++# leaks
++blob = "\n".join(ALL); print("E15 leaks: path", "SECRETPATH" in blob, "token", "SECRETTOKEN" in blob, "url", "http" in blob)
++print("   example record:\n" + ALL[2][:900])
++print("   outbox names:", sorted(G.tree(G.fetch("v2-outbox")))[:5])
+diff --git a/trial_probes/s4e_check.py b/trial_probes/s4e_check.py
+new file mode 100644
+index 0000000..ea41fd2
+--- /dev/null
++++ b/trial_probes/s4e_check.py
+@@ -0,0 +1,93 @@
++"""S4-E trial: the entry v2_run (dry and live) over a local bare remote, with a fake urlopen for the chart and Discord."""
++import os, sys, json, csv, tempfile, subprocess, time, socket, io, datetime as dt, urllib.error
++ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT)
++from v2_git_store import Git
++from v2_inputs.xnys import ny_offset, session_days
++from v2_notify import morning_job, LocalOutbox, outbox_status
++from v2_run import main, split_text, DiscordSender, live_text
++from v2_run.entry import Setup
++
++JST = dt.timezone(dt.timedelta(hours=9))
++DATA = os.path.join(ROOT, "research/SOXL_initial_trend_20261023/data")
++daily = json.load(open(os.path.join(DATA, "daily.json")))
++adj = list(csv.DictReader(open(os.path.join(DATA, "daily_adjclose.csv"))))
++fg = {r["Date"]: r["Fear Greed"] for r in csv.DictReader(open(os.path.join(DATA, "fear-greed.csv")))}
++SRC = {"SOXX": {d: a for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++       "SOXL": {d: c for d, c in zip(daily["funds"]["SOXL"]["ohlcv"]["date"], daily["funds"]["SOXL"]["ohlcv"]["close"])},
++       "SPY": {r["Date"]: float(r["SPY"]) for r in adj if r["SPY"]}, "IEF": {r["Date"]: float(r["IEF"]) for r in adj if r["IEF"]}}
++WEBHOOK = "https://discord.com/api/webhooks/123/SECRETTOKEN_abc"
++
++def ts_of(d, hh=9, mm=30):
++    day = dt.date.fromisoformat(d)
++    return int((dt.datetime(day.year, day.month, day.day, hh, mm) - ny_offset(day)).replace(tzinfo=dt.timezone.utc).timestamp())
++
++class Resp(io.BytesIO):
++    def __init__(self, data, status=200): super().__init__(data); self.status = status
++    def __enter__(self): return self
++    def __exit__(self, *a): self.close()
++
++class Net(object):
++    """Fake urlopen. chart: rows of the research data up to self.upto (and an optional live bar of today);
++    discord: self.discord is a list of behaviours, one per post ('204', '400', '500', 'refused', 'timeout')."""
++    def __init__(self): self.upto, self.discord, self.posts, self.charts, self.live = None, [], [], 0, None
++    def __call__(self, req, timeout=None):
++        url = req.full_url
++        if url.startswith("https://query1.finance.yahoo.com/"):
++            self.charts += 1
++            sym = url.split("/chart/")[1].split("?")[0]
++            rows = sorted((d, v) for d, v in SRC[sym].items() if d <= self.upto and d != "2026-05-25")
++            ts = [ts_of(d) for d, _ in rows]; vals = [v for _, v in rows]
++            if self.live:                                        # R-02 shape: two rows of one date after the close
++                ts.append(ts_of(self.live, 16, 0)); vals.append(vals[-1])
++            body = {"chart": {"result": [{"meta": {"symbol": sym}, "timestamp": ts,
++                    "indicators": {"quote": [{"close": vals}], "adjclose": [{"adjclose": vals}]}}], "error": None}}
++            return Resp(json.dumps(body).encode())
++        if url.startswith("https://discord.com/api/webhooks/"):
++            b = self.discord.pop(0) if self.discord else "204"
++            body = json.loads(req.data.decode()); self.posts.append((b, body["content"], body.get("allowed_mentions")))
++            if b in ("204", "200"): return Resp(b"{}", 200)
++            if b in ("400", "429", "500"): raise urllib.error.HTTPError(url, int(b), "x", {}, io.BytesIO(b""))
++            if b == "refused": raise urllib.error.URLError(ConnectionRefusedError(111, "refused " + url))
++            if b == "timeout": raise socket.timeout("timed out " + url)
++        raise AssertionError("unexpected url")
++
++def sh(*a, cwd=None): return subprocess.run(a, cwd=cwd, check=True, capture_output=True)
++o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP); sh("git", "init", "-q", "--bare", o)
++def clone():
++    w = tempfile.mkdtemp(prefix="SECRETPATH_w", dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    return w
++W = clone(); G = Git(W)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++COLS = "record_id,target_us_session_date,observation_role,observation_status,current_fg_value,observed_at_iso8601\n"
++days = [d.isoformat() for d in session_days() if "2026-07-20" <= d.isoformat() <= "2026-08-10"]
++def ledger_upto(next_day):
++    rows = [COLS] + ["fg-%s,%s,decision,observed,%s,%sT07:05+09:00\n" % (d, d, fg[d], (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat())
++                     for d in days if (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat() <= next_day]
++    want = "".join(rows).encode(); head = G.fetch("v2-ledger")
++    if head is None or G.blob(head, "observations.csv") != want:
++        G.push(G.commit_with(head, "observations.csv", want, "user ledger", CLOCK()), "v2-ledger")
++NET = Net(); OUT = []
++def run(args, day, hhmm="07:40", env=None):
++    now = dt.datetime.fromisoformat("%sT%s:00+09:00" % (day, hhmm)).astimezone(dt.timezone.utc)
++    OUT.clear(); summary = os.path.join(tempfile.mkdtemp(dir=TMP), "summary.md")
++    e = {"GITHUB_STEP_SUMMARY": summary}; e.update(env or {})
++    code = main(args + ["--workdir", W, "--code-version", "0" * 40], env=e, out=OUT.append, now_fn=lambda: now, urlopen=NET)
++    text = OUT[0]
++    return code, dict(l[2:].split(": ", 1) for l in text.splitlines() if l.startswith("- ")), text
++
++
++def show(tag, kv, keys):
++    print(tag, " ".join("%s=%s" % (k, kv.get(k)) for k in keys))
++c, kv, t = run(["init", "--mode", "dry", "--start-after", "2026-07-20"], "2026-07-21", "07:00")
++for d in days[1:4]:
++    nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; ledger_upto(nxt)
++    run(["morning", "--mode", "dry"], nxt)
++NET.upto = "2026-07-24"
++K = ["SOXX.shape", "SOXX.rows", "SOXX.first", "SOXX.last", "SOXX.times_ny", "SOXX.target_rows", "SOXX.duplicate_dates", "SOXX.table_days_missing_or_null",
++     "SOXX.pre2026_only_in_response", "SOXX.pre2026_only_in_research", "SOXX.pin_last_close_changed", "SOXX.pin_older_close_changed", "SOXX.pin_adj_return_maxdiff", "IEF.pre2026_only_in_research", "SPY.table_days_missing_or_null"]
++c, kv, t = run(["check-source", "--mode", "dry"], "2026-07-25"); print("C1 normal exit", c, "pin_through", kv.get("pin_through"), "target", kv.get("target_d")); show("  ", kv, K)
++NET.live = "2026-07-24"; c, kv, t = run(["check-source", "--mode", "dry"], "2026-07-25"); NET.live = None; show("C2 R-02 shape", kv, ["SOXX.target_rows", "SOXX.duplicate_dates"])
++keep = SRC["SOXX"]["2026-07-23"]; SRC["SOXX"]["2026-07-23"] = keep * 1.01; gone = SRC["SPY"].pop("2026-03-02")
++c, kv, t = run(["check-source", "--mode", "dry"], "2026-07-25"); show("C3 provisional pin + a 2026 hole", kv, ["SOXX.pin_last_close_changed", "SOXX.pin_adj_return_maxdiff", "SPY.table_days_missing_or_null", "SPY.table_days_missing_examples"])
++SRC["SOXX"]["2026-07-23"] = keep; SRC["SPY"]["2026-03-02"] = gone
++print("leaks", "SECRETPATH" in t, "http" in t)
+diff --git a/trial_probes/s4e_measure.py b/trial_probes/s4e_measure.py
+new file mode 100644
+index 0000000..3ca271e
+--- /dev/null
++++ b/trial_probes/s4e_measure.py
+@@ -0,0 +1,26 @@
++"""S4-E trial measurements (S4-C handoff 3, U-06): the git outbox with many files, and a long catch-up."""
++import os, sys, json, tempfile, subprocess, time, datetime as dt
++ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT); sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++from v2_git_store import Git, GitOutbox
++from v2_notify import outbox_status, Notice, MORNING
++def sh(*a, cwd=None, data=None): return subprocess.run(a, cwd=cwd, check=True, capture_output=True, input=data)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++NOW = dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++for n in (0, 750, 1500, 3000):
++    o = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", "--bare", o)
++    w = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    g = Git(w); ob = GitOutbox(g, "v2-outbox", tempfile.mkdtemp(dir=TMP), CLOCK); ob.initialize()
++    if n:
++        b = tempfile.mkdtemp(dir=TMP); sh("git", "clone", "-q", "-b", "v2-outbox", o, b)
++        day = dt.date(2020, 1, 1)
++        for i in range(n // 2):
++            day += dt.timedelta(1)
++            for suffix in ("claim", "result"):
++                with open(os.path.join(b, "%s-morning.%s.json" % (day.isoformat(), suffix)), "w") as f:
++                    f.write(json.dumps({"filler": i, "pad": "x" * 600}))
++        sh("git", "add", "-A", cwd=b); sh("git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "fill", cwd=b)
++        sh("git", "push", "-q", "origin", "v2-outbox", cwd=b)
++    t0 = time.monotonic(); ob.load("2026-07-31", MORNING); t1 = time.monotonic()
++    outbox_status(ob, "2026-07-31"); t2 = time.monotonic()
++    cid = ob.claim(Notice(MORNING, "2026-07-31", "text", "DONE", None), NOW); ob.record("2026-07-31", MORNING, cid, "SENT", NOW); t3 = time.monotonic()
++    print("outbox files %5d | load %.2fs | outbox_status %.2fs | claim+record %.2fs" % (n + 1, t1 - t0, t2 - t1, t3 - t2))
+diff --git a/trial_probes/s4e_catchup.py b/trial_probes/s4e_catchup.py
+new file mode 100644
+index 0000000..945d298
+--- /dev/null
++++ b/trial_probes/s4e_catchup.py
+@@ -0,0 +1,83 @@
++"""S4-E trial: the entry v2_run (dry and live) over a local bare remote, with a fake urlopen for the chart and Discord."""
++import os, sys, json, csv, tempfile, subprocess, time, socket, io, datetime as dt, urllib.error
++ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT)
++from v2_git_store import Git
++from v2_inputs.xnys import ny_offset, session_days
++from v2_notify import morning_job, LocalOutbox, outbox_status
++from v2_run import main, split_text, DiscordSender, live_text
++from v2_run.entry import Setup
++
++JST = dt.timezone(dt.timedelta(hours=9))
++DATA = os.path.join(ROOT, "research/SOXL_initial_trend_20261023/data")
++daily = json.load(open(os.path.join(DATA, "daily.json")))
++adj = list(csv.DictReader(open(os.path.join(DATA, "daily_adjclose.csv"))))
++fg = {r["Date"]: r["Fear Greed"] for r in csv.DictReader(open(os.path.join(DATA, "fear-greed.csv")))}
++SRC = {"SOXX": {d: a for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++       "SOXL": {d: c for d, c in zip(daily["funds"]["SOXL"]["ohlcv"]["date"], daily["funds"]["SOXL"]["ohlcv"]["close"])},
++       "SPY": {r["Date"]: float(r["SPY"]) for r in adj if r["SPY"]}, "IEF": {r["Date"]: float(r["IEF"]) for r in adj if r["IEF"]}}
++WEBHOOK = "https://discord.com/api/webhooks/123/SECRETTOKEN_abc"
++
++def ts_of(d, hh=9, mm=30):
++    day = dt.date.fromisoformat(d)
++    return int((dt.datetime(day.year, day.month, day.day, hh, mm) - ny_offset(day)).replace(tzinfo=dt.timezone.utc).timestamp())
++
++class Resp(io.BytesIO):
++    def __init__(self, data, status=200): super().__init__(data); self.status = status
++    def __enter__(self): return self
++    def __exit__(self, *a): self.close()
++
++class Net(object):
++    """Fake urlopen. chart: rows of the research data up to self.upto (and an optional live bar of today);
++    discord: self.discord is a list of behaviours, one per post ('204', '400', '500', 'refused', 'timeout')."""
++    def __init__(self): self.upto, self.discord, self.posts, self.charts, self.live = None, [], [], 0, None
++    def __call__(self, req, timeout=None):
++        url = req.full_url
++        if url.startswith("https://query1.finance.yahoo.com/"):
++            self.charts += 1
++            sym = url.split("/chart/")[1].split("?")[0]
++            rows = sorted((d, v) for d, v in SRC[sym].items() if d <= self.upto and d != "2026-05-25")
++            ts = [ts_of(d) for d, _ in rows]; vals = [v for _, v in rows]
++            if self.live:                                        # R-02 shape: two rows of one date after the close
++                ts.append(ts_of(self.live, 16, 0)); vals.append(vals[-1])
++            body = {"chart": {"result": [{"meta": {"symbol": sym}, "timestamp": ts,
++                    "indicators": {"quote": [{"close": vals}], "adjclose": [{"adjclose": vals}]}}], "error": None}}
++            return Resp(json.dumps(body).encode())
++        if url.startswith("https://discord.com/api/webhooks/"):
++            b = self.discord.pop(0) if self.discord else "204"
++            body = json.loads(req.data.decode()); self.posts.append((b, body["content"], body.get("allowed_mentions")))
++            if b in ("204", "200"): return Resp(b"{}", 200)
++            if b in ("400", "429", "500"): raise urllib.error.HTTPError(url, int(b), "x", {}, io.BytesIO(b""))
++            if b == "refused": raise urllib.error.URLError(ConnectionRefusedError(111, "refused " + url))
++            if b == "timeout": raise socket.timeout("timed out " + url)
++        raise AssertionError("unexpected url")
++
++def sh(*a, cwd=None): return subprocess.run(a, cwd=cwd, check=True, capture_output=True)
++o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP); sh("git", "init", "-q", "--bare", o)
++def clone():
++    w = tempfile.mkdtemp(prefix="SECRETPATH_w", dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    return w
++W = clone(); G = Git(W)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++COLS = "record_id,target_us_session_date,observation_role,observation_status,current_fg_value,observed_at_iso8601\n"
++days = [d.isoformat() for d in session_days() if "2026-01-02" <= d.isoformat() <= "2026-08-10"]
++def ledger_upto(next_day):
++    rows = [COLS] + [("fg-%s,%s,decision,observed,%s,%sT07:05+09:00\n" % (d, d, fg[d], (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat())) if d in fg else ("fg-%s,%s,decision,not_checked,,\n" % (d, d))
++                     for d in days if (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat() <= next_day]
++    want = "".join(rows).encode(); head = G.fetch("v2-ledger")
++    if head is None or G.blob(head, "observations.csv") != want:
++        G.push(G.commit_with(head, "observations.csv", want, "user ledger", CLOCK()), "v2-ledger")
++NET = Net(); OUT = []
++def run(args, day, hhmm="07:40", env=None):
++    now = dt.datetime.fromisoformat("%sT%s:00+09:00" % (day, hhmm)).astimezone(dt.timezone.utc)
++    OUT.clear(); summary = os.path.join(tempfile.mkdtemp(dir=TMP), "summary.md")
++    e = {"GITHUB_STEP_SUMMARY": summary}; e.update(env or {})
++    code = main(args + ["--workdir", W, "--code-version", "0" * 40], env=e, out=OUT.append, now_fn=lambda: now, urlopen=NET)
++    text = OUT[0]
++    return code, dict(l[2:].split(": ", 1) for l in text.splitlines() if l.startswith("- ")), text
++
++
++c, kv, t = run(["init", "--mode", "dry", "--start-after", "2026-01-02"], "2026-01-03", "07:00"); print("init", c, kv.get("state"))
++NET.upto = "2026-08-10"; ledger_upto("2026-08-11")
++t0 = time.monotonic(); c, kv, t = run(["morning", "--mode", "dry"], "2026-08-11"); t1 = time.monotonic()
++print("catch-up exit", c, kv["run_outcome"], kv["key"], "consumed days", len(kv["consumed"].split()), "| load_inputs", kv["seconds.load_inputs"], "morning_job", kv["seconds.morning_job"], "| whole", "%.1fs" % (t1 - t0))
++c, kv, t = run(["morning", "--mode", "dry"], "2026-08-11", "08:40"); print("next run same morning", kv["delivery"], "morning_job", kv["seconds.morning_job"])
