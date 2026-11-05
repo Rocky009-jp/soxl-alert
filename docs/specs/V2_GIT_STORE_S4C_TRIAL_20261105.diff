@@ -1,0 +1,434 @@
+diff --git a/tests/v2_git_store/test_s4c_09_scope.py b/tests/v2_git_store/test_s4c_09_scope.py
+new file mode 100644
+index 0000000..294f19e
+--- /dev/null
++++ b/tests/v2_git_store/test_s4c_09_scope.py
+@@ -0,0 +1,27 @@
++"""Trial placeholder of the S4-C range test (the implementation writes the full one, S4C-18)."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
++import sc_helpers as C  # noqa: E402
++
++START = "6cab0506c408d194c63b656713e4a0a7d62c3ba1"
++END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++REV = END or "HEAD"
++FIRST_OF_CHAIN = "adfdf765aeca0d01c8f10b596a6fac59d7c1a07e"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_the_whole_chain_has_no_gap_and_this_is_the_only_open_range(self):
++        if C.git("cat-file", "-e", START + "^{commit}").returncode != 0:
++            self.skipTest("the code start commit is not available in this checkout")
++        rows = C.range_tests(REV)
++        self.assertEqual(C.judge_chain(rows, C.is_ancestor, tip=REV, begin=FIRST_OF_CHAIN), [])
++        self.assertEqual([r["path"] for r in rows if r["end"] is None], ["tests/v2_git_store/test_s4c_09_scope.py"])
++        self.assertEqual([r["path"] for r in rows if r["end"] == START], ["tests/v2_notify/test_s4b_09_scope.py"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/v2_notify/test_s4b_09_scope.py b/tests/v2_notify/test_s4b_09_scope.py
+index a789176..b21c2e6 100644
+--- a/tests/v2_notify/test_s4b_09_scope.py
++++ b/tests/v2_notify/test_s4b_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "6ad609fe52b50565103e56c598505cac85601216"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "6cab0506c408d194c63b656713e4a0a7d62c3ba1"   # accepted (receipt 983ced8); frozen when S4-C began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_notify"
+diff --git a/v2_git_store/__init__.py b/v2_git_store/__init__.py
+new file mode 100644
+index 0000000..db73f87
+--- /dev/null
++++ b/v2_git_store/__init__.py
+@@ -0,0 +1,4 @@
++"""TRIAL of S4-C (not a request, not adopted): the history and the outbox kept on refs of a git remote."""
++from .git import Git, GitError
++from .history import GitHistoryStore
++from .outbox import GitOutbox
+diff --git a/v2_git_store/git.py b/v2_git_store/git.py
+new file mode 100644
+index 0000000..229aad6
+--- /dev/null
++++ b/v2_git_store/git.py
+@@ -0,0 +1,81 @@
++"""TRIAL. The only place that runs git. Output and stderr never leave this module (they may name the remote URL)."""
++import os, subprocess
++from v2_core.errors import CoreError
++
++
++class GitError(CoreError):
++    pass
++
++
++OK, REJECTED, UNCERTAIN = "OK", "REJECTED", "UNCERTAIN"
++_ENV = {"GIT_TERMINAL_PROMPT": "0", "LC_ALL": "C", "GIT_AUTHOR_NAME": "v2-runner", "GIT_AUTHOR_EMAIL": "runner@invalid",
++        "GIT_COMMITTER_NAME": "v2-runner", "GIT_COMMITTER_EMAIL": "runner@invalid", "GIT_CONFIG_NOSYSTEM": "1"}
++
++
++class Git(object):
++    def __init__(self, workdir, remote="origin", timeout=120):
++        self.workdir, self.remote, self.timeout = workdir, remote, timeout
++
++    def run(self, args, data=None, env=None):
++        e = dict(os.environ); e.update(_ENV); e.update(env or {})
++        try:
++            p = subprocess.run(["git", "-c", "core.autocrlf=false", "-c", "commit.gpgsign=false"] + args,
++                               cwd=self.workdir, input=data, capture_output=True, timeout=self.timeout, env=e)
++        except subprocess.TimeoutExpired:
++            return None
++        return p
++
++    def must(self, args, data=None, env=None):
++        p = self.run(args, data, env)
++        if p is None or p.returncode != 0:
++            raise GitError("git_failed", args[0])
++        return p.stdout
++
++    def fetch(self, ref):
++        """Head SHA of refs/heads/<ref> as fetched into a private local ref, or None when the remote has no such ref."""
++        p = self.run(["fetch", "--no-tags", "--quiet", self.remote, "+refs/heads/%s:refs/v2remote/%s" % (ref, ref)])
++        if p is not None and p.returncode == 0:
++            return self.must(["rev-parse", "refs/v2remote/%s" % ref]).decode().strip()
++        q = self.run(["ls-remote", "--heads", self.remote, "refs/heads/" + ref])
++        if q is not None and q.returncode == 0 and not q.stdout.strip():
++            return None
++        raise GitError("git_fetch_failed", ref)
++
++    def blob(self, commit, path):
++        p = self.run(["cat-file", "blob", "%s:%s" % (commit, path)])
++        return None if p is None or p.returncode != 0 else p.stdout
++
++    def names(self, commit):
++        if commit is None:
++            return []
++        return self.must(["ls-tree", "--name-only", commit]).decode().split("\n")[:-1]
++
++    def commit_with(self, parent, path, data, message, when):
++        """A new commit: parent's tree with `path` added (it must not be there unless replace) -> SHA."""
++        blob = self.must(["hash-object", "-w", "--stdin"], data).decode().strip()
++        entries = [] if parent is None else self.must(["ls-tree", parent]).decode().split("\n")[:-1]
++        entries = [e for e in entries if e.split("\t", 1)[1] != path] + ["100644 blob %s\t%s" % (blob, path)]
++        tree = self.must(["mktree"], ("\n".join(sorted(entries, key=lambda e: e.split("\t", 1)[1])) + "\n").encode()).decode().strip()
++        args = ["commit-tree", tree, "-m", message] + ([] if parent is None else ["-p", parent])
++        stamp = when.isoformat()
++        return self.must(args, env={"GIT_AUTHOR_DATE": stamp, "GIT_COMMITTER_DATE": stamp}).decode().strip()
++
++    def push(self, commit, ref):
++        """Fast-forward only (never forced). OK / REJECTED (the ref moved, or exists when creating) / UNCERTAIN."""
++        p = self.run(["push", "--porcelain", self.remote, "%s:refs/heads/%s" % (commit, ref)])
++        if p is None:
++            return UNCERTAIN
++        for line in p.stdout.decode(errors="replace").splitlines():
++            if line.endswith("refs/heads/%s" % ref) or ("refs/heads/%s\t" % ref) in line:
++                flag = line.split("\t", 1)[0]
++                if flag in ("*", " ", "="):
++                    return OK if p.returncode == 0 else UNCERTAIN
++                if flag == "!":
++                    return REJECTED
++        return UNCERTAIN
++
++    def is_ancestor(self, a, b):
++        p = self.run(["merge-base", "--is-ancestor", a, b])
++        if p is None or p.returncode not in (0, 1):
++            raise GitError("git_failed", "merge-base")
++        return p.returncode == 0
+diff --git a/v2_git_store/history.py b/v2_git_store/history.py
+new file mode 100644
+index 0000000..b3861fe
+--- /dev/null
++++ b/v2_git_store/history.py
+@@ -0,0 +1,64 @@
++"""TRIAL. history.json on refs/heads/<ref> of the remote, written by fast-forward pushes only."""
++from v2_history_publish import check_publication, history_bytes, read_history_bytes, reconcile_publication
++from v2_history_local import INITIALIZED, HistoryStoreResult
++from v2_persistence.local.errors import LocalStoreError
++from .git import OK, REJECTED, GitError
++
++NAME = "history.json"
++
++
++class GitHistoryStore(object):
++    def __init__(self, git, ref, clock):
++        self._git, self._ref, self._clock = git, ref, clock
++
++    def _head(self):
++        try:
++            return self._git.fetch(self._ref)
++        except GitError:
++            raise LocalStoreError("store_io_error", "history", "read")
++
++    def _bytes(self, head):
++        if head is None:
++            return None
++        data = self._git.blob(head, NAME)
++        if data is None:
++            raise LocalStoreError("store_layout_unsupported", "history", "read")
++        return data
++
++    def read(self):
++        head = self._head()
++        if head is None:
++            raise LocalStoreError("store_uninitialized", "history", "read")
++        history, _ = read_history_bytes(self._bytes(head))
++        return history
++
++    def _write(self, head, pub, current):
++        candidate = check_publication(current, pub)
++        commit = self._git.commit_with(head, NAME, history_bytes(candidate), "v2 history %s" % pub.publication_hash[:12],
++                                       self._clock())
++        how = self._git.push(commit, self._ref)
++        if how == OK:
++            return candidate
++        if how == REJECTED:
++            raise LocalStoreError("publication_stale", "history", "publish")   # the remote moved since it was read
++        raise LocalStoreError("store_commit_uncertain", "history", "publish")
++
++    def initialize(self, pub):
++        head = self._head()
++        if head is not None:
++            raise LocalStoreError("already_initialized", "store", "read")
++        c = self._write(None, pub, None)
++        return HistoryStoreResult(INITIALIZED, True, c, "remote", pub.publication_hash)
++
++    def publish(self, pub):
++        head = self._head()
++        if head is None:
++            raise LocalStoreError("store_uninitialized", "history", "read")
++        current = self._bytes(head)
++        read_history_bytes(current)
++        c = self._write(head, pub, current)
++        return HistoryStoreResult("PUBLISHED", True, c, "remote", pub.publication_hash)
++
++    def reconcile(self, pub):
++        """Read the remote again and judge by content only (C-2): no memory of what this process pushed."""
++        return reconcile_publication(self._bytes(self._head()), pub)
+diff --git a/v2_git_store/outbox.py b/v2_git_store/outbox.py
+new file mode 100644
+index 0000000..483bdea
+--- /dev/null
++++ b/v2_git_store/outbox.py
+@@ -0,0 +1,76 @@
++"""TRIAL. The S4-B outbox kept on refs/heads/<ref>: a LocalOutbox over a local mirror directory whose claim and record
++are decided by a fast-forward push of a commit that adds exactly that file. Only public methods are overridden."""
++import os, shutil
++from v2_notify import DAMAGED, LocalOutbox, NotifyError, OutboxEntry
++from .git import OK, GitError
++
++_TRIES = 4
++
++
++class GitOutbox(LocalOutbox):
++    def __init__(self, git, ref, mirror, clock):
++        super().__init__(mirror, "file_sync_only")
++        self._git, self._ref, self._mirror, self._clock, self._headsha = git, ref, mirror, clock, None
++
++    def _refresh(self):
++        try:
++            head = self._git.fetch(self._ref)
++            for n in os.listdir(self._mirror):
++                os.unlink(os.path.join(self._mirror, n))
++            for n in self._git.names(head):
++                data = self._git.blob(head, n)
++                with open(os.path.join(self._mirror, n), "wb") as f:
++                    f.write(data)
++        except (GitError, OSError):
++            raise NotifyError("outbox_io_error", "outbox")
++        self._headsha = head
++
++    def load(self, d, kind, resend_request_id=None):
++        failed = False
++        try:
++            self._refresh()
++        except NotifyError:
++            failed = True
++        if failed:                                # the job reads status without a handler: never raise, never send
++            return OutboxEntry(kind, d, resend_request_id, DAMAGED), None
++        return super().load(d, kind, resend_request_id)
++
++    def resend_ids(self, d, kind):
++        self._refresh()
++        return super().resend_ids(d, kind)
++
++    def _decide(self, make):
++        """make() creates one local file through LocalOutbox and returns its value (None/False when it is present).
++        The file is found as the one name the call added to the mirror (no private name of LocalOutbox is used)."""
++        for _ in range(_TRIES):
++            self._refresh()
++            before = set(os.listdir(self._mirror))
++            value = make()
++            if not value:
++                return value
++            added = set(os.listdir(self._mirror)) - before
++            if len(added) != 1:
++                raise NotifyError("outbox_io_error", "outbox")
++            name = added.pop()
++            with open(os.path.join(self._mirror, name), "rb") as f:
++                data = f.read()
++            try:
++                commit = self._git.commit_with(self._headsha, name, data, "v2 outbox " + name, self._clock())
++                how = self._git.push(commit, self._ref)
++            except GitError:
++                how = None
++            if how == OK:
++                return value
++            self._refresh()                       # rejected or uncertain: what does the remote say now?
++            path = os.path.join(self._mirror, name)
++            if os.path.exists(path):
++                with open(path, "rb") as f:
++                    same = f.read() == data
++                return value if same else (None if isinstance(value, str) else False)
++        raise NotifyError("outbox_io_error", "outbox")
++
++    def claim(self, notice, now, resend_request_id=None, resend_of=None):
++        return self._decide(lambda: LocalOutbox.claim(self, notice, now, resend_request_id, resend_of))
++
++    def record(self, d, kind, claim_id, status, now, resend_request_id=None):
++        return self._decide(lambda: LocalOutbox.record(self, d, kind, claim_id, status, now, resend_request_id))
+diff --git a/trial_probes/s4c_race.py b/trial_probes/s4c_race.py
+new file mode 100644
+index 0000000..3fcc5dd
+--- /dev/null
++++ b/trial_probes/s4c_race.py
+@@ -0,0 +1,50 @@
++"""N processes, each with its own clone, run the morning job against one bare remote at once; count the sends."""
++import os, sys, subprocess, tempfile, shutil, time, json
++from datetime import datetime, timezone
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")):
++    sys.path.insert(0, p)
++import p_helpers as P
++D, TZ, TMP = P.DATES, P.TZ, os.environ["TMPDIR"]
++CLOCK = lambda: datetime(2026, 11, 5, tzinfo=timezone.utc)
++def world():
++    w = P.World(0); w.ledger += [P.obs("R%d" % i, D[i], 30.0) for i in range(1, 6)]; return w
++def now():
++    y, m, d = (int(x) for x in D[6].split("-")); return datetime(y, m, d, 18, tzinfo=TZ)
++def sh(*a, cwd=None): subprocess.run(a, cwd=cwd, check=True, capture_output=True)
++def clone(o):
++    from v2_git_store import Git, GitHistoryStore, GitOutbox
++    w = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    g = Git(w); return g, GitHistoryStore(g, "state", CLOCK), GitOutbox(g, "outbox", tempfile.mkdtemp(dir=TMP), CLOCK)
++if len(sys.argv) > 2:
++    o, sync, i, logf = sys.argv[2:6]
++    from v2_notify import morning_job
++    class S(object):
++        def send(self, t):
++            with open(logf, "a") as f: f.write(json.dumps(t.splitlines()[0]) + "\n")
++            return "SENT"
++    g, h, ob = clone(o); w = world()
++    open(os.path.join(sync, "ready." + i), "w").close()
++    while not os.path.exists(os.path.join(sync, "go")): time.sleep(0.001)
++    r = morning_job(h, ob, S(), now(), w.series, w.sessions, w.ledger)
++    print(r.run_outcome, r.code, r.kind, r.delivery); sys.exit(0)
++from v2_history_publish import publish_genesis
++N, K = int(os.environ.get("N", 3)), int(os.environ.get("K", 10))
++summary, outs_all, applies_bad = {}, {}, 0
++for k in range(K):
++    o = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", "--bare", o)
++    g, h, ob = clone(o); w = world(); h.initialize(publish_genesis(w.start_after, w.sessions))
++    print_ = g.push(g.commit_with(None, "README", b"outbox\n", "init", CLOCK()), "outbox")
++    sync = tempfile.mkdtemp(dir=TMP); logf = os.path.join(sync, "sent.log")
++    ps = [subprocess.Popen([sys.executable, "-B", __file__, ROOT, o, sync, str(i), logf], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True) for i in range(N)]
++    while len([x for x in os.listdir(sync) if x.startswith("ready.")]) < N: time.sleep(0.01)
++    open(os.path.join(sync, "go"), "w").close()
++    outs = [p.communicate()[0].strip().splitlines()[-1] for p in ps]
++    for x in outs: outs_all[x] = outs_all.get(x, 0) + 1
++    sent = open(logf).read().splitlines() if os.path.exists(logf) else []
++    kinds = tuple(sorted("halt" if "判定なし" in json.loads(x) else "judgment" for x in sent))
++    summary[kinds] = summary.get(kinds, 0) + 1
++    hist = h.read(); dd = [e["d"] for e in hist.events if e.get("kind") == "APPLY"]
++    applies_bad += len(dd) != len(set(dd))
++print("N=%d K=%d sends:" % (N, K), summary, "dup APPLY rounds:", applies_bad)
++print(" outcomes:", outs_all)
+diff --git a/trial_probes/s4c_trial.py b/trial_probes/s4c_trial.py
+new file mode 100644
+index 0000000..94e99db
+--- /dev/null
++++ b/trial_probes/s4c_trial.py
+@@ -0,0 +1,77 @@
++"""S4-C trial: S4-A + S4-B over the trial git stores, with a local bare repository as the remote."""
++import os, sys, tempfile, shutil, subprocess, time, json
++from datetime import datetime, timedelta, timezone
++ROOT = sys.argv[1]
++for p in (ROOT, os.path.join(ROOT, "tests", "v2_persistence")):
++    sys.path.insert(0, p)
++import p_helpers as P
++from v2_history_publish import publish_genesis
++from v2_git_store import Git, GitHistoryStore, GitOutbox
++from v2_git_store import git as G
++from v2_notify import morning_job, outbox_status
++from v2_daily_run import run_morning
++D, TZ, TMP = P.DATES, P.TZ, os.environ["TMPDIR"]
++CLOCK = lambda: datetime(2026, 11, 5, tzinfo=timezone.utc)
++
++def sh(*a, cwd=None):
++    subprocess.run(a, cwd=cwd, check=True, capture_output=True)
++
++def origin():
++    o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP)
++    sh("git", "init", "-q", "--bare", o); return o
++
++def clone(o):
++    w = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    m = tempfile.mkdtemp(dir=TMP)
++    g = Git(w); return g, GitHistoryStore(g, "state", CLOCK), GitOutbox(g, "outbox", m, CLOCK)
++
++class Sender(object):
++    def __init__(self): self.sent = []
++    def send(self, t): self.sent.append(t); return "SENT"
++
++def at(d, h=18):
++    y, m, dd = (int(x) for x in d.split("-")); return datetime(y, m, dd, h, tzinfo=TZ)
++
++w = P.World(0); w.ledger += [P.obs("R1", D[1], 30.0), P.obs("R2", D[2], 31.0)]
++o = origin()
++gA, hA, oA = clone(o)
++hA.initialize(publish_genesis(w.start_after, w.sessions))
++# outbox ref needs a first commit: an empty README
++c = gA.commit_with(None, "README", b"outbox\n", "init", CLOCK()); print("outbox init", gA.push(c, "outbox"))
++s = Sender()
++t = time.time(); r = morning_job(hA, oA, s, at(D[3]), w.series, w.sessions, w.ledger)
++print("1 A", r.run_outcome, r.delivery, "%.2fs" % (time.time() - t), "sent", len(s.sent))
++r = morning_job(hA, oA, s, at(D[3]), w.series, w.sessions, w.ledger); print("2 A again", r.delivery, "sent", len(s.sent))
++gB, hB, oB = clone(o)
++r = morning_job(hB, oB, s, at(D[3]), w.series, w.sessions, w.ledger); print("3 B fresh clone", r.run_outcome, r.delivery, "sent", len(s.sent))
++print("  status B", [(e.kind, e.status) for e in outbox_status(oB, D[3])])
++# 4 ref moved between read and publish
++w.ledger += [P.obs("R3", D[3], 22.0), P.obs("R4", D[4], 23.0)]
++class Racing(G.Git):
++    armed = True
++    def push(self, commit, ref):
++        if ref == "state" and Racing.armed:
++            Racing.armed = False
++            run_morning(hB, at(D[4]), w.series, w.sessions, w.ledger)     # B publishes first
++        return G.Git.push(self, commit, ref)
++gR = Racing(gA.workdir); hR = GitHistoryStore(gR, "state", CLOCK)
++print("4 moved", run_morning(hR, at(D[4]), w.series, w.sessions, w.ledger))
++# 5 push uncertain after a real push
++w.ledger += [P.obs("R5", D[5], 24.0)]
++class Lost(G.Git):
++    def push(self, commit, ref):
++        how = G.Git.push(self, commit, ref)
++        return G.UNCERTAIN if ref == "state" and how == G.OK else how
++gL = Lost(gA.workdir); hL = GitHistoryStore(gL, "state", CLOCK)
++r = run_morning(hL, at(D[6]), w.series, w.sessions, w.ledger); print("5 uncertain", r, r.consumed)
++# 6 push uncertain without a push -> NOT_PUBLISHED -> STOPPED
++w.ledger += [P.obs("R6", D[6], 24.0)]
++class Dropped(G.Git):
++    def push(self, commit, ref):
++        return G.UNCERTAIN if ref == "state" else G.Git.push(self, commit, ref)
++hD = GitHistoryStore(Dropped(gA.workdir), "state", CLOCK)
++print("6 dropped", run_morning(hD, at(D[7]), w.series, w.sessions, w.ledger))
++# 7 remote gone: errors hold no path
++shutil.move(o, o + "_gone")
++r = morning_job(hA, oA, s, at(D[7]), w.series, w.sessions, w.ledger)
++print("7 remote gone", r.run_outcome, r.code, r.delivery, r.existing_status, "path leak:", any("SECRETPATH" in str(x) for x in (r, r.report, r.report.message if r.report else "", r.code)))
