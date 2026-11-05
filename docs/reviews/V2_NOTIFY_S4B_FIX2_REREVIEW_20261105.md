@@ -96,7 +96,7 @@ db5dc46を、完全な履歴の別クリーンクローン（core.autocrlf=false
 | 時点 | 結果 |
 |---|---|
 | 開始時（2026-11-05 03:15Z頃） | 95件一致。feat/v2-notify-s4b-20261105＝6cab050、docs/v2-notify-s4b-fix-rereview-20261105＝77e9cf8 |
-| 記録の1回目のpush後 | 95件一致（`s4br2_refs_postpush.txt`）。実装ブランチは6cab050のまま |
+| 記録の1回目のpush後 | 95件一致（`s4br2_refs_postpush.txt`）。実装ブランチは6cab050のまま。記録の1回目のコミットは055ce9767ff2681be459c63a6037763131b64fbe |
 
 本再レビューの記録は、6cab050から作った新しいブランチdocs/v2-notify-s4b-fix2-rereview-20261105にだけ置いた。実装ブランチ・前回までの記録ブランチ・mainは変えていない。
 
