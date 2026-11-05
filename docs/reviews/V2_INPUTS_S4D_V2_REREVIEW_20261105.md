@@ -60,4 +60,4 @@ P-01・P-02の文と、§15の記録を読んだ。
 
 本記録と付属だけを、新しいブランチ docs/v2-inputs-s4d-v2-rereview-20261105（65b3c3cから）に保存した。設計・依頼書・試行の差分、製品コード、ほかのブランチ、main、workflow、外部サービスは変えていない。共有フォルダ reviews/ に写しを置いた。
 
-PUSH_RESULT
+本文のコミット 18743220260411c49955cf00d1e42ab1be1c15b7 をpushした後、上の106参照を `git ls-remote` の完全SHAで照合し、106件とも一致した（付属 refs_postpush.txt）。
