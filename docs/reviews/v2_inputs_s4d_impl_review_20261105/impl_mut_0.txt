@@ -1,0 +1,27 @@
+1 DETECTED 1 fetch even when the pin already reaches the target day
+3 DETECTED 1 no new pin: the fetched series is used instead of the pinned one
+5 DETECTED 3 load_inputs raises the input failure (it does not return it)
+7 DETECTED 3 every session is confirmed
+9 DETECTED 1 no margin after the close (0 minutes instead of 60)
+10b DETECTED 2 a bad value is dropped silently
+12 DETECTED 2 an observed_at after now is accepted
+14 DETECTED 3 a data day that the table does not have is not checked
+16 DETECTED 1 market.json is written without sorted keys
+18 DETECTED 1 a GitError is not replaced by input_git_failed
+20 DETECTED 1 an InputError is raised in an except body (the cause is chained)
+22 DETECTED 1 the rows after the target day are not dropped before the checks
+E1 DETECTED 1 extra: the pre-history starts a day late
+E3 DETECTED 1 extra: the rows of market.json may go past its day
+E5 DETECTED 1 extra: the day named for a day the table does not have is the last one
+E7 DETECTED 4 extra: a BOM is not accepted
+E9 DETECTED 1 extra: SOXX takes the close
+E11 DETECTED 1 extra: IEF takes the close
+E13 DETECTED 2 extra: an early close is closed at 16:00
+E15 DETECTED 1 extra: the same ref for the market and the ledger is accepted
+E17 DETECTED 1 extra: an observation at now is refused
+E19 DETECTED 1 extra: the table ends one day later in the check (>=)
+E21 DETECTED 1 extra: the chart URL asks for no dividends and splits
+E23 DETECTED 1 extra: the response is not required to name its symbol
+E25 DETECTED 3 extra: a failed fetch of a symbol is skipped (an empty response)
+E27 DETECTED 1 extra: the fetch count is always 4
+done0

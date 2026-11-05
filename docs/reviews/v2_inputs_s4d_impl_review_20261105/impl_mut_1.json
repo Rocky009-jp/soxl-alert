@@ -1,0 +1,260 @@
+[
+ {
+  "id": "2",
+  "title": "pin again when the last complete day equals the pinned day",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used (test_s4d_05_pin_progress.Progress.test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used)"
+  ]
+ },
+ {
+  "id": "4",
+  "title": "the loser of a push uses its own series without reading the pin again",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)"
+  ]
+ },
+ {
+  "id": "6",
+  "title": "the guard's read() reads the real store",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_response_without_a_row_on_the_prehistory_start_is_a_short_history (test_s4d_04_pin_shape.Shape.test_a_response_without_a_row_on_the_prehistory_start_is_a_short_history)"
+  ]
+ },
+ {
+  "id": "8",
+  "title": "the daylight-saving rule starts a week early (first Sunday of March)",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_open_and_close_times_around_every_daylight_saving_change (test_s4d_02_calendar.Calendar.test_open_and_close_times_around_every_daylight_saving_change)"
+  ]
+ },
+ {
+  "id": "10",
+  "title": "a null day is a bad value",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_null_day_has_no_row_and_is_not_an_error (test_s4d_03_url_parse.Rows.test_a_null_day_has_no_row_and_is_not_an_error)"
+  ]
+ },
+ {
+  "id": "11",
+  "title": "no limit on the price",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date (test_s4d_03_url_parse.Rows.test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date)"
+  ]
+ },
+ {
+  "id": "13",
+  "title": "a ledger value is turned into a number before the core",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_bom_crlf_blank_lines_and_spaces (test_s4d_08_ledger.Accepted.test_bom_crlf_blank_lines_and_spaces)",
+   "test_the_rows_reach_the_core_as_text_and_the_morning_uses_them (test_s4d_08_ledger.Accepted.test_the_rows_reach_the_core_as_text_and_the_morning_uses_them)"
+  ]
+ },
+ {
+  "id": "15",
+  "title": "a hole is skipped (the day after it counts)",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 5,
+  "failing_examples": [
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)",
+   "test_a_day_missing_for_one_symbol_only_is_a_hole (test_s4d_06_failures.Holes.test_a_day_missing_for_one_symbol_only_is_a_hole)",
+   "test_a_hole_before_the_target_stops_and_the_fixed_data_catches_up (test_s4d_06_failures.Holes.test_a_hole_before_the_target_stops_and_the_fixed_data_catches_up)",
+   "test_two_holes_in_a_row_name_the_first (test_s4d_06_failures.Holes.test_two_holes_in_a_row_name_the_first)"
+  ]
+ },
+ {
+  "id": "17",
+  "title": "the 14-day check of the table is off",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_end_of_the_table (test_s4d_02_calendar.Calendar.test_the_end_of_the_table)"
+  ]
+ },
+ {
+  "id": "19",
+  "title": "the check of the start of the SOXX series is off",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_response_without_a_row_on_the_prehistory_start_is_a_short_history (test_s4d_04_pin_shape.Shape.test_a_response_without_a_row_on_the_prehistory_start_is_a_short_history)"
+  ]
+ },
+ {
+  "id": "21",
+  "title": "the match with the table is made against the closed sessions only",
+  "status": "UNDETECTED",
+  "ran": 110,
+  "failing_count": 0,
+  "failing_examples": []
+ },
+ {
+  "id": "21+22",
+  "title": "21 and 22 together (review R-01)",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_row_after_the_target_is_dropped_before_any_check (test_s4d_03_url_parse.Rows.test_a_row_after_the_target_is_dropped_before_any_check)"
+  ]
+ },
+ {
+  "id": "E2",
+  "title": "extra: the schema of market.json is not checked",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_what_is_not_a_snapshot_is_refused (test_s4d_04_pin_shape.Shape.test_what_is_not_a_snapshot_is_refused)"
+  ]
+ },
+ {
+  "id": "E4",
+  "title": "extra: the hole that is named is the last one",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_two_holes_in_a_row_name_the_first (test_s4d_06_failures.Holes.test_two_holes_in_a_row_name_the_first)"
+  ]
+ },
+ {
+  "id": "E6",
+  "title": "extra: the cells of the ledger are not stripped",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_bom_crlf_blank_lines_and_spaces (test_s4d_08_ledger.Accepted.test_bom_crlf_blank_lines_and_spaces)",
+   "test_the_rows_reach_the_core_as_text_and_the_morning_uses_them (test_s4d_08_ledger.Accepted.test_the_rows_reach_the_core_as_text_and_the_morning_uses_them)"
+  ]
+ },
+ {
+  "id": "E8",
+  "title": "extra: SOXL takes the adjusted close",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_series_takes_the_documented_columns (test_s4d_04_pin_shape.Columns.test_the_series_takes_the_documented_columns)"
+  ]
+ },
+ {
+  "id": "E10",
+  "title": "extra: SPY takes the close",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_series_takes_the_documented_columns (test_s4d_04_pin_shape.Columns.test_the_series_takes_the_documented_columns)"
+  ]
+ },
+ {
+  "id": "E12",
+  "title": "extra: market_dates is the dates of SPY or IEF",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_series_takes_the_documented_columns (test_s4d_04_pin_shape.Columns.test_the_series_takes_the_documented_columns)"
+  ]
+ },
+ {
+  "id": "E14",
+  "title": "extra: the date of the end of the fetch is the UTC date",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_end_is_the_day_after_the_new_york_date_of_now (test_s4d_03_url_parse.FetchArguments.test_the_end_is_the_day_after_the_new_york_date_of_now)"
+  ]
+ },
+ {
+  "id": "E16",
+  "title": "extra: a bool is a price",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date (test_s4d_03_url_parse.Rows.test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date)"
+  ]
+ },
+ {
+  "id": "E18",
+  "title": "extra: a pin commit has no parent",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 4,
+  "failing_examples": [
+   "test_a_revision_of_the_source_does_not_stop_the_rerun_of_the_same_morning (test_s4d_05_pin_progress.PriceRevision.test_a_revision_of_the_source_does_not_stop_the_rerun_of_the_same_morning)",
+   "test_a_revision_reaches_only_the_days_after_it (test_s4d_05_pin_progress.PriceRevision.test_a_revision_reaches_only_the_days_after_it)",
+   "test_the_next_target_day_fetches_again_and_adds_a_commit_on_the_last_one (test_s4d_05_pin_progress.Progress.test_the_next_target_day_fetches_again_and_adds_a_commit_on_the_last_one)",
+   "test_no_row_for_the_target_day_is_a_stale_with_one_notice_then_a_verdict_later (test_s4d_05_pin_progress.TargetNotThereYet.test_no_row_for_the_target_day_is_a_stale_with_one_notice_then_a_verdict_later)"
+  ]
+ },
+ {
+  "id": "E20",
+  "title": "extra: a now past the table is not refused",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_end_of_the_table (test_s4d_02_calendar.Calendar.test_the_end_of_the_table)"
+  ]
+ },
+ {
+  "id": "E22",
+  "title": "extra: the values are not turned into floats",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_correct_response_gives_the_rows (test_s4d_03_url_parse.Rows.test_a_correct_response_gives_the_rows)"
+  ]
+ },
+ {
+  "id": "E24",
+  "title": "extra: the pin is read without the sha of the bytes (the manifest is the commit)",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_pin_on_the_remote_a_missing_ref_a_missing_file_and_a_bad_file (test_s4d_04_pin_shape.Shape.test_the_pin_on_the_remote_a_missing_ref_a_missing_file_and_a_bad_file)"
+  ]
+ },
+ {
+  "id": "E26",
+  "title": "extra: the ledger is read from the ref of the market",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_the_rows_reach_the_core_as_text_and_the_morning_uses_them (test_s4d_08_ledger.Accepted.test_the_rows_reach_the_core_as_text_and_the_morning_uses_them)",
+   "test_the_sha_read_is_in_the_provenance_and_the_runner_writes_nothing (test_s4d_08_ledger.CommitAndReadOnly.test_the_sha_read_is_in_the_provenance_and_the_runner_writes_nothing)",
+   "test_an_unreadable_time_passes_load_inputs_and_the_core_stops_the_morning (test_s4d_08_ledger.LeftToTheCore.test_an_unreadable_time_passes_load_inputs_and_the_core_stops_the_morning)"
+  ]
+ }
+]

@@ -1,0 +1,26 @@
+2 DETECTED 1 pin again when the last complete day equals the pinned day
+4 DETECTED 1 the loser of a push uses its own series without reading the pin again
+6 DETECTED 1 the guard's read() reads the real store
+8 DETECTED 1 the daylight-saving rule starts a week early (first Sunday of March)
+10 DETECTED 1 a null day is a bad value
+11 DETECTED 1 no limit on the price
+13 DETECTED 2 a ledger value is turned into a number before the core
+15 DETECTED 5 a hole is skipped (the day after it counts)
+17 DETECTED 1 the 14-day check of the table is off
+19 DETECTED 1 the check of the start of the SOXX series is off
+21 UNDETECTED 0 the match with the table is made against the closed sessions only
+21+22 DETECTED 1 21 and 22 together (review R-01)
+E2 DETECTED 1 extra: the schema of market.json is not checked
+E4 DETECTED 1 extra: the hole that is named is the last one
+E6 DETECTED 2 extra: the cells of the ledger are not stripped
+E8 DETECTED 1 extra: SOXL takes the adjusted close
+E10 DETECTED 1 extra: SPY takes the close
+E12 DETECTED 1 extra: market_dates is the dates of SPY or IEF
+E14 DETECTED 1 extra: the date of the end of the fetch is the UTC date
+E16 DETECTED 1 extra: a bool is a price
+E18 DETECTED 4 extra: a pin commit has no parent
+E20 DETECTED 1 extra: a now past the table is not refused
+E22 DETECTED 1 extra: the values are not turned into floats
+E24 DETECTED 1 extra: the pin is read without the sha of the bytes (the manifest is the commit)
+E26 DETECTED 3 extra: the ledger is read from the ref of the market
+rc=0

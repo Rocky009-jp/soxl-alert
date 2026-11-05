@@ -1,0 +1,276 @@
+[
+ {
+  "id": "1",
+  "title": "fetch even when the pin already reaches the target day",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_no_fetch_when_the_pin_already_reaches_the_target (test_s4d_03_url_parse.FetchArguments.test_no_fetch_when_the_pin_already_reaches_the_target)"
+  ]
+ },
+ {
+  "id": "3",
+  "title": "no new pin: the fetched series is used instead of the pinned one",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used (test_s4d_05_pin_progress.Progress.test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used)"
+  ]
+ },
+ {
+  "id": "5",
+  "title": "load_inputs raises the input failure (it does not return it)",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_four_symbols_once_each_from_the_prehistory_start_to_the_next_new_york_day (test_s4d_03_url_parse.FetchArguments.test_four_symbols_once_each_from_the_prehistory_start_to_the_next_new_york_day)",
+   "test_no_fetch_when_the_pin_already_reaches_the_target (test_s4d_03_url_parse.FetchArguments.test_no_fetch_when_the_pin_already_reaches_the_target)",
+   "test_the_end_is_the_day_after_the_new_york_date_of_now (test_s4d_03_url_parse.FetchArguments.test_the_end_is_the_day_after_the_new_york_date_of_now)"
+  ]
+ },
+ {
+  "id": "7",
+  "title": "every session is confirmed",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used (test_s4d_05_pin_progress.Progress.test_a_fetch_that_reaches_no_further_than_the_pin_makes_no_commit_and_the_pinned_bytes_are_used)",
+   "test_the_sessions_are_confirmed_through_the_pin (test_s4d_05_pin_progress.Progress.test_the_sessions_are_confirmed_through_the_pin)",
+   "test_no_row_for_the_target_day_is_a_stale_with_one_notice_then_a_verdict_later (test_s4d_05_pin_progress.TargetNotThereYet.test_no_row_for_the_target_day_is_a_stale_with_one_notice_then_a_verdict_later)"
+  ]
+ },
+ {
+  "id": "9",
+  "title": "no margin after the close (0 minutes instead of 60)",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_constants (test_s4d_02_calendar.Calendar.test_the_constants)"
+  ]
+ },
+ {
+  "id": "10b",
+  "title": "a bad value is dropped silently",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_row_after_the_target_is_dropped_before_any_check (test_s4d_03_url_parse.Rows.test_a_row_after_the_target_is_dropped_before_any_check)",
+   "test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date (test_s4d_03_url_parse.Rows.test_a_value_that_is_not_a_finite_number_in_range_is_a_bad_value_with_the_first_date)"
+  ]
+ },
+ {
+  "id": "12",
+  "title": "an observed_at after now is accepted",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_second_after_now_is_refused_and_now_itself_is_accepted (test_s4d_08_ledger.ObservedAfterNow.test_a_second_after_now_is_refused_and_now_itself_is_accepted)",
+   "test_a_time_zone_written_wrongly_makes_a_future_time (test_s4d_08_ledger.ObservedAfterNow.test_a_time_zone_written_wrongly_makes_a_future_time)"
+  ]
+ },
+ {
+  "id": "14",
+  "title": "a data day that the table does not have is not checked",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_row_on_a_holiday_or_a_weekend_is_a_mismatch_for_soxx_spy_and_ief (test_s4d_06_failures.DaysTheTableDoesNotHave.test_a_row_on_a_holiday_or_a_weekend_is_a_mismatch_for_soxx_spy_and_ief)",
+   "test_the_first_such_day_of_all_symbols_is_named (test_s4d_06_failures.DaysTheTableDoesNotHave.test_the_first_such_day_of_all_symbols_is_named)",
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)"
+  ]
+ },
+ {
+  "id": "16",
+  "title": "market.json is written without sorted keys",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_bytes_are_canonical_and_hold_the_expected_content (test_s4d_04_pin_shape.Shape.test_the_bytes_are_canonical_and_hold_the_expected_content)"
+  ]
+ },
+ {
+  "id": "18",
+  "title": "a GitError is not replaced by input_git_failed",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)"
+  ]
+ },
+ {
+  "id": "20",
+  "title": "an InputError is raised in an except body (the cause is chained)",
+  "status": "DETECTED",
+  "ran": 25,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_no_raise_inside_an_except_body_except_a_bare_one (test_s4d_12_static.Static.test_no_raise_inside_an_except_body_except_a_bare_one)"
+  ]
+ },
+ {
+  "id": "22",
+  "title": "the rows after the target day are not dropped before the checks",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_row_after_the_target_is_dropped_before_any_check (test_s4d_03_url_parse.Rows.test_a_row_after_the_target_is_dropped_before_any_check)"
+  ]
+ },
+ {
+  "id": "E1",
+  "title": "extra: the pre-history starts a day late",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_constants (test_s4d_02_calendar.Calendar.test_the_constants)"
+  ]
+ },
+ {
+  "id": "E3",
+  "title": "extra: the rows of market.json may go past its day",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_what_is_not_a_snapshot_is_refused (test_s4d_04_pin_shape.Shape.test_what_is_not_a_snapshot_is_refused)"
+  ]
+ },
+ {
+  "id": "E5",
+  "title": "extra: the day named for a day the table does not have is the last one",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_first_such_day_of_all_symbols_is_named (test_s4d_06_failures.DaysTheTableDoesNotHave.test_the_first_such_day_of_all_symbols_is_named)"
+  ]
+ },
+ {
+  "id": "E7",
+  "title": "extra: a BOM is not accepted",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 4,
+  "failing_examples": [
+   "test_a_header_with_spaces_and_only_a_header (test_s4d_08_ledger.Accepted.test_a_header_with_spaces_and_only_a_header)",
+   "test_bom_crlf_blank_lines_and_spaces (test_s4d_08_ledger.Accepted.test_bom_crlf_blank_lines_and_spaces)",
+   "test_the_rows_reach_the_core_as_text_and_the_morning_uses_them (test_s4d_08_ledger.Accepted.test_the_rows_reach_the_core_as_text_and_the_morning_uses_them)",
+   "test_not_utf8_not_csv_or_empty (test_s4d_08_ledger.Refused.test_not_utf8_not_csv_or_empty)"
+  ]
+ },
+ {
+  "id": "E9",
+  "title": "extra: SOXX takes the close",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_series_takes_the_documented_columns (test_s4d_04_pin_shape.Columns.test_the_series_takes_the_documented_columns)"
+  ]
+ },
+ {
+  "id": "E11",
+  "title": "extra: IEF takes the close",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_series_takes_the_documented_columns (test_s4d_04_pin_shape.Columns.test_the_series_takes_the_documented_columns)"
+  ]
+ },
+ {
+  "id": "E13",
+  "title": "extra: an early close is closed at 16:00",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_early_closes_close_at_13_00_new_york (test_s4d_02_calendar.Calendar.test_early_closes_close_at_13_00_new_york)",
+   "test_holidays_and_early_closes_are_the_table_and_there_is_no_weekend_session (test_s4d_02_calendar.Calendar.test_holidays_and_early_closes_are_the_table_and_there_is_no_weekend_session)"
+  ]
+ },
+ {
+  "id": "E15",
+  "title": "extra: the same ref for the market and the ledger is accepted",
+  "status": "DETECTED",
+  "ran": 7,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_refs_must_be_the_two_names_in_the_shape_of_the_store (test_s4d_01_args.Args.test_refs_must_be_the_two_names_in_the_shape_of_the_store)"
+  ]
+ },
+ {
+  "id": "E17",
+  "title": "extra: an observation at now is refused",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_second_after_now_is_refused_and_now_itself_is_accepted (test_s4d_08_ledger.ObservedAfterNow.test_a_second_after_now_is_refused_and_now_itself_is_accepted)"
+  ]
+ },
+ {
+  "id": "E19",
+  "title": "extra: the table ends one day later in the check (>=)",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_end_of_the_table (test_s4d_02_calendar.Calendar.test_the_end_of_the_table)"
+  ]
+ },
+ {
+  "id": "E21",
+  "title": "extra: the chart URL asks for no dividends and splits",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_two_examples (test_s4d_03_url_parse.Url.test_the_two_examples)"
+  ]
+ },
+ {
+  "id": "E23",
+  "title": "extra: the response is not required to name its symbol",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_wrong_shape_is_a_response_invalid (test_s4d_03_url_parse.Rows.test_a_wrong_shape_is_a_response_invalid)"
+  ]
+ },
+ {
+  "id": "E25",
+  "title": "extra: a failed fetch of a symbol is skipped (an empty response)",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)",
+   "test_the_failure_does_not_change_the_history_and_the_notice_is_the_keyed_halt_of_the_day (test_s4d_06_failures.EveryFailureStops.test_the_failure_does_not_change_the_history_and_the_notice_is_the_keyed_halt_of_the_day)",
+   "test_the_same_morning_after_the_input_is_right_gives_the_verdict (test_s4d_06_failures.EveryFailureStops.test_the_same_morning_after_the_input_is_right_gives_the_verdict)"
+  ]
+ },
+ {
+  "id": "E27",
+  "title": "extra: the fetch count is always 4",
+  "status": "DETECTED",
+  "ran": 102,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_failure_keeps_only_the_keys_decided_so_far (test_s4d_11_secrets.Provenance.test_a_failure_keeps_only_the_keys_decided_so_far)"
+  ]
+ }
+]

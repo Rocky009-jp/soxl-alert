@@ -1,0 +1,22 @@
+[A] tested commit 9bdd4217d18e0ac328ddfa6a76b5d2a82748549d
+  v2_scope_chain: Ran 34 tests in 3.257s | OK
+  v2_history_maintain: Ran 31 tests in 2.433s | OK
+  v2_daily_run: Ran 19 tests in 1.717s | OK
+  v2_notify: Ran 19 tests in 1.993s | OK
+  v2_git_store: Ran 20 tests in 2.154s | OK
+  v2_inputs: Ran 20 tests in 2.297s | OK
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[B] END frozen, no open range (expected: test_sc_02 chain test fails)
+  v2_scope_chain: Ran 34 tests in 3.287s | FAILED (failures=2)
+  v2_history_maintain: Ran 31 tests in 2.399s | OK
+  v2_daily_run: Ran 19 tests in 1.756s | OK
+  v2_notify: Ran 19 tests in 1.884s | OK
+  v2_git_store: Ran 20 tests in 2.259s | OK
+  v2_inputs: Ran 20 tests in 2.371s | OK
+[C] END frozen + minimal open range of the next stage
+  v2_scope_chain: Ran 34 tests in 3.308s | OK
+  v2_history_maintain: Ran 31 tests in 2.441s | OK
+  v2_daily_run: Ran 19 tests in 1.809s | OK
+  v2_notify: Ran 19 tests in 1.895s | OK
+  v2_git_store: Ran 20 tests in 2.193s | OK
+  v2_inputs: Ran 20 tests in 2.233s | OK

@@ -1,0 +1,27 @@
+== count
+Y1 bad=SOXX code=input_market_response_invalid calls=1 provenance.fetch_count=0
+Y1 bad=SPY code=input_market_response_invalid calls=2 provenance.fetch_count=0
+Y1 bad=IEF code=input_market_response_invalid calls=3 provenance.fetch_count=0
+Y1 bad=SOXL code=input_market_response_invalid calls=4 provenance.fetch_count=0
+Y1 value_invalid(SOXL) code=input_market_value_invalid calls=4 provenance.fetch_count=0
+Y1 fetch_failed code=input_market_fetch_failed calls=1 provenance.fetch_count=1
+Ran 1 test in 2.351s
+OK
+== hole
+Y2 2026-07-21 DONE morning pinned_by=this
+Y2 2026-07-22 DONE morning pinned_by=this
+Y2 2026-07-23 DONE morning pinned_by=this
+Y2 2026-07-24 DONE morning pinned_by=this
+Y2 2026-07-27 (SPY 2026-03-05 missing at the source) STOPPED code=input_market_rows_missing detail=2026-03-05 kind=halt through=None
+Y2 2026-07-28 (SPY 2026-03-05 missing at the source) STOPPED code=input_market_rows_missing detail=2026-03-05 kind=halt through=None
+Y2 2026-07-29 (SPY 2026-03-05 missing at the source) STOPPED code=input_market_rows_missing detail=2026-03-05 kind=halt through=None
+Y2 2026-07-30 (IEF 2026-04-14 null at the source) STOPPED code=input_market_rows_missing detail=2026-04-14
+Y2 2026-07-30 (source fixed) DONE morning
+Ran 1 test in 5.852s
+OK
+== sess
+Y3 input_ledger_missing confirmed_through=2026-07-28 target=2026-07-28
+Y3 input_market_response_invalid confirmed_through=None target=2026-07-28
+Y3 input_market_pin_invalid confirmed_through=None target=2026-07-28
+Ran 1 test in 1.352s
+OK

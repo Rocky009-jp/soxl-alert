@@ -1,0 +1,25 @@
+V01 DETECTED 1 the New York date of a time is its UTC date
+V02 DETECTED 1 read_snapshot: the dates need not increase
+V03 DETECTED 1 read_snapshot: SOXX need not start on the pre-history start
+V04 UNDETECTED 0 read_snapshot: rows before the pre-history start are accepted
+V05 DETECTED 1 parse_chart: a day with only one null value is a bad value
+V06 DETECTED 1 a fetch that raises something other than OSError escapes
+V07 DETECTED 6 on a failure the series is not dropped
+V08 DETECTED 1 on a failure every session is unconfirmed
+V09 DETECTED 1 a ref name may have capital letters
+V10 DETECTED 1 refs may have more keys than market and ledger
+V11 DETECTED 1 the end of the table is judged on the New York date (UTC-5)
+V12 UNDETECTED 0 the 14 days are counted from the New York date (UTC-5)
+V13 DETECTED 1 ledger: the header is compared without stripping
+V14 DETECTED 1 ledger: a row of spaces is not a blank row
+V15 DETECTED 2 ledger: an unreadable observed_at counts as after now
+V16 DETECTED 3 a push of unknown result is taken as arrived
+V17 DETECTED 1 a loser accepts a pin older than its own last day
+V18 DETECTED 1 the close margin is reached one tick early (>=)
+V19 DETECTED 1 read_snapshot: the source of market.json is not checked
+V20 DETECTED 1 summer time ends on the fourth Sunday of October
+V21 DETECTED 2 the days the table does not have are checked for SOXX only
+V22 DETECTED 3 the target day is the last session that opened (not closed)
+V23 UNDETECTED 0 the pin is pushed before the 14-day check and the check is skipped when the pin is existing
+V24 UNDETECTED 0 the ledger keeps its last row only once per record id (later wins)
+rc=0

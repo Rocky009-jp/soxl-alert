@@ -1,0 +1,243 @@
+[
+ {
+  "id": "V01",
+  "title": "the New York date of a time is its UTC date",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_time_gives_the_same_new_york_date_before_and_after_a_change_of_time (test_s4d_03_url_parse.Rows.test_a_time_gives_the_same_new_york_date_before_and_after_a_change_of_time)"
+  ]
+ },
+ {
+  "id": "V02",
+  "title": "read_snapshot: the dates need not increase",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_what_is_not_a_snapshot_is_refused (test_s4d_04_pin_shape.Shape.test_what_is_not_a_snapshot_is_refused)"
+  ]
+ },
+ {
+  "id": "V03",
+  "title": "read_snapshot: SOXX need not start on the pre-history start",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_what_is_not_a_snapshot_is_refused (test_s4d_04_pin_shape.Shape.test_what_is_not_a_snapshot_is_refused)"
+  ]
+ },
+ {
+  "id": "V04",
+  "title": "read_snapshot: rows before the pre-history start are accepted",
+  "status": "UNDETECTED",
+  "ran": 110,
+  "failing_count": 0,
+  "failing_examples": []
+ },
+ {
+  "id": "V05",
+  "title": "parse_chart: a day with only one null value is a bad value",
+  "status": "DETECTED",
+  "ran": 39,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_null_day_has_no_row_and_is_not_an_error (test_s4d_03_url_parse.Rows.test_a_null_day_has_no_row_and_is_not_an_error)"
+  ]
+ },
+ {
+  "id": "V06",
+  "title": "a fetch that raises something other than OSError escapes",
+  "status": "DETECTED",
+  "ran": 25,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_only_the_call_of_the_fetch_function_is_caught_wide (test_s4d_12_static.Static.test_only_the_call_of_the_fetch_function_is_caught_wide)"
+  ]
+ },
+ {
+  "id": "V07",
+  "title": "on a failure the series is not dropped",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 6,
+  "failing_examples": [
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)",
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)",
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)",
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)"
+  ]
+ },
+ {
+  "id": "V08",
+  "title": "on a failure every session is unconfirmed",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_sessions_are_confirmed_through_the_pin (test_s4d_05_pin_progress.Progress.test_the_sessions_are_confirmed_through_the_pin)"
+  ]
+ },
+ {
+  "id": "V09",
+  "title": "a ref name may have capital letters",
+  "status": "DETECTED",
+  "ran": 7,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_refs_must_be_the_two_names_in_the_shape_of_the_store (test_s4d_01_args.Args.test_refs_must_be_the_two_names_in_the_shape_of_the_store)"
+  ]
+ },
+ {
+  "id": "V10",
+  "title": "refs may have more keys than market and ledger",
+  "status": "DETECTED",
+  "ran": 7,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_refs_must_be_the_two_names_in_the_shape_of_the_store (test_s4d_01_args.Args.test_refs_must_be_the_two_names_in_the_shape_of_the_store)"
+  ]
+ },
+ {
+  "id": "V11",
+  "title": "the end of the table is judged on the New York date (UTC-5)",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_end_of_the_table (test_s4d_02_calendar.Calendar.test_the_end_of_the_table)"
+  ]
+ },
+ {
+  "id": "V12",
+  "title": "the 14 days are counted from the New York date (UTC-5)",
+  "status": "UNDETECTED",
+  "ran": 110,
+  "failing_count": 0,
+  "failing_examples": []
+ },
+ {
+  "id": "V13",
+  "title": "ledger: the header is compared without stripping",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_header_with_spaces_and_only_a_header (test_s4d_08_ledger.Accepted.test_a_header_with_spaces_and_only_a_header)"
+  ]
+ },
+ {
+  "id": "V14",
+  "title": "ledger: a row of spaces is not a blank row",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_bom_crlf_blank_lines_and_spaces (test_s4d_08_ledger.Accepted.test_bom_crlf_blank_lines_and_spaces)"
+  ]
+ },
+ {
+  "id": "V15",
+  "title": "ledger: an unreadable observed_at counts as after now",
+  "status": "DETECTED",
+  "ran": 54,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_row_without_a_time_or_with_an_unreadable_one_is_not_judged_here (test_s4d_08_ledger.ObservedAfterNow.test_a_row_without_a_time_or_with_an_unreadable_one_is_not_judged_here)",
+   "test_an_unreadable_time_passes_load_inputs_and_the_core_stops_the_morning (test_s4d_08_ledger.LeftToTheCore.test_an_unreadable_time_passes_load_inputs_and_the_core_stops_the_morning)"
+  ]
+ },
+ {
+  "id": "V16",
+  "title": "a push of unknown result is taken as arrived",
+  "status": "DETECTED",
+  "ran": 110,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_push_of_unknown_result_that_did_not_arrive_is_a_returned_failure (test_s4d_07_race.Pair.test_a_push_of_unknown_result_that_did_not_arrive_is_a_returned_failure)",
+   "test_a_push_of_unknown_result_that_arrived_and_a_later_day_followed (test_s4d_07_race.Pair.test_a_push_of_unknown_result_that_arrived_and_a_later_day_followed)",
+   "test_a_push_of_unknown_result_that_arrived_is_read_again_and_its_version_used (test_s4d_07_race.Pair.test_a_push_of_unknown_result_that_arrived_is_read_again_and_its_version_used)"
+  ]
+ },
+ {
+  "id": "V17",
+  "title": "a loser accepts a pin older than its own last day",
+  "status": "DETECTED",
+  "ran": 110,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_loser_whose_winner_is_older_than_its_day_fails_and_does_not_repeat (test_s4d_07_race.Pair.test_a_loser_whose_winner_is_older_than_its_day_fails_and_does_not_repeat)"
+  ]
+ },
+ {
+  "id": "V18",
+  "title": "the close margin is reached one tick early (>=)",
+  "status": "DETECTED",
+  "ran": 74,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_close_margin_is_sixty_minutes_not_fifty_nine (test_s4d_05_pin_progress.Progress.test_the_close_margin_is_sixty_minutes_not_fifty_nine)"
+  ]
+ },
+ {
+  "id": "V19",
+  "title": "read_snapshot: the source of market.json is not checked",
+  "status": "DETECTED",
+  "ran": 64,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_what_is_not_a_snapshot_is_refused (test_s4d_04_pin_shape.Shape.test_what_is_not_a_snapshot_is_refused)"
+  ]
+ },
+ {
+  "id": "V20",
+  "title": "summer time ends on the fourth Sunday of October",
+  "status": "DETECTED",
+  "ran": 15,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_open_and_close_times_around_every_daylight_saving_change (test_s4d_02_calendar.Calendar.test_open_and_close_times_around_every_daylight_saving_change)"
+  ]
+ },
+ {
+  "id": "V21",
+  "title": "the days the table does not have are checked for SOXX only",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_row_on_a_holiday_or_a_weekend_is_a_mismatch_for_soxx_spy_and_ief (test_s4d_06_failures.DaysTheTableDoesNotHave.test_a_row_on_a_holiday_or_a_weekend_is_a_mismatch_for_soxx_spy_and_ief)",
+   "test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day (test_s4d_06_failures.EveryFailureStops.test_each_returned_failure_is_a_stopped_morning_with_one_notice_of_the_right_day)"
+  ]
+ },
+ {
+  "id": "V22",
+  "title": "the target day is the last session that opened (not closed)",
+  "status": "DETECTED",
+  "ran": 95,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_before_the_close_of_the_first_session_there_is_no_target_and_no_exception (test_s4d_06_failures.NothingClosedYet.test_before_the_close_of_the_first_session_there_is_no_target_and_no_exception)",
+   "test_a_row_of_the_open_session_with_a_bad_value_or_a_null (test_s4d_06_failures.SessionStillOpen.test_a_row_of_the_open_session_with_a_bad_value_or_a_null)",
+   "test_two_rows_of_the_open_session_with_the_same_date (test_s4d_06_failures.SessionStillOpen.test_two_rows_of_the_open_session_with_the_same_date)"
+  ]
+ },
+ {
+  "id": "V23",
+  "title": "the pin is pushed before the 14-day check and the check is skipped when the pin is existing",
+  "status": "UNDETECTED",
+  "ran": 110,
+  "failing_count": 0,
+  "failing_examples": []
+ },
+ {
+  "id": "V24",
+  "title": "the ledger keeps its last row only once per record id (later wins)",
+  "status": "UNDETECTED",
+  "ran": 110,
+  "failing_count": 0,
+  "failing_examples": []
+ }
+]
