@@ -263,7 +263,7 @@ class Start(H.Case):
             seen.append((command, kw))
             return H.proc(0, b"a" * 40 + b"\n")
         values = {"GIT_DIR": "/elsewhere", "git_work_tree": "/elsewhere", "GIT_INDEX_FILE": "/x", "GIT_SSH_COMMAND": "x",
-                  "GIT_CONFIG_COUNT": "1", "PATH": os.environ["PATH"], "KEEP_ME": "yes", "GIT_AUTHOR_NAME": "someone",
+                  "GIT_CONFIG_COUNT": "1", "PATH": H.PATH_AT_START, "KEEP_ME": "yes", "GIT_AUTHOR_NAME": "someone",
                   "GIT_TERMINAL_PROMPT": "1", "LC_ALL": "de_DE.UTF-8", "GIT_CONFIG_NOSYSTEM": "0"}
         with H.with_env(**values), mock.patch.object(G.subprocess, "run", side_effect=fake):
             clone.git.run(["rev-parse", "HEAD"])
@@ -283,7 +283,7 @@ class Start(H.Case):
             self.assertNotIn("GIT_SSH_COMMAND", env)
             self.assertNotIn("GIT_CONFIG_COUNT", env)
             self.assertEqual(env["KEEP_ME"], "yes")
-            self.assertEqual(env["PATH"], os.environ["PATH"])
+            self.assertEqual(env["PATH"], H.PATH_AT_START)
             self.assertEqual((env["GIT_TERMINAL_PROMPT"], env["LC_ALL"], env["GIT_CONFIG_NOSYSTEM"]), ("0", "C", "1"))
             self.assertEqual((env["GIT_AUTHOR_NAME"], env["GIT_AUTHOR_EMAIL"]), ("v2-runner", "runner@invalid"))
             self.assertEqual((env["GIT_COMMITTER_NAME"], env["GIT_COMMITTER_EMAIL"]), ("v2-runner", "runner@invalid"))

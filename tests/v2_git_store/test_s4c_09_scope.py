@@ -147,7 +147,7 @@ class FilesChanged(Base):
         out = C.git("diff", "--name-only", START, REV, "--", *ROOTS[len(OLD_PACKAGES):], ":(exclude)%s" % RESULT_DOC)
         self.assertEqual(out.stdout.strip(), "")
         out = C.git("diff", "--name-only", START, REV, "--", "tests", ":(exclude)%s" % CHANGED_TEST,
-                    ":(exclude)tests/v2_notify")
+                    ":(exclude)tests/v2_git_store")
         self.assertEqual(out.stdout.strip(), "")
         for path in ("tests/v2_persistence_local/l_helpers.py", "tests/v2_persistence_local/worker.py",
                      "tests/v2_history_local/c3_helpers.py", "tests/v2_history_local/c3_worker.py",
