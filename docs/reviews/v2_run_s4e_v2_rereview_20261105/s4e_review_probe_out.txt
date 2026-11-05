@@ -1,0 +1,6 @@
+Z1 7:40 (no decision yet)  exit 0 DONE 2026-07-24-morning SENT consumed= -
+    ['F&G現在値（目視）: 未記録 → 購入条件は未確定です。'] ['  F&Gの値による分岐（目視した値で手元判定できます。再通知はありません）']
+Z1 8:40 (decision written 7:50) exit 0 DONE 2026-07-24-morning SKIPPED_CLAIMED consumed= 2026-07-24 dry text sent: False
+Z2 dry  D=2026-08-04 consumed=2026-07-27 2026-07-28 2026-07-29 2026-07-30 2026-07-31 2026-08-03 2026-08-04 ['市場状態: armed=確認済みtrue、連続数（確認済み観測）=3、前日normal_raw=確認済みfalse']
+Z2 live start_after=2026-08-03 exit 0 SENT ['市場状態: armed=不明、連続数（確認済み観測）=0、前日normal_raw=確認済みfalse'] []
+Z2 live start_after=2026-07-20 exit 0 SENT consumed=11 days 1.5s ['市場状態: armed=確認済みtrue、連続数（確認済み観測）=3、前日normal_raw=確認済みfalse']
