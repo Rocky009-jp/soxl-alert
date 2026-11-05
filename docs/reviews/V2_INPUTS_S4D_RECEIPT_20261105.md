@@ -41,3 +41,5 @@
 ## 5. 保護参照
 
 レビューの108参照（実装時の107＋9bdd421）を、本記録のpushの前と後に`git ls-remote`と完全SHAで照合する。結果は下に追記する。
+
+追記（2026-11-05）：本記録のコミット43ebe559c4ebeae7ef437d270c8007ff5c928787のpushの前と後に、108参照がリモートと完全SHAで一致することを確かめた（不一致0、`v2_inputs_s4d_impl_review_20261105/refs_receipt_postpush.txt`）。
