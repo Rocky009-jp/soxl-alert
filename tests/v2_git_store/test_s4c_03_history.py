@@ -61,6 +61,33 @@ class InitializeAndRead(H.Case):
             self.assertEqual(cm.exception.code, "already_initialized")
         self.assertEqual(self.remote.sha(H.STATE), head)
 
+    def test_a_creation_that_another_clone_won_in_the_meantime_is_already_initialized(self):
+        later = H.Tick()
+        later()                                                  # its next time is not ours: not the same commit
+        other = H.Clone(self, self.remote, later)
+        git = H.Scripted(self.clone.dir)
+        store = GS.GitHistoryStore(git, H.STATE, H.clock)
+        done = []
+
+        def first(_git, args):
+            if not done:
+                done.append(1)
+                other.hist.initialize(S.genesis_pub(self.w))        # the other clone creates the ref just before our push
+        git.hooks["push"] = first
+        with self.assertRaises(S.LocalStoreError) as cm:
+            store.initialize(S.genesis_pub(self.w))
+        self.assertEqual(cm.exception.code, "already_initialized")
+        self.assertEqual(self.remote.log(H.STATE)[-1]["parents"], [])               # the other clone's commit is the ref
+
+    def test_a_file_that_is_not_a_regular_file_is_not_the_history(self):
+        blob = H.text(H.tgit(self.remote.path, "hash-object", "-w", "--stdin", data=b"history.json"))
+        tree = H.text(H.tgit(self.remote.path, "mktree", data=("120000 blob %s\thistory.json\n" % blob).encode("ascii")))
+        commit = H.text(H.tgit(self.remote.path, "commit-tree", tree, "-m", "a link"))
+        H.tgit(self.remote.path, "update-ref", "refs/heads/" + H.STATE, commit)
+        with self.assertRaises(S.LocalStoreError) as cm:
+            self.clone.hist.read()
+        self.assertEqual(cm.exception.code, "store_layout_unsupported")
+
     def test_the_publication_checks_before_anything_is_pushed(self):
         h = self.clone.hist
         genesis = S.genesis_pub(self.w)
