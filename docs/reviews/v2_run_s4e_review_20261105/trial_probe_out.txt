@@ -1,0 +1,66 @@
+E1 init dry exit 0 state=INITIALIZED outbox=None git=2.43.0
+E2 dry 2026-07-21 exit 0 run_outcome=DONE key=2026-07-21-morning delivery=SENT send_status=SENT code=None
+E2 dry 2026-07-22 exit 0 run_outcome=DONE key=2026-07-22-morning delivery=SENT send_status=SENT code=None
+E2 dry 2026-07-23 exit 0 run_outcome=DONE key=2026-07-23-morning delivery=SENT send_status=SENT code=None
+E2 dry 2026-07-24 exit 0 run_outcome=DONE key=2026-07-24-morning delivery=SENT send_status=SENT code=None
+E2 dry 2026-07-27 exit 0 run_outcome=DONE key=2026-07-27-morning delivery=SENT send_status=SENT code=None
+   timings 0.32 0.40 0.05 files 11 pinned_by this
+   dry text head: ['【SOXL日次】対象D=2026-07-27', '【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-07-27 ／実行区分: 合図なし']
+E3 dry second run same morning exit 0 run_outcome=DONE key=2026-07-27-morning delivery=SKIPPED_CLAIMED send_status=None code=None
+E4 R-02 two rows of D after close exit 0 run_outcome=STOPPED key=2026-07-28-halt delivery=SENT send_status=SENT code=input_market_response_invalid inputs_failure=input_market_response_invalid（market）
+   second run (shape back to normal) exit 0 run_outcome=DONE key=2026-07-28-morning delivery=SENT send_status=SENT code=None
+E5 init live exit 0 state=INITIALIZED outbox=None
+E6 live discord 204 (want SENT) exit 0 run_outcome=DONE key=2026-07-29-morning delivery=SENT send_status=SENT code=None
+E6 live discord 400 (want NOT_SENT) exit 1 run_outcome=DONE key=2026-07-30-morning delivery=NOT_SENT send_status=NOT_SENT code=None
+E6 live discord 500 (want UNKNOWN) exit 1 run_outcome=DONE key=2026-07-31-morning delivery=UNKNOWN send_status=UNKNOWN code=None
+E6 live discord refused (want NOT_SENT) exit 1 run_outcome=DONE key=2026-08-03-morning delivery=NOT_SENT send_status=NOT_SENT code=None
+E6 live discord timeout (want UNKNOWN) exit 1 run_outcome=DONE key=2026-08-04-morning delivery=UNKNOWN send_status=UNKNOWN code=None
+E7 live second run after UNKNOWN exit 0 run_outcome=DONE key=2026-08-04-morning delivery=SKIPPED_CLAIMED send_status=None code=None
+E8 live without the secret exit 1 run_outcome=DONE key=2026-08-05-morning delivery=NOT_SENT send_status=NOT_SENT code=None
+   live heading in the posted text: ['【詳細】 対象D=202'] preview words posted: False
+   mentions blocked on every post: True 5
+E9 resend morning of the UNKNOWN day exit 0 delivery=SENT send_status=SENT original_status=UNKNOWN
+E10 resend halt when the morning exists exit 1 delivery=REFUSED_JUDGMENT_EXISTS
+E11 status ['- 2026-08-04-morning: UNKNOWN 2026-08-04T22:40:00+00:00', '- 2026-08-04-morning/r1: SENT 2026-08-08T00:00:00+00:00', '- 2026-08-04-halt: NONE ', '- 2026-08-04-error: NONE ']
+E12 fallback ERROR key 2026-08-05 error SKIPPED_JUDGMENT_EXISTS NOT_SENT
+E13 split 4599 -> 3 parts, max 1891 starts （2/3）
+
+   second part fails: UNKNOWN | first part 400: NOT_STARTED
+E14 bad webhook URL: NOT_STARTED NOT_STARTED
+E15 leaks: path False token False url False
+   example record:
+### v2_run
+- command: morning
+- mode: dry
+- now_utc: 2026-07-22T22:40:00+00:00
+- code_version: 0000000000000000000000000000000000000000
+- git: 2.43.0
+- provenance.calendar_sha256: eb41ea2ccd36a2ee9ebce0b5ac1bad12c37b2a6a8dfd54562257a3bd4f359800
+- provenance.fetch_count: 4
+- provenance.ledger_commit: a3f155ffddcfa592c1641f3e45c010b585fce0ec
+- provenance.market_commit: 603d7be5e946de0846eff109164090d43147fe2a
+- provenance.market_sha256: 637ff41fdb67023a22b6ac6e43925a828ace97ffd03bdd2963b381f813febbe5
+- provenance.market_through: 2026-07-22
+- provenance.pinned_by: this
+- run_outcome: DONE
+- key: 2026-07-22-morning
+- delivery: SENT
+- send_status: SENT
+- existing_status: None
+- code: None
+- consumed: 2026-07-22
+- history_digest: f38e1804709a
+- seconds.load_inputs: 0.38
+- seconds.morning_job: 0.33
+- seconds.outbox_load: 0.03
+- outbox_files: 5
+
+#### text (dry: not sent)
+
+```
+【SOXL日次】対象D=2026-07
+   outbox names: ['2026-07-29-morning.claim.json', '2026-07-29-morning.result.json', '2026-07-30-morning.claim.json', '2026-07-30-morning.result.json', '2026-07-31-morning.claim.json']
+
+real	0m13.265s
+user	0m10.563s
+sys	0m2.231s
