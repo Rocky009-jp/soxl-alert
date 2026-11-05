@@ -16,8 +16,8 @@ WRITE_STEPS = ["create_exclusive", "open_writer", "write", "flush", "fsync_file"
 class Order(H.Case):
     def test_one_file_is_written_in_the_order_of_the_request_and_nothing_is_replaced_or_removed(self):
         S.decide(self.w, [1, 2, 3])
-        ops = H.Ops()
-        self.job(H.now_at(D[3]), outbox=self.outbox(ops))
+        ops = H.StrictOps()
+        self.job(H.now_at(D[3]), outbox=self.strict_outbox(ops))
         writes = [c for c in ops.calls if c in WRITE_STEPS]
         self.assertEqual(writes, WRITE_STEPS + WRITE_STEPS)             # the claim, then the result
         self.assertNotIn("replace", ops.calls)
@@ -57,8 +57,8 @@ class Claim(H.Case):
 
     def with_fault(self, method, n, error):
         self.setUp()
-        ops = H.Ops({method: (n, error)})
-        report = self.job(self.now, outbox=self.outbox(ops))
+        ops = H.StrictOps({method: (n, error)})
+        report = self.job(self.now, outbox=self.strict_outbox(ops))
         return report, ops
 
     def test_no_claim_means_no_send(self):
@@ -101,8 +101,8 @@ class Claim(H.Case):
         notice = N.compose_notice(self.reference(self.now), self.w.sessions, self.now)
         for method in WRITE_STEPS:
             for k in (1,):
-                ops = H.Ops({method: (k, OSError(errno.EIO, "secret /private/path"))})
-                outbox = self.outbox(ops)
+                ops = H.StrictOps({method: (k, OSError(errno.EIO, "secret /private/path"))})
+                outbox = self.strict_outbox(ops)
                 with self.assertRaises(N.NotifyError) as ctx:
                     outbox.claim(notice, self.now)
                 error = ctx.exception
@@ -117,6 +117,11 @@ class Claim(H.Case):
         with self.assertRaises(N.NotifyError) as ctx:
             listing.resend_ids(D[3], "morning")
         self.assertIsNone(ctx.exception.__context__)
+
+
+class WindowsLike(H.Ops):
+    def is_windows(self):
+        return True
 
 
 class Durability(H.Case):
@@ -134,9 +139,9 @@ class Durability(H.Case):
         return N.LocalOutbox(self.oroot, durability, _ops=ops)
 
     def test_the_default_is_strict_and_only_the_two_words_are_accepted(self):
-        ops = H.Ops()
+        ops = H.StrictOps()
         self.job(self.now, outbox=N.LocalOutbox(self.oroot, _ops=ops))
-        self.assertEqual(ops.count["fsync_dir"], 2)
+        self.assertEqual((ops.count["probe_dir_sync"], ops.count["fsync_dir"]), (1, 2))   # one probe, a sync per file
         before = H.snapshot(self.oroot)
         for bad in ("", "STRICT", "file-sync-only", "relaxed", None, 0, True, b"strict", ("strict",), ["strict"]):
             with self.assertRaises(N.NotifyError) as cm:
@@ -144,15 +149,40 @@ class Durability(H.Case):
             self.assertEqual(cm.exception.code, "notify_args_invalid", repr(bad))
         self.assertEqual(H.snapshot(self.oroot), before)
 
-    def test_strict_with_a_directory_sync_that_fails_creates_no_notice_and_sends_nothing(self):
-        ops = H.Ops({"fsync_dir": (1, self.SYNC_FAILS)})
+    def test_strict_is_refused_when_the_outbox_is_made_on_windows_or_when_the_directory_cannot_be_synced(self):
+        # RN-01: as in C-3, before anything is written; a mistaken mode does not leave an intent for every key
+        makers = (("windows", WindowsLike),
+                  ("probe", lambda: H.StrictOps({"probe_dir_sync": (1, PermissionError(errno.EACCES, "no"))})),
+                  ("probe_core", lambda: H.StrictOps({"probe_dir_sync": (1, H.CoreError("x", "y"))})))
+        for label, make in makers:
+            before = H.snapshot(self.oroot)
+            for args in ((), ("strict",)):
+                ops = make()
+                with self.assertRaises(N.NotifyError) as cm:
+                    N.LocalOutbox(self.oroot, *args, _ops=ops)
+                self.assertEqual(cm.exception.code, "outbox_durability_unsupported", label)
+                self.assertIsNone(cm.exception.__cause__)
+                self.assertIsNone(cm.exception.__context__)
+                self.assertFalse(set(ops.calls) - {"lstat", "probe_dir_sync"}, label)     # nothing was created or synced
+            self.assertEqual(H.snapshot(self.oroot), before, label)
+        self.assertEqual(self.sender.texts, [])
+
+    def test_file_sync_only_is_accepted_on_windows_and_does_not_probe_the_directory(self):
+        ops = WindowsLike()
+        out = self.outbox_of("file_sync_only", ops)
+        self.assertEqual(ops.calls, ["lstat"])
+        self.assertEqual(self.job(self.now, outbox=out).delivery, "SENT")
+        self.assertNotIn("probe_dir_sync", ops.calls)
+
+    def test_strict_with_a_directory_sync_that_fails_during_a_write_sends_nothing(self):
+        ops = H.StrictOps({"fsync_dir": (1, self.SYNC_FAILS)})
         report = self.job(self.now, outbox=self.outbox_of("strict", ops))
         self.assertEqual((report.delivery, report.exit_code), ("CLAIM_FAILED", 1))
         self.assertEqual(self.sender.texts, [])
 
     def test_file_sync_only_writes_the_same_bytes_in_the_same_steps_without_the_directory_sync(self):
         strict_root = self.oroot
-        ops_strict = H.Ops()
+        ops_strict = H.StrictOps()
         self.job(self.now, outbox=self.outbox_of("strict", ops_strict))
         steps = [c for c in ops_strict.calls if c in WRITE_STEPS]
         self.setUp()
@@ -216,8 +246,8 @@ class Result(H.Case):
         for method, status in (("create_exclusive", "UNKNOWN"), ("open_writer", "DAMAGED"), ("write", "DAMAGED"),
                                ("flush", "SENT"), ("fsync_file", "SENT"), ("close", "SENT"), ("fsync_dir", "SENT")):
             self.setUp()
-            ops = H.Ops({method: (2, OSError(errno.EIO, "io"))})
-            report = self.job(self.now, outbox=self.outbox(ops))
+            ops = H.StrictOps({method: (2, OSError(errno.EIO, "io"))})
+            report = self.job(self.now, outbox=self.strict_outbox(ops))
             self.assertEqual((report.delivery, report.send_status, report.exit_code), ("RESULT_NOT_RECORDED", "SENT", 1), method)
             self.assertEqual(len(self.sender.texts), 1, method)
             self.assertIn(D[3] + "-morning.claim.json", H.names(self.oroot), method)
@@ -288,7 +318,8 @@ class Sweep(H.Case):
         now, series, sender, store, ops, outbox, _ = self.execute(name, {})
         counts = {("sender", "send"): sender.n}
         counts.update({("store", m): c for m, c in store.counts.items()})
-        counts.update({("ops", m): c for m, c in ops.count.items() if m != "lstat"})
+        counts.update({("ops", m): c for m, c in ops.count.items()
+                       if m not in ("lstat", "probe_dir_sync")})       # made with the outbox: tested on their own
         return counts
 
     def test_the_sweep(self):

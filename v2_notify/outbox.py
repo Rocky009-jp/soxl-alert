@@ -7,7 +7,9 @@ every byte -> flush -> fsync_file -> close -> fsync_dir. Reading never creates o
 
 durability (the same two words as the C-3 history store): "strict" (the default) ends each write with the directory sync
 above; "file_sync_only" writes the same bytes in the same steps and skips only the directory sync, for a host that cannot
-sync a directory (Windows). A directory sync that fails in strict mode is still an outbox_io_error.
+sync a directory (Windows). As in C-3, "strict" is checked when the outbox is made and before anything is written: on
+Windows, or when one directory sync of the root fails, the outbox is refused (outbox_durability_unsupported) instead of
+failing later at every claim. A directory sync that fails during a write in strict mode is still an outbox_io_error.
 
 Names: <d>-<kind>.claim.json / .result.json and, for a manual resend, <d>-<kind>.resend-<id>.claim.json / .result.json.
 Nothing else is read or created. A claim without a result reads as UNKNOWN (it may have been sent); anything that does
@@ -21,8 +23,9 @@ from v2_core.errors import CoreError
 from v2_persistence.local.fsops import FileOps
 from v2_persistence.local.store import FILE_SYNC_ONLY_MODE, STRICT
 
-from .values import (ARGS_INVALID, CLAIM_SCHEMA, DAMAGED, KINDS, NONE, OUTBOX_IO_ERROR, OUTBOX_ROOT_INVALID,
-                     RESULT_STATUSES, UNKNOWN, NotifyError, OutboxEntry, date_text, hex32, request_id_text, sha256_text)
+from .values import (ARGS_INVALID, CLAIM_SCHEMA, DAMAGED, KINDS, NONE, OUTBOX_DURABILITY_UNSUPPORTED, OUTBOX_IO_ERROR,
+                     OUTBOX_ROOT_INVALID, RESULT_STATUSES, UNKNOWN, NotifyError, OutboxEntry, date_text, hex32,
+                     request_id_text, sha256_text)
 
 _CLAIM_KEYS = frozenset(("schema", "kind", "d", "claim_id", "text", "text_sha256", "run_outcome", "code", "claimed_at",
                          "resend_of"))
@@ -85,6 +88,16 @@ class LocalOutbox(object):
                 valid = stat.S_ISDIR(st.st_mode) and not link
         if not valid:
             raise NotifyError(OUTBOX_ROOT_INVALID, "root")
+        if durability == STRICT:                # as in C-3: refuse before anything is written
+            if ops.is_windows():
+                raise NotifyError(OUTBOX_DURABILITY_UNSUPPORTED, "durability")
+            supported = True
+            try:
+                ops.probe_dir_sync(root)
+            except _IO_ERRORS:
+                supported = False
+            if not supported:
+                raise NotifyError(OUTBOX_DURABILITY_UNSUPPORTED, "durability")
         self._root, self._ops, self._durability = root, ops, durability
 
     def __repr__(self):

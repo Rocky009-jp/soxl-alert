@@ -92,11 +92,11 @@ class IntentOnly(H.Case):
         self.job(H.now_at(D[3]))
         ops = H.Ops()
         before = H.snapshot(self.oroot)
-        entries = N.outbox_status(N.LocalOutbox(self.oroot, _ops=ops), D[3])
+        entries = N.outbox_status(N.LocalOutbox(self.oroot, H.MODE, _ops=ops), D[3])
         self.assertEqual([(e.kind, e.resend_request_id, e.status) for e in entries],
                          [("morning", None, "SENT"), ("halt", None, "NONE"), ("error", None, "NONE")])
         self.assertEqual(H.snapshot(self.oroot), before)
-        self.assertFalse(set(ops.calls) - {"lstat", "read_file", "listdir"})
+        self.assertFalse(set(ops.calls) - {"lstat", "probe_dir_sync", "read_file", "listdir"})
 
 
 MUTATIONS = {

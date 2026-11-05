@@ -27,7 +27,7 @@ def main():
     spec = json.loads(sys.argv[1])
     w = H.P.World(0, unconfirmed=tuple(H.D[i] for i in spec.get("unconfirmed", ())))
     H.S.decide(w, spec["decisions"])
-    outbox = H.N.LocalOutbox(spec["out"])
+    outbox = H.N.LocalOutbox(spec["out"], H.MODE)
     sender = LoggingSender(spec["log"], spec.get("answer", "SENT"))
     sys.stdout.write(json.dumps({"event": "READY"}) + "\n")
     sys.stdout.flush()

@@ -28,6 +28,9 @@ from v2_persistence.local.fsops import FileOps  # noqa: E402
 
 D, P, TZ = S.D, S.P, S.TZ
 WORKER = os.path.join(HERE, "s4b_worker.py")
+# The outbox mode that fits the host (RN-01): strict is refused on Windows, as in C-3. The same bytes and steps otherwise.
+REAL_WINDOWS = FileOps().is_windows()
+MODE = "file_sync_only" if REAL_WINDOWS else "strict"
 UTC = timezone.utc
 
 
@@ -138,6 +141,10 @@ class Ops(FileOps):
         self._hit("fsync_dir")
         return FileOps.fsync_dir(self, path)
 
+    def probe_dir_sync(self, path):
+        self._hit("probe_dir_sync")
+        return FileOps.probe_dir_sync(self, path)
+
     def read_file(self, path):
         self._hit("read_file")
         return FileOps.read_file(self, path)
@@ -159,6 +166,24 @@ class Ops(FileOps):
         raise AssertionError("the outbox must never unlink")
 
 
+class StrictOps(Ops):
+    """A host where "strict" is accepted, whatever the real host is: not Windows; the directory sync is the real one,
+    except on a real Windows where it only counts the call (the tests of the strict steps then still run)."""
+
+    def is_windows(self):
+        return False
+
+    def probe_dir_sync(self, path):
+        self._hit("probe_dir_sync")
+        if not REAL_WINDOWS:
+            FileOps.probe_dir_sync(self, path)
+
+    def fsync_dir(self, path):
+        self._hit("fsync_dir")
+        if not REAL_WINDOWS:
+            FileOps.fsync_dir(self, path)
+
+
 class Case(unittest.TestCase):
     """A fresh history root, outbox directory and world per test (removed by the harness)."""
 
@@ -177,7 +202,11 @@ class Case(unittest.TestCase):
         return self._store
 
     def outbox(self, ops=None):
-        return N.LocalOutbox(self.oroot, _ops=ops)
+        return N.LocalOutbox(self.oroot, MODE, _ops=ops)
+
+    def strict_outbox(self, ops=None):
+        """For the tests of the strict steps (the directory sync): with StrictOps on any host."""
+        return N.LocalOutbox(self.oroot, "strict", _ops=ops)
 
     def job(self, now, sender=None, outbox=None, store=None, **kw):
         w = self.w

@@ -8,6 +8,7 @@ from datetime import datetime
 import s4b_helpers as H
 
 N, S, D = H.N, H.S, H.D
+CTOR_CALLS = ["lstat"] + (["probe_dir_sync"] if H.MODE == "strict" else [])        # what the constructor does to the root
 
 
 class Root(H.Case):
@@ -45,8 +46,8 @@ class Root(H.Case):
 
     def test_a_good_root_is_accepted_and_nothing_is_created_by_the_constructor(self):
         ops = H.Ops()
-        N.LocalOutbox(self.oroot, _ops=ops)
-        self.assertEqual(ops.calls, ["lstat"])
+        N.LocalOutbox(self.oroot, H.MODE, _ops=ops)
+        self.assertEqual(ops.calls, CTOR_CALLS)
         self.assertEqual(H.names(self.oroot), [])
 
 
@@ -86,9 +87,9 @@ class Arguments(H.Case):
         for rid in ("", " ", "a b", "../x", "a.b", "ä", too_long, None, 5, b"x", "a\n"):
             ops = H.Ops()
             with self.assertRaises(N.NotifyError) as ctx:
-                N.resend(N.LocalOutbox(self.oroot, _ops=ops), self.sender, D[2], "morning", rid, H.now_at(D[2]))
+                N.resend(N.LocalOutbox(self.oroot, H.MODE, _ops=ops), self.sender, D[2], "morning", rid, H.now_at(D[2]))
             self.assertEqual(ctx.exception.code, "notify_args_invalid", repr(rid))
-            self.assertEqual(ops.calls, ["lstat"], repr(rid))              # only the constructor looked at the root
+            self.assertEqual(ops.calls, CTOR_CALLS, repr(rid))              # only the constructor looked at the root
         for d in ("2026-3-5", "x", None, "2026-03-05\n", "２０２６-03-05"):
             with self.assertRaises(N.NotifyError):
                 N.resend(self.outbox(), self.sender, d, "morning", "r1", H.now_at(D[2]))

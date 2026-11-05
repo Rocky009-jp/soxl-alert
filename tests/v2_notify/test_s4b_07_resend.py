@@ -176,7 +176,7 @@ class Status(H.Case):
         N.resend(self.outbox(), self.sender, D[3], "morning", "a-1", H.now_at(D[3], 23))
         before = H.snapshot(self.oroot)
         ops = H.Ops()
-        entries = N.outbox_status(N.LocalOutbox(self.oroot, _ops=ops), D[3])
+        entries = N.outbox_status(N.LocalOutbox(self.oroot, H.MODE, _ops=ops), D[3])
         self.assertEqual([(e.kind, e.resend_request_id, e.status) for e in entries],
                          [("morning", None, "UNKNOWN"), ("morning", "a-1", "SENT"), ("morning", "b-2", "UNKNOWN"),
                           ("halt", None, "NONE"), ("error", None, "NONE")])
@@ -184,7 +184,7 @@ class Status(H.Case):
         self.assertEqual(entries[1].recorded_at, H.now_at(D[3], 23).isoformat())
         self.assertEqual(entries[0].text_sha256, H.sha(down.texts[0]))
         self.assertEqual(H.snapshot(self.oroot), before)
-        self.assertFalse(set(ops.calls) - {"lstat", "read_file", "listdir"})
+        self.assertFalse(set(ops.calls) - {"lstat", "probe_dir_sync", "read_file", "listdir"})
         only = N.outbox_status(self.outbox(), D[3], "error")
         self.assertEqual([(e.kind, e.status) for e in only], [("error", "NONE")])
 

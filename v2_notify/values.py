@@ -36,6 +36,7 @@ EXIT_OK, EXIT_NOT_OK = 0, 1
 ARGS_INVALID = "notify_args_invalid"
 OUTBOX_ROOT_INVALID = "outbox_root_invalid"
 OUTBOX_IO_ERROR = "outbox_io_error"
+OUTBOX_DURABILITY_UNSUPPORTED = "outbox_durability_unsupported"
 
 # --- codes of the earlier stages that the texts react to (kept equal to theirs by a test) ----------------------------
 PUBLISH_UNCERTAIN = "run_publish_uncertain"

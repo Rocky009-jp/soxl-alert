@@ -31,7 +31,7 @@ FORBIDDEN_ATTRS = {"now", "utcnow", "today", "time", "monotonic", "sleep", "uran
                    "chmod", "chown", "truncate", "symlink", "link", "write_text", "write_bytes", "connect", "sendall",
                    "sendto", "urlopen"}
 FILE_OPS_ALLOWED = {"create_exclusive", "open_writer", "write", "flush", "fsync_file", "close", "close_fd", "fsync_dir",
-                    "probe_dir_sync", "read_file", "listdir", "lstat"}
+                    "probe_dir_sync", "read_file", "listdir", "lstat", "is_windows"}
 
 
 def trees():
@@ -103,7 +103,7 @@ class Runtime(unittest.TestCase):
                 if isinstance(node, ast.Attribute) and ast.unparse(node.value) in ("ops", "self._ops"):
                     self.assertIn(node.attr, FILE_OPS_ALLOWED, "%s uses ops.%s" % (path, node.attr))
                     used.add(node.attr)
-        self.assertEqual(used, FILE_OPS_ALLOWED - {"probe_dir_sync"})
+        self.assertEqual(used, FILE_OPS_ALLOWED)
 
     def test_the_sender_is_called_only_as_send_with_the_text(self):
         calls = []
