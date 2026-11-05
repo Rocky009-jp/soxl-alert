@@ -119,6 +119,92 @@ class Claim(H.Case):
         self.assertIsNone(ctx.exception.__context__)
 
 
+class Durability(H.Case):
+    """N-01: the directory sync is optional through durability, as in the C-3 history store. file_sync_only writes the same
+    bytes in the same steps and skips only the directory sync (a host that cannot sync a directory, such as Windows)."""
+
+    SYNC_FAILS = (OSError(errno.EINVAL, "no directory sync here"))
+
+    def setUp(self):
+        super().setUp()
+        S.decide(self.w, [1, 2, 3])
+        self.now = H.now_at(D[3])
+
+    def outbox_of(self, durability, ops=None):
+        return N.LocalOutbox(self.oroot, durability, _ops=ops)
+
+    def test_the_default_is_strict_and_only_the_two_words_are_accepted(self):
+        ops = H.Ops()
+        self.job(self.now, outbox=N.LocalOutbox(self.oroot, _ops=ops))
+        self.assertEqual(ops.count["fsync_dir"], 2)
+        before = H.snapshot(self.oroot)
+        for bad in ("", "STRICT", "file-sync-only", "relaxed", None, 0, True, b"strict", ("strict",), ["strict"]):
+            with self.assertRaises(N.NotifyError) as cm:
+                N.LocalOutbox(self.oroot, bad)
+            self.assertEqual(cm.exception.code, "notify_args_invalid", repr(bad))
+        self.assertEqual(H.snapshot(self.oroot), before)
+
+    def test_strict_with_a_directory_sync_that_fails_creates_no_notice_and_sends_nothing(self):
+        ops = H.Ops({"fsync_dir": (1, self.SYNC_FAILS)})
+        report = self.job(self.now, outbox=self.outbox_of("strict", ops))
+        self.assertEqual((report.delivery, report.exit_code), ("CLAIM_FAILED", 1))
+        self.assertEqual(self.sender.texts, [])
+
+    def test_file_sync_only_writes_the_same_bytes_in_the_same_steps_without_the_directory_sync(self):
+        strict_root = self.oroot
+        ops_strict = H.Ops()
+        self.job(self.now, outbox=self.outbox_of("strict", ops_strict))
+        steps = [c for c in ops_strict.calls if c in WRITE_STEPS]
+        self.setUp()
+        ops = H.Ops()
+        report = self.job(self.now, outbox=self.outbox_of("file_sync_only", ops))
+        self.assertEqual((report.delivery, report.send_status, report.exit_code), ("SENT", "SENT", 0))
+        self.assertEqual([c for c in ops.calls if c in WRITE_STEPS], [c for c in steps if c != "fsync_dir"])
+        self.assertNotIn("fsync_dir", ops.calls)
+        names = [D[3] + "-morning.claim.json", D[3] + "-morning.result.json"]
+        self.assertEqual(H.names(self.oroot), names)
+        for name in names:                       # the same keys and the same text; only the claim id and the times differ
+            mine, theirs = H.jread(self.oroot, name), H.jread(strict_root, name)
+            self.assertEqual(sorted(mine), sorted(theirs))
+        self.assertEqual(H.jread(self.oroot, names[0])["text_sha256"], H.jread(strict_root, names[0])["text_sha256"])
+        self.assertEqual(H.jread(self.oroot, names[1])["status"], "SENT")
+
+    def test_where_the_directory_cannot_be_synced_file_sync_only_sends_and_strict_does_not(self):
+        report = self.job(self.now, outbox=self.outbox_of("file_sync_only", H.Ops({"fsync_dir": (1, self.SYNC_FAILS)})))
+        self.assertEqual((report.delivery, report.exit_code), ("SENT", 0))
+        self.assertEqual(len(self.sender.texts), 1)
+        entry = N.outbox_status(self.outbox_of("file_sync_only"), D[3], "morning")[0]
+        self.assertEqual(entry.status, "SENT")
+
+    def test_the_halt_the_error_and_the_manual_resend_also_work_without_the_directory_sync(self):
+        class NoDirSync(H.Ops):
+            def fsync_dir(self, path):
+                raise OSError(errno.EINVAL, "no directory sync here")
+        ops = NoDirSync()
+        out = self.outbox_of("file_sync_only", ops)
+        down = H.Sender(TimeoutError("late"))
+        self.assertEqual(self.job(self.now, sender=down, outbox=out).send_status, "UNKNOWN")
+        again = N.resend(out, self.sender, D[3], "morning", "req-1", H.now_at(D[3], 20))
+        self.assertEqual((again.delivery, again.exit_code), ("SENT", 0))
+        self.assertEqual(len(self.sender.texts), 1)
+        self.assertEqual([e.status for e in N.outbox_status(out, D[3], "morning")], ["UNKNOWN", "SENT"])
+        halt_out = self.outbox_of("file_sync_only", NoDirSync())
+        halted = N.morning_job(self.store(), halt_out, self.sender, H.now_at(D[0], 18), self.w.series, self.w.sessions,
+                               self.w.ledger)
+        self.assertEqual(halted.delivery, "SENT")
+        err = N.morning_job(self.store(), self.outbox_of("file_sync_only", NoDirSync()), self.sender, H.now_at(D[0], 8),
+                            self.w.series, self.w.sessions, self.w.ledger)
+        self.assertEqual(err.delivery, "SENT")
+
+    def test_a_fault_in_any_other_step_is_still_an_outbox_error_in_file_sync_only(self):
+        for method in ("create_exclusive", "open_writer", "write", "flush", "fsync_file", "close"):
+            self.setUp()
+            ops = H.Ops({method: (1, OSError(errno.EIO, "io"))})
+            report = self.job(self.now, outbox=self.outbox_of("file_sync_only", ops))
+            self.assertEqual(report.delivery, "CLAIM_FAILED", method)
+            self.assertEqual(self.sender.texts, [], method)
+
+
 class Result(H.Case):
     def setUp(self):
         super().setUp()

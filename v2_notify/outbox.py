@@ -5,6 +5,10 @@ A claim and a result are only ever created, with O_EXCL, through the unchanged S
 or deleted, so the first creator of a name is the only one that has the right. Order of one write: create_exclusive ->
 every byte -> flush -> fsync_file -> close -> fsync_dir. Reading never creates or changes a file.
 
+durability (the same two words as the C-3 history store): "strict" (the default) ends each write with the directory sync
+above; "file_sync_only" writes the same bytes in the same steps and skips only the directory sync, for a host that cannot
+sync a directory (Windows). A directory sync that fails in strict mode is still an outbox_io_error.
+
 Names: <d>-<kind>.claim.json / .result.json and, for a manual resend, <d>-<kind>.resend-<id>.claim.json / .result.json.
 Nothing else is read or created. A claim without a result reads as UNKNOWN (it may have been sent); anything that does
 not read back as a claim or result of exactly this shape reads as DAMAGED, and neither is sent again."""
@@ -15,6 +19,7 @@ import stat
 
 from v2_core.errors import CoreError
 from v2_persistence.local.fsops import FileOps
+from v2_persistence.local.store import FILE_SYNC_ONLY_MODE, STRICT
 
 from .values import (ARGS_INVALID, CLAIM_SCHEMA, DAMAGED, KINDS, NONE, OUTBOX_IO_ERROR, OUTBOX_ROOT_INVALID,
                      RESULT_STATUSES, UNKNOWN, NotifyError, OutboxEntry, date_text, hex32, request_id_text, sha256_text)
@@ -25,6 +30,7 @@ _RESULT_KEYS = frozenset(("claim_id", "status", "recorded_at"))
 _ABSENT, _BAD, _OK = "absent", "bad", "ok"
 _REPARSE = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
 _IO_ERRORS = (OSError, CoreError, ValueError)
+_MODES = (STRICT, FILE_SYNC_ONLY_MODE)
 
 
 def _canonical(obj):
@@ -61,9 +67,12 @@ def _result_is_valid(obj, claim):
 
 class LocalOutbox(object):
     """root: an absolute path of an existing directory that is not a link (it is never created). _ops: the S2 FileOps
-    (a test may pass a subclass that records or fails). The repr never shows the path."""
+    (a test may pass a subclass that records or fails). durability: "strict" (default) or "file_sync_only". The repr
+    never shows the path."""
 
-    def __init__(self, root, _ops=None):
+    def __init__(self, root, durability=STRICT, *, _ops=None):
+        if type(durability) is not str or durability not in _MODES:
+            raise NotifyError(ARGS_INVALID, "durability")
         ops = FileOps() if _ops is None else _ops
         valid = False
         if isinstance(root, str) and root and os.path.isabs(root):
@@ -76,7 +85,7 @@ class LocalOutbox(object):
                 valid = stat.S_ISDIR(st.st_mode) and not link
         if not valid:
             raise NotifyError(OUTBOX_ROOT_INVALID, "root")
-        self._root, self._ops = root, ops
+        self._root, self._ops, self._durability = root, ops, durability
 
     def __repr__(self):
         return "LocalOutbox()"
@@ -180,7 +189,8 @@ class LocalOutbox(object):
                 ops.fsync_file(writer)
                 ops.close(writer)
                 writer = None                   # closed; the clean-up below closes it again only if close failed
-                ops.fsync_dir(self._root)
+                if self._durability == STRICT:
+                    ops.fsync_dir(self._root)
             except _IO_ERRORS:
                 failed = True
             finally:

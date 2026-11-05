@@ -16,6 +16,7 @@ ALLOWED_FROM = {
     "v2_core.errors": {"CoreError"},
     "v2_core.sessions": {"SessionList"},
     "v2_persistence.local.fsops": {"FileOps"},
+    "v2_persistence.local.store": {"FILE_SYNC_ONLY_MODE", "STRICT"},
     "v2_daily_run": {"DONE", "RunError", "RunReport", "run_morning"},
 }
 OWN_MODULES = {".compose", ".job", ".outbox", ".values"}
