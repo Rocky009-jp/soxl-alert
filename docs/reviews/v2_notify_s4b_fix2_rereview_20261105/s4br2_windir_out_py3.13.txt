@@ -1,0 +1,3 @@
+file_sync_only | first SENT 0 | rerun SKIPPED_CLAIMED SENT 0 | resend REFUSED_ALREADY_SENT | sends 1 | files ['2026-03-05-morning.claim.json', '2026-03-05-morning.result.json']
+strict refused at construction: outbox_durability_unsupported []
+default refused at construction: outbox_durability_unsupported []

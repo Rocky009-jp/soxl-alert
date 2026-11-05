@@ -1,0 +1,5 @@
+G01 DETECTED ['Ran 131 tests in 79.019s', 'FAILED (failures=2)'] 2 ['test_strict_is_refused_when_the_outbox_is_made_on_windows_or_when_the_directory_cannot_be_synced', 'test_the_file_system_is_reached_only_through_the_listed_s2_file_operations']
+G02 DETECTED ['Ran 131 tests in 78.523s', 'FAILED (failures=4, errors=1)'] 5 ['test_the_default_is_strict_and_only_the_two_words_are_accepted', 'test_a_bad_resend_request_id_d_or_kind_is_refused_before_any_file_is_read']
+G03 DETECTED ['Ran 131 tests in 79.237s', 'FAILED (failures=1)'] 1 ['test_strict_is_refused_when_the_outbox_is_made_on_windows_or_when_the_directory_cannot_be_synced']
+G04 NOT_DETECTED ['Ran 131 tests in 79.705s', 'OK'] 0 []
+G05 DETECTED ['Ran 131 tests in 59.841s', 'FAILED (failures=1)'] 1 ['test_strict_is_refused_when_the_outbox_is_made_on_windows_or_when_the_directory_cannot_be_synced']
