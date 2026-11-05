@@ -131,3 +131,5 @@
 ## 8. 変更したもの
 
 製品コード・試験・実装ブランチ・既存資料は変えていない。新しい記録ブランチ docs/v2-inputs-s4d-impl-review-20261105（9bdd421から）に、この文書と付属のディレクトリ`docs/reviews/v2_inputs_s4d_impl_review_20261105/`（探り、変異の一覧と結果、実行の記録、保護参照の一覧）だけを足した。共有フォルダ`/mnt/project-files/reviews/v2_inputs_s4d_impl_review_20261105/`に同じものの写しを置いた。
+
+追記（2026-11-05）：本文のコミット338f259ec3706ff6fae3c613beb14826e64ab101のpushの前と後に、§6の108参照がリモートと完全SHAで一致することを確かめた（不一致0、`refs_postpush.txt`）。
