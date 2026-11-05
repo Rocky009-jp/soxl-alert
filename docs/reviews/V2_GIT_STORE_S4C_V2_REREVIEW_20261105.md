@@ -111,4 +111,4 @@
 ## 7. 変更したもの・保護参照
 
 - 変更：この記録と付属（docs/reviews/v2_git_store_s4c_v2_rereview_20261105/）を、0caabe2から作った別ブランチ docs/v2-git-store-s4c-v2-rereview-20261105 にコミットした。共有フォルダ reviews/ にも写しを置いた。資料ブランチ・実装ブランチ・製品コード・既存試験・main・workflow・外部サービスは変更していない。PR・送信はしていない。
-- 保護参照：開始時に99参照＋0caabe2＋55e770aが一致。PUSH_CHECK_PLACEHOLDER
+- 保護参照：開始時に99参照＋0caabe2＋55e770aが一致。本記録の最初のpush（ecfa390e212b251ec69cff8ff9a9a9eb20aef5d5）の後にも、99参照・0caabe2・55e770aがリモートと完全SHAで一致することを確かめた（リモートのブランチは119本、増えたのは本ブランチだけ）。
