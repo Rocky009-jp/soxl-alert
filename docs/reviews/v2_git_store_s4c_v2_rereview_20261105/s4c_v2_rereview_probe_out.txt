@@ -1,0 +1,14 @@
+X1 A SENT sends 1
+X1 B (mirror lost the morning files) SKIPPED_CLAIMED sends 1
+X1 remote morning claim replaced: True commits on outbox: 3
+X2 STOPPED store_io_error halt SENT concurrent note: False
+X2 push classified as REJECTED
+Y1 STOPPED store_io_error halt SENT concurrent note: False
+Y2 DONE morning CLAIM_FAILED sends 0 outbox pushes 1
+Y3 round 0 ['INITIALIZED', 'already_initialized']
+Y3 round 1 ['INITIALIZED', 'already_initialized']
+Y3 round 2 ['INITIALIZED', 'already_initialized']
+Y3 round 3 ['INITIALIZED', 'already_initialized']
+Y3 round 4 ['INITIALIZED', 'already_initialized']
+Y4 identical-commit race (outcomes, APPLY of D1): {(('PUBLISHED', 'publication_stale'), 1): 10}
+Y5 first run (result push refused) RESULT_NOT_RECORDED SENT sends 1 [('morning', 'UNKNOWN')]

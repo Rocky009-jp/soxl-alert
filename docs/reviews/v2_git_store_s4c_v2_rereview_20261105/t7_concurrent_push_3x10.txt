@@ -1,0 +1,2 @@
+     10  	<old>..<new>
+     20 !	[remote rejected] (failed to update ref)

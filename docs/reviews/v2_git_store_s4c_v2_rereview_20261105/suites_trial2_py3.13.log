@@ -1,0 +1,4 @@
+v2_scope_chain rc=0 Ran 34 tests in 3.647s | OK
+v2_daily_run rc=0 Ran 96 tests in 18.830s | OK
+v2_notify rc=0 Ran 131 tests in 70.238s | OK
+v2_git_store rc=0 Ran 1 test in 0.681s | OK
