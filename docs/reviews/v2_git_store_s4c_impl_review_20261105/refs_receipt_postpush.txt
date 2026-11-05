@@ -1,0 +1,2 @@
+after the push of the receipt (5dc9cdc338b6d8d777e5758fcca32670ceae8c25): 103 refs checked, 0 mismatches
+5dc9cdc338b6d8d777e5758fcca32670ceae8c25	refs/heads/docs/v2-git-store-s4c-impl-review-20261105
