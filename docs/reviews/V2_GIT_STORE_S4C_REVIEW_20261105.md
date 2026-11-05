@@ -130,7 +130,7 @@ CLAIM_FAILEDになった子のidで、その後に同じ再送を頼むと、36�
 
 ## 6. 保護参照
 
-依頼書§7の99参照＋実装時の3本（2060545・55e770a・3d2b79a）＝102参照に、実装ブランチfeat/v2-git-store-s4c-20261105（ffa3700）を加えた**103参照**を、`refcheck.py`で`git ls-remote --heads origin`と完全なSHAで照合した。レビュー開始時：103参照、不一致0（`refs_start.txt`）。push後：`refs_postpush.txt`（この記録の次のコミット）。
+依頼書§7の99参照＋実装時の3本（2060545・55e770a・3d2b79a）＝102参照に、実装ブランチfeat/v2-git-store-s4c-20261105（ffa3700）を加えた**103参照**を、`refcheck.py`で`git ls-remote --heads origin`と完全なSHAで照合した。レビュー開始時：103参照、不一致0（`refs_start.txt`）。push後（04303f0の後）：103参照、不一致0（`refs_postpush.txt`）。
 
 ## 7. 未実施
 
