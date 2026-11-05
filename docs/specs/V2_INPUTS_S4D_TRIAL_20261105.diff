@@ -1,0 +1,753 @@
+diff --git a/tests/v2_git_store/test_s4c_09_scope.py b/tests/v2_git_store/test_s4c_09_scope.py
+index 04714b1..9628052 100644
+--- a/tests/v2_git_store/test_s4c_09_scope.py
++++ b/tests/v2_git_store/test_s4c_09_scope.py
+@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
+ import sc_helpers as C  # noqa: E402  (read-only Git helpers of the range tests)
+ 
+ START = "6cab0506c408d194c63b656713e4a0a7d62c3ba1"
+-END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++END = "ffa370089cd37fcc76658b4de0f4aedde0a246e0"   # accepted (receipt 5dc9cdc); frozen when S4-D began
+ REV = END or "HEAD"
+ 
+ PACKAGE = "v2_git_store"
+diff --git a/tests/v2_inputs/test_s4d_09_scope.py b/tests/v2_inputs/test_s4d_09_scope.py
+new file mode 100644
+index 0000000..c4adbac
+--- /dev/null
++++ b/tests/v2_inputs/test_s4d_09_scope.py
+@@ -0,0 +1,27 @@
++"""Trial placeholder of the S4-D range test (the implementation writes the full one, S4D-18)."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(HERE, "..", "v2_scope_chain"))
++import sc_helpers as C  # noqa: E402
++
++START = "ffa370089cd37fcc76658b4de0f4aedde0a246e0"
++END = None          # not accepted yet; the next stage replaces None with the accepted final commit
++REV = END or "HEAD"
++FIRST_OF_CHAIN = "adfdf765aeca0d01c8f10b596a6fac59d7c1a07e"
++
++
++class FilesChanged(unittest.TestCase):
++    def test_the_whole_chain_has_no_gap_and_this_is_the_only_open_range(self):
++        if C.git("cat-file", "-e", START + "^{commit}").returncode != 0:
++            self.skipTest("the code start commit is not available in this checkout")
++        rows = C.range_tests(REV)
++        self.assertEqual(C.judge_chain(rows, C.is_ancestor, tip=REV, begin=FIRST_OF_CHAIN), [])
++        self.assertEqual([r["path"] for r in rows if r["end"] is None], ["tests/v2_inputs/test_s4d_09_scope.py"])
++        self.assertEqual([r["path"] for r in rows if r["end"] == START], ["tests/v2_git_store/test_s4c_09_scope.py"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/v2_inputs/__init__.py b/v2_inputs/__init__.py
+new file mode 100644
+index 0000000..7ce6571
+--- /dev/null
++++ b/v2_inputs/__init__.py
+@@ -0,0 +1,5 @@
++"""TRIAL of S4-D (not a request, not adopted): the inputs of the morning run (sessions, market series, ledger)."""
++from .xnys import build_sessions, coverage_failure, calendar_sha256
++from .market import chart_url, parse_chart, MarketPin
++from .ledger import read_ledger
++from .load import Inputs, load_inputs, guarded_store
+diff --git a/v2_inputs/ledger.py b/v2_inputs/ledger.py
+new file mode 100644
+index 0000000..5768569
+--- /dev/null
++++ b/v2_inputs/ledger.py
+@@ -0,0 +1,44 @@
++"""TRIAL. The user's F&G observations: observations.csv on refs/heads/<ref>, read at the fetched head SHA. The rows are
++passed to the core as text (the core parses them); only the header, the encoding and observed_at <= now are checked."""
++import csv, io
++from v2_core.errors import CoreError, InputError
++from v2_core.sessions import parse_aware_datetime
++
++NAME = "observations.csv"
++COLUMNS = ("record_id", "target_us_session_date", "observation_role", "observation_status", "current_fg_value",
++           "observed_at_iso8601")
++
++
++def read_ledger(git, ref, now):
++    """(rows, head SHA). Raises InputError for a missing ledger, a bad file or a row observed after now."""
++    head = git.fetch(ref)
++    data = None if head is None else git.blob(head, NAME)
++    if data is None:
++        raise InputError("input_ledger_missing", "ledger")
++    header = body = None
++    try:
++        text = data.decode("utf-8-sig")
++        reader = csv.reader(io.StringIO(text, newline=""))
++        header = next(reader)
++        body = [r for r in reader if any(c.strip() for c in r)]
++    except (UnicodeDecodeError, csv.Error, StopIteration):
++        pass
++    if body is None:
++        raise InputError("input_ledger_unreadable", "ledger")
++    if tuple(h.strip() for h in header) != COLUMNS:
++        raise InputError("input_ledger_header_invalid", "ledger")
++    rows = []
++    for r in body:
++        if len(r) != len(COLUMNS):
++            raise InputError("input_ledger_row_invalid", "ledger")
++        row = dict(zip(COLUMNS, (c.strip() for c in r)))
++        if row["observed_at_iso8601"]:
++            when = None
++            try:
++                when = parse_aware_datetime(row["observed_at_iso8601"], "observed_at_iso8601")
++            except CoreError:
++                pass                                   # the core reports a bad time itself
++            if when is not None and when > now:
++                raise InputError("input_ledger_observation_after_now", "observed_at_iso8601")
++        rows.append(row)
++    return rows, head
+diff --git a/v2_inputs/load.py b/v2_inputs/load.py
+new file mode 100644
+index 0000000..86d4ef2
+--- /dev/null
++++ b/v2_inputs/load.py
+@@ -0,0 +1,144 @@
++"""TRIAL. load_inputs: sessions + pinned market series + ledger; any input failure is returned (not raised) and turned
++into a STOPPED report by guarded_store (its read raises it inside run_morning), so the morning still sends one notice."""
++import datetime as dt, hashlib
++from v2_core.errors import CoreError, InputError
++from v2_git_store import GitError
++from v2_git_store.git import check_ref
++from .xnys import build_sessions, coverage_failure, calendar_sha256, ny_offset
++from .market import SYMBOLS, PREHISTORY_START, parse_chart, snapshot_bytes, read_snapshot, series_of, MarketPin
++from .ledger import read_ledger
++
++MARGIN = dt.timedelta(minutes=60)
++_GIT_FAILED = object()
++
++
++class Inputs(object):
++    def __init__(self, series, sessions, raw, failure, provenance):
++        self.series, self.sessions, self.raw_observations = series, sessions, raw
++        self.failure, self.provenance = failure, provenance
++
++
++class _Guard(object):
++    def __init__(self, store, failure):
++        self._s, self._f = store, failure
++
++    def read(self):
++        raise self._f
++
++    def publish(self, p):
++        return self._s.publish(p)
++
++    def reconcile(self, p):
++        return self._s.reconcile(p)
++
++
++def guarded_store(store, failure):
++    return store if failure is None else _Guard(store, failure)
++
++
++def _last_complete(sessions_closed, by_symbol, now):
++    """The last session date (in order, without a hole) with a row for every symbol; InputError for a hole followed by
++    data, or a data day the calendar does not have."""
++    last, hole = None, None
++    table = set(s.date for s in sessions_closed)
++    first = sessions_closed[0].date if sessions_closed else None
++    for s in SYMBOLS[:3]:
++        extra = [d for d in by_symbol[s] if first is not None and d >= first and d not in table]
++        if extra:
++            raise InputError("input_calendar_data_mismatch", "market", detail=min(extra))
++    for s in sessions_closed:
++        if s.close_at + MARGIN > now:
++            break
++        have = all(s.date in by_symbol[x] for x in SYMBOLS)
++        if not have:
++            hole = s.date
++            continue
++        if hole is not None:
++            raise InputError("input_market_rows_missing", "market", detail=hole)
++        last = s.date
++    return last
++
++
++def _args_ok(now, refs, fetch, clock):
++    if not isinstance(now, dt.datetime) or now.utcoffset() is None or not callable(fetch) or not callable(clock):
++        return False
++    if not isinstance(refs, dict) or sorted(refs) != ["ledger", "market"]:
++        return False
++    try:
++        for r in refs.values():
++            check_ref(r)
++    except CoreError:
++        return False
++    return True
++
++
++def _fetch_all(fetch, end):
++    """({symbol: rows}, None) or (None, InputError); a fetch exception is input_market_fetch_failed."""
++    out = {}
++    for s in SYMBOLS:
++        try:
++            data = fetch(s, PREHISTORY_START, end)
++        except Exception:
++            data = _FAILED
++        if data is _FAILED:
++            return None, InputError("input_market_fetch_failed", "market")
++        out[s] = parse_chart(data, s)[0]
++    if PREHISTORY_START not in out["SOXX"]:
++        return None, InputError("input_market_history_short", "market", detail=PREHISTORY_START)
++    return out, None
++
++
++_FAILED = object()
++
++
++def load_inputs(git, fetch, now, refs, clock):
++    """fetch(symbol, start, end) -> bytes of the chart JSON (S4-E gives the HTTP one). refs: {"market": ..., "ledger": ...}."""
++    if not _args_ok(now, refs, fetch, clock):
++        raise InputError("input_args_invalid", "inputs")
++    prov, failure = {"calendar_sha256": calendar_sha256(), "fetch_count": 0}, None
++    skeleton = build_sessions(now, None)                         # raises only when now is past the table
++    end = ((now.astimezone(dt.timezone.utc) + ny_offset(now.astimezone(dt.timezone.utc).date())).date()
++           + dt.timedelta(days=1)).isoformat()
++    closed = [s for s in skeleton.sessions if s.close_at <= now]
++    pin = MarketPin(git, refs["market"], clock)
++    through, rows, series = None, None, None
++    try:
++        head, through, rows, digest = pin.read()
++        target = closed[-1].date if closed else None
++        if through is not None and through >= target:
++            prov["pinned_by"] = "existing"
++        else:
++            prov["fetch_count"] = len(SYMBOLS)
++            fetched, err = _fetch_all(fetch, end)
++            if err is not None:
++                raise err
++            last = _last_complete(closed, fetched, now)
++            if last is not None and (through is None or last > through):
++                data = snapshot_bytes(last, fetched)
++                if not pin.pin(head, data, last):
++                    head, through, rows, digest = pin.read()        # the other run's pin wins; use it as it is
++                    if through is None or through < last:
++                        raise InputError("input_market_pin_failed", "market")
++                    prov["pinned_by"] = "other"
++                else:
++                    through, rows, digest = last, read_snapshot(data)[1], hashlib.sha256(data).hexdigest()
++                    head = pin.head_after_pin
++                    prov["pinned_by"] = "this"
++        if through is None:
++            raise InputError("input_market_unavailable", "market")
++        series = series_of(through, rows, digest)
++        short = coverage_failure(now)
++        if short is not None:
++            raise short
++        prov.update(market_through=through, market_sha256=digest)
++        prov["market_commit"] = head
++        raw, lsha = read_ledger(git, refs["ledger"], now)
++        prov["ledger_commit"] = lsha
++    except GitError:                                               # a CoreError too: caught first and replaced
++        failure, raw = _GIT_FAILED, []
++    except CoreError as e:
++        failure, raw = e, []
++    if failure is _GIT_FAILED:
++        failure = InputError("input_git_failed", "inputs")
++    sessions = build_sessions(now, through)
++    return Inputs(series, sessions, raw if failure is None else [], failure, prov)
+diff --git a/v2_inputs/market.py b/v2_inputs/market.py
+new file mode 100644
+index 0000000..98a4cff
+--- /dev/null
++++ b/v2_inputs/market.py
+@@ -0,0 +1,140 @@
++"""TRIAL. Market series from Yahoo chart (v8) JSON bytes, the pinned snapshot on refs/heads/<ref> (market.json)."""
++import datetime as dt, hashlib, json, math
++from v2_core.errors import InputError
++from v2_core.fixture import MarketSeries, PRICE_DEF_SOXX, PRICE_DEF_SOXL_CLOSE
++from .xnys import ny_offset
++
++SYMBOLS = ("SOXX", "SPY", "IEF", "SOXL")
++PREHISTORY_START = "2010-02-11"
++PRICE_MAX = 1e6
++NAME = "market.json"
++SCHEMA = "v2_inputs.market.1"
++
++
++def _price(x):
++    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and 0 < x < PRICE_MAX
++
++
++_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
++
++
++def chart_url(symbol, start, end):
++    """The chart (v8) daily URL of one symbol from start to end (dates, 00:00 UTC); a pure function the S4-E fetch uses."""
++    if symbol not in SYMBOLS:
++        raise InputError("input_args_invalid", "inputs")
++    secs = [int(dt.datetime.combine(dt.date.fromisoformat(x), dt.time(0), dt.timezone.utc).timestamp()) for x in (start, end)]
++    return "%s%s?period1=%d&period2=%d&interval=1d&events=div%%2Csplit&includeAdjustedClose=true" % (_BASE, symbol, *secs)
++
++
++def _columns(data, symbol):
++    """(timestamps, close, adjclose), or None for a response of the wrong shape (no exception is raised in a handler)."""
++    if type(data) is not bytes:
++        return None
++    try:
++        res = json.loads(data.decode("utf-8"))["chart"]["result"][0]
++        ts = res["timestamp"]
++        close = res["indicators"]["quote"][0]["close"]
++        adj = res["indicators"]["adjclose"][0]["adjclose"]
++        if res["meta"]["symbol"] != symbol or not (len(ts) == len(close) == len(adj)):
++            return None
++    except (ValueError, KeyError, IndexError, TypeError, UnicodeDecodeError, AttributeError):
++        return None
++    return ts, close, adj
++
++
++def parse_chart(data, symbol):
++    """{date: (close, adjclose)} of one symbol from PREHISTORY_START; a day with a null value has no row."""
++    cols = _columns(data, symbol)
++    if cols is None:
++        raise InputError("input_market_response_invalid", "market")
++    rows, invalid, seen = {}, None, set()
++    for t, c, a in zip(*cols):
++        if not isinstance(t, int) or isinstance(t, bool):
++            raise InputError("input_market_response_invalid", "market")
++        utc = dt.datetime.fromtimestamp(t, dt.timezone.utc)
++        day = (utc + ny_offset(utc.date())).date().isoformat()
++        if day in seen:
++            raise InputError("input_market_response_invalid", "market")
++        seen.add(day)
++        if day < PREHISTORY_START:
++            continue
++        if c is None or a is None:
++            continue                                  # not there (yet): a missing row, not a bad value
++        if _price(c) and _price(a):
++            rows[day] = (float(c), float(a))
++        elif invalid is None or day < invalid:
++            invalid = day
++    if invalid is not None:
++        raise InputError("input_market_value_invalid", "market", detail=invalid)
++    return rows, 0
++
++
++def snapshot_bytes(through, by_symbol):
++    body = {"schema": SCHEMA, "through": through, "source": "yahoo_chart_v8",
++            "symbols": {s: {"dates": sorted(d for d in by_symbol[s] if PREHISTORY_START <= d <= through),
++                            } for s in SYMBOLS}}
++    for s in SYMBOLS:
++        dates = body["symbols"][s]["dates"]
++        body["symbols"][s]["close"] = [by_symbol[s][d][0] for d in dates]
++        body["symbols"][s]["adjclose"] = [by_symbol[s][d][1] for d in dates]
++    return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
++
++
++def _snapshot(data):
++    try:
++        body = json.loads(data.decode("ascii"))
++        if body["schema"] != SCHEMA:
++            return None
++        out = {}
++        for s in SYMBOLS:
++            e = body["symbols"][s]
++            if not (len(e["dates"]) == len(e["close"]) == len(e["adjclose"])):
++                return None
++            out[s] = {d: (c, a) for d, c, a in zip(e["dates"], e["close"], e["adjclose"])}
++            if not all(_price(c) and _price(a) for c, a in out[s].values()):
++                return None
++        return body["through"], out
++    except (ValueError, KeyError, TypeError, UnicodeDecodeError, AttributeError):
++        return None
++
++
++def read_snapshot(data):
++    got = _snapshot(data)
++    if got is None:
++        raise InputError("input_market_pin_invalid", "market")
++    return got
++
++
++def series_of(through, by_symbol, digest):
++    soxx = by_symbol["SOXX"]
++    dates = sorted(d for d in soxx if PREHISTORY_START <= d <= through)
++    spy = {d: v[1] for d, v in by_symbol["SPY"].items() if d <= through}
++    ief = {d: v[1] for d, v in by_symbol["IEF"].items() if d <= through}
++    meta = {"source": "yahoo_chart_v8 (pinned)", "price_definition": PRICE_DEF_SOXX,
++            "soxl_close_definition": PRICE_DEF_SOXL_CLOSE, "prehistory_start": PREHISTORY_START,
++            "input_manifest": [{"file": NAME, "sha256": digest}]}
++    soxl = {d: v[0] for d, v in by_symbol["SOXL"].items() if d <= through}
++    return MarketSeries(dates, [soxx[d][1] for d in dates], spy, ief, set(spy) & set(ief), soxl_close=soxl, meta=meta)
++
++
++class MarketPin(object):
++    def __init__(self, git, ref, clock):
++        self._git, self._ref, self._clock = git, ref, clock
++        self.head_after_pin = None
++
++    def read(self):
++        """(head, through, by_symbol, sha256) of the pinned snapshot, or (None, None, None, None)."""
++        head = self._git.fetch(self._ref)
++        if head is None:
++            return None, None, None, None
++        data = self._git.blob(head, NAME)
++        if data is None:
++            raise InputError("input_market_pin_invalid", "market")
++        through, rows = read_snapshot(data)
++        return head, through, rows, hashlib.sha256(data).hexdigest()
++
++    def pin(self, head, data, through):
++        from v2_git_store import OK
++        commit = self._git.commit_with(head, NAME, data, "v2 market through %s" % through, self._clock())
++        self.head_after_pin = commit
++        return self._git.push(commit, self._ref) == OK
+diff --git a/v2_inputs/xnys.py b/v2_inputs/xnys.py
+new file mode 100644
+index 0000000..8de5fe5
+--- /dev/null
++++ b/v2_inputs/xnys.py
+@@ -0,0 +1,71 @@
++"""TRIAL. XNYS sessions from a fixed table (no calendar library, no tz database): weekdays minus holidays, 09:30-16:00
++(13:00 on early closes) New York time, with the US DST rule (second Sunday of March .. first Sunday of November)."""
++import datetime as dt, hashlib
++from v2_core.errors import InputError
++from v2_core.sessions import Session, SessionList
++
++CALENDAR_START = dt.date(2026, 1, 2)
++CALENDAR_END = dt.date(2028, 12, 29)
++HOLIDAYS = frozenset(dt.date.fromisoformat(x) for x in (
++    "2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03", "2026-05-25", "2026-06-19", "2026-07-03", "2026-09-07",
++    "2026-11-26", "2026-12-25",
++    "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26", "2027-05-31", "2027-06-18", "2027-07-05", "2027-09-06",
++    "2027-11-25", "2027-12-24",
++    "2028-01-17", "2028-02-21", "2028-04-14", "2028-05-29", "2028-06-19", "2028-07-04", "2028-09-04", "2028-11-23",
++    "2028-12-25"))
++EARLY_CLOSES = frozenset(dt.date.fromisoformat(x) for x in (
++    "2026-11-27", "2026-12-24", "2027-11-26", "2028-07-03", "2028-11-24"))
++MARGIN_DAYS = 14
++
++
++def _nth_sunday(year, month, n):
++    d = dt.date(year, month, 1)
++    d += dt.timedelta((6 - d.weekday()) % 7)
++    return d + dt.timedelta(7 * (n - 1))
++
++
++def ny_offset(day):
++    """UTC offset of New York on a weekday (no session is on the Sunday of a change)."""
++    dst = _nth_sunday(day.year, 3, 2) <= day < _nth_sunday(day.year, 11, 1)
++    return dt.timedelta(hours=-4 if dst else -5)
++
++
++def _at(day, hh, mm):
++    return dt.datetime(day.year, day.month, day.day, hh, mm, tzinfo=dt.timezone(ny_offset(day)))
++
++
++def session_days():
++    day, out = CALENDAR_START, []
++    while day <= CALENDAR_END:
++        if day.weekday() < 5 and day not in HOLIDAYS:
++            out.append(day)
++        day += dt.timedelta(1)
++    return out
++
++
++def calendar_sha256():
++    """The version of the table: sha256 of its canonical text (the range, then the holidays, then the early closes)."""
++    text = "%s..%s|H:%s|E:%s" % (CALENDAR_START, CALENDAR_END, ",".join(sorted(d.isoformat() for d in HOLIDAYS)),
++                                 ",".join(sorted(d.isoformat() for d in EARLY_CLOSES)))
++    return hashlib.sha256(text.encode("ascii")).hexdigest()
++
++
++def coverage_failure(now):
++    """None, or InputError(input_calendar_not_covered) when now + MARGIN_DAYS is past the table (the sessions are
++    still built, so the run stops with the right D and sends its notice)."""
++    if (now.astimezone(dt.timezone.utc) + dt.timedelta(days=MARGIN_DAYS)).date() > CALENDAR_END:
++        return InputError("input_calendar_not_covered", "calendar")
++    return None
++
++
++def build_sessions(now, confirmed_through):
++    """Every table session from CALENDAR_START; confirmed only up to confirmed_through (a date text or None).
++    Raises InputError(input_calendar_ended) only when now itself is past the table."""
++    if now.astimezone(dt.timezone.utc).date() > CALENDAR_END:
++        raise InputError("input_calendar_ended", "calendar")
++    out = []
++    for day in session_days():
++        close = _at(day, 13, 0) if day in EARLY_CLOSES else _at(day, 16, 0)
++        ok = confirmed_through is not None and day.isoformat() <= confirmed_through
++        out.append(Session(day.isoformat(), _at(day, 9, 30), close, ok))
++    return SessionList(out)
+diff --git a/trial_probes/s4d_trial.py b/trial_probes/s4d_trial.py
+new file mode 100644
+index 0000000..3c1601c
+--- /dev/null
++++ b/trial_probes/s4d_trial.py
+@@ -0,0 +1,182 @@
++"""S4-D trial: sessions from the table, the pinned market snapshot, the ledger, over S4-A/B/C with a local bare remote."""
++import os, sys, json, csv, tempfile, subprocess, time, datetime as dt
++ROOT = sys.argv[1]; TMP = sys.argv[2]
++sys.path.insert(0, ROOT)
++from v2_core.errors import InputError
++from v2_history_publish import publish_genesis
++from v2_git_store import Git, GitHistoryStore, GitOutbox
++from v2_notify import morning_job, outbox_status
++from v2_daily_run import run_morning
++from v2_inputs import load_inputs, guarded_store, build_sessions
++from v2_inputs.xnys import ny_offset, session_days
++from v2_inputs import market as M
++
++JST = dt.timezone(dt.timedelta(hours=9))
++DATA = os.path.join(ROOT, "research/SOXL_initial_trend_20261023/data")
++daily = json.load(open(os.path.join(DATA, "daily.json")))
++adj = list(csv.DictReader(open(os.path.join(DATA, "daily_adjclose.csv"))))
++fg = {r["Date"]: r["Fear Greed"] for r in csv.DictReader(open(os.path.join(DATA, "fear-greed.csv")))}
++SRC = {"SOXX": {d: (a, a) for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++       "SOXL": {d: (c, c) for d, c in zip(daily["funds"]["SOXL"]["ohlcv"]["date"], daily["funds"]["SOXL"]["ohlcv"]["close"])},
++       "SPY": {r["Date"]: (float(r["SPY"]), float(r["SPY"])) for r in adj if r["SPY"]},
++       "IEF": {r["Date"]: (float(r["IEF"]), float(r["IEF"])) for r in adj if r["IEF"]}}
++HOLIDAY_ROW = "2026-05-25"
++
++def chart(symbol, upto, scale=1.0, drop=(), keep_holiday=False):
++    rows = sorted((d, v) for d, v in SRC[symbol].items() if d <= upto and d not in drop
++                  and (keep_holiday or d != HOLIDAY_ROW))
++    ts = []
++    for d, _ in rows:
++        day = dt.date.fromisoformat(d)
++        ts.append(int((dt.datetime(day.year, day.month, day.day, 9, 30) - ny_offset(day)).replace(tzinfo=dt.timezone.utc).timestamp()))
++    body = {"chart": {"result": [{"meta": {"symbol": symbol, "exchangeTimezoneName": "America/New_York"}, "timestamp": ts,
++            "indicators": {"quote": [{"close": [v[0] for _, v in rows]}], "adjclose": [{"adjclose": [v[1] * scale for _, v in rows]}]}}], "error": None}}
++    return json.dumps(body).encode()
++
++class Provider(object):
++    def __init__(self, upto, **kw): self.upto, self.kw, self.calls, self.fail = upto, kw, 0, False
++    def __call__(self, symbol, start, end):
++        self.calls += 1
++        assert start == M.PREHISTORY_START and len(end) == 10
++        if self.fail: raise OSError("network")
++        return chart(symbol, self.upto, **self.kw)
++
++def sh(*a, cwd=None, data=None): return subprocess.run(a, cwd=cwd, check=True, capture_output=True, input=data)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP); sh("git", "init", "-q", "--bare", o)
++def clone():
++    w = tempfile.mkdtemp(dir=TMP); sh("git", "init", "-q", w); sh("git", "remote", "add", "origin", o, cwd=w)
++    p = tempfile.mkdtemp(dir=TMP); g = Git(w)
++    return g, GitHistoryStore(g, "v2-state", CLOCK), GitOutbox(g, "v2-outbox", p, CLOCK)
++REFS = {"market": "v2-market", "ledger": "v2-ledger"}
++COLS = "record_id,target_us_session_date,observation_role,observation_status,current_fg_value,observed_at_iso8601\n"
++def ledger_text(days, extra=""):
++    lines = [COLS]
++    for d in days:
++        nxt = dt.date.fromisoformat(d) + dt.timedelta(1)
++        lines.append("fg-%s,%s,decision,observed,%s,%sT07:05+09:00\n" % (d, d, fg[d], nxt.isoformat()))
++    return "".join(lines) + extra
++def write_ledger(g, text):
++    head = g.fetch("v2-ledger")
++    c = g.commit_with(head, "observations.csv", text.encode(), "user ledger", CLOCK()); print("  ledger push", g.push(c, "v2-ledger"))
++
++class Sender(object):
++    def __init__(self): self.sent = []
++    def send(self, t): self.sent.append(t); return "SENT"
++
++g, hs, ob = clone()
++# S9 calendar vs the data dates
++table = [d.isoformat() for d in session_days() if d.isoformat() <= "2026-10-01"]
++soxx26 = sorted(d for d in SRC["SOXX"] if "2026-01-02" <= d <= "2026-10-01")
++print("S9 calendar == SOXX dates 2026-01-02..10-01:", table == soxx26, len(table))
++spy_extra = sorted(d for d in SRC["SPY"] if d >= "2026-01-02" and d not in set(table))
++print("   adjclose csv rows not in the calendar:", spy_extra)
++
++start = "2026-07-20"
++sl = build_sessions(dt.datetime(2026, 7, 21, 7, 40, tzinfo=JST), start)
++print("init", hs.initialize(publish_genesis(start, sl)).status, ob.initialize() if hasattr(ob, "initialize") else "")
++days = [d.isoformat() for d in session_days() if "2026-07-21" <= d.isoformat() <= "2026-08-11"]
++upto = lambda d: [x for x in days if x <= d]
++s = Sender()
++
++LEDGER_EXTRA = [""]
++def morning(d_next, provider, store=None, outbox=None, gg=None):
++    now = dt.datetime.fromisoformat(d_next + "T07:40:00+09:00")
++    want = ledger_text([x for x in days if (dt.date.fromisoformat(x) + dt.timedelta(1)).isoformat() <= d_next], LEDGER_EXTRA[0])
++    head = g.fetch("v2-ledger")
++    if head is None or g.blob(head, "observations.csv") != want.encode():
++        c = g.commit_with(head, "observations.csv", want.encode(), "user ledger", CLOCK()); g.push(c, "v2-ledger")
++    t = time.time()
++    inp = load_inputs(gg or g, provider, now, REFS, CLOCK)
++    t_in = time.time() - t
++    r = morning_job(guarded_store(store or hs, inp.failure), outbox or ob, s, now, inp.series, inp.sessions, inp.raw_observations)
++    return r, inp, t_in
++
++for d in days[:6]:
++    nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++    r, inp, t_in = morning(nxt, Provider(d))
++    print("S1", d, r.run_outcome, r.code, r.kind, r.delivery, inp.provenance.get("pinned_by"), inp.provenance.get("market_through"), "load %.2fs" % t_in)
++size = len(g.blob(g.fetch("v2-market"), "market.json")); print("   snapshot bytes", size)
++print("   provenance", sorted((k, type(v).__name__) for k, v in inp.provenance.items()), "commit is head:", inp.provenance["market_commit"] == g.fetch("v2-market"))
++
++# S2 rerun the same morning with revised adjclose: pinned -> no fetch, no mismatch
++d = days[5]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++p = Provider(d, scale=1.001)
++r, inp, _ = morning(nxt, p); print("S2 rerun revised:", r.run_outcome, r.code, r.delivery, "fetch calls", p.calls)
++# without the pin: the revised series straight into run_morning
++now = dt.datetime.fromisoformat(nxt + "T07:40:00+09:00")
++fetched = {x: M.parse_chart(chart(x, d, scale=1.001), x)[0] for x in M.SYMBOLS}
++ser = M.series_of(d, fetched, "x")
++rr = run_morning(hs, now, ser, build_sessions(now, d), inp.raw_observations); print("   unpinned revised rerun:", rr.outcome, rr.code)
++
++# S3 fetch fails on a new morning, then works
++d = days[6]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++p = Provider(d); p.fail = True
++r, inp, _ = morning(nxt, p); print("S3 fetch fails:", r.run_outcome, r.code, r.kind, r.delivery)
++r, inp, _ = morning(nxt, Provider(d)); print("   then works:", r.run_outcome, r.code, r.kind, r.delivery)
++# S8 the target's rows are not there yet -> STALE
++d = days[7]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++r, inp, _ = morning(nxt, Provider(days[6])); print("S8 target not yet in the data:", r.run_outcome, r.code, r.kind, r.delivery, inp.failure)
++r, inp, _ = morning(nxt, Provider(d)); print("   later the same morning:", r.run_outcome, r.code, r.kind, r.delivery)
++# S7 a hole before the target
++d = days[8]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++r, inp, _ = morning(nxt, Provider(d))
++print("S7 next day normal:", r.run_outcome, r.code, r.kind, r.delivery)
++# S6 a data row on a calendar holiday (2026-07-03, Independence Day observed)
++SRC["SPY"]["2026-07-03"] = SRC["SPY"]["2026-07-02"]
++d = days[11]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++r, inp, _ = morning(nxt, Provider(d)); print("S6 data on a non-session day:", r.run_outcome, r.code, getattr(inp.failure, "detail", None), r.kind, r.delivery)
++del SRC["SPY"]["2026-07-03"]
++d = days[12]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++# S4 a row observed after now
++LEDGER_EXTRA[0] = "fg-x,%s,supplemental,observed,50,2026-12-01T07:00+09:00\n" % days[9]
++r, inp, _ = morning(nxt, Provider(d)); print("S4 observed after now:", r.run_outcome, r.code, r.kind, r.delivery)
++LEDGER_EXTRA[0] = ""
++# S5 a bad header
++d = days[13]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++import v2_inputs.ledger as LG
++LG.COLUMNS, keep = ("id",) + LG.COLUMNS[1:], LG.COLUMNS
++r, inp, _ = morning(nxt, Provider(d)); print("S5 header not as expected:", r.run_outcome, r.code, r.kind, r.delivery)
++LG.COLUMNS = keep
++# S7b a hole in a day not pinned yet, with data after it
++d = days[14]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++r, inp, _ = morning(nxt, Provider(d, drop=(days[13],))); print("S7b hole then data:", r.run_outcome, r.code, getattr(inp.failure, "detail", None), r.kind, r.delivery)
++r, inp, _ = morning(nxt, Provider(d)); print("   fixed data:", r.run_outcome, r.code, r.kind, r.delivery)
++print("sent", len(s.sent), "| first text head:", s.sent[0].splitlines()[0])
++print("statuses", [(e.kind, e.status) for e in outbox_status(ob, days[6])])
++leak = any("SECRETPATH" in t for t in s.sent); print("path leak in texts:", leak)
++# S10 a bad value (SOXL close >= 1e6) on the next day
++d = days[15]; nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat()
++keepv = SRC["SOXL"][d]; SRC["SOXL"][d] = (2e6, 2e6)
++r, inp, _ = morning(nxt, Provider(d)); print("S10 value >= 1e6:", r.run_outcome, r.code, getattr(inp.failure, "detail", None), r.kind, r.delivery)
++SRC["SOXL"][d] = keepv
++# S11 two runs pin the same D: the second one's push loses and it uses the winner's snapshot
++g2, hs2, ob2 = clone()
++for x in ("SPY", "IEF"):
++    SRC[x].setdefault(d, SRC[x][days[14]])   # the csv ends before this day: a stand-in row
++print("   rows on", d, [d in SRC[x] for x in ("SOXX", "SPY", "IEF", "SOXL")])
++class Racing(Provider):
++    armed = True
++    def __call__(self, symbol, start, end):
++        if Racing.armed and symbol == "SOXL":
++            Racing.armed = False
++            other = load_inputs(g2, Provider(self.upto, scale=1.002), now11, REFS, CLOCK)
++            print("   the other run pinned:", other.provenance.get("pinned_by"), other.failure)
++        return Provider.__call__(self, symbol, start, end)
++now11 = dt.datetime.fromisoformat(nxt + "T07:40:00+09:00")
++mine = load_inputs(g, Racing(d), now11, REFS, CLOCK)
++again = load_inputs(g2, Provider(d), now11, REFS, CLOCK)
++print("S11 race:", mine.provenance.get("pinned_by"), mine.failure, "same snapshot:", mine.provenance["market_sha256"] == again.provenance["market_sha256"],
++      "same row:", mine.series.row(d) == again.series.row(d))
++r = morning_job(guarded_store(hs, mine.failure), ob, s, now11, mine.series, mine.sessions, mine.raw_observations)
++r2 = morning_job(guarded_store(hs2, again.failure), ob2, s, now11, again.series, again.sessions, again.raw_observations)
++print("   mornings:", r.run_outcome, r.kind, r.delivery, "|", r2.run_outcome, r2.kind, r2.delivery)
++# S12 the calendar's end
++from v2_inputs.xnys import coverage_failure
++print("S12 coverage 2028-12-10:", coverage_failure(dt.datetime(2028, 12, 10, tzinfo=JST)), "| 2028-12-20:", coverage_failure(dt.datetime(2028, 12, 20, tzinfo=JST)))
++try:
++    build_sessions(dt.datetime(2029, 1, 2, tzinfo=JST), None); print("   2029: built")
++except InputError as e:
++    print("   2029:", e.code)
++print("total sent", len(s.sent))
++halt = [t for t in s.sent if "input_market_fetch_failed" in t][0]; print("--- halt text ---"); print(halt)
+diff --git a/trial_probes/s4d_extra.py b/trial_probes/s4d_extra.py
+new file mode 100644
+index 0000000..38e99e2
+--- /dev/null
++++ b/trial_probes/s4d_extra.py
+@@ -0,0 +1,44 @@
++"""S4-D trial, the checks added with the second draft: args, chart_url, git failure, history start, provenance, context."""
++import sys, os, json, tempfile, subprocess, datetime as dt
++ROOT = sys.argv[1]; TMP = sys.argv[2]; sys.path.insert(0, ROOT)
++from v2_core.errors import InputError
++from v2_git_store import Git
++from v2_inputs import load_inputs, chart_url
++from v2_inputs import market as M
++JST = dt.timezone(dt.timedelta(hours=9))
++now = dt.datetime(2026, 7, 22, 7, 40, tzinfo=JST)
++CLOCK = lambda: dt.datetime(2026, 8, 1, tzinfo=dt.timezone.utc)
++REFS = {"market": "v2-market", "ledger": "v2-ledger"}
++calls = []
++def nofetch(*a): calls.append(a); raise AssertionError
++for bad in [dict(now=dt.datetime(2026, 7, 22, 7, 40)), dict(refs={"market": "v2-market"}), dict(refs={"market": "Bad Ref", "ledger": "x"}),
++            dict(fetch=None), dict(clock=1)]:
++    kw = dict(git=None, fetch=nofetch, now=now, refs=REFS, clock=CLOCK); kw.update(bad)
++    try: load_inputs(**kw); print("args: no error", bad)
++    except InputError as e: print("args:", e.code, "context", e.__context__)
++print("fetch calls", len(calls))
++print("url:", chart_url("SOXX", "2010-02-11", "2026-07-22"))
++try: chart_url("AAPL", "2010-02-11", "2026-07-22")
++except InputError as e: print("url bad symbol:", e.code)
++# git failure: a remote path that is not there -> input_git_failed (not git_failed)
++o = tempfile.mkdtemp(prefix="SECRETPATH_", dir=TMP); w = tempfile.mkdtemp(prefix="SECRETPATH_w", dir=TMP)
++subprocess.run(["git", "init", "-q", w], check=True)
++subprocess.run(["git", "remote", "add", "origin", os.path.join(o, "missing.git")], cwd=w, check=True)
++g = Git(w)
++inp = load_inputs(g, nofetch, now, REFS, CLOCK)
++f = inp.failure; print("git gone:", f.code, f.field, f.detail, "context", f.__context__, "prov", inp.provenance)
++print("leak:", "SECRETPATH" in repr(f) + repr(inp.provenance))
++# history start: SOXX lacks 2010-02-11
++def body(symbol, days):
++    ts = [int(dt.datetime.fromisoformat(d + "T13:30:00+00:00").timestamp()) for d in days]
++    return json.dumps({"chart": {"result": [{"meta": {"symbol": symbol}, "timestamp": ts,
++        "indicators": {"quote": [{"close": [10.0] * len(ts)}], "adjclose": [{"adjclose": [10.0] * len(ts)}]}}]}}).encode()
++from v2_inputs.load import _fetch_all
++got, err = _fetch_all(lambda s, a, b: body(s, ["2010-02-12", "2026-07-21"]), "2026-07-22"); print("short:", err.code, err.detail, err.__context__)
++got, err = _fetch_all(lambda s, a, b: body(s, ["2009-01-02", "2010-02-11"]), "2026-07-22"); print("before start dropped:", sorted(got["SOXX"]), err)
++try: M.parse_chart(body("SOXX", ["2026-07-21", "2026-07-21"]), "SOXX")
++except InputError as e: print("duplicate:", e.code, e.__context__)
++try: M.parse_chart(b"\xff", "SOXX")
++except InputError as e: print("not utf8:", e.code, e.__context__)
++try: M.parse_chart("text", "SOXX")
++except InputError as e: print("not bytes:", e.code)
+diff --git a/trial_probes/s4d_equal.py b/trial_probes/s4d_equal.py
+new file mode 100644
+index 0000000..a6bb642
+--- /dev/null
++++ b/trial_probes/s4d_equal.py
+@@ -0,0 +1,29 @@
++import sys, os, json, csv
++ROOT = sys.argv[1]; sys.path.insert(0, ROOT)
++from v2_core.fixture import load_research_fixture
++from v2_inputs import market as M
++DATA = os.path.join(ROOT, "research/SOXL_initial_trend_20261023/data")
++daily = json.load(open(os.path.join(DATA, "daily.json"))); adj = list(csv.DictReader(open(os.path.join(DATA, "daily_adjclose.csv"))))
++SRC = {"SOXX": {d: (a, a) for d, a in zip(daily["date"], daily["references"]["SOXX"]["adjClose"]) if a},
++       "SOXL": {d: (c, c) for d, c in zip(daily["funds"]["SOXL"]["ohlcv"]["date"], daily["funds"]["SOXL"]["ohlcv"]["close"])},
++       "SPY": {r["Date"]: (float(r["SPY"]), float(r["SPY"])) for r in adj if r["SPY"]},
++       "IEF": {r["Date"]: (float(r["IEF"]), float(r["IEF"])) for r in adj if r["IEF"]}}
++bad = 0; n = 0
++for d in ["2024-10-01", "2025-01-02", "2025-06-02", "2026-03-02", "2026-07-28", "2026-08-10"]:
++    ref, _ = load_research_fixture(DATA, through=d)
++    mine = M.series_of(d, SRC, "x")
++    a, b = ref.row(d), mine.row(d)
++    same = a == b and ref.soxl_close(d) == mine.soxl_close(d)
++    n += 1; bad += not same
++    print(d, "equal" if same else "DIFF", a if not same else "", b if not same else "")
++print("checked", n, "diff", bad)
++# the same through the pinned snapshot (every symbol cut at PREHISTORY_START, as pinned)
++bad2 = 0
++for d in ["2024-10-01", "2025-01-02", "2025-06-02", "2026-03-02", "2026-07-28", "2026-08-10"]:
++    ref, _ = load_research_fixture(DATA, through=d)
++    through, rows = M.read_snapshot(M.snapshot_bytes(d, SRC))
++    mine = M.series_of(through, rows, "x")
++    same = ref.row(d) == mine.row(d) and ref.soxl_close(d) == mine.soxl_close(d)
++    bad2 += not same
++    print("pinned", d, "equal" if same else "DIFF")
++print("pinned checked 6 diff", bad2)
