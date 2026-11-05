@@ -84,7 +84,7 @@
 | 時点 | 結果 |
 |---|---|
 | 開始時（2026-11-05 02:40Z頃） | 95件一致。feat/v2-notify-s4b-20261105＝3b2c4ea、docs/v2-notify-s4b-impl-review-20261105＝1f914f9 |
-| 記録の1回目のpush後 | 95件一致（`s4brr_refs_postpush.txt`）。実装ブランチは3b2c4eaのまま |
+| 記録の1回目のpush後 | 95件一致（`s4brr_refs_postpush.txt`）。実装ブランチは3b2c4eaのまま。記録の1回目のコミットは50043e491bea4e2b4f1ddda673d7178932f0a505 |
 
 本再レビューの記録は、3b2c4eaから作った新しいブランチdocs/v2-notify-s4b-fix-rereview-20261105にだけ置いた。実装ブランチ・前回の記録ブランチ・mainは変えていない。
 
