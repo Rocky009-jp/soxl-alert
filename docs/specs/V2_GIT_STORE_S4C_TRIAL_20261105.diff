@@ -56,10 +56,10 @@ index 0000000..db73f87
 +from .outbox import GitOutbox
 diff --git a/v2_git_store/git.py b/v2_git_store/git.py
 new file mode 100644
-index 0000000..229aad6
+index 0000000..b7604ff
 --- /dev/null
 +++ b/v2_git_store/git.py
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,83 @@
 +"""TRIAL. The only place that runs git. Output and stderr never leave this module (they may name the remote URL)."""
 +import os, subprocess
 +from v2_core.errors import CoreError
@@ -112,10 +112,12 @@ index 0000000..229aad6
 +            return []
 +        return self.must(["ls-tree", "--name-only", commit]).decode().split("\n")[:-1]
 +
-+    def commit_with(self, parent, path, data, message, when):
++    def commit_with(self, parent, path, data, message, when, replace=True):
 +        """A new commit: parent's tree with `path` added (it must not be there unless replace) -> SHA."""
 +        blob = self.must(["hash-object", "-w", "--stdin"], data).decode().strip()
 +        entries = [] if parent is None else self.must(["ls-tree", parent]).decode().split("\n")[:-1]
++        if not replace and any(e.split("\t", 1)[1] == path for e in entries):
++            return None                           # add-only: the name is already in the parent tree
 +        entries = [e for e in entries if e.split("\t", 1)[1] != path] + ["100644 blob %s\t%s" % (blob, path)]
 +        tree = self.must(["mktree"], ("\n".join(sorted(entries, key=lambda e: e.split("\t", 1)[1])) + "\n").encode()).decode().strip()
 +        args = ["commit-tree", tree, "-m", message] + ([] if parent is None else ["-p", parent])
@@ -143,10 +145,10 @@ index 0000000..229aad6
 +        return p.returncode == 0
 diff --git a/v2_git_store/history.py b/v2_git_store/history.py
 new file mode 100644
-index 0000000..b3861fe
+index 0000000..b105a7e
 --- /dev/null
 +++ b/v2_git_store/history.py
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,74 @@
 +"""TRIAL. history.json on refs/heads/<ref> of the remote, written by fast-forward pushes only."""
 +from v2_history_publish import check_publication, history_bytes, read_history_bytes, reconcile_publication
 +from v2_history_local import INITIALIZED, HistoryStoreResult
@@ -188,15 +190,25 @@ index 0000000..b3861fe
 +        how = self._git.push(commit, self._ref)
 +        if how == OK:
 +            return candidate
-+        if how == REJECTED:
-+            raise LocalStoreError("publication_stale", "history", "publish")   # the remote moved since it was read
++        if how == REJECTED:                       # moved since it was read (another run), or refused by a rule
++            if self._head() != head:
++                raise LocalStoreError("publication_stale", "history", "publish")
++            raise LocalStoreError("store_io_error", "history", "publish")
 +        raise LocalStoreError("store_commit_uncertain", "history", "publish")
 +
 +    def initialize(self, pub):
 +        head = self._head()
 +        if head is not None:
 +            raise LocalStoreError("already_initialized", "store", "read")
-+        c = self._write(None, pub, None)
++        moved = False
++        try:
++            c = self._write(None, pub, None)
++        except LocalStoreError as e:
++            if e.code != "publication_stale":
++                raise
++            moved = True
++        if moved:                                 # the ref was created by someone else in the meantime
++            raise LocalStoreError("already_initialized", "store", "read")
 +        return HistoryStoreResult(INITIALIZED, True, c, "remote", pub.publication_hash)
 +
 +    def publish(self, pub):
@@ -213,15 +225,15 @@ index 0000000..b3861fe
 +        return reconcile_publication(self._bytes(self._head()), pub)
 diff --git a/v2_git_store/outbox.py b/v2_git_store/outbox.py
 new file mode 100644
-index 0000000..483bdea
+index 0000000..7c26b9f
 --- /dev/null
 +++ b/v2_git_store/outbox.py
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,84 @@
 +"""TRIAL. The S4-B outbox kept on refs/heads/<ref>: a LocalOutbox over a local mirror directory whose claim and record
 +are decided by a fast-forward push of a commit that adds exactly that file. Only public methods are overridden."""
 +import os, shutil
 +from v2_notify import DAMAGED, LocalOutbox, NotifyError, OutboxEntry
-+from .git import OK, GitError
++from .git import OK, REJECTED, GitError
 +
 +_TRIES = 4
 +
@@ -238,6 +250,8 @@ index 0000000..483bdea
 +                os.unlink(os.path.join(self._mirror, n))
 +            for n in self._git.names(head):
 +                data = self._git.blob(head, n)
++                if data is None:
++                    raise GitError("git_failed", "cat-file")
 +                with open(os.path.join(self._mirror, n), "wb") as f:
 +                    f.write(data)
 +        except (GitError, OSError):
@@ -274,18 +288,24 @@ index 0000000..483bdea
 +            with open(os.path.join(self._mirror, name), "rb") as f:
 +                data = f.read()
 +            try:
-+                commit = self._git.commit_with(self._headsha, name, data, "v2 outbox " + name, self._clock())
++                commit = self._git.commit_with(self._headsha, name, data, "v2 outbox " + name, self._clock(),
++                                               replace=False)
++                if commit is None:                # the remote has the name although the mirror did not: not ours
++                    return None if isinstance(value, str) else False
 +                how = self._git.push(commit, self._ref)
 +            except GitError:
 +                how = None
 +            if how == OK:
 +                return value
++            parent = self._headsha
 +            self._refresh()                       # rejected or uncertain: what does the remote say now?
 +            path = os.path.join(self._mirror, name)
 +            if os.path.exists(path):
 +                with open(path, "rb") as f:
 +                    same = f.read() == data
 +                return value if same else (None if isinstance(value, str) else False)
++            if how == REJECTED and self._headsha == parent:   # not there, the ref did not move: a rule refused it
++                raise NotifyError("outbox_io_error", "outbox")
 +        raise NotifyError("outbox_io_error", "outbox")
 +
 +    def claim(self, notice, now, resend_request_id=None, resend_of=None):

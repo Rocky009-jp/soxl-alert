@@ -1,7 +1,7 @@
 # V2 S4-C gitの保存先（履歴とoutbox） 限定実装依頼書
 
-作成日：2026-11-05（日本時間）。版：**初版**。作成：Claude Opus 5.5、effort high。
-状態：**初版・未採用**。設計§12のD-1〜D-9は採用されていない。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
+作成日：2026-11-05（日本時間）。版：**第2版**（初版68c030bへのレビュー55e770aの通常N-01・N-02だけを反映。§3の5・8・9・11、S4C-03・S4C-11、欠陥注入19・20。ほかは初版と同じ）。作成：Claude Opus 5.5、effort high。
+状態：**第2版・未採用**。設計§12のD-1〜D-9は採用されていない。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
 対になる設計はdocs/specs/V2_GIT_STORE_S4C_DESIGN_DRAFT.md（以下「設計」）。本段階はS4-Cだけを実装する。中身は次の3つである。
 
 - gitを呼ぶ唯一の層`Git`。
@@ -61,13 +61,13 @@
 2. **引数**：`workdir`は絶対パスの既存のディレクトリ。`ref`は設計§3の形（英小文字・数字・`-`、1〜40文字、`-`で始まらない）。`clock`は呼べるもので、時刻帯つきのdatetimeを返す。`timeout`は正の整数。`parent`は絶対パスの既存のディレクトリでリンクでないこと。違えば、gitを起動する前に`GitError`（`git_args_invalid`）。reprにパス・URLを出さない。
 3. **gitの起動**：設計§4。子プロセスを起動するのは`git.py`だけで、`subprocess.run`に引数の配列を渡す（`shell`なし）。毎回`-c core.autocrlf=false -c commit.gpgsign=false`。環境は親の環境の写しから`GIT_`で始まる変数を除き、`GIT_TERMINAL_PROMPT=0`・`LC_ALL=C`・`GIT_CONFIG_NOSYSTEM=1`・作者とコミッターの固定の名前とメールを足したもの。コミットの日時は注入した時計の値。
 4. **作業場所を変えない**：コミットは`hash-object`・`mktree`・`commit-tree`で作る。取得は`+refs/heads/<ref>:refs/v2remote/<ref>`だけ。`checkout`・`reset`・`add`・`commit`・`merge`・`rebase`・`update-ref refs/heads/…`・`symbolic-ref`を使わない。作業ツリー・インデックス・HEAD・`refs/heads/*`が変わらない。
-5. **push**：`["push", "--porcelain", remote, "<40桁のSHA>:refs/heads/<ref>"]`の形だけ。設計§4の3の表で3つに分ける。時間切れはUNCERTAIN。
+5. **push**：`["push", "--porcelain", remote, "<40桁のSHA>:refs/heads/<ref>"]`の形だけ。設計§4の3の表で3つに分ける。時間切れはUNCERTAIN。REJECTEDの後は、取得し直した先頭が、コミットの親にした先頭から動いたかで「別の実行が進めた」と「規則・フック・権限による拒否」を読み分ける（設計§4の8、第2版N-02）。出力の文言（`[remote rejected]`）では分けない（同時のpushで負けた場合にも出る。設計T-7）。
 6. **取得**：設計§4の4。失敗のときは`ls-remote --heads`で、参照が無いことが確かなときだけNone。ほかは`GitError`。
 7. **出力**：gitの標準出力・標準エラーを、例外の引数・repr・報告・文面・ファイル・コミットのメッセージに入れない。`GitError`・`LocalStoreError`・`NotifyError`の引数は固定の語だけ。例外処理の中で新しい例外を投げない（値を作って外で投げ、`__context__`を残さない。C4-19と同じ）。
-8. **GitHistoryStore**：設計§5の表。誤りは既存の`LocalStoreError`のコードだけ（`store_io_error`、`store_uninitialized`、`store_layout_unsupported`、`publication_stale`、`store_commit_uncertain`、`already_initialized`）とC-2の公開の検査の誤り。`publish`は`check_publication`を取得した今のバイトに対して呼ぶ。`reconcile`は取得し直したバイトで`reconcile_publication`を返すだけで、前のpushのSHAを覚えない。C-2・C-3の非公開の名前を使わない。
-9. **GitOutbox**：設計§6。`LocalOutbox`の子クラスで、上書きは`load`・`resend_ids`・`claim`・`record`（と`__init__`・`initialize`・`__repr__`）だけ。基底の非公開の名前（`_`で始まる属性）を呼ばない・読まない。写しは`parent`の中に自分で`mkdtemp`し、基底のモードは`file_sync_only`。キーワード専用の`_ops`（試験用）は基底へそのまま渡す。作り直しで消すのは写しの中だけ。`load`は取得の失敗で例外を出さずDAMAGEDを返す。作成は最大4回。参照が無いoutboxは、読込みDAMAGED・作成`NotifyError`。
+8. **GitHistoryStore**：設計§5の表。誤りは既存の`LocalStoreError`のコードだけ（`store_io_error`、`store_uninitialized`、`store_layout_unsupported`、`publication_stale`、`store_commit_uncertain`、`already_initialized`）とC-2の公開の検査の誤り。pushのREJECTEDは、先頭が動いていれば`publication_stale`、動いていなければ`store_io_error`、取得し直しの失敗は`store_io_error`。`initialize`のREJECTEDは、参照ができていれば`already_initialized`、無ければ`store_io_error`（第2版N-02）。`publish`は`check_publication`を取得した今のバイトに対して呼ぶ。`reconcile`は取得し直したバイトで`reconcile_publication`を返すだけで、前のpushのSHAを覚えない。C-2・C-3の非公開の名前を使わない。
+9. **GitOutbox**：設計§6。`LocalOutbox`の子クラスで、上書きは`load`・`resend_ids`・`claim`・`record`（と`__init__`・`initialize`・`__repr__`）だけ。基底の非公開の名前（`_`で始まる属性）を呼ばない・読まない。写しは`parent`の中に自分で`mkdtemp`し、基底のモードは`file_sync_only`。キーワード専用の`_ops`（試験用）は基底へそのまま渡す。作り直しで消すのは写しの中だけ。`load`は取得の失敗で例外を出さずDAMAGEDを返す。作成は最大4回。参照が無いoutboxは、読込みDAMAGED・作成`NotifyError`。足すコミットが「既にある」（親の木に同じ名前）と答えたら、送信権を持たない（None／False）。REJECTEDで同じ名前が無く先頭も動いていなければ、繰り返さず`NotifyError`。作り直しの`ls-tree`・`cat-file`の失敗は取得の失敗と同じ（読込みDAMAGED、作成`NotifyError`）で、読めないファイルを飛ばさない（第2版N-01・N-02）。
 10. **リモートのファイルの中身**：`v2-state`の`history.json`は`history_bytes`の出力そのもの。`v2-outbox`の意図・結果は、S4-Bの`LocalOutbox`が書くバイトそのもの（同じ名前）。
-11. **コミット**：`v2-state`は親1つで`history.json`だけを変える（初期化は親なし）。`v2-outbox`は親1つでファイルを1つ足す（初期化は親なしで印の1ファイル）。作者・コミッターは固定、日時は時計の値、メッセージは固定の語と短いhash・ファイル名だけ。
+11. **コミット**：`v2-state`は親1つで`history.json`だけを変える（初期化は親なし）。`v2-outbox`は親1つでファイルを1つ足す（初期化は親なしで印の1ファイル）。`v2-outbox`のコミットは、親の木に同じ名前があれば作らない（既存のファイルを置き換えるコミットを作らない。第2版N-01）。作者・コミッターは固定、日時は時計の値、メッセージは固定の語と短いhash・ファイル名だけ。
 
 ## 4. 受入条件 S4C-01〜S4C-18
 
@@ -77,7 +77,7 @@
 |---|---|
 | S4C-01 回帰 | 既存の17スイート計2,480件を、完全なクローンで維持する（S4-Aまでの16スイート2,349件とS4-B 131件）。test_s4b_09の1行の固定を含み、件数は同じ |
 | S4C-02 引数 | §3の2の各誤りで`GitError`になり、gitを起動しない（偽の`run`で起動の回数0を確かめる）。reprにパス・印が出ない |
-| S4C-03 push | 本物のbareリポジトリで、(a) 早送りOK、(b) 早送りでない→REJECTED、(c) 既にある参照の作成→REJECTED、(d) リモートのpre-receiveで拒否→REJECTED、(e) post-receiveで時間切れより長く待つ（参照は更新済み）→UNCERTAIN、(f) 終了コードが0でないのに記号がOK（偽の`run`）→UNCERTAIN。`--quiet`を付けると(a)がUNCERTAINになることを欠陥注入で確かめる |
+| S4C-03 push | 本物のbareリポジトリで、(a) 早送りOK、(b) 早送りでない→REJECTED、(c) 既にある参照の作成→REJECTED、(d) リモートのpre-receiveで拒否→REJECTED（`GitHistoryStore`では先頭が動いていないので`store_io_error`、「同時の実行」の注記なし。第2版N-02）、(e) post-receiveで時間切れより長く待つ（参照は更新済み）→UNCERTAIN、(f) 終了コードが0でないのに記号がOK（偽の`run`）→UNCERTAIN。(g) 同じ親から3つのpushを同時に送り、負けたpush（`[remote rejected] (failed to update ref)`）がREJECTEDで、`GitHistoryStore`では先頭が動いているので`publication_stale`（第2版N-02）。`--quiet`を付けると(a)がUNCERTAINになることを欠陥注入で確かめる |
 | S4C-04 取得 | 参照あり→SHA、参照なし→None、リモートのパスが無い→`GitError`。取得の前後で、作業場所の`HEAD`・`refs/heads/*`・インデックス・`git status --porcelain`が同じ |
 | S4C-05 履歴の初期化と読込み | 未初期化→`store_uninitialized`。GENESISで初期化→`read`の履歴とリモートの`history.json`のバイトが、同じ公開をC-3の保存先に初期化した場合と一致。2回目の初期化→`already_initialized`。`history.json`の無い参照→`store_layout_unsupported` |
 | S4C-06 C-3との一致 | 複数日の追いつき（S4-Aの試験の世界）を、C-3の保存先と`GitHistoryStore`でそれぞれ`run_morning`し、RunReportと最後の`history.json`のバイトが一致する。再実行も一致する |
@@ -85,7 +85,7 @@
 | S4C-08 成否不明 | (a) 届いた→reconcileがPUBLISHED→DONE。(b) 届かない→`run_publish_not_published`。(c) 届いた後に別の保存が続いた→PUBLISHED_THEN_EXTENDED。(d) リモートが別の内容（早送りの別の公開）→`run_publish_conflict`。(a)は(e)のpost-receiveの方法で、本物のpushで作る |
 | S4C-09 リモートに届かない | 各段（取得、公開のpush、reconcile、outboxの読込み・作成・結果）の前にリモートのパスを消す・名前を変える。`run_morning`はSTOPPED（`store_io_error`）、`morning_job`はJobReportを返し、送信は0回。例外が漏れない。報告・文面・例外の引数・reprに印が出ない |
 | S4C-10 別のクローンでも1通 | 2つのクローンで順に`morning_job`→送信1回。2つ目のクローンの`outbox_status`がSENT。outboxの参照のファイルが、S4-Bの`LocalOutbox`で同じ場面を作った場合と同じ名前・同じ構造 |
-| S4C-11 作成の決め方 | (a) 写しを作り直した後に別の鍵のファイルがpushされた→作り直してもう一度→成功。(b) 同じ鍵を別の実行が先に作った→None（送らない）。(c) pushがUNCERTAINで実は届いた→自分の作成として送る（送信1回）。(d) UNCERTAINで届いていない→もう一度。(e) 4回とも別の鍵で進められた→`NotifyError`→CLAIM_FAILEDで送らない。(f) 結果のpushが失敗→RESULT_NOT_RECORDED、次の実行はUNKNOWNと読み送らない |
+| S4C-11 作成の決め方 | (a) 写しを作り直した後に別の鍵のファイルがpushされた→作り直してもう一度→成功。(b) 同じ鍵を別の実行が先に作った→None（送らない）。(c) pushがUNCERTAINで実は届いた→自分の作成として送る（送信1回）。(d) UNCERTAINで届いていない→もう一度。(e) 4回とも別の鍵で進められた→`NotifyError`→CLAIM_FAILEDで送らない。(f) 結果のpushが失敗→RESULT_NOT_RECORDED、次の実行はUNKNOWNと読み送らない。(g) 写しの作り直しがリモートのファイルを1つ落としても（写しを壊す偽）、同じ鍵は二度送らず、リモートの意図は置き換えられない（第2版N-01）。(h) outboxの参照だけを拒むpre-receive→繰り返さず`NotifyError`→CLAIM_FAILEDで送らない（第2版N-02） |
 | S4C-12 outboxの初期化と壊れ | (a) 参照なし→状態DAMAGED、`morning_job`は送らない、作成は`NotifyError`。(b) 初期化の2回目は拒む。(c) 試験側でリモートに壊れた意図（空・JSONでない・鍵の違い）をコミット→DAMAGEDで送らない。(d) 基底の作成の途中の失敗（偽のFileOpsを写しへ）→そのファイルがリモートに無い |
 | S4C-13 手動の再送 | `GitOutbox`の上で、S4B-14の(a)〜(f)と同じ結果（UNKNOWN・NOT_SENTの元に1通、同じidは送らない、SENTがあれば拒む、元が無い・DAMAGEDは拒む、再送がUNKNOWNなら別のidで次）。`resend_ids`の取得の失敗はCLAIM_FAILEDになり、送らない |
 | S4C-14 同時の実行 | 子プロセス2〜4個（各自のクローン、1つのbareリポジトリ、ファイルの合図で同時に開始）を各10回以上。(a) 同じDの判定ありは1通まで、判定なしは1通まで。(b) 履歴の同じDのAPPLYは1つだけ（試験側でリモートの`history.json`を読む）。(c) 判定なしの文面に「同時の実行」の注記。(d) 同じ再送idを同時に→1通まで。回数と結果を結果文書に記録する |
@@ -116,6 +116,8 @@
 16. 参照が無いoutboxを空のoutboxとして読む。
 17. `GitError`の引数にgitの標準エラーを入れる。
 18. 環境から`GIT_`の変数を除かない（試験で`GIT_DIR`を別の場所に向けて検出する）。
+19. outbox用の足すコミットで、親の木の既存の名前を置き換える（写しを壊す偽で検出。第2版N-01）。
+20. 規則・フックによる拒否（先頭が動いていない）を`publication_stale`にする（または、`[remote rejected]`の文言だけで`store_io_error`にし、同時のpushの負けまで`store_io_error`にする。第2版N-02）。
 
 ## 6. 環境・結果保存・停止
 
