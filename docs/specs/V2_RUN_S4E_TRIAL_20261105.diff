@@ -538,7 +538,7 @@ index 0000000..4045acd
 +        return SENT
 diff --git a/trial_probes/s4e_trial.py b/trial_probes/s4e_trial.py
 new file mode 100644
-index 0000000..ae253d3
+index 0000000..97927e0
 --- /dev/null
 +++ b/trial_probes/s4e_trial.py
 @@ -0,0 +1,121 @@
@@ -629,7 +629,7 @@ index 0000000..ae253d3
 +for d in days[1:6]:
 +    nxt = (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat(); NET.upto = d; ledger_upto(nxt)
 +    c, kv, t = run(["morning", "--mode", "dry"], nxt); show("E2 dry " + d, c, kv, t)
-+print("   timings", kv["seconds.load_inputs"], kv["seconds.morning_job"], kv["seconds.outbox_status"], "files", kv["outbox_files"], "pinned_by", kv.get("provenance.pinned_by"))
++print("   timings", kv["seconds.load_inputs"], kv["seconds.morning_job"], kv["seconds.outbox_load"], "files", kv["outbox_files"], "pinned_by", kv.get("provenance.pinned_by"))
 +print("   dry text head:", t.split("```")[1].strip().splitlines()[:2])
 +c, kv, t = run(["morning", "--mode", "dry"], nxt, "08:40"); show("E3 dry second run same morning", c, kv, t)
 +# R-02: after the close, the target D comes twice

@@ -1,7 +1,7 @@
 # V2 S4-E 本番接続 E-0（入口のコード） 限定実装依頼書
 
-作成日：2026-11-05（日本時間）。版：**初版**。作成：Claude Opus 5.5、effort high。
-状態：**初版・未採用**。設計§15のD-1〜D-10は採用されていない。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
+作成日：2026-11-05（日本時間）。版：**第2版**（初版052f4d9へのレビュー800472fの通常N-01〜N-05と、提案P-01〜P-07のうち設計§17で入れたものを反映。§3の10・11・13・17・18、S4E-03・05・06・09・13・17、欠陥注入22〜25、§7・§8。ほかは初版と同じ）。作成：Claude Opus 5.5、effort high。
+状態：**第2版・未採用**。設計§15のD-1〜D-10は採用されていない。限定実装は、採用の後に、別スレッドへの明示の着手指示で始める。本書の保存だけでは実装を始めない。
 対になる設計はdocs/specs/V2_RUN_S4E_DESIGN_DRAFT.md（以下「設計」）。本書が頼むのは、設計§2のE-0だけである。中身は次の5つである。
 
 - 入口のパッケージ`v2_run`：朝の実行・状態の確認・手動の再送・初期化・取得先の点検の5つのコマンドと、HTTPの取得とDiscordへの送信。
@@ -86,22 +86,25 @@
    - 記号ごとに、少なくとも次の事実を記録する：応答の形（JSONの形・列の長さ・`meta.symbol`）、行数、最初と最後の日付、ニューヨークの時刻の分布、同じ日付（直近）、対象Dの行の数、2026-01-02以後の表の日で行が無い・`null`の日の数と例、`null`の行の数、2026年より前の研究のデータとの日付の差（応答だけ・研究だけ）、モードの固定（`MarketPin`）との差（最後の日の終値が変わったか、それより前の終値が変わった日の数、調整後終値の日次の騰落率の差の最大）。
    - 研究のデータはresearch/SOXL_initial_trend_20261023/data/から読むだけ。
 10. **取得**（設計§5）：`make_fetch(urlopen)`の`fetch(symbol, start, end)`は、`chart_url(symbol, start, end)`へ`User-Agent`・`Accept: application/json`付きで、時間切れ`FETCH_TIMEOUT`で1回だけ開く。状態200以外、`MAX_BYTES`を超える応答、ほかの例外は、例外にする（例外の文字列に、URL・応答の本文を入れない）。再試行しない。
-11. **送信**（設計§4）：`DiscordSender.send(text)`は、URLが`WEBHOOK_PREFIXES`で始まるASCIIの文字列でなければ、通信せずに`NOT_STARTED`。そうでなければ、`live_text(text)`を`split_text`で分け、各部分を`POST <URL>?wait=true`（`Content-Type: application/json`、本文は`{"content": 部分, "allowed_mentions": {"parse": []}}`のUTF-8、時間切れ`SEND_TIMEOUT`）で1回ずつ順に送る。答えは設計§4の表のとおり。失敗した部分の後は送らない。再試行しない。`repr`・例外・記録にURLを出さない。
+    - **失敗の理由の記録**（設計§3.3、N-05）：失敗した呼出しごとに、記号と固定の語を、`Setup`が持つ一覧に残してから例外を投げる。語は`http_<3桁の状態>`（200以外の状態。`HTTPError`を含む）、`timeout`（時間切れ）、`url_error`（名前の解決の失敗・接続の拒否等）、`size`（`MAX_BYTES`超え）、`other`の5種だけ。受領済みのv2_inputsは変えない。
+11. **送信**（設計§4）：`DiscordSender.send(text)`は、URLが`WEBHOOK_PREFIXES`で始まるASCIIの文字列でなければ、またはすでに`?`を含めば（設計§4、P-05）、通信せずに`NOT_STARTED`。そうでなければ、`live_text(text)`を`split_text`で分け、各部分を`POST <URL>?wait=true`（`Content-Type: application/json`、本文は`{"content": 部分, "allowed_mentions": {"parse": []}}`のUTF-8、時間切れ`SEND_TIMEOUT`）で1回ずつ順に送る。答えは設計§4の表のとおり。失敗した部分の後は送らない。再試行しない。`repr`・例外・記録にURLを出さない。
 12. **分けと見出し**：`split_text`は、`LIMIT`以下の文面をそのまま1つにし、超える文面を行の境目で分けて各部分の先頭に`（n/N）`と改行を付ける。`LIMIT`を超える1行は途中で切る。どの部分も2000文字以下。`live_text`は`PREVIEW_HEAD`を`LIVE_HEAD`へ置き換えるだけ。outboxに残る文面と`text_sha256`は置き換える前のもの。`DrySender`は置き換えない。
 13. **実行の記録**：`out`へ書き、環境の`GITHUB_STEP_SUMMARY`があればそのファイルへ追記する。
-    - 書くもの：コマンド、モード、`now`（UTC、秒まで）、`code_version`、Pythonの版、gitの版、各コマンドの結果（`morning`では入力の失敗のコードと日付、`provenance`の各キー、`run_outcome`、鍵、配達、`send_status`、`existing_status`、コード、消費したD、`history_digest`の先頭12桁、`seconds.load_inputs`・`seconds.morning_job`・`seconds.outbox_load`（1回の読込み）、`outbox_files`）、終了コード。
+    - 書くもの：コマンド、モード、`now`（UTC、秒まで）、`code_version`、Pythonの版、gitの版、各コマンドの結果（`morning`では入力の失敗のコードと日付、`provenance`の各キー、`run_outcome`、鍵、配達、`send_status`、`existing_status`、コード、消費したD、`history_digest`の先頭12桁、`seconds.load_inputs`・`seconds.morning_job`・`seconds.outbox_load`（1回の読込み）、`outbox_files`）、取得の失敗ごとの`fetch_failure: <記号> <語>`（`morning`と`check-source`）、終了コード。
     - `dry`の`morning`では、送ったはずの文面を1つのブロックとして書く。`live`では文面を書かない。
     - 書かないもの：パス、URL、秘密、例外の文字列、gitの出力、応答の本文。例外は型の名前と、`code`属性が文字列ならその値だけ。
 14. **環境変数**：読むのは`V2_DISCORD_WEBHOOK_URL`（`live`のときだけ）と`GITHUB_STEP_SUMMARY`だけ。`main`の`env`の既定値として`os.environ`を読むのは`main`だけで、ほかは渡された`env`を使う。
 15. **job.pyとload.py**（設計§8）：job.pyは`judgment_known`の条件にERRORを加える1行だけ（`notice.kind in (HALT, ERROR)`）。load.pyは`provenance["fetch_count"]`の代入を、取得の後・失敗の判定の前へ移すだけ（取得で失敗した場合も、それまでの回数が残る）。ほかの行を変えない。
 16. **importと呼出し**：`urllib`・`socket`・HTTPは`web.py`だけ。`datetime.now`は`entry.py`の時計の関数1か所だけ。`os.environ`は`main`の1か所だけ。`subprocess`・`threading`・`random`・`zoneinfo`・`http.client`を直接使わない（gitは`Git`を通す）。`time`は`monotonic`だけ（`sleep`を使わない）。他のパッケージのオブジェクトの`_`で始まる属性を使わない。`raise`を`except`の本体の中に書かない（素の`raise`を除く）。
 17. **ひな形**（設計§6）：docs/ops/V2_MORNING_WORKFLOW_TEMPLATE.ymlは、設計§6.1の要点を満たすYAMLとする。
-    - cronは`40 22 * * 1-5`と`40 23 * * 1-5`、`workflow_dispatch`の入力（command・date・kind・request_id・start_after）。
-    - `permissions`は`contents: write`だけ。`concurrency`は`group: v2-writer`、`cancel-in-progress: false`。`timeout-minutes: 30`、`runs-on: ubuntu-24.04`。
+    - cronは`40 22 * * 1-5`と`40 23 * * 1-5`（時刻はD-5の採用のときにRockyさんが決める。変われば、その時刻のcronにする）、`workflow_dispatch`の入力（command・mode・date・kind・request_id・start_after）。`mode`は`dry`・`live`の選択で既定`dry`。
+    - **モード**（N-04）：定時の実行のモードは`V2_MODE`だけで決まり、手動の実行は入力の`mode`で決まる。入力は`env`経由で渡し、シェルで選んで`--mode`に渡す。
+    - `permissions`は`contents: write`だけ。`timeout-minutes: 30`、`runs-on: ubuntu-24.04`。
+    - **concurrency**（N-01）はジョブの単位で、書くコマンド（定時の実行、手動の`morning`・`resend`・`init`）は`group: v2-writer`、読むだけの`status`・`check-source`は実行ごとの別のグループ（例：`run_id`を含む名前）になる式にする。`cancel-in-progress: false`、`queue: max`。`queue`をGitHubが受け付けるかはE-2で確かめる、という注記を付ける。
     - `env`に`V2_MODE: dry`と`V2_CODE_SHA`（40桁の置き場所。値は`0`の40個などの明らかな仮の値）。
     - `actions/checkout`は`@`の後に40桁のSHAの置き場所（仮の値と「E-2で公式のリリースのSHAを確かめて書く」の注記）。非公開リポジトリは`persist-credentials: true`、公開リポジトリは`ref: ${{ env.V2_CODE_SHA }}`・`persist-credentials: false`。
-    - `run`の行は`python3 -E -B -m v2_run`で、`${{ inputs.* }}`・`${{ github.event.* }}`を`run`の行に直接書かない（入力はすべて`env`経由）。秘密の行を含めない（E-4で足す行は、注記で示すだけ）。
-18. **手順書**：docs/ops/V2_PRIVATE_RUN_GUIDE.mdは、設計§11の11項目を、Rockyさんが読んで操作できる日本語で書く。台帳の始め方（非公開リポジトリのウェブで`v2-ledger`のブランチを作り、見出しの1行だけの`observations.csv`を置く。見出しだけの台帳はS4-Dの読込みを通る）と、E-1〜E-5の各段階で確かめることの一覧を含める。秘密の値・実在のWebhookのURL・個人の口座の情報・ローカルのパスを含めない。手順書の操作は、承認された段階でだけ行うと明記する。
+    - `run`の行は`python3 -E -B -m v2_run`で、`${{ inputs.* }}`・`${{ github.event.* }}`を`run`の行に直接書かない（入力はすべて`env`経由）。秘密の行を含めない（E-4で足す行は、実際のモードが`live`のときだけ値を渡す形を注記で示すだけ）。
+18. **手順書**：docs/ops/V2_PRIVATE_RUN_GUIDE.mdは、設計§11の13項目（F&Gの記録の締切、開始の境界、取得の失敗の語の読み方、失敗のメールの設定、9:00より後の手動の朝を含む）を、Rockyさんが読んで操作できる日本語で書く。台帳の始め方（非公開リポジトリのウェブで`v2-ledger`のブランチを作り、見出しの1行だけの`observations.csv`を置く。見出しだけの台帳はS4-Dの読込みを通る）と、E-1〜E-5の各段階で確かめることの一覧（設計§2の表と§7の12項目）を含める。秘密の値・実在のWebhookのURL・個人の口座の情報・ローカルのパスを含めない。手順書の操作は、承認された段階でだけ行うと明記する。
 
 ## 4. 受入条件 S4E-01〜S4E-18
 
@@ -111,21 +114,21 @@
 |---|---|
 | S4E-01 回帰 | 既存の19スイート計2,728件を、完全なクローンで維持する（S4-Cまでの18スイート2,598件とS4-D 130件）。test_s4d_09の1行の固定と、job.py・load.pyの変更を含めて、件数・結果が同じ |
 | S4E-02 1回だけ決める | (a) 1回の`morning`で、`load_inputs`と`morning_job`に渡る`now`が同じ値で、時計の関数を`now`のために読むのは1回。(b) `Git`・outboxが1つずつで、`morning_job`・`resend`・`outbox_status`に同じoutboxが渡る（R2-P01）。(c) `dry`の実行の後、試験側で読んだリモートの`v2-state`・`v2-outbox`・`v2-market`が無い（または変わらない）。`live`の実行の後、`v2-dry-*`が変わらない。(d) 作業用の一時ディレクトリが終わりに消える |
-| S4E-03 init | (a) 閉じたセッション→履歴INITIALIZED・outboxの印・終了0、試験側で読んだgenesisの境界が`--start-after`。(b) 閉じていない日・表に無い日・形の違う日→何も書かずに終了1。(c) 履歴だけがある状態からの再実行→履歴は変わらず`EXISTS`、outboxを作って終了0（T-5）。(d) 両方ある状態の再実行→何も変えず終了0。(e) 市場データの固定と台帳の参照を作らない |
+| S4E-03 init | (a) 閉じたセッション→履歴INITIALIZED・outboxの印・終了0、試験側で読んだgenesisの境界が`--start-after`。(b) 閉じていない日・表に無い日・形の違う日→何も書かずに終了1。(c) 履歴だけがある状態からの再実行→履歴は変わらず`EXISTS`、outboxを作って終了0（T-5）。(d) 両方ある状態の再実行→何も変えず終了0。(e) 市場データの固定と台帳の参照を作らない。(f)（任意）送信なしと本番を同じ境界で初期化し同じ台帳で進めると、同じDのarmed・連続数が一致する（設計§2、N-03） |
 | S4E-04 試運転の通し | `init --mode dry`の後、5回の朝（引けから60分以上の時刻）で毎回DONE・判定ありSENT・終了0。偽の`urlopen`にDiscordへの要求が0件。記録に文面のブロックと出所・時間。同じ朝の2回目はSKIPPED_CLAIMED・終了0。同じ5回を`load_research_fixture`の系列で直接走らせた場合と、各日の`run_outcome`と判定が一致 |
-| S4E-05 入力の失敗 | (a) 取得の失敗（例外・状態500・8MBを超える応答）、引けの後に対象Dの行が2つ（S4-D再レビューR-02）、表の日の穴、台帳の誤り→STOPPED（そのコード）・`<D>-halt`の判定なしSENT・終了0。形が戻った同じ朝の後の実行→DONE・判定ありSENT。(b) `load_inputs`が投げる場合（`input_calendar_ended`）→予備の鍵のERRORが1通、記録に投げられたコード、終了1 |
-| S4E-06 送信の答え | 設計§4の表の各行（2xx→SENT、最初の部分の400・401・404・429→NOT_STARTED、接続の拒否・名前の解決の失敗→NOT_STARTED、500・503・時間切れ・ほかの例外→UNKNOWN、2つ目以降の部分の失敗→UNKNOWN）。どの場面も各部分の要求は1回だけ（再試行なし）で、失敗の後の部分は送らない。URLが無い・`http://`・別のホスト・ASCIIでない→要求0件でNOT_STARTED。`live`の朝の配達がNOT_SENT・UNKNOWNのとき終了1、同じ朝の2回目はSKIPPED_CLAIMED（自動で送り直さない） |
+| S4E-05 入力の失敗 | (a) 取得の失敗（例外・状態500・8MBを超える応答）、引けの後に対象Dの行が2つ（S4-D再レビューR-02）、表の日の穴、台帳の誤り→STOPPED（そのコード）・`<D>-halt`の判定なしSENT・終了0。取得の失敗では、記録に記号と固定の語（`http_500`・`size`・`timeout`等）がある（N-05）。形が戻った同じ朝の後の実行→DONE・判定ありSENT。(b) `load_inputs`が投げる場合（`input_calendar_ended`）→予備の鍵のERRORが1通、記録に投げられたコード、終了1 |
+| S4E-06 送信の答え | 設計§4の表の各行（2xx→SENT、最初の部分の400・401・404・429→NOT_STARTED、接続の拒否・名前の解決の失敗→NOT_STARTED、500・503・時間切れ・ほかの例外→UNKNOWN、2つ目以降の部分の失敗→UNKNOWN）。どの場面も各部分の要求は1回だけ（再試行なし）で、失敗の後の部分は送らない。URLが無い・`http://`・別のホスト・ASCIIでない・`?`を含む（`?thread_id=1`）→要求0件でNOT_STARTED。`live`の朝の配達がNOT_SENT・UNKNOWNのとき終了1、同じ朝の2回目はSKIPPED_CLAIMED（自動で送り直さない） |
 | S4E-07 分けと見出し | (a) 1900文字ちょうどは1つ、1901文字は2つ。(b) 各部分の先頭が`（n/N）`、どの部分も2000文字以下、部分をつなぐと元の文面の行が順に揃う。(c) 1900文字を超える1行も2000文字以下に切れる。(d) `live`で送った本文に`PREVIEW_HEAD`が無く`LIVE_HEAD`がある。outboxに残る文面と`text_sha256`は置き換える前。再送の本文も置き換わる。`dry`の記録の文面は置き換わらない |
 | S4E-08 要求の形 | 送信：`POST`、URLの末尾`?wait=true`、`Content-Type: application/json`、`User-Agent`、本文のJSONのキーが`content`と`allowed_mentions`だけで、`allowed_mentions`が`{"parse": []}`、時間切れ20。取得：URLが`chart_url`の文字列そのもの、`User-Agent`、時間切れ30、4記号を1回ずつ、引数の`end`が`now`のニューヨークの日付の翌日（日本時間の朝とニューヨークの夕方で同じ日になる例を含める） |
-| S4E-09 取得の上限 | 8MBちょうどは通り、8MB＋1バイトは例外。状態200以外は例外。例外の文字列・`repr`に、URL・応答の本文が出ない |
+| S4E-09 取得の上限と理由 | 8MBちょうどは通り、8MB＋1バイトは例外。状態200以外は例外。偽の`urlopen`で429・500・時間切れ・接続の拒否・8MB超え・ほかの例外を返し、記録の語が`http_429`・`http_500`・`timeout`・`url_error`・`size`・`other`になる（N-05）。例外の文字列・`repr`に、URL・応答の本文が出ない |
 | S4E-10 予備の鍵（S4-B P-01） | 同じ日付のMORNINGが判定ありの状態で、セッションなしの朝（予備の鍵のERROR）→`SKIPPED_JUDGMENT_EXISTS`、送信0件。対照として、job.pyの変更を戻すと送信を試みることを、結果文書に記録する（試験には残さなくてよい） |
 | S4E-11 fetch_count（S4-D P-01） | 応答の形の誤り・値の誤りで止まった朝の`provenance["fetch_count"]`が、実際の取得の回数（4）。取得の例外で止まった朝は、例外までの回数 |
 | S4E-12 再送と状態 | (a) 判定ありがUNKNOWNの朝の`resend --kind morning`→SENT・終了0、`status`に元のUNKNOWNと再送のSENT。(b) 同じDのMORNINGがNONE以外の朝の`resend --kind halt`・`--kind error`→REFUSED_JUDGMENT_EXISTS・送信0件・終了1。MORNINGがNONEの日の判定なしの再送は通る。(c) 同じidの2回目はS4-Bの答えのまま。(d) CLAIM_FAILED（S4-Cの試験の方法でoutboxのpushを拒む）→終了1、記録に`CLAIM_FAILED`、送信0件 |
-| S4E-13 check-source | (a) 通常の応答→設計§13のC1の事実（行数、最初の日、時刻の分布、対象Dの行1、表の日の欠け0、研究との差0、固定との差0）。(b) 対象Dの行が2つ→`target_rows=2`と、その日付。(c) 固定した最後の日の終値が違う＋SPYの表の日が1つ欠ける→終値の変化、騰落率の差、欠けの数と日付。(d) どの場面も、実行の前後で4つの参照の先頭が同じ。(e) 1記号の取得の失敗→その記号に失敗の型の名前、終了1 |
+| S4E-13 check-source | (a) 通常の応答→設計§13のC1の事実（行数、最初の日、時刻の分布、対象Dの行1、表の日の欠け0、研究との差0、固定との差0）。(b) 対象Dの行が2つ→`target_rows=2`と、その日付。(c) 固定した最後の日の終値が違う＋SPYの表の日が1つ欠ける→終値の変化、騰落率の差、欠けの数と日付。(d) どの場面も、実行の前後で4つの参照の先頭が同じ。(e) 1記号の取得の失敗→その記号に失敗の型の名前と固定の語（N-05）、終了1 |
 | S4E-14 同時の実行 | 子プロセス2〜4個で各10回以上、同じDの`morning --mode live`（偽のDiscord）を同時に走らせ、Discordへの判定ありの投稿が1回まで、固定のsha256が1つ。回数と結果を結果文書に記録する（concurrencyのグループが効かない場合の保険の確認） |
 | S4E-15 記録と機密 | (a) S4E-02〜14の全場面で、記録（`out`とGITHUB_STEP_SUMMARYのファイル）に、パスの印・URLの印・`http`の文字列・例外の文字列が無い。(b) 例外は型の名前と固定のコードだけ。(c) Pythonの版・gitの版・`code_version`（40桁でなければ`unknown`）が記録にある。(d) GITHUB_STEP_SUMMARYへは追記で、前の中身が残る。(e) `env`に`V2_DISCORD_WEBHOOK_URL`があっても、`dry`では読まず、偽の`urlopen`へ要求を出さない |
 | S4E-16 測定 | 結果文書に、(a) outboxのファイル数1・751・1,501での1回の読込みの時間、(b) genesisを2026-01-02にした149セッションの追いつきの`seconds.morning_job`と、続く2回目の時間、(c) 通常の朝の`seconds.*`を記録する（設計§10の試行と比べる。閾値を超えたら報告する） |
-| S4E-17 静的な範囲 | §3の16のimportと呼出しの規則。ひな形（§3の17）をYAMLの文字列として検査する：cronの2行、`concurrency`のグループと`cancel-in-progress: false`、`permissions`が`contents: write`だけ、`actions/checkout@`の後が40桁、`run`の行に`${{ inputs.`・`${{ github.event.`が無い、`secrets.`の行が無い、`timeout-minutes: 30`、`python3 -E -B -m v2_run`。手順書に`https://discord.com/api/webhooks/`の後に続く値・ローカルのパスが無い |
+| S4E-17 静的な範囲 | §3の16のimportと呼出しの規則。ひな形（§3の17）をYAMLの文字列として検査する：cronの2行、書くコマンドの`concurrency`のグループが`v2-writer`で`cancel-in-progress: false`・`queue: max`、`status`・`check-source`が`v2-writer`に入らない、`workflow_dispatch`に`mode`の入力（既定`dry`）、定時の実行のモードが`V2_MODE`だけで決まり入力の`mode`が`env`経由、`permissions`が`contents: write`だけ、`actions/checkout@`の後が40桁、`run`の行に`${{ inputs.`・`${{ github.event.`が無い、`secrets.`の行が無い、`timeout-minutes: 30`、`python3 -E -B -m v2_run`。手順書に`https://discord.com/api/webhooks/`の後に続く値・ローカルのパスが無い |
 | S4E-18 範囲試験 | 新しい範囲試験（START＝9bdd421、END＝None、REV＝END or "HEAD"、FilesChanged）が、§2の変更だけを許す。test_s4d_09・job.py・load.pyの差分を、自分の差分のハンクとして固定する。範囲の鎖が`…→ffa3700→9bdd421→（S4-E）`で通る。ENDだけを固定して開いた範囲を外すと鎖の試験が失敗する手順を、結果文書に記録する |
 
 ## 5. 限定欠陥注入
@@ -153,7 +156,10 @@
 19. `check-source`が固定の参照に書く（`load_inputs`を呼ぶ）。
 20. `load_inputs`が投げたとき、`morning_job`を呼ばない（通知が0通）。
 21. 取得・送信の時間切れを渡さない。
-22. ひな形の`cancel-in-progress`を`true`にする（または`concurrency`を外す）。
+22. ひな形の`cancel-in-progress`を`true`にする（または`concurrency`・`queue: max`を外す）。
+23. 取得の失敗の理由を記録しない（または、例外の文字列を記録する）。
+24. 読むだけの`status`・`check-source`を`v2-writer`に入れる。
+25. 定時の実行のモードを入力の`mode`で決める（または、手動の実行で`mode`を無視する）。
 
 ## 6. 環境・結果保存・停止
 
@@ -192,7 +198,7 @@ PR・マージ・Actions・本番・非公開リポジトリの作成・GitHub�
 
 ## 7. 読取専用の保護参照
 
-次の109参照を、開始時と保存・push後に完全SHAで照合する。S4-Dの依頼書の104参照に、S4-Dの資料（採用記録263604b）・実装レビュー・レビュー・再レビュー・実装（受領版9bdd421）の5本を加えたものである。実装時は、本書と設計を保存した資料ブランチdocs/v2-run-s4e-20261105の受け取った版（採用記録のコミット）を1本加える。設計・依頼書へのレビュー・再レビューの資料ブランチがあれば、その受け取った版も加える（加えた本数と合計を結果文書に書く）。
+次の109参照を、開始時と保存・push後に完全SHAで照合する。S4-Dの依頼書の104参照に、S4-Dの資料（採用記録263604b）・実装レビュー・レビュー・再レビュー・実装（受領版9bdd421）の5本を加えたものである。実装時は、少なくとも次の2本を加えた111参照を照合する：本書と設計を保存した資料ブランチdocs/v2-run-s4e-20261105の受け取った版（採用記録のコミット）と、レビューdocs/v2-run-s4e-review-20261105の800472fc98c3a139db2d3895d7c15e19613f5b97。第2版の再レビューの資料ブランチがあれば、さらに1本加える（加えた本数と合計を結果文書に書く）。
 
 | 参照 | 完全SHA |
 |---|---|
@@ -314,12 +320,12 @@ PR・マージ・Actions・本番・非公開リポジトリの作成・GitHub�
 
 設計§15のD-1〜D-10と、本書の変更境界・受入・欠陥注入・結果保存を、一組で判断する。
 
-- D-1：S4-Eの分け方（E-0だけがコード。E-1〜E-5は各段階の直前に別の承認）。
-- D-2：入口（5コマンド、1回だけ決める、試運転と本番で参照を分ける、終了コード、`init`は参照ごとに無いときだけ作る）。
-- D-3：送信（Discord Webhook、答えの対応表、1900文字で分ける、送る直前の見出しの置き換え）。
+- D-1：S4-Eの分け方（E-0だけがコード。E-1〜E-5は各段階の直前に別の承認。E-4は手動の`mode`で本番を選ぶ。本番の境界は試運転と同じ日）。
+- D-2：入口（5コマンド、1回だけ決める、試運転と本番で参照を分ける、終了コード、`init`は参照ごとに無いときだけ作る、取得の失敗の理由の記録）。
+- D-3：送信（Discord Webhook、答えの対応表、`?`を含むURLは送らない、1900文字で分ける、送る直前の見出しの置き換え）。
 - D-4：取得（urllib、30秒、8MB、再試行なし）。
-- D-5：workflowのひな形（concurrency、資格情報、40桁の固定、時刻、30分）。
-- D-6：試運転の合否の11項目。
+- D-5：workflowのひな形（書く実行だけのconcurrencyと`queue: max`、モードの選び方、資格情報、40桁の固定、30分）と、時刻（1回目がF&Gの記録の締切になる。Rockyさんが決める）。
+- D-6：試運転の合否の12項目。
 - D-7：前の段階の提案（job.pyの1条件とload.pyの`fetch_count`はE-0で直す。ほかは入口・手順書・E-3の基準）。
 - D-8：手順書。
 - D-9：S4-Dの範囲試験のEND固定。
