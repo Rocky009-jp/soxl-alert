@@ -1,0 +1,3 @@
+file_sync_only | first SENT 0 | rerun SKIPPED_CLAIMED SENT 0 | resend REFUSED_ALREADY_SENT | sends 1 | files ['2026-03-05-morning.claim.json', '2026-03-05-morning.result.json']
+strict | first CLAIM_FAILED 1 | rerun SKIPPED_CLAIMED UNKNOWN 1 | resend CLAIM_FAILED | sends 0 | files ['2026-03-05-morning.claim.json', '2026-03-05-morning.resend-req1.claim.json']
+default(strict) | first CLAIM_FAILED 1 | rerun SKIPPED_CLAIMED UNKNOWN 1 | resend CLAIM_FAILED | sends 0 | files ['2026-03-05-morning.claim.json', '2026-03-05-morning.resend-req1.claim.json']

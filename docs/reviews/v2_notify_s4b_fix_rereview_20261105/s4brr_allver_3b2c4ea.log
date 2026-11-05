@@ -1,0 +1,76 @@
+## Python 3.10.20
+v2_core rc=0 Ran 197 tests in 4.609s | OK
+v2_persistence rc=0 Ran 170 tests in 12.653s | OK
+v2_persistence_local rc=0 Ran 113 tests in 24.506s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.715s | OK
+v2_history rc=0 Ran 230 tests in 9.707s | OK
+v2_history_ops rc=0 Ran 173 tests in 9.919s | OK
+v2_history_restart rc=0 Ran 109 tests in 6.112s | OK
+v2_history_restore rc=0 Ran 165 tests in 15.227s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 129.327s | OK
+v2_history_adopt rc=0 Ran 170 tests in 12.379s | OK
+v2_scope_chain rc=0 Ran 34 tests in 3.432s | OK
+v2_history_consume rc=0 Ran 112 tests in 7.063s | OK
+v2_history_publish rc=0 Ran 150 tests in 73.739s | OK
+v2_history_local rc=0 Ran 139 tests in 10.946s | OK
+v2_history_maintain rc=0 Ran 184 tests in 210.212s | OK
+v2_daily_run rc=0 Ran 96 tests in 18.186s | OK
+v2_notify rc=0 Ran 129 tests in 72.497s | OK
+rc=0
+## Python 3.11.18
+v2_core rc=0 Ran 197 tests in 3.887s | OK
+v2_persistence rc=0 Ran 170 tests in 10.465s | OK
+v2_persistence_local rc=0 Ran 113 tests in 10.214s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.757s | OK
+v2_history rc=0 Ran 230 tests in 10.050s | OK
+v2_history_ops rc=0 Ran 173 tests in 9.077s | OK
+v2_history_restart rc=0 Ran 109 tests in 5.447s | OK
+v2_history_restore rc=0 Ran 165 tests in 13.174s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 109.424s | OK
+v2_history_adopt rc=0 Ran 170 tests in 10.487s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.732s | OK
+v2_history_consume rc=0 Ran 112 tests in 6.466s | OK
+v2_history_publish rc=0 Ran 150 tests in 61.983s | OK
+v2_history_local rc=0 Ran 139 tests in 7.556s | OK
+v2_history_maintain rc=0 Ran 184 tests in 165.876s | OK
+v2_daily_run rc=0 Ran 96 tests in 18.459s | OK
+v2_notify rc=0 Ran 129 tests in 65.039s | OK
+rc=0
+## Python 3.12.3
+v2_core rc=0 Ran 197 tests in 3.891s | OK
+v2_persistence rc=0 Ran 170 tests in 9.971s | OK
+v2_persistence_local rc=0 Ran 113 tests in 11.362s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.987s | OK
+v2_history rc=0 Ran 230 tests in 9.852s | OK
+v2_history_ops rc=0 Ran 173 tests in 8.843s | OK
+v2_history_restart rc=0 Ran 109 tests in 5.827s | OK
+v2_history_restore rc=0 Ran 165 tests in 13.121s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 109.331s | OK
+v2_history_adopt rc=0 Ran 170 tests in 11.140s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.746s | OK
+v2_history_consume rc=0 Ran 112 tests in 6.436s | OK
+v2_history_publish rc=0 Ran 150 tests in 64.309s | OK
+v2_history_local rc=0 Ran 139 tests in 8.337s | OK
+v2_history_maintain rc=0 Ran 184 tests in 171.829s | OK
+v2_daily_run rc=0 Ran 96 tests in 19.206s | OK
+v2_notify rc=0 Ran 129 tests in 69.400s | OK
+rc=0
+## Python 3.13.18
+v2_core rc=0 Ran 197 tests in 3.932s | OK
+v2_persistence rc=0 Ran 170 tests in 10.294s | OK
+v2_persistence_local rc=0 Ran 113 tests in 11.277s | OK (skipped=4)
+v2_recovery rc=0 Ran 176 tests in 1.839s | OK
+v2_history rc=0 Ran 230 tests in 10.331s | OK
+v2_history_ops rc=0 Ran 173 tests in 8.857s | OK
+v2_history_restart rc=0 Ran 109 tests in 6.211s | OK
+v2_history_restore rc=0 Ran 165 tests in 13.990s | OK
+v2_history_diagnose rc=0 Ran 131 tests in 107.246s | OK
+v2_history_adopt rc=0 Ran 170 tests in 10.980s | OK
+v2_scope_chain rc=0 Ran 34 tests in 2.717s | OK
+v2_history_consume rc=0 Ran 112 tests in 6.607s | OK
+v2_history_publish rc=0 Ran 150 tests in 67.906s | OK
+v2_history_local rc=0 Ran 139 tests in 8.412s | OK
+v2_history_maintain rc=0 Ran 184 tests in 179.952s | OK
+v2_daily_run rc=0 Ran 96 tests in 17.507s | OK
+v2_notify rc=0 Ran 129 tests in 73.444s | OK
+rc=0

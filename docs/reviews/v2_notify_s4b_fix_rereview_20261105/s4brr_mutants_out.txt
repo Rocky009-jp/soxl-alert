@@ -1,0 +1,5 @@
+F01 DETECTED ['Ran 129 tests in 81.180s', 'FAILED (failures=3)'] 3 ['test_file_sync_only_writes_the_same_bytes_in_the_same_steps_without_the_directory_sync', 'test_the_halt_the_error_and_the_manual_resend_also_work_without_the_directory_sync']
+F02 DETECTED ['Ran 129 tests in 62.083s', 'FAILED (failures=7, errors=1)'] 8 ['test_the_default_is_strict_and_only_the_two_words_are_accepted', 'test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send']
+F03 DETECTED ['Ran 129 tests in 80.492s', 'FAILED (failures=1)'] 1 ['test_the_default_is_strict_and_only_the_two_words_are_accepted']
+F04 NOT_DETECTED ['Ran 129 tests in 80.461s', 'OK'] 0 []
+F05 DETECTED ['Ran 129 tests in 78.609s', 'FAILED (failures=5, errors=1)'] 6 ['test_the_default_is_strict_and_only_the_two_words_are_accepted', 'test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send']
