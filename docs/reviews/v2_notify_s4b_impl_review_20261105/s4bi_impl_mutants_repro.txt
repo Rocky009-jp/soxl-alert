@@ -1,0 +1,52 @@
+1 DETECTED 3 HALT does not look for a judgment claim first
+2 DETECTED 2 a DAMAGED judgment claim does not stop the HALT
+3 DETECTED 15 the target status decides the kind (and so the key) of a DONE notice
+4 DETECTED 5 the missing-records condition is the gap
+5 DETECTED 2 a MORNING notice also writes the days with gap=true (they overlap the S4-A text)
+6 DETECTED 2 a HALT notice writes no missing records
+7 DETECTED 1 the note of the passed open: >= becomes >
+8 DETECTED 4 the ERROR text carries the text of the exception
+9 DETECTED 11 a program error is not raised again
+10 DETECTED 11 an exception of the sender is NOT_SENT
+11 DETECTED 7 after NOT_SENT or UNKNOWN the same run calls send once more
+12 DETECTED 12 the claim is created by an overwriting write instead of create_exclusive
+13 DETECTED 8 a claim without a result is taken for 'not sent' and sent
+14 DETECTED 1 the claim_id of a result is not compared with the claim's
+15 DETECTED 2 a resend does not look at the other resends' SENT
+16 DETECTED 2 a resend whose id has an intent is made again under another name
+17 DETECTED 1 the outbox raises its error inside the handler (the context stays)
+18 DETECTED 6 fsync_file is not called
+19 DETECTED 6 the ERROR key is the UTC date of the call even when D is known
+20 DETECTED 3 an ERROR notice does not look for a judgment claim first
+E1 DETECTED 3 extra: a MORNING notice is stopped by a HALT claim of the same day
+E2 DETECTED 3 extra: a rerun of a sent judgment is not exit 0
+E3 DETECTED 3 extra: a sent HALT is exit 0
+E4 DETECTED 1 extra: the hash of the text is not checked when a claim is read
+E5 DETECTED 1 extra: an extra field in a claim is accepted
+E6 DETECTED 1 extra: a result without a claim reads as NONE
+E7 DETECTED 1 extra: a str subclass equal to SENT counts as SENT
+E8 DETECTED 2 extra: the resend text has no line in front
+E9 DETECTED 1 extra: the resend_request_id is not checked in resend
+E10 DETECTED 1 extra: morning_job does not check now
+E11 DETECTED 1 extra: KeyboardInterrupt and SystemExit of the sender are swallowed
+E12 DETECTED 17 extra: the result always says SENT
+E13 DETECTED 1 extra: the note of an unsure save only for run_publish_uncertain
+E14 DETECTED 2 extra: the note of a run at the same time only for store_busy
+E15 DETECTED 1 extra: no note for the boundary day
+E16 DETECTED 1 extra: the note of the passed open also for a decided target
+E17 DETECTED 6 extra: fsync_dir is not called
+E18 DETECTED 4 extra: the S4-A text is shortened in the MORNING notice
+E19 DETECTED 1 extra: a resend of an original that was SENT is not refused
+E20 DETECTED 2 extra: a DAMAGED earlier resend does not refuse
+E21 DETECTED 1 extra: the notices are not immutable
+E22 DETECTED 1 extra: a relative root is accepted
+E23 UNDETECTED 0 extra: a link is not refused by the root check (the reparse-point part)
+E24 DETECTED 1 extra: the JSON is not written with sorted keys
+E25 DETECTED 2 extra: the JSON is written with ensure_ascii
+E26 DETECTED 2 extra: the claim_id is not random (a fixed value)
+E27 DETECTED 35 extra: the result is recorded before the send (status UNKNOWN is final)
+E28 DETECTED 1 extra: a short write is not completed (one write only)
+E29 DETECTED 2 extra: a CoreError that escapes the run is raised instead of notified
+E30 DETECTED 1 extra: the exception type name is not filtered
+E31 DETECTED 3 extra: outbox_status creates a file
+E32 DETECTED 9 extra: a damaged original is listed as NONE

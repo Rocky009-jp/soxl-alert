@@ -1,0 +1,14 @@
+TZ UTC-05:00 D ['2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-09']
+X1 now 2026-03-05T18:00:00-05:00 utc date 2026-03-05
+X1a judgment then fallback error: morning 2026-03-05 SENT | error 2026-03-06 SENT None
+X1a texts: ['【SOXL日次】対象D=2026-03-05', '【SOXL日次】判定なし（実行の誤り） 日付（UTC）=2026-03-06']
+X1b fallback then D error: 2026-03-06 SENT | second raised texts ['【SOXL日次】判定なし（実行の誤り） 日付（UTC）=2026-03-06', '【SOXL日次】判定なし（実行の誤り） 対象D=2026-03-05']
+X1b outbox ['2026-03-05-error.claim.json', '2026-03-05-error.result.json', '2026-03-06-error.claim.json', '2026-03-06-error.result.json']
+X2 first: STALE halt 2026-03-05 UNKNOWN
+X2 then judgment: DONE morning 2026-03-05 SENT
+X2 resend of the halt after the judgment: SENT UNKNOWN | sent heading: ['【再送】元の通知の送信を確認できなかったため、同じ内容を送ります', '【SOXL日次】対象D=2026-03-05 ／判定なし']
+X3 empty morning claim: SKIPPED_CLAIMED DAMAGED 1 | resend REFUSED_DAMAGED | sends 0
+X4 ENOSPC on claim write: CLAIM_FAILED | rerun SKIPPED_CLAIMED DAMAGED | files {'2026-03-05-morning.claim.json': 0}
+X5 result only: SKIPPED_CLAIMED DAMAGED sends 0 ['2026-03-05-morning.result.json']
+X6 see test_s4b_05 Damage / S4B-05(d)
+X7 DONE with sender None: UNKNOWN 1 | rerun SKIPPED_CLAIMED UNKNOWN 1

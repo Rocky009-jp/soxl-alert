@@ -1,0 +1,6 @@
+now UTC 2026-03-05T21:30:00+00:00
+R03a morning 2026-03-05 SENT | fallback error 2026-03-05 SENT None
+     headings: ['【SOXL日次】対象D=2026-03-05', '【SOXL日次】判定なし（実行の誤り） 日付（UTC）=2026-03-05']
+R03b fallback 2026-03-05 SENT | then D error -> sends 1 ['【SOXL日次】判定なし（実行の誤り） 日付（UTC）=2026-03-05']
+R03c D error then judgment: morning SENT ['【SOXL日次】判定なし（実行の誤り） 対象D=2026-03-05', '【SOXL日次】対象D=2026-03-05']
+status (OutboxEntry(2026-03-05-morning, resend=None, status=SENT), OutboxEntry(2026-03-05-halt, resend=None, status=NONE), OutboxEntry(2026-03-05-error, resend=None, status=SENT))

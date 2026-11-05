@@ -1,0 +1,357 @@
+[
+ {
+  "id": "V01",
+  "file": "job.py",
+  "desc": "the fix removed: no pre-check of the own key before the claim",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 72.611s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_result_without_a_claim_and_a_directory_in_the_place_of_a_file_are_damaged"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V02",
+  "file": "job.py",
+  "desc": "the pre-check lets a DAMAGED key go on to the claim",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 78.861s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_result_without_a_claim_and_a_directory_in_the_place_of_a_file_are_damaged"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V03",
+  "file": "job.py",
+  "desc": "the fallback ERROR also looks at the morning claim of the UTC date",
+  "class": "NOT_DETECTED",
+  "summary": [
+   "Ran 123 tests in 76.844s",
+   "OK"
+  ],
+  "failed": [],
+  "n_failed": 0
+ },
+ {
+  "id": "V04",
+  "file": "job.py",
+  "desc": "the target D rule uses < instead of <=",
+  "class": "NOT_DETECTED",
+  "summary": [
+   "Ran 123 tests in 78.331s",
+   "OK"
+  ],
+  "failed": [],
+  "n_failed": 0
+ },
+ {
+  "id": "V05",
+  "file": "job.py",
+  "desc": "a NOT_SENT original is refused by resend",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 80.377s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_not_sent_original_can_be_sent_again_too"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V06",
+  "file": "job.py",
+  "desc": "resend does not look whether its own id was used (the pre-check remains)",
+  "class": "NOT_DETECTED",
+  "summary": [
+   "Ran 123 tests in 75.387s",
+   "OK"
+  ],
+  "failed": [],
+  "n_failed": 0
+ },
+ {
+  "id": "V07",
+  "file": "outbox.py",
+  "desc": "the date in the claim is not compared with the file name",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 72.699s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V08",
+  "file": "outbox.py",
+  "desc": "resend_of is not checked against the kind of file",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 77.929s",
+   "FAILED (failures=2)"
+  ],
+  "failed": [
+   "test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged",
+   "test_a_resend_claim_that_is_not_shaped_as_a_resend_is_damaged"
+  ],
+  "n_failed": 2
+ },
+ {
+  "id": "V09",
+  "file": "outbox.py",
+  "desc": "the status word of a result is not checked",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 76.600s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_result_with_a_missing_wrong_or_extra_field_is_damaged"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V10",
+  "file": "compose.py",
+  "desc": "the note of a run at the same time in every STOPPED/STALE halt",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 80.144s",
+   "FAILED (failures=4)"
+  ],
+  "failed": [
+   "test_a_stale_halt_has_none_of_the_four_notes",
+   "test_no_note_of_the_passed_open_when_the_target_has_its_decision_or_is_the_last_session",
+   "test_the_note_of_the_boundary_day",
+   "test_the_note_of_the_unsure_save_is_in_a_halt_of_the_two_codes_only"
+  ],
+  "n_failed": 4
+ },
+ {
+  "id": "V11",
+  "file": "compose.py",
+  "desc": "the label of a fallback ERROR says 対象D",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 80.002s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_run_error_without_a_closed_session_sends_one_error_keyed_by_the_utc_date"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V12",
+  "file": "job.py",
+  "desc": "resend does not check now",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 74.930s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_now_without_a_time_zone_is_refused_everywhere_and_nothing_is_touched"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V13",
+  "file": "job.py",
+  "desc": "the result of a resend is written under the original key",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 59.108s",
+   "FAILED (failures=12)"
+  ],
+  "failed": [
+   "test_a_not_sent_original_can_be_sent_again_too",
+   "test_a_resend_of_a_halt_and_of_an_error_uses_the_stored_text",
+   "test_a_resend_whose_claim_cannot_be_created_sends_nothing_and_one_that_cannot_list_says_so",
+   "test_a_sender_that_fails_in_a_resend_gives_unknown_and_one_call",
+   "test_after_a_resend_that_is_unknown_another_id_can_send"
+  ],
+  "n_failed": 12
+ },
+ {
+  "id": "V14",
+  "file": "__init__.py",
+  "desc": "outbox_status ignores kind",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 76.299s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_the_status_lists_the_three_keys_and_every_resend_and_changes_nothing"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V15",
+  "file": "outbox.py",
+  "desc": "an existing name counts as created",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 61.854s",
+   "FAILED (failures=4)"
+  ],
+  "failed": [
+   "test_an_exclusive_creation_that_finds_the_name_taken_does_not_hold_the_right",
+   "test_a_result_that_already_exists_is_not_replaced",
+   "test_the_morning_job_in_two_to_four_processes",
+   "test_the_same_resend_id_in_two_to_four_processes_sends_once"
+  ],
+  "n_failed": 4
+ },
+ {
+  "id": "V16",
+  "file": "job.py",
+  "desc": "the sender catches Exception only (another BaseException escapes)",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 79.049s",
+   "FAILED (errors=1)"
+  ],
+  "failed": [
+   "test_every_other_answer_and_every_exception_is_unknown"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V17",
+  "file": "outbox.py",
+  "desc": "a CoreError of the FileOps is not an outbox error",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 62.779s",
+   "FAILED (failures=1, errors=1)"
+  ],
+  "failed": [
+   "test_no_claim_means_no_send",
+   "test_the_sweep"
+  ],
+  "n_failed": 2
+ },
+ {
+  "id": "V18",
+  "file": "job.py",
+  "desc": "resend passes no resend_of",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 79.012s",
+   "FAILED (failures=6)"
+  ],
+  "failed": [
+   "test_a_resend_whose_claim_cannot_be_created_sends_nothing_and_one_that_cannot_list_says_so",
+   "test_after_a_resend_that_is_unknown_another_id_can_send",
+   "test_after_a_resend_that_was_sent_every_other_id_and_the_same_id_are_refused",
+   "test_an_unknown_original_is_sent_again_once_with_one_line_in_front",
+   "test_the_same_id_again_is_not_sent"
+  ],
+  "n_failed": 6
+ },
+ {
+  "id": "V19",
+  "file": "job.py",
+  "desc": "a CoreError that is not a RunError is raised again after the notice",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 73.404s",
+   "FAILED (errors=2)"
+  ],
+  "failed": [
+   "test_the_report_of_a_skipped_error_says_so",
+   "test_a_core_error_that_escapes_the_run_is_an_error_notice_and_is_not_raised"
+  ],
+  "n_failed": 2
+ },
+ {
+  "id": "V20",
+  "file": "compose.py",
+  "desc": "the missing lines of a MORNING skip the gap=false days instead (only gap=true)",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 78.911s",
+   "FAILED (failures=4)"
+  ],
+  "failed": [
+   "test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names",
+   "test_a_morning_names_the_first_save_after_the_genesis_although_its_gap_is_false",
+   "test_a_morning_with_both_kinds_names_each_day_once",
+   "test_several_skipped_sessions_are_listed_in_order"
+  ],
+  "n_failed": 4
+ },
+ {
+  "id": "V21",
+  "file": "values.py",
+  "desc": "exit 0 also for SKIPPED_CLAIMED whose existing state is UNKNOWN",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 75.850s",
+   "FAILED (failures=3)"
+  ],
+  "failed": [
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success",
+   "test_after_unknown_or_not_sent_a_rerun_never_sends",
+   "test_an_intent_without_a_result_is_unknown_and_is_not_sent_again"
+  ],
+  "n_failed": 3
+ },
+ {
+  "id": "V22",
+  "file": "job.py",
+  "desc": "the morning job skips a HALT when a judgment exists only if it was SENT",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 78.573s",
+   "FAILED (failures=4)"
+  ],
+  "failed": [
+   "test_a_halt_after_a_damaged_judgment_is_not_sent",
+   "test_a_halt_after_a_judgment_in_any_state_is_not_sent",
+   "test_a_damaged_judgment_stops_a_later_error_too",
+   "test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day"
+  ],
+  "n_failed": 4
+ },
+ {
+  "id": "V23",
+  "file": "outbox.py",
+  "desc": "the canonical JSON keeps the default separators",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 79.652s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_a_done_morning_sends_once_and_writes_an_intent_and_a_result"
+  ],
+  "n_failed": 1
+ },
+ {
+  "id": "V24",
+  "file": "job.py",
+  "desc": "the fallback key uses the local date of now instead of the UTC date",
+  "class": "DETECTED",
+  "summary": [
+   "Ran 123 tests in 76.054s",
+   "FAILED (failures=1)"
+  ],
+  "failed": [
+   "test_the_clock_is_never_read_and_secrets_gives_only_the_claim_id"
+  ],
+  "n_failed": 1
+ }
+]

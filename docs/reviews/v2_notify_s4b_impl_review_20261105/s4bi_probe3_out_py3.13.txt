@@ -1,0 +1,1 @@
+V04 probe: now == close_at(2026-03-06) program error -> sends ['【SOXL日次】対象D=2026-03-05', '【SOXL日次】判定なし（実行の誤り） 対象D=2026-03-06'] ['2026-03-05-morning.claim.json', '2026-03-05-morning.result.json', '2026-03-06-error.claim.json', '2026-03-06-error.result.json']

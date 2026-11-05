@@ -1,0 +1,588 @@
+[
+ {
+  "id": "1",
+  "title": "HALT does not look for a judgment claim first",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_halt_after_a_damaged_judgment_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_a_damaged_judgment_is_not_sent)",
+   "test_a_halt_after_a_judgment_in_any_state_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_a_judgment_in_any_state_is_not_sent)",
+   "test_a_halt_after_the_judgment_of_the_same_day_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_the_judgment_of_the_same_day_is_not_sent)"
+  ]
+ },
+ {
+  "id": "5",
+  "title": "a MORNING notice also writes the days with gap=true (they overlap the S4-A text)",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names (test_s4b_04_text.MissingRecords.test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names)",
+   "test_a_morning_with_both_kinds_names_each_day_once (test_s4b_04_text.MissingRecords.test_a_morning_with_both_kinds_names_each_day_once)"
+  ]
+ },
+ {
+  "id": "9",
+  "title": "a program error is not raised again",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 11,
+  "failing_examples": [
+   "test_a_damaged_judgment_stops_a_later_error_too (test_s4b_03_error.AJudgmentStopsTheError.test_a_damaged_judgment_stops_a_later_error_too)",
+   "test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day (test_s4b_03_error.AJudgmentStopsTheError.test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day)",
+   "test_an_error_does_not_stop_a_judgment_of_the_same_day_that_follows_it (test_s4b_03_error.AJudgmentStopsTheError.test_an_error_does_not_stop_a_judgment_of_the_same_day_that_follows_it)",
+   "test_the_report_of_a_skipped_error_says_so (test_s4b_03_error.AJudgmentStopsTheError.test_the_report_of_a_skipped_error_says_so)"
+  ]
+ },
+ {
+  "id": "13",
+  "title": "a claim without a result is taken for 'not sent' and sent",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 8,
+  "failing_examples": [
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success (test_s4b_02_morning_halt.Morning.test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success)",
+   "test_a_keyboard_interrupt_and_a_system_exit_are_not_swallowed_and_leave_an_intent_only (test_s4b_05_send_state.Answers.test_a_keyboard_interrupt_and_a_system_exit_are_not_swallowed_and_leave_an_intent_only)",
+   "test_after_unknown_or_not_sent_a_rerun_never_sends (test_s4b_05_send_state.Answers.test_after_unknown_or_not_sent_a_rerun_never_sends)",
+   "test_an_intent_without_a_result_is_unknown_and_is_not_sent_again (test_s4b_05_send_state.IntentOnly.test_an_intent_without_a_result_is_unknown_and_is_not_sent_again)"
+  ]
+ },
+ {
+  "id": "17",
+  "title": "the outbox raises its error inside the handler (the context stays)",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text (test_s4b_06_outbox_faults.Claim.test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text)"
+  ]
+ },
+ {
+  "id": "E1",
+  "title": "extra: a MORNING notice is stopped by a HALT claim of the same day",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_halt_after_the_judgment_of_the_same_day_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_the_judgment_of_the_same_day_is_not_sent)",
+   "test_a_judgment_can_follow_a_halt_of_the_same_day (test_s4b_02_morning_halt.Halt.test_a_judgment_can_follow_a_halt_of_the_same_day)",
+   "test_the_morning_job_in_two_to_four_processes (test_s4b_08_processes.Race.test_the_morning_job_in_two_to_four_processes)"
+  ]
+ },
+ {
+  "id": "E5",
+  "title": "extra: an extra field in a claim is accepted",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged (test_s4b_05_send_state.Damage.test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged)"
+  ]
+ },
+ {
+  "id": "E9",
+  "title": "extra: the resend_request_id is not checked in resend",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_bad_resend_request_id_d_or_kind_is_refused_before_any_file_is_read (test_s4b_01_args_values.Arguments.test_a_bad_resend_request_id_d_or_kind_is_refused_before_any_file_is_read)"
+  ]
+ },
+ {
+  "id": "E13",
+  "title": "extra: the note of an unsure save only for run_publish_uncertain",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_note_of_the_unsure_save_is_in_a_halt_of_the_two_codes_only (test_s4b_04_text.Notes.test_the_note_of_the_unsure_save_is_in_a_halt_of_the_two_codes_only)"
+  ]
+ },
+ {
+  "id": "E17",
+  "title": "extra: fsync_dir is not called",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 6,
+  "failing_examples": [
+   "test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send (test_s4b_06_outbox_faults.Claim.test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send)",
+   "test_no_claim_means_no_send (test_s4b_06_outbox_faults.Claim.test_no_claim_means_no_send)",
+   "test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text (test_s4b_06_outbox_faults.Claim.test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text)",
+   "test_one_file_is_written_in_the_order_of_the_request_and_nothing_is_replaced_or_removed (test_s4b_06_outbox_faults.Order.test_one_file_is_written_in_the_order_of_the_request_and_nothing_is_replaced_or_removed)"
+  ]
+ },
+ {
+  "id": "E21",
+  "title": "extra: the notices are not immutable",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_values_are_immutable_and_their_repr_shows_no_text_and_no_path (test_s4b_01_args_values.Values.test_the_values_are_immutable_and_their_repr_shows_no_text_and_no_path)"
+  ]
+ },
+ {
+  "id": "E25",
+  "title": "extra: the JSON is written with ensure_ascii",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_done_morning_sends_once_and_writes_an_intent_and_a_result (test_s4b_02_morning_halt.Morning.test_a_done_morning_sends_once_and_writes_an_intent_and_a_result)",
+   "test_the_text_is_written_as_utf8_as_it_is (test_s4b_06_outbox_faults.Order.test_the_text_is_written_as_utf8_as_it_is)"
+  ]
+ },
+ {
+  "id": "E29",
+  "title": "extra: a CoreError that escapes the run is raised instead of notified",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_the_report_of_a_skipped_error_says_so (test_s4b_03_error.AJudgmentStopsTheError.test_the_report_of_a_skipped_error_says_so)",
+   "test_a_core_error_that_escapes_the_run_is_an_error_notice_and_is_not_raised (test_s4b_03_error.ErrorNotice.test_a_core_error_that_escapes_the_run_is_an_error_notice_and_is_not_raised)"
+  ]
+ },
+ {
+  "id": "2",
+  "title": "a DAMAGED judgment claim does not stop the HALT",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_halt_after_a_damaged_judgment_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_a_damaged_judgment_is_not_sent)",
+   "test_a_damaged_judgment_stops_a_later_error_too (test_s4b_03_error.AJudgmentStopsTheError.test_a_damaged_judgment_stops_a_later_error_too)"
+  ]
+ },
+ {
+  "id": "6",
+  "title": "a HALT notice writes no missing records",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_halt_also_names_the_missing_days_of_a_day_whose_gap_is_false (test_s4b_04_text.MissingRecords.test_a_halt_also_names_the_missing_days_of_a_day_whose_gap_is_false)",
+   "test_a_halt_names_the_missing_days_that_the_s4a_text_does_not (test_s4b_04_text.MissingRecords.test_a_halt_names_the_missing_days_that_the_s4a_text_does_not)"
+  ]
+ },
+ {
+  "id": "10",
+  "title": "an exception of the sender is NOT_SENT",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 11,
+  "failing_examples": [
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success (test_s4b_02_morning_halt.Morning.test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success)",
+   "test_after_unknown_or_not_sent_a_rerun_never_sends (test_s4b_05_send_state.Answers.test_after_unknown_or_not_sent_a_rerun_never_sends)",
+   "test_every_other_answer_and_every_exception_is_unknown (test_s4b_05_send_state.Answers.test_every_other_answer_and_every_exception_is_unknown)",
+   "test_a_sender_that_fails_in_a_resend_gives_unknown_and_one_call (test_s4b_07_resend.Resend.test_a_sender_that_fails_in_a_resend_gives_unknown_and_one_call)"
+  ]
+ },
+ {
+  "id": "14",
+  "title": "the claim_id of a result is not compared with the claim's",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_result_with_a_missing_wrong_or_extra_field_is_damaged (test_s4b_05_send_state.Damage.test_a_result_with_a_missing_wrong_or_extra_field_is_damaged)"
+  ]
+ },
+ {
+  "id": "18",
+  "title": "fsync_file is not called",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 6,
+  "failing_examples": [
+   "test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send (test_s4b_06_outbox_faults.Claim.test_after_a_claim_that_was_started_a_healthy_rerun_does_not_send)",
+   "test_no_claim_means_no_send (test_s4b_06_outbox_faults.Claim.test_no_claim_means_no_send)",
+   "test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text (test_s4b_06_outbox_faults.Claim.test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text)",
+   "test_one_file_is_written_in_the_order_of_the_request_and_nothing_is_replaced_or_removed (test_s4b_06_outbox_faults.Order.test_one_file_is_written_in_the_order_of_the_request_and_nothing_is_replaced_or_removed)"
+  ]
+ },
+ {
+  "id": "E2",
+  "title": "extra: a rerun of a sent judgment is not exit 0",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_the_key_does_not_depend_on_the_target_status_of_the_run (test_s4b_02_morning_halt.Morning.test_the_key_does_not_depend_on_the_target_status_of_the_run)",
+   "test_the_same_morning_again_sends_nothing_and_changes_no_byte (test_s4b_02_morning_halt.Morning.test_the_same_morning_again_sends_nothing_and_changes_no_byte)",
+   "test_the_morning_job_in_two_to_four_processes (test_s4b_08_processes.Race.test_the_morning_job_in_two_to_four_processes)"
+  ]
+ },
+ {
+  "id": "E6",
+  "title": "extra: a result without a claim reads as NONE",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_result_without_a_claim_and_a_directory_in_the_place_of_a_file_are_damaged (test_s4b_05_send_state.Damage.test_a_result_without_a_claim_and_a_directory_in_the_place_of_a_file_are_damaged)"
+  ]
+ },
+ {
+  "id": "E10",
+  "title": "extra: morning_job does not check now",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_now_without_a_time_zone_is_refused_everywhere_and_nothing_is_touched (test_s4b_01_args_values.Arguments.test_a_now_without_a_time_zone_is_refused_everywhere_and_nothing_is_touched)"
+  ]
+ },
+ {
+  "id": "E14",
+  "title": "extra: the note of a run at the same time only for store_busy",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_the_note_of_a_run_at_the_same_time_for_the_two_codes (test_s4b_04_text.Notes.test_the_note_of_a_run_at_the_same_time_for_the_two_codes)",
+   "test_the_morning_job_in_two_to_four_processes (test_s4b_08_processes.Race.test_the_morning_job_in_two_to_four_processes)"
+  ]
+ },
+ {
+  "id": "E18",
+  "title": "extra: the S4-A text is shortened in the MORNING notice",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 4,
+  "failing_examples": [
+   "test_a_done_morning_sends_once_and_writes_an_intent_and_a_result (test_s4b_02_morning_halt.Morning.test_a_done_morning_sends_once_and_writes_an_intent_and_a_result)",
+   "test_the_s4a_text_is_inside_the_notice_unchanged_for_the_morning_and_the_halt (test_s4b_04_text.Body.test_the_s4a_text_is_inside_the_notice_unchanged_for_the_morning_and_the_halt)",
+   "test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names (test_s4b_04_text.MissingRecords.test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names)",
+   "test_a_morning_names_the_first_save_after_the_genesis_although_its_gap_is_false (test_s4b_04_text.MissingRecords.test_a_morning_names_the_first_save_after_the_genesis_although_its_gap_is_false)"
+  ]
+ },
+ {
+  "id": "E22",
+  "title": "extra: a relative root is accepted",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_root_that_is_not_an_absolute_existing_directory_is_refused_without_touching_anything (test_s4b_01_args_values.Root.test_a_root_that_is_not_an_absolute_existing_directory_is_refused_without_touching_anything)"
+  ]
+ },
+ {
+  "id": "E26",
+  "title": "extra: the claim_id is not random (a fixed value)",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_an_unknown_original_is_sent_again_once_with_one_line_in_front (test_s4b_07_resend.Resend.test_an_unknown_original_is_sent_again_once_with_one_line_in_front)",
+   "test_the_clock_is_never_read_and_secrets_gives_only_the_claim_id (test_s4b_10_static.Runtime.test_the_clock_is_never_read_and_secrets_gives_only_the_claim_id)"
+  ]
+ },
+ {
+  "id": "E30",
+  "title": "extra: the exception type name is not filtered",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_type_name_in_the_text_is_a_plain_identifier (test_s4b_03_error.ErrorNotice.test_the_type_name_in_the_text_is_a_plain_identifier)"
+  ]
+ },
+ {
+  "id": "3",
+  "title": "the target status decides the kind (and so the key) of a DONE notice",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 15,
+  "failing_examples": [
+   "test_a_judgment_can_follow_a_halt_of_the_same_day (test_s4b_02_morning_halt.Halt.test_a_judgment_can_follow_a_halt_of_the_same_day)",
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success (test_s4b_02_morning_halt.Morning.test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success)",
+   "test_the_key_does_not_depend_on_the_target_status_of_the_run (test_s4b_02_morning_halt.Morning.test_the_key_does_not_depend_on_the_target_status_of_the_run)",
+   "test_the_same_morning_again_sends_nothing_and_changes_no_byte (test_s4b_02_morning_halt.Morning.test_the_same_morning_again_sends_nothing_and_changes_no_byte)"
+  ]
+ },
+ {
+  "id": "7",
+  "title": "the note of the passed open: >= becomes >",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_note_of_the_passed_open_is_in_from_the_open_itself_and_not_one_microsecond_before (test_s4b_04_text.Notes.test_the_note_of_the_passed_open_is_in_from_the_open_itself_and_not_one_microsecond_before)"
+  ]
+ },
+ {
+  "id": "11",
+  "title": "after NOT_SENT or UNKNOWN the same run calls send once more",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 7,
+  "failing_examples": [
+   "test_a_halt_after_a_judgment_in_any_state_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_a_judgment_in_any_state_is_not_sent)",
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success (test_s4b_02_morning_halt.Morning.test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success)",
+   "test_after_unknown_or_not_sent_a_rerun_never_sends (test_s4b_05_send_state.Answers.test_after_unknown_or_not_sent_a_rerun_never_sends)",
+   "test_every_other_answer_and_every_exception_is_unknown (test_s4b_05_send_state.Answers.test_every_other_answer_and_every_exception_is_unknown)"
+  ]
+ },
+ {
+  "id": "15",
+  "title": "a resend does not look at the other resends' SENT",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_after_a_resend_that_is_unknown_another_id_can_send (test_s4b_07_resend.Resend.test_after_a_resend_that_is_unknown_another_id_can_send)",
+   "test_after_a_resend_that_was_sent_every_other_id_and_the_same_id_are_refused (test_s4b_07_resend.Resend.test_after_a_resend_that_was_sent_every_other_id_and_the_same_id_are_refused)"
+  ]
+ },
+ {
+  "id": "19",
+  "title": "the ERROR key is the UTC date of the call even when D is known",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 6,
+  "failing_examples": [
+   "test_a_damaged_judgment_stops_a_later_error_too (test_s4b_03_error.AJudgmentStopsTheError.test_a_damaged_judgment_stops_a_later_error_too)",
+   "test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day (test_s4b_03_error.AJudgmentStopsTheError.test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day)",
+   "test_the_report_of_a_skipped_error_says_so (test_s4b_03_error.AJudgmentStopsTheError.test_the_report_of_a_skipped_error_says_so)",
+   "test_a_program_error_sends_one_error_and_then_raises_the_same_object (test_s4b_03_error.ErrorNotice.test_a_program_error_sends_one_error_and_then_raises_the_same_object)"
+  ]
+ },
+ {
+  "id": "E3",
+  "title": "extra: a sent HALT is exit 0",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_stale_morning_sends_one_halt_notice_with_the_s4a_text (test_s4b_02_morning_halt.Halt.test_a_stale_morning_sends_one_halt_notice_with_the_s4a_text)",
+   "test_the_same_halt_twice_is_sent_once (test_s4b_02_morning_halt.Halt.test_the_same_halt_twice_is_sent_once)",
+   "test_a_run_error_without_a_closed_session_sends_one_error_keyed_by_the_utc_date (test_s4b_03_error.ErrorNotice.test_a_run_error_without_a_closed_session_sends_one_error_keyed_by_the_utc_date)"
+  ]
+ },
+ {
+  "id": "E7",
+  "title": "extra: a str subclass equal to SENT counts as SENT",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_every_other_answer_and_every_exception_is_unknown (test_s4b_05_send_state.Answers.test_every_other_answer_and_every_exception_is_unknown)"
+  ]
+ },
+ {
+  "id": "E11",
+  "title": "extra: KeyboardInterrupt and SystemExit of the sender are swallowed",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_keyboard_interrupt_and_a_system_exit_are_not_swallowed_and_leave_an_intent_only (test_s4b_05_send_state.Answers.test_a_keyboard_interrupt_and_a_system_exit_are_not_swallowed_and_leave_an_intent_only)"
+  ]
+ },
+ {
+  "id": "E15",
+  "title": "extra: no note for the boundary day",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_the_note_of_the_boundary_day (test_s4b_04_text.Notes.test_the_note_of_the_boundary_day)"
+  ]
+ },
+ {
+  "id": "E19",
+  "title": "extra: a resend of an original that was SENT is not refused",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_an_original_that_was_sent_is_refused (test_s4b_07_resend.Resend.test_an_original_that_was_sent_is_refused)"
+  ]
+ },
+ {
+  "id": "E23",
+  "title": "extra: a link is not refused by the root check (the reparse-point part)",
+  "status": "UNDETECTED",
+  "ran": 123,
+  "failing_count": 0,
+  "failing_examples": []
+ },
+ {
+  "id": "E27",
+  "title": "extra: the result is recorded before the send (status UNKNOWN is final)",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 35,
+  "failing_examples": [
+   "test_a_halt_after_the_judgment_of_the_same_day_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_the_judgment_of_the_same_day_is_not_sent)",
+   "test_a_halt_of_another_day_is_not_stopped_by_a_judgment_of_this_day (test_s4b_02_morning_halt.Halt.test_a_halt_of_another_day_is_not_stopped_by_a_judgment_of_this_day)",
+   "test_a_judgment_can_follow_a_halt_of_the_same_day (test_s4b_02_morning_halt.Halt.test_a_judgment_can_follow_a_halt_of_the_same_day)",
+   "test_a_stale_morning_sends_one_halt_notice_with_the_s4a_text (test_s4b_02_morning_halt.Halt.test_a_stale_morning_sends_one_halt_notice_with_the_s4a_text)"
+  ]
+ },
+ {
+  "id": "E31",
+  "title": "extra: outbox_status creates a file",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_bad_resend_request_id_d_or_kind_is_refused_before_any_file_is_read (test_s4b_01_args_values.Arguments.test_a_bad_resend_request_id_d_or_kind_is_refused_before_any_file_is_read)",
+   "test_the_status_of_a_taken_key_is_read_only (test_s4b_05_send_state.IntentOnly.test_the_status_of_a_taken_key_is_read_only)",
+   "test_the_status_lists_the_three_keys_and_every_resend_and_changes_nothing (test_s4b_07_resend.Status.test_the_status_lists_the_three_keys_and_every_resend_and_changes_nothing)"
+  ]
+ },
+ {
+  "id": "4",
+  "title": "the missing-records condition is the gap",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 5,
+  "failing_examples": [
+   "test_a_halt_also_names_the_missing_days_of_a_day_whose_gap_is_false (test_s4b_04_text.MissingRecords.test_a_halt_also_names_the_missing_days_of_a_day_whose_gap_is_false)",
+   "test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names (test_s4b_04_text.MissingRecords.test_a_morning_does_not_repeat_a_day_that_the_s4a_text_names)",
+   "test_a_morning_names_the_first_save_after_the_genesis_although_its_gap_is_false (test_s4b_04_text.MissingRecords.test_a_morning_names_the_first_save_after_the_genesis_although_its_gap_is_false)",
+   "test_a_morning_with_both_kinds_names_each_day_once (test_s4b_04_text.MissingRecords.test_a_morning_with_both_kinds_names_each_day_once)"
+  ]
+ },
+ {
+  "id": "8",
+  "title": "the ERROR text carries the text of the exception",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 4,
+  "failing_examples": [
+   "test_a_big_soxl_close_in_the_core_text_is_the_same_as_any_program_error (test_s4b_03_error.ErrorNotice.test_a_big_soxl_close_in_the_core_text_is_the_same_as_any_program_error)",
+   "test_a_program_error_sends_one_error_and_then_raises_the_same_object (test_s4b_03_error.ErrorNotice.test_a_program_error_sends_one_error_and_then_raises_the_same_object)",
+   "test_the_type_name_in_the_text_is_a_plain_identifier (test_s4b_03_error.ErrorNotice.test_the_type_name_in_the_text_is_a_plain_identifier)",
+   "test_no_path_text_or_exception_text_goes_into_a_value (test_s4b_10_static.Runtime.test_no_path_text_or_exception_text_goes_into_a_value)"
+  ]
+ },
+ {
+  "id": "12",
+  "title": "the claim is created by an overwriting write instead of create_exclusive",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 12,
+  "failing_examples": [
+   "test_after_a_claim_that_could_not_be_created_a_healthy_rerun_sends_once (test_s4b_06_outbox_faults.Claim.test_after_a_claim_that_could_not_be_created_a_healthy_rerun_sends_once)",
+   "test_an_exclusive_creation_that_finds_the_name_taken_does_not_hold_the_right (test_s4b_06_outbox_faults.Claim.test_an_exclusive_creation_that_finds_the_name_taken_does_not_hold_the_right)",
+   "test_no_claim_means_no_send (test_s4b_06_outbox_faults.Claim.test_no_claim_means_no_send)",
+   "test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text (test_s4b_06_outbox_faults.Claim.test_the_error_that_the_outbox_raises_keeps_no_context_cause_or_os_text)"
+  ]
+ },
+ {
+  "id": "16",
+  "title": "a resend whose id has an intent is made again under another name",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_the_same_id_again_is_not_sent (test_s4b_07_resend.Resend.test_the_same_id_again_is_not_sent)",
+   "test_the_same_resend_id_in_two_to_four_processes_sends_once (test_s4b_08_processes.Race.test_the_same_resend_id_in_two_to_four_processes_sends_once)"
+  ]
+ },
+ {
+  "id": "20",
+  "title": "an ERROR notice does not look for a judgment claim first",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 3,
+  "failing_examples": [
+   "test_a_damaged_judgment_stops_a_later_error_too (test_s4b_03_error.AJudgmentStopsTheError.test_a_damaged_judgment_stops_a_later_error_too)",
+   "test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day (test_s4b_03_error.AJudgmentStopsTheError.test_a_judgment_in_any_state_stops_a_later_error_of_the_same_day)",
+   "test_the_report_of_a_skipped_error_says_so (test_s4b_03_error.AJudgmentStopsTheError.test_the_report_of_a_skipped_error_says_so)"
+  ]
+ },
+ {
+  "id": "E4",
+  "title": "extra: the hash of the text is not checked when a claim is read",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged (test_s4b_05_send_state.Damage.test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged)"
+  ]
+ },
+ {
+  "id": "E8",
+  "title": "extra: the resend text has no line in front",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_resend_of_a_halt_and_of_an_error_uses_the_stored_text (test_s4b_07_resend.Resend.test_a_resend_of_a_halt_and_of_an_error_uses_the_stored_text)",
+   "test_an_unknown_original_is_sent_again_once_with_one_line_in_front (test_s4b_07_resend.Resend.test_an_unknown_original_is_sent_again_once_with_one_line_in_front)"
+  ]
+ },
+ {
+  "id": "E12",
+  "title": "extra: the result always says SENT",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 17,
+  "failing_examples": [
+   "test_a_resend_claim_that_is_not_shaped_as_a_resend_is_damaged (test_s4b_07_resend.Resend.test_a_resend_claim_that_is_not_shaped_as_a_resend_is_damaged)",
+   "test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success (test_s4b_02_morning_halt.Morning.test_a_rerun_after_an_unclear_send_is_skipped_and_is_not_a_success)",
+   "test_after_unknown_or_not_sent_a_rerun_never_sends (test_s4b_05_send_state.Answers.test_after_unknown_or_not_sent_a_rerun_never_sends)",
+   "test_every_other_answer_and_every_exception_is_unknown (test_s4b_05_send_state.Answers.test_every_other_answer_and_every_exception_is_unknown)"
+  ]
+ },
+ {
+  "id": "E16",
+  "title": "extra: the note of the passed open also for a decided target",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_no_note_of_the_passed_open_when_the_target_has_its_decision_or_is_the_last_session (test_s4b_04_text.Notes.test_no_note_of_the_passed_open_when_the_target_has_its_decision_or_is_the_last_session)"
+  ]
+ },
+ {
+  "id": "E20",
+  "title": "extra: a DAMAGED earlier resend does not refuse",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 2,
+  "failing_examples": [
+   "test_a_resend_claim_that_is_not_shaped_as_a_resend_is_damaged (test_s4b_07_resend.Resend.test_a_resend_claim_that_is_not_shaped_as_a_resend_is_damaged)",
+   "test_no_original_a_damaged_original_and_a_damaged_resend_are_refused (test_s4b_07_resend.Resend.test_no_original_a_damaged_original_and_a_damaged_resend_are_refused)"
+  ]
+ },
+ {
+  "id": "E24",
+  "title": "extra: the JSON is not written with sorted keys",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_done_morning_sends_once_and_writes_an_intent_and_a_result (test_s4b_02_morning_halt.Morning.test_a_done_morning_sends_once_and_writes_an_intent_and_a_result)"
+  ]
+ },
+ {
+  "id": "E28",
+  "title": "extra: a short write is not completed (one write only)",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 1,
+  "failing_examples": [
+   "test_a_short_write_is_completed_and_a_zero_write_is_an_error_not_a_loop (test_s4b_06_outbox_faults.Order.test_a_short_write_is_completed_and_a_zero_write_is_an_error_not_a_loop)"
+  ]
+ },
+ {
+  "id": "E32",
+  "title": "extra: a damaged original is listed as NONE",
+  "status": "DETECTED",
+  "ran": 123,
+  "failing_count": 9,
+  "failing_examples": [
+   "test_a_halt_after_a_damaged_judgment_is_not_sent (test_s4b_02_morning_halt.Halt.test_a_halt_after_a_damaged_judgment_is_not_sent)",
+   "test_a_claim_of_another_key_copied_to_the_name_is_damaged (test_s4b_05_send_state.Damage.test_a_claim_of_another_key_copied_to_the_name_is_damaged)",
+   "test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged (test_s4b_05_send_state.Damage.test_a_claim_with_a_missing_wrong_or_extra_field_is_damaged)",
+   "test_a_damaged_key_is_listed_without_an_exception (test_s4b_05_send_state.Damage.test_a_damaged_key_is_listed_without_an_exception)"
+  ]
+ }
+]

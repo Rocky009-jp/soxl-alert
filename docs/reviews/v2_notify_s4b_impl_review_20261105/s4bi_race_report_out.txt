@@ -1,0 +1,23 @@
+morning_job, 20 repetitions each
+ N=2
+    20 x sends=('halt', 'morning') halt_codes=('store_busy',) note_ok=True judgments_after_rerun=1
+ N=3
+    20 x sends=('halt', 'morning') halt_codes=('store_busy', 'store_busy') note_ok=True judgments_after_rerun=1
+ N=4
+     9 x sends=('halt', 'morning') halt_codes=('publication_stale', 'store_busy', 'store_busy') note_ok=True judgments_after_rerun=1
+    11 x sends=('halt', 'morning') halt_codes=('store_busy', 'store_busy', 'store_busy') note_ok=True judgments_after_rerun=1
+resend, the same id, 20 repetitions each
+ N=2
+    20 x sends=1 deliveries=('SENT', 'SKIPPED_CLAIMED')
+ N=3
+    20 x sends=1 deliveries=('SENT', 'SKIPPED_CLAIMED', 'SKIPPED_CLAIMED')
+ N=4
+    20 x sends=1 deliveries=('SENT', 'SKIPPED_CLAIMED', 'SKIPPED_CLAIMED', 'SKIPPED_CLAIMED')
+resend, different ids, 20 repetitions each
+ N=2
+    20 x sends=2 deliveries=('SENT', 'SENT')
+ N=3
+     1 x sends=2 deliveries=('REFUSED_ALREADY_SENT', 'SENT', 'SENT')
+    19 x sends=3 deliveries=('SENT', 'SENT', 'SENT')
+ N=4
+    20 x sends=4 deliveries=('SENT', 'SENT', 'SENT', 'SENT')

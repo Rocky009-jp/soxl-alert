@@ -1,0 +1,6 @@
+constructed: LocalOutbox()
+W1 first morning: DONE CLAIM_FAILED 1 sends 0 ['2026-03-05-morning.claim.json']
+W2 rerun: SKIPPED_CLAIMED UNKNOWN 1 sends 0
+W3 resend: CLAIM_FAILED UNKNOWN sends 0 ['2026-03-05-morning.claim.json', '2026-03-05-morning.resend-req1.claim.json']
+W4 resend another id: CLAIM_FAILED UNKNOWN sends 0
+status (OutboxEntry(2026-03-05-morning, resend=None, status=UNKNOWN), OutboxEntry(2026-03-05-morning, resend=req1, status=UNKNOWN), OutboxEntry(2026-03-05-morning, resend=req2, status=UNKNOWN))
