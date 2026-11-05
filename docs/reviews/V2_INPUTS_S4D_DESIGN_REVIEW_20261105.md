@@ -132,4 +132,4 @@ ffa3700 の作業ツリーに試行の差分を当て、trial_probes/s4d_trial.p
 
 ## 8. push後の照合
 
-PUSH_RESULT
+本文のコミット 32a8967（32a896708e8b9212ff3a5d922542e9154461c6aa）をpushした後、上の105参照を `git ls-remote` の完全SHAで照合し、105件とも一致した（付属 refs_postpush.txt）。
