@@ -25,7 +25,7 @@ e4bf50a→464ed73はM 3本（v2_run/entry.py、tests/v2_run/test_s4e_08_judgment
 
 ## 3. 実行した確認
 
-- **全スイート**：464ed73の完全な履歴のクリーンクローン（`core.autocrlf=false`）で、Python 3.12.3の20スイートを実行した（`runall_464ed73_py3.12.log`）。結果は§3.1に記す。結果は§3.1。
+- **全スイート**：464ed73の完全な履歴のクリーンクローン（`core.autocrlf=false`）で、Python 3.12.3の20スイートを実行した（`runall_464ed73_py3.12.log`）。結果は§3.1。
 - **探りZ1〜Z8**（実装レビューと同じ`s4e_review_probe.py`）を464ed73で再実行した（`probe_out_464ed73.txt`）。Z4・Z6が終了1になり、Z1〜Z3・Z5・Z8は前と同じ、Z7は1のまま。レビューの候補の差分の結果（`probe_out_n01_fix.txt`）と一致した。
 - **感度**：464ed73のentry.pyをe4bf50aのものに戻すと`UnreadableOutbox`の(1)(2)が落ち、`OK_DELIVERIES`から`SKIPPED_JUDGMENT_EXISTS`を外すと(3)が落ちた（test_s4e_08だけを3.13で実行）。実装者の欠陥注入26・27と同じ結果である。
 
