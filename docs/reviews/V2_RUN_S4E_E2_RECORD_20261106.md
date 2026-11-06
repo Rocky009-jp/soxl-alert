@@ -75,4 +75,5 @@ workflow は、ひな形 `docs/ops/V2_MORNING_WORKFLOW_TEMPLATE.yml`（2c7320f�
 
 ## 8. push の後
 
-（push 後に追記）
+- 本文のコミット 1d69569d18c09dca30aa30ac32bd77b07283b5ef を push した後：136 参照。直前の 135 参照はすべて同じ値のまま、増えたのはこの記録のブランチ 1 本だけ。
+- 非公開リポジトリ：変化なし（`main` 3019504、`v2-ledger` cc0ca2e、`v2-dry-state` aa81212、`v2-dry-outbox` e6ff990）。
