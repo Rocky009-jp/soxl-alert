@@ -155,3 +155,5 @@ CLAUDE.md §9の重大は「無通知等に影響」を含む。N-01は、通知
 - 実Windows、ユーザーPC（Python 3.10.6）、Python 3.10の全スイート、物理電源断。
 - 実際の取得先（Yahoo）・Discord・GitHubのActions・非公開リポジトリ。`queue: max`の受理、checkoutの資格情報でのpush、ブランチ保護・ルールセットの可否（E-1・E-2で確かめる）。
 - 実装者の33件の変異の再実行（独立の28件で代えた）。
+
+追記（2026-11-06）：本書の最初のpush（0dc9edc1723fb8d802e83a64ab97aff15ad1979c、docs/v2-run-s4e-impl-review-20261106）の前と後に、§6の114参照がリモートと完全SHAで一致することを確かめた（`refcheck.sh protected114.txt`、checked=114 mismatches=0）。
