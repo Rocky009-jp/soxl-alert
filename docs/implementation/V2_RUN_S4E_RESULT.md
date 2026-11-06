@@ -374,3 +374,51 @@ P20の原価目安 b*=114.00（SOXL D終値136.81÷1.2、close_split_adjusted_no
 - 欠陥注入の03・13・13bは狙いと違う試験が先に落ちた（§6）。
 - `test_s4e_01_args.py` の1行目の説明文は `S4E-02 (arguments)` のままで、引数の試験であることとずれている（挙動に影響なし。試験対象の固定を保つため直していない）。
 - 研究データのSPY・IEFが2026-08-11以降空であること（§8）。
+
+
+## 15. 追補（2026-11-06）：レビュー指摘N-01の修正
+
+レビュー（記録 83725ca、Opus 5.5・high）の通常1件N-01を、Rockyさんの「推奨どおり」（限定修正の後に受領）を受けて直した。§1〜§14は試験対象 `bb4c135` の記録で、そのまま残す。
+
+| 項目 | 値 |
+|---|---|
+| 修正の試験対象（コード・試験・手順書） | `464ed7338df9ab08680677d2bcb8726770f34aa8`（`e4bf50a` の次のコミット。受領済みパッケージ・job.py・load.py・範囲試験は変更なし） |
+| 最終（この追補のコミット） | 修正の試験対象の次の1コミット（差分はこの結果文書だけ） |
+
+**N-01（outboxが読めない朝が、通知0通で終了0になる）**：`v2_run/entry.py` の `cmd_morning` の終了コードの条件に1つ足した（321行）。
+
+```diff
+-    return 0 if (raised is None and job.delivery in OK_DELIVERIES) else 1
++    # a SKIPPED_* over an outbox that cannot be read (existing_status DAMAGED) sent nothing: a failure (E-0 review N-01)
++    delivered = job.delivery in OK_DELIVERIES and job.existing_status != DAMAGED
++    return 0 if (raised is None and delivered) else 1
+```
+
+（`DAMAGED` を `v2_notify` から追加でimport。）`existing_status` が `DAMAGED` の `SKIPPED_CLAIMED`・`SKIPPED_JUDGMENT_EXISTS` は何も送っていないので終了1。相手の鍵が `SENT` などで本当に存在するときの `SKIPPED_*` は0のまま。
+
+**試験3件**（`tests/v2_run/test_s4e_08_judgment.py` の新クラス `UnreadableOutbox`、依頼は2件のところ、探りZ4の形も足した）：
+
+- `test_a_live_morning_after_the_outbox_ref_was_deleted_sends_nothing_and_exits_1`（探りZ6の形）：liveで2朝SENTの後に `v2-outbox` の参照を消した朝→`DONE`・`SKIPPED_CLAIMED`・`existing_status: DAMAGED`・投稿0・終了1。
+- `test_a_morning_before_init_is_a_failure_too`（探りZ4の形）：initの前の朝→`SKIPPED_JUDGMENT_EXISTS`・DAMAGED・投稿0・終了1。
+- `test_a_judgment_less_notice_over_a_sent_judgment_is_skipped_and_the_exit_stays_0`（変異V06の形）：判定ありがSENTの同じDで、2回目の朝が台帳の誤りで止まり判定なしが `SKIPPED_JUDGMENT_EXISTS`（`existing_status: SENT`）→終了0。
+
+感度：修正を外すと最初の2件が、`SKIPPED_JUDGMENT_EXISTS` を終了1にする変異では3件目が落ちる。
+
+**手順書**（`docs/ops/V2_PRIVATE_RUN_GUIDE.md`、182行、sha256 `853ba1f79a6aa930877d7ee64e3b65d90a3f3b9f20d5c42e0a2735a97dfc3362`）：N-01の2行（§6 `SKIPPED` で `existing_status: DAMAGED` のときの読み方と相談、§10 `v2-*` のブランチを削除しない）、P-02（§12・E-2：`init` は日本時間9:00より後）、P-03の3か所（§1 日曜・月曜は実行自体が無い、§2 `+09:00` を付けない場合は `datetime_missing_timezone`、§9 受領版のコミットを到達できる状態に保つ）。提案P-01・P-04・P-05は、対応不要の指示のとおり行っていない。
+
+**全スイート**：`464ed73` のクリーンクローン（`core.autocrlf=false`、完全な履歴、差分なし）で、20スイートを1つずつ実行した。
+
+| Python | 件数 | 失敗 | error | skip | 終了コード（20スイート） |
+|---|---|---|---|---|---|
+| 3.10.20 | 2,889 | 0 | 0 | 4 | すべて0 |
+| 3.11.18 | 2,889 | 0 | 0 | 4 | すべて0 |
+| 3.12.3 | 2,889 | 0 | 0 | 4 | すべて0 |
+| 3.13.18 | 2,889 | 0 | 0 | 4 | すべて0 |
+
+内訳：既存19スイート2,728件＋新規 `v2_run` 161件（158＋3）。範囲試験（`test_s4e_09_scope.py`）は、変更が §2 の許可の内（`v2_run/` の `entry.py`、`tests/v2_run/`、`docs/ops/`）であるため、そのまま通っている。
+
+**欠陥注入**：`464ed73` で §6 の33件を再実行し、N-01の2件（26：N-01を戻す、27：`SKIPPED_JUDGMENT_EXISTS` を終了1にする）を足した35件。結果：**検出35、等価0、未検出0、準備失敗0**。26と27は、上の新しい試験で検出された（26は1件目、27は3件目）。
+
+**保護ref・保存**：113件は修正のpushの前後で一致（結果は報告に記す）。pushしたのは `feat/v2-run-s4e-20261105` だけで、`--force` は使っていない。
+
+**未実施**：§14のとおり（E-1以降、実Windows、ユーザーPC、物理電源断、実際の取得先・Discord・GitHub・Actions）。実Windowsは、新規N・S4-D 130・S4-C 118・S4-B 131・範囲の鎖34とともに未実施のまま。
