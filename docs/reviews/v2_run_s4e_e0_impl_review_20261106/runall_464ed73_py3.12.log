@@ -1,0 +1,21 @@
+v2_core ran=197 exit=0 OK
+v2_daily_run ran=96 exit=0 OK
+v2_git_store ran=118 exit=0 OK
+v2_history ran=230 exit=0 OK
+v2_history_adopt ran=170 exit=0 OK
+v2_history_consume ran=112 exit=0 OK
+v2_history_diagnose ran=131 exit=0 OK
+v2_history_local ran=139 exit=0 OK
+v2_history_maintain ran=184 exit=0 OK
+v2_history_ops ran=173 exit=0 OK
+v2_history_publish ran=150 exit=0 OK
+v2_history_restart ran=109 exit=0 OK
+v2_history_restore ran=165 exit=0 OK
+v2_inputs ran=130 exit=0 OK
+v2_notify ran=131 exit=0 OK
+v2_persistence ran=170 exit=0 OK
+v2_persistence_local ran=113 exit=0 OK (skipped=4)
+v2_recovery ran=176 exit=0 OK
+v2_run ran=161 exit=0 OK
+v2_scope_chain ran=34 exit=0 OK
+TOTAL ran=2889 failing_dirs=0
