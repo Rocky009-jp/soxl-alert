@@ -19,7 +19,7 @@ from v2_core.errors import CoreError
 from v2_git_store import Git, GitHistoryStore, GitOutbox
 from v2_history_publish import publish_genesis
 from v2_inputs import MarketPin, PREHISTORY_START, SYMBOLS, build_sessions, guarded_store, load_inputs
-from v2_notify import (ERROR, HALT, KINDS, MORNING, NONE, SENT, SKIPPED_CLAIMED, SKIPPED_JUDGMENT_EXISTS, morning_job,
+from v2_notify import (DAMAGED, ERROR, HALT, KINDS, MORNING, NONE, SENT, SKIPPED_CLAIMED, SKIPPED_JUDGMENT_EXISTS, morning_job,
                        outbox_status, resend)
 
 from . import check
@@ -137,7 +137,9 @@ def cmd_morning(s, rec):
     rec.add("outbox_files", files)
     if s.mode == "dry" and s.sender.texts:
         rec.block("text (dry: not sent)", s.sender.texts[-1])
-    return 0 if (raised is None and job.delivery in OK_DELIVERIES) else 1
+    # a SKIPPED_* over an outbox that cannot be read (existing_status DAMAGED) sent nothing: a failure (E-0 review N-01)
+    delivered = job.delivery in OK_DELIVERIES and job.existing_status != DAMAGED
+    return 0 if (raised is None and delivered) else 1
 
 
 def cmd_status(s, rec, d):

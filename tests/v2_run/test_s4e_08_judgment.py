@@ -68,6 +68,44 @@ class FallbackKey(H.D.Case):
         self.assertEqual(net.requests, [])
 
 
+class UnreadableOutbox(H.D.Case):
+    """E-0 review N-01: a SKIPPED_* answer over an outbox that cannot be read (existing_status DAMAGED) sent nothing, so the run
+    ends with 1; a SKIPPED_* over a judgment that really exists (SENT) stays 0."""
+
+    def test_a_live_morning_after_the_outbox_ref_was_deleted_sends_nothing_and_exits_1(self):
+        work, net = live(self)
+        self.assertEqual(work.morning(net, "live", DAY).code, 0)
+        self.assertEqual(work.morning(net, "live", "2026-07-22").code, 0)
+        posts = len(net.posts())
+        H.tgit(work.remote.path, "update-ref", "-d", "refs/heads/v2-outbox")
+        self.assertIsNone(work.remote.sha("v2-outbox"))
+        result = work.morning(net, "live", "2026-07-23")
+        self.assertEqual(result.kv["run_outcome"], "DONE")                     # the history is used up, as before
+        self.assertEqual((result.kv["delivery"], result.kv["existing_status"]), ("SKIPPED_CLAIMED", "DAMAGED"))
+        self.assertEqual(len(net.posts()), posts)                               # nothing was sent
+        self.assertEqual(result.code, 1)
+        self.assertIn("- exit_code: 1", result.text)
+
+    def test_a_morning_before_init_is_a_failure_too(self):
+        work, net = H.Work(self), H.Net(DAY)
+        result = work.morning(net, "live", DAY)
+        self.assertEqual((result.kv["delivery"], result.kv["existing_status"]), ("SKIPPED_JUDGMENT_EXISTS", "DAMAGED"))
+        self.assertEqual((net.posts(), result.code), ([], 1))
+
+    def test_a_judgment_less_notice_over_a_sent_judgment_is_skipped_and_the_exit_stays_0(self):
+        work, net = live(self)
+        first = work.morning(net, "live", DAY)
+        self.assertEqual((first.kv["delivery"], first.code), ("SENT", 0))
+        posts = len(net.posts())
+        work.put_ledger("not,a,ledger\n")                                       # the second morning of the same D stops on the ledger
+        second = work.morning(net, "live", DAY, hhmm="08:40", sync=False)
+        self.assertEqual(second.kv["run_outcome"], "STOPPED")
+        self.assertTrue(second.kv["key"].endswith("-halt"))
+        self.assertEqual((second.kv["delivery"], second.kv["existing_status"]), ("SKIPPED_JUDGMENT_EXISTS", "SENT"))
+        self.assertEqual(len(net.posts()), posts)
+        self.assertEqual(second.code, 0)
+
+
 class Resend(H.D.Case):
     def unknown_morning(self):
         work, net = live(self)
