@@ -1,0 +1,276 @@
+[
+ {
+  "id": "V00",
+  "desc": "baseline: no change",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 220
+ },
+ {
+  "id": "V01",
+  "desc": "a refused connection wrapped in URLError is UNKNOWN",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it (test_s4e_06_send.Answers.test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it)"
+  ],
+  "nfail": 1,
+  "sec": 46
+ },
+ {
+  "id": "V02",
+  "desc": "a DNS failure wrapped in URLError is UNKNOWN",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_every_row_of_the_table_for_a_one_part_text (test_s4e_06_send.Answers.test_every_row_of_the_table_for_a_one_part_text)"
+  ],
+  "nfail": 1,
+  "sec": 46
+ },
+ {
+  "id": "V03",
+  "desc": "a raw ConnectionRefusedError is UNKNOWN",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 217
+ },
+ {
+  "id": "V04",
+  "desc": "fetch: a raw ConnectionError is other",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_the_six_words (test_s4e_07_fetch.Words.test_the_six_words)"
+  ],
+  "nfail": 1,
+  "sec": 64
+ },
+ {
+  "id": "V05",
+  "desc": "fetch: no Accept header",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_the_url_the_headers_and_the_timeout (test_s4e_07_fetch.RequestShape.test_the_url_the_headers_and_the_timeout)"
+  ],
+  "nfail": 1,
+  "sec": 60
+ },
+ {
+  "id": "V06",
+  "desc": "morning: SKIPPED_JUDGMENT_EXISTS ends with 1",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 234
+ },
+ {
+  "id": "V07",
+  "desc": "morning: a raised load_inputs ends with 0 when the error was sent",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_load_inputs_raises_then_one_error_notice_and_exit_1 (test_s4e_05_inputs.TimePastTheTable.test_load_inputs_raises_then_one_error_notice_and_exit_1)"
+  ],
+  "nfail": 1,
+  "sec": 49
+ },
+ {
+  "id": "V08",
+  "desc": "check-source: end is the UTC date + 1",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_the_four_symbols_are_fetched_once_each_to_the_day_after_the_new_york_date (test_s4e_10_check_source.Normal.test_the_four_symbols_are_fetched_once_each_to_the_day_after_the_new_york_date)"
+  ],
+  "nfail": 1,
+  "sec": 135
+ },
+ {
+  "id": "V09",
+  "desc": "check-source: pin_last_close_changed compares the adjusted close",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 235
+ },
+ {
+  "id": "V10",
+  "desc": "check-source: research-only and response-only swapped",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 235
+ },
+ {
+  "id": "V11",
+  "desc": "split: >= instead of > at the join",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 244
+ },
+ {
+  "id": "V12",
+  "desc": "summary file overwritten, not appended",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_the_summary_is_appended_and_the_earlier_content_stays (test_s4e_12_record.SummaryFile.test_the_summary_is_appended_and_the_earlier_content_stays)"
+  ],
+  "nfail": 1,
+  "sec": 245
+ },
+ {
+  "id": "V13",
+  "desc": "dry also builds a DiscordSender from the env (unused)",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_a_dry_run_never_asks_for_the_secret_and_never_posts (test_s4e_12_record.EnvironmentNames.test_a_dry_run_never_asks_for_the_secret_and_never_posts)"
+  ],
+  "nfail": 1,
+  "sec": 218
+ },
+ {
+  "id": "V14",
+  "desc": "why() shows the text of an exception without a code",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_an_error_whose_code_is_not_a_text_shows_the_type_only (test_s4e_12_record.Exceptions.test_an_error_whose_code_is_not_a_text_shows_the_type_only)"
+  ],
+  "nfail": 1,
+  "sec": 244
+ },
+ {
+  "id": "V15",
+  "desc": "resend refused only when the morning is SENT",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_halt_and_error_resends_are_refused_when_the_morning_exists_in_any_state (test_s4e_08_judgment.Resend.test_halt_and_error_resends_are_refused_when_the_morning_exists_in_any_state)"
+  ],
+  "nfail": 1,
+  "sec": 94
+ },
+ {
+  "id": "V16",
+  "desc": "init: the outbox is made even when the history failed, before it",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 232
+ },
+ {
+  "id": "V17",
+  "desc": "check-source exits 0 after a failed fetch",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_the_record_of_a_morning_and_of_check_source_carry_symbol_and_word (test_s4e_07_fetch.WordsInTheRecord.test_the_record_of_a_morning_and_of_check_source_carry_symbol_and_word)"
+  ],
+  "nfail": 1,
+  "sec": 83
+ },
+ {
+  "id": "V18",
+  "desc": "check-source reads the pin of the state ref",
+  "result": "detected",
+  "failed": [
+   "ERROR: test_a_changed_last_close_and_a_table_day_missing_in_one_symbol (test_s4e_10_check_source.Findings.test_a_changed_last_close_and_a_table_day_missing_in_one_symbol)"
+  ],
+  "nfail": 1,
+  "sec": 101
+ },
+ {
+  "id": "V19",
+  "desc": "a later part refused (4xx) at index 1 is NOT_STARTED",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it (test_s4e_06_send.Answers.test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it)"
+  ],
+  "nfail": 1,
+  "sec": 47
+ },
+ {
+  "id": "V20",
+  "desc": "http status 2xx other than 200 accepted by the fetch",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_a_status_that_is_not_200_is_a_failure_with_its_digits (test_s4e_07_fetch.Limit.test_a_status_that_is_not_200_is_a_failure_with_its_digits)"
+  ],
+  "nfail": 1,
+  "sec": 77
+ },
+ {
+  "id": "V21",
+  "desc": "status reads a fresh outbox of the other mode",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)"
+  ],
+  "nfail": 1,
+  "sec": 1
+ },
+ {
+  "id": "V22",
+  "desc": "the record of outbox_files counts the state ref",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_five_mornings_are_done_and_sent_to_the_dry_sender_only (test_s4e_04_dry_run.FiveDryMornings.test_five_mornings_are_done_and_sent_to_the_dry_sender_only)"
+  ],
+  "nfail": 1,
+  "sec": 29
+ },
+ {
+  "id": "V23",
+  "desc": "the dry text block is replaced to the live heading",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_five_mornings_are_done_and_sent_to_the_dry_sender_only (test_s4e_04_dry_run.FiveDryMornings.test_five_mornings_are_done_and_sent_to_the_dry_sender_only)"
+  ],
+  "nfail": 1,
+  "sec": 26
+ },
+ {
+  "id": "V24",
+  "desc": "inspect: target_rows counts all rows",
+  "result": "survived",
+  "failed": [],
+  "nfail": 0,
+  "sec": 173
+ },
+ {
+  "id": "V25",
+  "desc": "the entry exception exits 0",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)"
+  ],
+  "nfail": 1,
+  "sec": 2
+ },
+ {
+  "id": "V26",
+  "desc": "the code_version is recorded as given",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)"
+  ],
+  "nfail": 1,
+  "sec": 1
+ },
+ {
+  "id": "V27",
+  "desc": "inspect: null rows counted in the table days that have a value",
+  "result": "detected",
+  "failed": [
+   "ERROR: test_null_rows_and_a_null_table_day (test_s4e_10_check_source.Findings.test_null_rows_and_a_null_table_day)"
+  ],
+  "nfail": 1,
+  "sec": 90
+ },
+ {
+  "id": "V28",
+  "desc": "init: a refused start_after still creates the outbox",
+  "result": "detected",
+  "failed": [
+   "FAIL: test_a_day_that_has_not_closed_yet (test_s4e_03_init.NotAccepted.test_a_day_that_has_not_closed_yet)"
+  ],
+  "nfail": 1,
+  "sec": 11
+ }
+]

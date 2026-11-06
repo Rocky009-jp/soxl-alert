@@ -1,0 +1,70 @@
+test_z1_morning_of_the_boundary_day_right_after_init (s4e_review_probe.Probes.test_z1_morning_of_the_boundary_day_right_after_init)
+init at 07:00 JST with the last closed session, then the 07:40 run of the same morning. ... 
+Z1 init 0 INITIALIZED INITIALIZED
+Z1 morning 0 {'run_outcome': 'STOPPED', 'key': '2026-07-20-halt', 'delivery': 'SENT', 'code': 'target_not_after_boundary', 'consumed': '-', 'inputs_failure': None}
+Z1 block 【SOXL日次】対象D=2026-07-20 ／判定なし
+※対象Dは記録の開始境界の日です。次のセッションから処理します。異常ではありません。
+【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-07-20 ／実行を止めました
+  今朝は結果を出していません。条件未達ではありません。前日の値や古い日付で補ってもいません。
+  理由コード: target_not_after_boundary（target_session_date）
+  この実行で保存した日: なし
+  市場状態は、保存した日までです。それより後の日は処理していません。
+Z1 next 0 {'run_outcome': 'DONE', 'key': '2026-07-21-morning', 'delivery': 'SENT', 'code': 'None', 'consumed': '2026-07-21'}
+ok
+test_z2_header_only_ledger_first_morning (s4e_review_probe.Probes.test_z2_header_only_ledger_first_morning) ... 
+Z2 0 {'run_outcome': 'DONE', 'key': '2026-07-21-morning', 'delivery': 'SENT', 'code': 'None', 'consumed': '-', 'inputs_failure': None}
+Z2 block 【SOXL日次】対象D=2026-07-21
+【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=2026-07-21 ／実行区分: F&G観測待ち
+データ: 検査済み（SOXX価格定義=adj_close_total_return、前史 2010-02-11〜2026-07-21、4134行、入力SHA256先頭12桁=5f10f707dcad）
+市場側（F&G以外の条件を含む判定）
+  極端恐怖: F&G次第（armedは不明。成立してもarmed等が不明のため参考・未確認）
+  通常買い: 不成立（市場側の条件が不成立）
+  トレンド参加: 不成立（市場側の条件が不成立）
+F&G現在値（目視）: 未記録 → 購入条件は未確定です。
+  F&Gの値による分岐（目視した値で手元判定できます。再通知はありません）
+    25未満       → 極端恐怖の条件成立（参考・未確認）
+ok
+test_z3_no_ledger_ref_first_morning (s4e_review_probe.Probes.test_z3_no_ledger_ref_first_morning) ... 
+Z3 0 {'run_outcome': 'STOPPED', 'key': '2026-07-21-halt', 'delivery': 'SENT', 'code': 'input_ledger_missing', 'consumed': '-', 'inputs_failure': 'input_ledger_missing（ledger）'}
+ok
+test_z4_morning_without_init (s4e_review_probe.Probes.test_z4_morning_without_init) ... 
+Z4 1 eb41ea2ccd36a2ee9ebce0b5ac1bad12c37b2a6a8dfd54562257a3bd4f359800
+- provenance.fetch_count: 4
+- provenance.ledger_commit: 2fe23abf8b2b50d863ac24811c185d0b27e21a19
+- provenance.market_commit: fa2a34a14e74bdd85774f8ed86856d4a96c3f019
+- provenance.market_sha256: 5f10f707dcad78bf3dd5e9e98fddba8d2bbaee3cdeff86c526795539a45cff8c
+- provenance.market_through: 2026-07-21
+- provenance.pinned_by: this
+- run_outcome: STOPPED
+- key: 2026-07-21-halt
+- delivery: SKIPPED_JUDGMENT_EXISTS
+- send_status: None
+- existing_status: DAMAGED
+- code: store_uninitialized
+- consumed: -
+- history_digest: -
+- seconds.load_inputs: 0.32
+- seconds.morning_job: 0.02
+- seconds.outbox_load: 0.01
+- outbox_files: 0
+- exit_code: 1
+ok
+test_z5_check_source_before_any_pin (s4e_review_probe.Probes.test_z5_check_source_before_any_pin) ... 
+Z5 0 None 4134 []
+ok
+test_z6_outbox_ref_deleted (s4e_review_probe.Silent.test_z6_outbox_ref_deleted) ... 
+Z6 2026-07-23 1 {'run_outcome': 'DONE', 'key': '2026-07-23-morning', 'delivery': 'SKIPPED_CLAIMED', 'existing_status': 'DAMAGED', 'code': 'None'} posts 0
+
+Z6 2026-07-24 1 {'run_outcome': 'DONE', 'key': '2026-07-24-morning', 'delivery': 'SKIPPED_CLAIMED', 'existing_status': 'DAMAGED', 'code': 'None'} posts 0
+ok
+test_z7_remote_unreachable (s4e_review_probe.Silent.test_z7_remote_unreachable) ... 
+Z7 1 {'run_outcome': 'STOPPED', 'key': '2026-07-22-halt', 'delivery': 'SKIPPED_JUDGMENT_EXISTS', 'existing_status': 'DAMAGED', 'code': 'input_git_failed', 'inputs_failure': 'input_git_failed（inputs）', 'failed': 'GitError（git_failed）'} posts 0
+ok
+test_z8_state_ref_deleted (s4e_review_probe.Silent.test_z8_state_ref_deleted) ... 
+Z8 0 {'run_outcome': 'STOPPED', 'key': '2026-07-22-halt', 'delivery': 'SENT', 'existing_status': 'None', 'code': 'store_uninitialized'} posts 1
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.075s
+
+OK

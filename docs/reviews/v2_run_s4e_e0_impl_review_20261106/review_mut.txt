@@ -1,0 +1,29 @@
+V00 survived 0 220 baseline: no change 
+V01 detected 1 46 a refused connection wrapped in URLError is UNKNOWN FAIL: test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it (test_s4e_06_send.Answers.test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it)
+V02 detected 1 46 a DNS failure wrapped in URLError is UNKNOWN FAIL: test_every_row_of_the_table_for_a_one_part_text (test_s4e_06_send.Answers.test_every_row_of_the_table_for_a_one_part_text)
+V03 survived 0 217 a raw ConnectionRefusedError is UNKNOWN 
+V04 detected 1 64 fetch: a raw ConnectionError is other FAIL: test_the_six_words (test_s4e_07_fetch.Words.test_the_six_words)
+V05 detected 1 60 fetch: no Accept header FAIL: test_the_url_the_headers_and_the_timeout (test_s4e_07_fetch.RequestShape.test_the_url_the_headers_and_the_timeout)
+V06 survived 0 234 morning: SKIPPED_JUDGMENT_EXISTS ends with 1 
+V07 detected 1 49 morning: a raised load_inputs ends with 0 when the error was sent FAIL: test_load_inputs_raises_then_one_error_notice_and_exit_1 (test_s4e_05_inputs.TimePastTheTable.test_load_inputs_raises_then_one_error_notice_and_exit_1)
+V08 detected 1 135 check-source: end is the UTC date + 1 FAIL: test_the_four_symbols_are_fetched_once_each_to_the_day_after_the_new_york_date (test_s4e_10_check_source.Normal.test_the_four_symbols_are_fetched_once_each_to_the_day_after_the_new_york_date)
+V09 survived 0 235 check-source: pin_last_close_changed compares the adjusted close 
+V10 survived 0 235 check-source: research-only and response-only swapped 
+V11 survived 0 244 split: >= instead of > at the join 
+V12 detected 1 245 summary file overwritten, not appended FAIL: test_the_summary_is_appended_and_the_earlier_content_stays (test_s4e_12_record.SummaryFile.test_the_summary_is_appended_and_the_earlier_content_stays)
+V13 detected 1 218 dry also builds a DiscordSender from the env (unused) FAIL: test_a_dry_run_never_asks_for_the_secret_and_never_posts (test_s4e_12_record.EnvironmentNames.test_a_dry_run_never_asks_for_the_secret_and_never_posts)
+V14 detected 1 244 why() shows the text of an exception without a code FAIL: test_an_error_whose_code_is_not_a_text_shows_the_type_only (test_s4e_12_record.Exceptions.test_an_error_whose_code_is_not_a_text_shows_the_type_only)
+V15 detected 1 94 resend refused only when the morning is SENT FAIL: test_halt_and_error_resends_are_refused_when_the_morning_exists_in_any_state (test_s4e_08_judgment.Resend.test_halt_and_error_resends_are_refused_when_the_morning_exists_in_any_state)
+V16 survived 0 232 init: the outbox is made even when the history failed, before it 
+V17 detected 1 83 check-source exits 0 after a failed fetch FAIL: test_the_record_of_a_morning_and_of_check_source_carry_symbol_and_word (test_s4e_07_fetch.WordsInTheRecord.test_the_record_of_a_morning_and_of_check_source_carry_symbol_and_word)
+V18 detected 1 101 check-source reads the pin of the state ref ERROR: test_a_changed_last_close_and_a_table_day_missing_in_one_symbol (test_s4e_10_check_source.Findings.test_a_changed_last_close_and_a_table_day_missing_in_one_symbol)
+V19 detected 1 47 a later part refused (4xx) at index 1 is NOT_STARTED FAIL: test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it (test_s4e_06_send.Answers.test_a_failure_of_a_later_part_is_unknown_and_nothing_follows_it)
+V20 detected 1 77 http status 2xx other than 200 accepted by the fetch FAIL: test_a_status_that_is_not_200_is_a_failure_with_its_digits (test_s4e_07_fetch.Limit.test_a_status_that_is_not_200_is_a_failure_with_its_digits)
+V21 detected 1 1 status reads a fresh outbox of the other mode FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)
+V22 detected 1 29 the record of outbox_files counts the state ref FAIL: test_five_mornings_are_done_and_sent_to_the_dry_sender_only (test_s4e_04_dry_run.FiveDryMornings.test_five_mornings_are_done_and_sent_to_the_dry_sender_only)
+V23 detected 1 26 the dry text block is replaced to the live heading FAIL: test_five_mornings_are_done_and_sent_to_the_dry_sender_only (test_s4e_04_dry_run.FiveDryMornings.test_five_mornings_are_done_and_sent_to_the_dry_sender_only)
+V24 survived 0 173 inspect: target_rows counts all rows 
+V25 detected 1 2 the entry exception exits 0 FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)
+V26 detected 1 1 the code_version is recorded as given FAIL: test_only_a_lowercase_hex_of_40_digits_is_recorded (test_s4e_01_args.CodeVersion.test_only_a_lowercase_hex_of_40_digits_is_recorded)
+V27 detected 1 90 inspect: null rows counted in the table days that have a value ERROR: test_null_rows_and_a_null_table_day (test_s4e_10_check_source.Findings.test_null_rows_and_a_null_table_day)
+V28 detected 1 11 init: a refused start_after still creates the outbox FAIL: test_a_day_that_has_not_closed_yet (test_s4e_03_init.NotAccepted.test_a_day_that_has_not_closed_yet)
