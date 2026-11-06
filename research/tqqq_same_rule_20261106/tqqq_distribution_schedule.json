@@ -1,0 +1,51 @@
+[
+ {
+  "ex_date": "2024-12-23",
+  "pay_date": "2024-12-30",
+  "amount": 0.1375,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.13804467095888065
+ },
+ {
+  "ex_date": "2025-03-26",
+  "pay_date": "2025-04-02",
+  "amount": 0.099,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.0993126419478163
+ },
+ {
+  "ex_date": "2025-06-25",
+  "pay_date": "2025-07-02",
+  "amount": 0.109,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.10930746984197769
+ },
+ {
+  "ex_date": "2025-09-24",
+  "pay_date": "2025-10-01",
+  "amount": 0.049,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.04895683618735596
+ },
+ {
+  "ex_date": "2025-12-24",
+  "pay_date": "2025-12-31",
+  "amount": 0.086,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.08609231355244891
+ },
+ {
+  "ex_date": "2026-03-25",
+  "pay_date": "2026-04-01",
+  "amount": 0.072,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.07207525661267883
+ },
+ {
+  "ex_date": "2026-06-24",
+  "pay_date": "2026-07-01",
+  "amount": 0.171,
+  "evidence": "Yahoo saved ex-date amount; pay_date proxy ex+7d",
+  "adjclose_implied": 0.17132267516359131
+ }
+]
