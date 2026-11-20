@@ -311,6 +311,19 @@ class RealDayOfThe19th(unittest.TestCase):
         self.assertEqual(new[3:], old[2:])
 
 
+    def test_the_real_day_is_one_part_and_the_first_line_is_the_first_line_of_the_message(self):
+        # the real day is about 1,000 characters: one message, whose first line (the one a phone shows) is the headline
+        result, sessions = self.rebuilt_result()
+        text = live_text(notice_of_with(result, sessions))
+        self.assertLess(len(text), LIMIT)
+        parts = split_text(text)
+        self.assertEqual(len(parts), 1)
+        lines = parts[0].split("\n")
+        self.assertEqual(lines[0], "【SOXL日次】対象D=2026-11-19 ／ 投入比率：利用可能資金の100%")
+        self.assertEqual(lines[1].split(" ")[0], "【詳細】")
+        self.assertEqual(lines[2], "▶ 投入比率：**利用可能資金の100%**（極端恐怖・確認済み、比率のみ）")
+
+
 def notice_of_with(result, sessions):
     report = done_report(display.render_message(result), display.ratio_headline(result), result.d)
     return N.compose_notice(report, sessions, NOW).text
