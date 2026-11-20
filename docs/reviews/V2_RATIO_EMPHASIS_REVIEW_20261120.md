@@ -109,5 +109,5 @@
 
 ## 6. 保護参照と変更
 
-- 開始時（2026-11-20、本レビューのクローンの直後）にリモートの全139参照を記録した（`refs_start.txt`）。クローンの各ブランチの先頭はリモートと一致した。push前後の照合は`refs_before_push.txt`・`refs_postpush.txt`（追記で記録）。
+- 開始時（2026-11-20、本レビューのクローンの直後）にリモートの全139参照を記録した（`refs_start.txt`）。クローンの各ブランチの先頭はリモートと一致した。push前（`refs_before_push.txt`）は開始時と139参照すべて一致。push後（`refs_postpush.txt`）の違いは、新しい記録ブランチ docs/v2-ratio-emphasis-impl-review-20261120＝ba071183c813bb7251470155c01bcec111ea7030 の1行が増えただけ（この照合の追記はその次のコミット）。
 - 変更：記録ブランチ docs/v2-ratio-emphasis-impl-review-20261120（090dfceから）に、この文書と付属 docs/reviews/v2_ratio_emphasis_review_20261120/ を足しただけ。製品コード・試験・実装ブランチ・資料ブランチ・main・非公開リポジトリ・workflow・設定は変更していない。写しは /mnt/project-files/reviews/。
