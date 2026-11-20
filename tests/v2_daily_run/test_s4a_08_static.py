@@ -9,7 +9,7 @@ import s4a_helpers as S
 RUNTIME = ("v2_daily_run/__init__.py", "v2_daily_run/run.py", "v2_daily_run/values.py")
 ALLOWED_ROOTS = {"datetime", "v2_core", "v2_history_ops", "v2_history_publish"}
 ALLOWED_FROM = {
-    "v2_core.display": {"render_message"},
+    "v2_core.display": {"ratio_headline", "render_message"},
     "v2_core.errors": {"CoreError"},
     "v2_core.sessions": {"SessionList"},
     "v2_history_ops": {"ALREADY_APPLIED", "NO_COMMIT", "PREPARED", "prepare_history_day", "read_effective"},

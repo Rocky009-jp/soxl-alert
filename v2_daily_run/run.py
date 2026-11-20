@@ -13,7 +13,7 @@ the report is built outside it. Any other exception is a program error and passe
 a clock, an environment variable, a file or the network, retries a save, unlocks, migrates or adopts."""
 import datetime
 
-from v2_core.display import render_message
+from v2_core.display import ratio_headline, render_message
 from v2_core.errors import CoreError
 from v2_core.sessions import SessionList
 from v2_history_ops import ALREADY_APPLIED, NO_COMMIT, PREPARED, prepare_history_day, read_effective
@@ -172,7 +172,8 @@ def _report(target_d, run, stop):
     if stop is None:
         lines = _gap_lines(run.consumed)
         message = "\n".join(lines + [render_message(run.core_result)])
-        return RunReport(DONE, target_d, run.consumed, run.target_status, message, history_digest=digest)
+        return RunReport(DONE, target_d, run.consumed, run.target_status, message, history_digest=digest,
+                         headline=ratio_headline(run.core_result))
     outcome, code, field, rule, detail = stop
     return RunReport(outcome, target_d, run.consumed, run.target_status,
                      _notice(outcome, target_d, run.consumed, code, field, detail), code, field, rule, detail,

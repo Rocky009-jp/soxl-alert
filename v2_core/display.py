@@ -1,7 +1,9 @@
 """Text for the local preview: conditional NO_SELL / P20 display, ratios only, b* reference, summary.
 
-Preview text only. Nothing here is sent anywhere. No shares, amounts, sale floor, order method or
-sale recommendation is produced, and the user's own P20 / first-entry / re-entry status is never asserted.
+Preview text only. Nothing here is sent anywhere. A day with a signal (CONDITION_MET, REFERENCE_UNCONFIRMED) also shows
+the invested ratio in one line under the run-class line (ratio_line) and as a part of the notice's first line
+(ratio_headline); both come from rule.ratio of the judgment and are ratios only. No shares, amounts, sale floor, order
+method or sale recommendation is produced, and the user's own P20 / first-entry / re-entry status is never asserted.
 """
 from decimal import ROUND_FLOOR, Decimal
 
@@ -71,6 +73,7 @@ ERROR_HINT = {
     ],
 }
 FORBIDDEN_HINT = "株数・金額は出しません。売却推奨・注文方式は出しません。"
+RATIO_SIGNAL_CLASSES = (RunClass.CONDITION_MET, RunClass.REFERENCE_UNCONFIRMED)
 
 
 def bstar(d_close, definition):
@@ -81,6 +84,43 @@ def bstar(d_close, definition):
     if not value.is_finite() or value <= 0:
         raise InputError("price_not_finite_positive", "soxl_close")
     return (value / Decimal("1.2")).quantize(Decimal("0.01"), rounding=ROUND_FLOOR)
+
+
+def ratio_emphasis(result):
+    """The rule whose invested ratio is emphasised, as (rule, confirmed), or None. Only a day with a signal
+    (CONDITION_MET, REFERENCE_UNCONFIRMED) has one; no signal, F&G not yet observed, data error, conflict and ErrorResult
+    have none. The rule is the first of the MET / UNCONFIRMED rules, as in _profile_lines; confirmed is True only for MET.
+    The ratio is rule.ratio itself (the result of the judgment), never a written-in number."""
+    if isinstance(result, ErrorResult) or result.run_class not in RATIO_SIGNAL_CLASSES:
+        return None
+    met = [r for r in result.rules.values() if r.status in (RuleStatus.MET, RuleStatus.UNCONFIRMED)]
+    if not met or type(met[0].ratio) is not int:
+        return None
+    return met[0], met[0].status is RuleStatus.MET
+
+
+def ratio_headline(result):
+    """The ratio part of the notice's first line (the text after " ／ "), or None when the day has no signal. One line."""
+    found = ratio_emphasis(result)
+    if found is None:
+        return None
+    rule, confirmed = found
+    if not confirmed:
+        return "投入比率の目安：利用可能資金の%d%%（参考・未確認）" % rule.ratio
+    tail = "（手元確認が必要）" if rule.name == "TREND" else ""
+    return "投入比率：利用可能資金の%d%%%s" % (rule.ratio, tail)
+
+
+def ratio_line(result):
+    """The line right under the run-class line of the body, or None when the day has no signal."""
+    found = ratio_emphasis(result)
+    if found is None:
+        return None
+    rule, confirmed = found
+    if not confirmed:
+        return "▶ 投入比率の目安：利用可能資金の%d%%（参考・未確認、比率のみ）" % rule.ratio
+    tail = "。0株か再参加かは手元確認" if rule.name == "TREND" else ""
+    return "▶ 投入比率：**利用可能資金の%d%%**（%s・確認済み、比率のみ%s）" % (rule.ratio, RULE_LABEL[rule.name], tail)
 
 
 def _manifest_text(meta):
@@ -180,6 +220,11 @@ def render_message(result):
     lines = [
         "【SOXL日次・ローカルプレビュー（実送信なし）】 対象D=%s ／実行区分: %s"
         % (result.d, CLASS_LABEL[result.run_class]),
+    ]
+    emphasis = ratio_line(result)
+    if emphasis is not None:
+        lines.append(emphasis)
+    lines += [
         "データ: 検査済み（SOXX価格定義=%s、前史 %s〜%s、%d行%s）"
         % (meta.get("price_definition"), meta.get("first_date"), meta.get("last_date"), meta.get("rows"),
            _manifest_text(meta)),

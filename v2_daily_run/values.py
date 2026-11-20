@@ -18,6 +18,15 @@ PUBLISH_NOT_PUBLISHED = "run_publish_not_published"
 PUBLISH_CONFLICT = "run_publish_conflict"
 
 
+HEADLINE_MAX = 80
+
+
+def _headline_ok(text):
+    """A headline is one non-empty line of printable characters (no line break of any kind), at most HEADLINE_MAX long."""
+    return (type(text) is str and 0 < len(text) <= HEADLINE_MAX and text.isprintable() and text == text.strip()
+            and len(text.splitlines()) == 1)
+
+
 class RunError(CoreError):
     """The call itself is wrong (an argument, or no session has closed yet). Raised before the store is touched."""
 
@@ -64,20 +73,23 @@ class RunReport(_Immutable):
     consumed: the days this run saved, oldest first. target_status: the day status of the target session when it was
     evaluated (None when it was not). message: the preview text (DONE: the core text; otherwise a plain notice that no
     result was produced). code / field / rule / detail: why the run stopped (None for DONE). history_digest: the digest
-    of the last history that was read or saved."""
+    of the last history that was read or saved. headline: the ratio part of the notice's first line (a DONE report of a
+    day with a signal; otherwise None). It is one line and is made by run_morning from the same judgment as the text."""
 
     _NAMES = ("outcome", "exit_code", "target_d", "consumed", "target_status", "message", "code", "field", "rule",
-              "detail", "history_digest")
+              "detail", "history_digest", "headline")
     __slots__ = _NAMES
 
     def __init__(self, outcome, target_d, consumed, target_status, message, code=None, field=None, rule=None,
-                 detail=None, history_digest=None):
+                 detail=None, history_digest=None, headline=None):
         if outcome not in OUTCOMES:
             raise ValueError("outcome")
+        if headline is not None and (outcome != DONE or not _headline_ok(headline)):
+            raise ValueError("headline")
         values = {"outcome": outcome, "exit_code": EXIT_OK if outcome == DONE else EXIT_NOT_OK,
                   "target_d": target_d, "consumed": tuple(consumed), "target_status": target_status,
                   "message": message, "code": code, "field": field, "rule": rule, "detail": detail,
-                  "history_digest": history_digest}
+                  "history_digest": history_digest, "headline": headline}
         for name in self._NAMES:
             object.__setattr__(self, name, values[name])
 

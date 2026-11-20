@@ -2,9 +2,11 @@
 
 compose_notice(report, sessions, now) makes the MORNING notice (a judgment, the run was DONE) or the HALT notice (no
 judgment, the run was STALE or STOPPED) from an S4-A RunReport. compose_error_notice makes the ERROR notice (no
-report). Parts, top to bottom: the heading, the lines about sessions without a record (any day with skipped sessions;
-in a MORNING notice only the days whose gap is false, because the S4-A text already writes the gap=true days), the notes
-(only when their condition holds), then the S4-A text, unchanged. An ERROR notice names only a fixed code and the
+report). Parts, top to bottom: the heading (in a MORNING notice of a day with a signal, followed by " ／ " and the
+ratio part that run_morning put in RunReport.headline: one line, never read out of the text), the lines about
+sessions without a record (any day with skipped sessions; in a MORNING notice only the days whose gap is false,
+because the S4-A text already writes the gap=true days), the notes (only when their condition holds), then the S4-A
+text, unchanged. An ERROR notice names only a fixed code and the
 name of the exception type: never the text of an exception, a path, a URL or a secret."""
 import datetime
 
@@ -47,7 +49,10 @@ def compose_notice(report, sessions, now):
     if not _aware(now):
         raise NotifyError(ARGS_INVALID, "now")
     if report.outcome == DONE:
-        lines = ["【SOXL日次】対象D=%s" % report.target_d]
+        first = "【SOXL日次】対象D=%s" % report.target_d
+        if report.headline is not None:
+            first += " ／ " + report.headline
+        lines = [first]
         lines += _missing_lines(report, only_without_gap=True)
         following = sessions.next(report.target_d)
         if report.target_status == NO_COMMIT_STATUS and following is not None and now >= following.open_at:
