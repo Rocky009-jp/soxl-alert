@@ -132,6 +132,17 @@ class SignalDays(unittest.TestCase):
                         continue                # the hand check the request asks for ("0株か再参加かは手元確認")
                     self.assertNotIn(word, text, (name, word))
 
+    def test_only_the_two_signal_classes_get_a_ratio_whatever_the_rules_say(self):
+        # found by defect injection: the class is checked on its own, not only through the status of the rules
+        result = RESULTS["exfear_confirmed"]
+        for run_class in (RunClass.NO_SIGNAL, RunClass.WAITING_FG, RunClass.DATA_ERROR, RunClass.CONFLICT):
+            odd = dataclasses.replace(result, run_class=run_class)
+            self.assertIsNone(display.ratio_headline(odd), run_class)
+            self.assertIsNone(display.ratio_line(odd), run_class)
+        for run_class in (RunClass.CONDITION_MET, RunClass.REFERENCE_UNCONFIRMED):
+            odd = dataclasses.replace(result, run_class=run_class)
+            self.assertIsNotNone(display.ratio_headline(odd), run_class)
+
     def test_a_missing_or_odd_ratio_adds_nothing(self):
         result = RESULTS["exfear_confirmed"]
         for bad in (None, "100", 100.0, True):
