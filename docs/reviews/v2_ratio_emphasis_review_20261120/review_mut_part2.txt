@@ -1,0 +1,5 @@
+V12 values: the headline limit is 30 characters DETECTED ['v2_ratio']
+V13 values: headline left out of equality DETECTED ['v2_ratio']
+V14 compose: an empty separator (no space) DETECTED ['v2_ratio']
+V15 display: the body line names the class instead of the rule DETECTED ['v2_ratio']
+detected 4 of 4

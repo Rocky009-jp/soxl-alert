@@ -1,0 +1,22 @@
+v2_core rc=0 ran=197 OK
+v2_daily_run rc=0 ran=96 OK
+v2_git_store rc=0 ran=118 OK
+v2_history rc=0 ran=230 OK
+v2_history_adopt rc=0 ran=170 OK
+v2_history_consume rc=0 ran=112 OK
+v2_history_diagnose rc=0 ran=131 OK
+v2_history_local rc=0 ran=139 OK
+v2_history_maintain rc=0 ran=184 OK
+v2_history_ops rc=0 ran=173 OK
+v2_history_publish rc=0 ran=150 OK
+v2_history_restart rc=0 ran=109 OK
+v2_history_restore rc=0 ran=165 OK
+v2_inputs rc=0 ran=130 OK
+v2_notify rc=0 ran=131 OK
+v2_persistence rc=0 ran=170 OK
+v2_persistence_local rc=0 ran=113 OK (skipped=4)
+v2_ratio rc=0 ran=43 OK
+v2_recovery rc=0 ran=176 OK
+v2_run rc=0 ran=161 OK
+v2_scope_chain rc=0 ran=34 OK
+TOTAL ran=2932 fail=0

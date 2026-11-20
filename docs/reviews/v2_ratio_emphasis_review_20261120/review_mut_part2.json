@@ -1,0 +1,42 @@
+[
+ {
+  "name": "V12 values: the headline limit is 30 characters",
+  "detected": true,
+  "by": [
+   "v2_ratio"
+  ],
+  "first": [
+   "ERROR: test_a_headline_is_one_short_printable_line_and_only_of_a_done_report (test_ratio_01_texts.RunReportHeadline.test_a_headline_is_one_short_printable_line_and_only_of_a_done_report)"
+  ]
+ },
+ {
+  "name": "V13 values: headline left out of equality",
+  "detected": true,
+  "by": [
+   "v2_ratio"
+  ],
+  "first": [
+   "FAIL: test_the_default_is_none_and_the_value_is_part_of_equality (test_ratio_01_texts.RunReportHeadline.test_the_default_is_none_and_the_value_is_part_of_equality)"
+  ]
+ },
+ {
+  "name": "V14 compose: an empty separator (no space)",
+  "detected": true,
+  "by": [
+   "v2_ratio"
+  ],
+  "first": [
+   "FAIL: test_a_signal_day_is_the_old_text_plus_the_two_lines_and_nothing_else (test_ratio_01_texts.DaysWithoutEmphasis.test_a_signal_day_is_the_old_text_plus_the_two_lines_and_nothing_else)"
+  ]
+ },
+ {
+  "name": "V15 display: the body line names the class instead of the rule",
+  "detected": true,
+  "by": [
+   "v2_ratio"
+  ],
+  "first": [
+   "FAIL: test_a_signal_day_is_the_old_text_plus_the_two_lines_and_nothing_else (test_ratio_01_texts.DaysWithoutEmphasis.test_a_signal_day_is_the_old_text_plus_the_two_lines_and_nothing_else)"
+  ]
+ }
+]

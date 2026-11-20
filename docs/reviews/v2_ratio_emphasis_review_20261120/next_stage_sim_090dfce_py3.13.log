@@ -1,0 +1,17 @@
+19:END = "090dfcee60472f75acd4eb3f253e1d34e3b0cf04"   # frozen
+--- (a) END frozen, no next open range
+[scope_chain]
+FAIL: test_an_open_range_that_is_not_last_is_rejected (test_sc_02_chain.ChainJudge.test_an_open_range_that_is_not_last_is_rejected)
+FAIL: test_two_open_ranges_are_rejected (test_sc_02_chain.ChainJudge.test_two_open_ranges_are_rejected)
+Ran 34 tests in 2.873s
+FAILED (failures=2)
+[ratio_02]
+Ran 15 tests in 1.120s
+OK
+--- (b) END frozen and the next open range added
+[scope_chain]
+Ran 34 tests in 3.034s
+OK
+[ratio_02]
+Ran 15 tests in 1.086s
+OK
